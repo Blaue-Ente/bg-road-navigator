@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  EUROPEAN_CITIES,
-  REGION_LABELS,
-  type EuropeanRegion,
-} from "@/lib/constants/european-cities";
+import { getCityById } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { useRouteStore } from "@/lib/stores/route.store";
 import {
@@ -16,22 +12,19 @@ import {
 } from "@/lib/utils/route-planner";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
-import type { Route } from "@/types/route.types";
-
-const REGIONS = Object.keys(REGION_LABELS) as EuropeanRegion[];
+import { LocationSearchInput } from "@/components/route/LocationSearchInput";
+import type { Route, RoutePoint } from "@/types/route.types";
 
 async function fetchRoute(params: {
   corridorId?: string;
-  originId?: string;
-  destinationId?: string;
+  points?: RoutePoint[];
 }): Promise<Route | null> {
   const response = await fetch("/api/route", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       corridor_id: params.corridorId,
-      origin_id: params.originId,
-      destination_id: params.destinationId,
+      points: params.points,
     }),
   });
 
@@ -39,13 +32,30 @@ async function fetchRoute(params: {
   return response.json();
 }
 
+function toRoutePoint(cityId: string): RoutePoint | null {
+  const city = getCityById(cityId);
+  if (!city) return null;
+
+  return {
+    id: city.id,
+    label: city.label,
+    subtitle: city.country,
+    coords: city.coords,
+    source: "curated",
+  };
+}
+
 export default function RoutePage() {
   const { activeRoute, setActiveRoute, clearRoute } = useRouteStore();
-  const [originLabel, setOriginLabel] = useState(
-    activeRoute?.origin.label ?? "Лондон"
+  const [origin, setOrigin] = useState<RoutePoint | null>(() =>
+    activeRoute
+      ? { ...activeRoute.origin, source: "user" }
+      : toRoutePoint("london")
   );
-  const [destLabel, setDestLabel] = useState(
-    activeRoute?.destination.label ?? "София"
+  const [destination, setDestination] = useState<RoutePoint | null>(() =>
+    activeRoute
+      ? { ...activeRoute.destination, source: "user" }
+      : toRoutePoint("sofia")
   );
   const [selectedCorridor, setSelectedCorridor] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -57,12 +67,10 @@ export default function RoutePage() {
     if (!corridor) return;
 
     setSelectedCorridor(corridorId);
-    const first = EUROPEAN_CITIES.find((c) => c.id === corridor.cityIds[0]);
-    const last = EUROPEAN_CITIES.find(
-      (c) => c.id === corridor.cityIds[corridor.cityIds.length - 1]
-    );
-    if (first) setOriginLabel(first.label);
-    if (last) setDestLabel(last.label);
+    const first = toRoutePoint(corridor.cityIds[0]!);
+    const last = toRoutePoint(corridor.cityIds[corridor.cityIds.length - 1]!);
+    if (first) setOrigin(first);
+    if (last) setDestination(last);
     setRouteBorders(corridor.borderIds);
   };
 
@@ -70,17 +78,15 @@ export default function RoutePage() {
     setCalculating(true);
     setRouteError(null);
 
-    const origin = EUROPEAN_CITIES.find((c) => c.label === originLabel);
-    const dest = EUROPEAN_CITIES.find((c) => c.label === destLabel);
-
-    if (!corridorId && (!origin || !dest)) {
+    if (!corridorId && (!origin || !destination)) {
       setCalculating(false);
-      setRouteError("Изберете валидни градове.");
+      setRouteError("Изберете начална и крайна точка от резултатите.");
       return;
     }
 
-    if (!corridorId && origin?.id === dest?.id) {
+    if (!corridorId && origin?.id === destination?.id) {
       setCalculating(false);
+      setRouteError("Началната и крайната точка трябва да са различни.");
       return;
     }
 
@@ -98,8 +104,7 @@ export default function RoutePage() {
 
     const route = await fetchRoute({
       corridorId: corridorId ?? undefined,
-      originId: origin?.id,
-      destinationId: dest?.id,
+      points: corridorId ? undefined : [origin!, destination!],
     });
 
     if (!route) {
@@ -123,7 +128,7 @@ export default function RoutePage() {
       <div className="mx-auto max-w-2xl">
         <PageHeader
           title="Планиране на маршрут"
-          subtitle="Реални пътни разстояния (OSRM) · Европа, включително 30+ часа"
+          subtitle="Въведете град, адрес, хотел или друга точка в Европа"
         />
 
         <section className="mb-6">
@@ -146,57 +151,32 @@ export default function RoutePage() {
         </section>
 
         <WazeCard className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-[var(--waze-text-secondary)]">
-              Откъде
-            </label>
-            <select
-              value={originLabel}
-              onChange={(e) => {
-                setOriginLabel(e.target.value);
-                setSelectedCorridor(null);
-              }}
-              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)] outline-none focus:border-[var(--waze-accent)]"
-            >
-              {REGIONS.map((region) => (
-                <optgroup key={region} label={REGION_LABELS[region]}>
-                  {EUROPEAN_CITIES.filter((c) => c.region === region).map(
-                    (city) => (
-                      <option key={city.id} value={city.label}>
-                        {city.label}, {city.country}
-                      </option>
-                    )
-                  )}
-                </optgroup>
-              ))}
-            </select>
-          </div>
+          <LocationSearchInput
+            id="origin"
+            label="Откъде"
+            value={origin}
+            placeholder="Напр. Berlin Hbf, Мюнхен или адрес"
+            onSelect={(place) => {
+              setOrigin(place);
+              setSelectedCorridor(null);
+            }}
+          />
 
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-[var(--waze-text-secondary)]">
-              Накъде
-            </label>
-            <select
-              value={destLabel}
-              onChange={(e) => {
-                setDestLabel(e.target.value);
-                setSelectedCorridor(null);
-              }}
-              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)] outline-none focus:border-[var(--waze-accent)]"
-            >
-              {REGIONS.map((region) => (
-                <optgroup key={region} label={REGION_LABELS[region]}>
-                  {EUROPEAN_CITIES.filter((c) => c.region === region).map(
-                    (city) => (
-                      <option key={city.id} value={city.label}>
-                        {city.label}, {city.country}
-                      </option>
-                    )
-                  )}
-                </optgroup>
-              ))}
-            </select>
-          </div>
+          <LocationSearchInput
+            id="destination"
+            label="Накъде"
+            value={destination}
+            placeholder="Напр. София, хотел или точен адрес"
+            onSelect={(place) => {
+              setDestination(place);
+              setSelectedCorridor(null);
+            }}
+          />
+
+          <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
+            Изберете резултат от търсенето, за да използвате точни координати.
+            Поддържат се адреси, градове, хотели и пътни обекти в Европа.
+          </p>
 
           {routeError && (
             <p className="text-sm text-red-400">{routeError}</p>
@@ -204,7 +184,13 @@ export default function RoutePage() {
 
           <button
             onClick={() => runCalculation(selectedCorridor)}
-            disabled={calculating || (!selectedCorridor && originLabel === destLabel)}
+            disabled={
+              calculating ||
+              (!selectedCorridor &&
+                (!origin ||
+                  !destination ||
+                  origin.id === destination.id))
+            }
             className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
           >
             {calculating ? "Изчисляване по пътища..." : "Изчисли маршрут"}

@@ -2,9 +2,9 @@
  * Route building — shared between API and client fallback
  */
 
-import { getCityById, type EuropeanCity } from "@/lib/constants/european-cities";
+import { getCityById } from "@/lib/constants/european-cities";
 import { getCorridorById } from "@/lib/utils/route-planner";
-import type { Route, RouteWaypoint } from "@/types/route.types";
+import type { Route, RoutePoint, RouteWaypoint } from "@/types/route.types";
 
 const ROAD_FACTOR = 1.28;
 const AVG_SPEED_KMH = 85;
@@ -12,7 +12,7 @@ const AVG_SPEED_KMH = 85;
 export type RoutingSource = "osrm" | "estimate";
 
 export interface RouteBuildInput {
-  cities: EuropeanCity[];
+  points: RoutePoint[];
   corridorId?: string;
 }
 
@@ -38,15 +38,17 @@ function haversineKm(
   return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
-function estimateMetrics(cities: EuropeanCity[]): Omit<RouteMetrics, "routing_source"> {
+function estimateMetrics(
+  points: RoutePoint[]
+): Omit<RouteMetrics, "routing_source"> {
   let straightDistance = 0;
-  const coordinates: [number, number][] = cities.map((c) => [
-    c.coords.lng,
-    c.coords.lat,
+  const coordinates: [number, number][] = points.map((point) => [
+    point.coords.lng,
+    point.coords.lat,
   ]);
 
-  for (let i = 1; i < cities.length; i++) {
-    straightDistance += haversineKm(cities[i - 1]!.coords, cities[i]!.coords);
+  for (let i = 1; i < points.length; i++) {
+    straightDistance += haversineKm(points[i - 1]!.coords, points[i]!.coords);
   }
 
   const roadDistance = straightDistance * ROAD_FACTOR;
@@ -62,9 +64,9 @@ export function buildEstimatedRoute(
   input: RouteBuildInput,
   overrides?: Partial<RouteMetrics>
 ): Route & { routing_source: RoutingSource; corridor_id?: string } {
-  const { cities, corridorId } = input;
+  const { points, corridorId } = input;
   const corridor = corridorId ? getCorridorById(corridorId) : undefined;
-  const estimated = estimateMetrics(cities);
+  const estimated = estimateMetrics(points);
 
   const distance_km = overrides?.distance_km ?? estimated.distance_km;
   let duration_min = overrides?.duration_min ?? estimated.duration_min;
@@ -76,7 +78,7 @@ export function buildEstimatedRoute(
   const geometry = overrides?.geometry ?? estimated.geometry;
   const routing_source = overrides?.routing_source ?? "estimate";
 
-  const waypoints: RouteWaypoint[] = cities
+  const waypoints: RouteWaypoint[] = points
     .slice(1, -1)
     .map((city) => ({
       id: city.id,
@@ -84,8 +86,8 @@ export function buildEstimatedRoute(
       coords: city.coords,
     }));
 
-  const origin = cities[0]!;
-  const destination = cities[cities.length - 1]!;
+  const origin = points[0]!;
+  const destination = points[points.length - 1]!;
 
   return {
     id: `route-${Date.now()}`,
@@ -105,8 +107,15 @@ export function buildEstimatedRoute(
   };
 }
 
-export function resolveCitiesFromIds(cityIds: string[]): EuropeanCity[] {
+export function resolveRoutePointsFromCityIds(cityIds: string[]): RoutePoint[] {
   return cityIds
     .map((id) => getCityById(id))
-    .filter((c): c is EuropeanCity => Boolean(c));
+    .filter((city): city is NonNullable<typeof city> => Boolean(city))
+    .map((city) => ({
+      id: city.id,
+      label: city.label,
+      subtitle: city.country,
+      coords: city.coords,
+      source: "curated" as const,
+    }));
 }
