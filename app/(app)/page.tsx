@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { Map } from "maplibre-gl";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { formatDuration } from "@/lib/utils/route-planner";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { useTraffic } from "@/lib/hooks/useTraffic";
 import { useCommunityStore } from "@/lib/stores/community.store";
@@ -63,7 +64,8 @@ export default function MapPage() {
                 </p>
                 {activeRoute && (
                   <p className="text-xs text-gray-400">
-                    {activeRoute.distance_km} км · ~{activeRoute.duration_min} мин
+                    {activeRoute.distance_km} км · {formatDuration(activeRoute.duration_min)}
+                    {activeRoute.routing_source === "osrm" ? " · OSRM" : ""}
                   </p>
                 )}
               </div>

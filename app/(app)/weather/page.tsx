@@ -108,6 +108,19 @@ export default function WeatherPage() {
           />
         ))}
       </div>
+
+      <p className="mt-8 text-center text-xs text-gray-500">
+        Прогноза от{" "}
+        <a
+          href="https://open-meteo.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:text-blue-300"
+        >
+          Open-Meteo
+        </a>{" "}
+        (CC BY 4.0) — безплатна open-source услуга
+      </p>
     </div>
   );
 }

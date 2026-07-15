@@ -30,6 +30,9 @@ export function Sidebar() {
           </div>
 
           <nav className="space-y-2">
+            <Link href="/tips" className="block rounded px-3 py-2 text-gray-200 hover:bg-gray-800">
+              💡 Съвети
+            </Link>
             <Link href="/weather" className="block rounded px-3 py-2 text-gray-200 hover:bg-gray-800">
               🌤️ Време
             </Link>

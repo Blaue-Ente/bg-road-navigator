@@ -10,7 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "БГ Пътен Навигатор",
-  description: "Комплексен помощник за пътуване до България",
+  description:
+    "Пътен помощник за българи, пътуващи в цяла Европа — маршрути, граници, трафик, гориво, EV, време и почивки",
   manifest: "/manifest.json",
 };
 

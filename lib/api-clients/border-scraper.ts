@@ -1,54 +1,123 @@
 /**
- * Border Wait Time Scraper / Aggregator
- * Fetches border crossing data from public sources
+ * Border status — Nakordoni live queues (optional) + historical fallback
+ * Supports all European crossings (BG + transit borders)
  */
 
-import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
+import {
+  getAllEuropeanCrossings,
+  getCrossingsByIds,
+  getCrossingsByRegion,
+  getCrossingsForCorridor,
+  type EuropeanBorderRegion,
+} from "@/lib/constants/european-borders";
+import type { BorderCrossing } from "@/lib/constants/border-crossings";
+import {
+  fetchNakordoniQueues,
+  type NakordoniQueueData,
+} from "@/lib/api-clients/nakordoni";
+import { getNakordoniPageUrl } from "@/lib/constants/nakordoni-checkpoints";
 import type { BorderStatus } from "@/types/border.types";
 
-const BORDER_API_URL = "https://api.granicata.bg"; // Hypothetical endpoint
+export interface BorderFetchOptions {
+  crossingId?: string;
+  region?: EuropeanBorderRegion;
+  corridorId?: string;
+  borderIds?: string[];
+}
+
+function waitToStatus(waitMinutes: number): BorderStatus["status"] {
+  if (waitMinutes < 30) return "green";
+  if (waitMinutes < 60) return "yellow";
+  if (waitMinutes < 120) return "orange";
+  return "red";
+}
+
+function resolveCrossings(options: BorderFetchOptions): BorderCrossing[] {
+  if (options.crossingId) {
+    return getAllEuropeanCrossings().filter((c) => c.id === options.crossingId);
+  }
+  if (options.borderIds?.length) {
+    return getCrossingsByIds(options.borderIds);
+  }
+  if (options.corridorId) {
+    return getCrossingsForCorridor(options.corridorId);
+  }
+  if (options.region && options.region !== "all") {
+    return getCrossingsByRegion(options.region);
+  }
+  return getAllEuropeanCrossings();
+}
+
+function buildFallbackStatus(crossing: BorderCrossing): BorderStatus {
+  const hour = new Date().getHours();
+  const baseWait = crossing.typical_wait_minutes[hour] ?? 30;
+  const waitCars = Math.round(baseWait);
+
+  return {
+    crossing_id: crossing.id,
+    name_bg: crossing.name_bg,
+    name_en: crossing.name_en,
+    country_pair: crossing.country_pair,
+    coords: crossing.coords,
+    wait_time_cars: waitCars,
+    wait_time_trucks: Math.round(waitCars * 1.5),
+    wait_time_buses: Math.round(waitCars * 1.2),
+    avg_wait_by_hour: crossing.typical_wait_minutes,
+    working_hours: crossing.working_hours,
+    status: waitToStatus(waitCars),
+    last_updated: new Date().toISOString(),
+    nakordoni_url: getNakordoniPageUrl(crossing.id) ?? undefined,
+    data_source: "estimate",
+    region: crossing.region,
+  };
+}
+
+function mergeNakordoni(
+  crossing: BorderCrossing,
+  live: NakordoniQueueData | undefined
+): BorderStatus {
+  const waitCars =
+    live?.waitMinutes ??
+    crossing.typical_wait_minutes[new Date().getHours()] ??
+    30;
+
+  return {
+    crossing_id: crossing.id,
+    name_bg: crossing.name_bg,
+    name_en: crossing.name_en,
+    country_pair: crossing.country_pair,
+    coords: crossing.coords,
+    wait_time_cars: waitCars,
+    wait_time_trucks: Math.round(waitCars * 1.4),
+    wait_time_buses: Math.round(waitCars * 1.15),
+    avg_wait_by_hour: crossing.typical_wait_minutes,
+    working_hours: crossing.working_hours,
+    status: waitToStatus(waitCars),
+    last_updated: live?.updatedAt ?? new Date().toISOString(),
+    queue_length: live?.queueLength,
+    nakordoni_url: getNakordoniPageUrl(crossing.id) ?? undefined,
+    nakordoni_ppid: live?.ppid,
+    data_source: live ? "nakordoni" : "estimate",
+    region: crossing.region,
+  };
+}
 
 export async function fetchBorderStatus(
-  crossingId?: string
+  options: BorderFetchOptions = {}
 ): Promise<BorderStatus[]> {
-  // In a real implementation, this would call actual border APIs
-  // For now, we'll return mock data with realistic wait times
+  const liveQueues = await fetchNakordoniQueues();
+  const queueByCrossing = Object.fromEntries(
+    liveQueues.map((q) => [q.crossingId, q])
+  );
 
-  const results: BorderStatus[] = BORDER_CROSSINGS.map((crossing, index) => {
-    const now = new Date();
-    const hour = now.getHours();
-    const waitMinutes = crossing.typical_wait_minutes[hour] ?? 30;
-    
-    // Simulate some variation
-    const actualWait = waitMinutes + (Math.random() * 20 - 10);
-    
-    let status: "green" | "yellow" | "orange" | "red";
-    if (actualWait < 30) status = "green";
-    else if (actualWait < 60) status = "yellow";
-    else if (actualWait < 120) status = "orange";
-    else status = "red";
+  const hasLiveData = liveQueues.length > 0;
+  const crossings = resolveCrossings(options);
 
-    return {
-      crossing_id: crossing.id,
-      name_bg: crossing.name_bg,
-      name_en: crossing.name_en,
-      country_pair: crossing.country_pair,
-      coords: crossing.coords,
-      wait_time_cars: Math.round(actualWait),
-      wait_time_trucks: Math.round(actualWait * 1.5),
-      wait_time_buses: Math.round(actualWait * 1.2),
-      avg_wait_by_hour: crossing.typical_wait_minutes,
-      working_hours: crossing.working_hours,
-      status,
-      last_updated: now.toISOString(),
-      webcam_urls: crossing.webcam_urls,
-    };
+  return crossings.map((crossing) => {
+    const live = queueByCrossing[crossing.id];
+    if (hasLiveData) {
+      return mergeNakordoni(crossing, live);
+    }
+    return buildFallbackStatus(crossing);
   });
-
-  // Filter by specific crossing if requested
-  if (crossingId) {
-    return results.filter((b) => b.crossing_id === crossingId);
-  }
-
-  return results;
 }

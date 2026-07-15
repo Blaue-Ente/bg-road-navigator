@@ -24,6 +24,8 @@ export interface Route {
   duration_min: number;
   geometry: GeoJSON.LineString;
   alternatives: RouteAlternative[];
+  routing_source?: "osrm" | "estimate";
+  corridor_id?: string;
 }
 
 export interface RouteAlternative {
