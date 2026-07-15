@@ -50,6 +50,46 @@ npm run start  # production сървър
 npm run lint   # ESLint
 ```
 
-## Деплой
+## Деплой на Railway
 
-Оптимизирано за Vercel — свържете GitHub repo и задайте environment variables.
+Проектът е конфигуриран за [Railway](https://railway.app). Файлът `railway.toml` задава build и health check.
+
+### 1. Създай проект
+
+1. Влез в [railway.app](https://railway.app) → **New Project**
+2. **Deploy from GitHub repo** → избери `bg-road-navigator`
+3. Railway автоматично засича Next.js и пуска `npm run build` + `npm run start`
+
+### 2. Environment variables
+
+В **Project → Variables** добави (копирай от `.env.example`):
+
+| Променлива | Задължителна | Описание |
+|------------|--------------|----------|
+| `NEXT_PUBLIC_APP_URL` | Да | Публичният URL на услугата, напр. `https://bg-navigator.up.railway.app` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Не | Supabase auth |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Не | Supabase anon key |
+| `TOMTOM_API_KEY` | Не | Реален трафик |
+| `OPENWEATHER_API_KEY` | Не | Реална прогноза |
+| `OPENCHARGE_API_KEY` | Не | EV станции |
+
+Railway задава `PORT` автоматично — не го променяй.
+
+### 3. Публичен домейн
+
+1. **Settings → Networking → Generate Domain**
+2. Обнови `NEXT_PUBLIC_APP_URL` с новия Railway URL
+3. Ако ползваш Supabase auth, добави същия URL в **Supabase → Authentication → Redirect URLs**
+
+### 4. Локален тест на production build
+
+```bash
+npm run build
+PORT=3000 npm run start
+```
+
+### Бележки
+
+- Картата (MapLibre) работи без API ключ
+- Health check: `GET /` (зададен в `railway.toml`)
+- За custom домейн: Railway → Settings → Custom Domain → CNAME към Railway
