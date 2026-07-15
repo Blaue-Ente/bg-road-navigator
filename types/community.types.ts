@@ -5,6 +5,7 @@
 // Community pin data
 export interface CommunityPin {
   id: string;
+  user_id?: string | null;
   category: "police" | "accident" | "hazard" | "road_works" | "traffic_jam" | "fuel_issue" | "border_info" | "rest_area" | "point_of_interest" | "other";
   title: string;
   description: string | null;
@@ -21,7 +22,7 @@ export interface PinComment {
   pin_id: string;
   body: string;
   created_at: string;
-}}
+}
 
 export interface CommunityState {
   pins: CommunityPin[];

@@ -1,3 +1,5 @@
+import type { EVStation } from "@/types/fuel.types";
+
 interface EVChargerCardProps {
   station: EVStation;
   onSelect?: (station: EVStation) => void;

@@ -33,13 +33,15 @@ export async function fetchBorderStatus(
       name_bg: crossing.name_bg,
       name_en: crossing.name_en,
       country_pair: crossing.country_pair,
+      coords: crossing.coords,
       wait_time_cars: Math.round(actualWait),
       wait_time_trucks: Math.round(actualWait * 1.5),
       wait_time_buses: Math.round(actualWait * 1.2),
       avg_wait_by_hour: crossing.typical_wait_minutes,
       working_hours: crossing.working_hours,
       status,
-      last_updated: now.toISOString()
+      last_updated: now.toISOString(),
+      webcam_urls: crossing.webcam_urls,
     };
   });
 

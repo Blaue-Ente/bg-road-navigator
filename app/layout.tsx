@@ -1,17 +1,25 @@
+import type { Metadata, Viewport } from "next";
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
+import { Providers } from "@/components/providers/Providers";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "БГ Пътен Навигатор",
-  description: "Комплексен съдържание за пътуване в България",
+  description: "Комплексен помощник за пътуване до България",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: "#1B4F72",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -29,7 +37,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className={`${inter.variable} bg-black text-white min-h-screen`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

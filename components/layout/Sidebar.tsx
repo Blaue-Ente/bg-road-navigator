@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 export function Sidebar() {
@@ -29,18 +30,18 @@ export function Sidebar() {
           </div>
 
           <nav className="space-y-2">
-            <a href="/weather" className="block px-3 py-2 text-gray-200 hover:bg-gray-800 rounded">
+            <Link href="/weather" className="block rounded px-3 py-2 text-gray-200 hover:bg-gray-800">
               🌤️ Време
-            </a>
-            <a href="/community" className="block px-3 py-2 text-gray-200 hover:bg-gray-800 rounded">
+            </Link>
+            <Link href="/community" className="block rounded px-3 py-2 text-gray-200 hover:bg-gray-800">
               📍 Общност
-            </a>
-            <a href="/hotels" className="block px-3 py-2 text-gray-200 hover:bg-gray-800 rounded">
+            </Link>
+            <Link href="/hotels" className="block rounded px-3 py-2 text-gray-200 hover:bg-gray-800">
               🏨 Хотели
-            </a>
-            <a href="/profile" className="block px-3 py-2 text-gray-200 hover:bg-gray-800 rounded">
+            </Link>
+            <Link href="/profile" className="block rounded px-3 py-2 text-gray-200 hover:bg-gray-800">
               👤 Профил
-            </a>
+            </Link>
           </nav>
         </div>
       )}

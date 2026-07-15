@@ -1,7 +1,7 @@
 "use client";
 
+import { useState } from "react";
 import { useCommunityStore } from "@/lib/stores/community.store";
-import { PinCategorySelector } from "@/components/community/PinCategorySelector";
 
 export function CommentThread({ pinId }: { pinId: string }) {
   const communityStore = useCommunityStore();
@@ -15,9 +15,8 @@ export function CommentThread({ pinId }: { pinId: string }) {
       addComment({
         id: crypto.randomUUID(),
         pin_id: pinId,
-        user_id: "current-user",
         body: newComment.trim(),
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       });
       setNewComment("");
     }

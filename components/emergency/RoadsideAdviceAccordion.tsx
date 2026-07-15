@@ -10,7 +10,7 @@ export function RoadsideAdviceAccordion({ adviceSections }: RoadsideAdviceAccord
   return (
     <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
       <h2 className="text-xl font-bold mb-4">Какво да правите при пътни възпроизшествия</h2>
-      <Accordion type="single" collapsible={false}>
+      <Accordion>
         {adviceSections.map((section, idx) => (
           <AccordionItem key={idx} value={section.title}>
             <AccordionTrigger className="w-full text-left text-sm font-medium">

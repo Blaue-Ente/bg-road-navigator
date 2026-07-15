@@ -37,10 +37,14 @@ export default function WeatherPage() {
       // Add mountain passes if route crosses them (simplified check)
       points.push(...MOUNTAIN_PASSES.map(p => p.coords));
       
-      setRoutePoints([...new Set(points.map(p => `${p.lng},${p.lat}`)).map(s => {
+      const unique = Array.from(
+        new Set(points.map((p) => `${p.lng},${p.lat}`))
+      ).map((s) => {
         const [lng, lat] = s.split(",").map(Number);
         return { lng, lat };
-      })]);
+      });
+
+      setRoutePoints(unique);
     }
   }, [activeRoute]);
 

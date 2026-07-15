@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EMERGENCY_DATA } from "@/lib/constants/emergency-numbers";
 import { CountryEmergencyCard } from "@/components/emergency/CountryEmergencyCard";
 import { RoadsideAdviceAccordion } from "@/components/emergency/RoadsideAdviceAccordion";
 import { RecommendedGarageCard } from "@/components/emergency/RecommendedGarageCard";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 const ROADSIDE_ADVICE = [
   {

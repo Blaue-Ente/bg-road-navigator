@@ -30,8 +30,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    const zoomLevel = parsed.data.zoom ?? 12;
+
     const [flow, incidents] = await Promise.all([
-      getTrafficFlow(boundingBox, zoom ?? 12),
+      getTrafficFlow(boundingBox, zoomLevel),
       getTrafficIncidents(boundingBox),
     ]);
 

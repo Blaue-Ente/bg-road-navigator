@@ -5,11 +5,9 @@ import { BorderCard } from "@/components/borders/BorderCard";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
 import { BorderWebcam } from "@/components/borders/BorderWebcam";
 import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
-import { useCommunityStore } from "@/lib/stores/community.store";
 
 export default function BorderPage() {
   const { data: borderStatus, isLoading, error } = useBorderStatus();
-  const communityStore = useCommunityStore();
 
   if (isLoading) {
     return (

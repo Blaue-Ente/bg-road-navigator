@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { GeoPoint, RouteWaypoint } from "@/types/route.types";
+import type { CommunityPin } from "@/types/community.types";
 
 export interface PendingPin {
   id: string;
@@ -10,13 +10,21 @@ export interface PendingPin {
 }
 
 export interface MapState {
-  viewport: any | null; // Mapbox GL Viewport type
   isLocating: boolean;
   pendingPin: PendingPin | null;
-  selectedPin: any | null; // could be CommunityPin
-  setViewport: (viewport: any | null) => void;
+  selectedPin: CommunityPin | null;
   setLocating: (locating: boolean) => void;
   setPendingPin: (pin: PendingPin | null) => void;
   clearPendingPin: () => void;
-  setSelectedPin: (pin: any | null) => void;
+  setSelectedPin: (pin: CommunityPin | null) => void;
 }
+
+export const useMapStore = create<MapState>((set) => ({
+  isLocating: false,
+  pendingPin: null,
+  selectedPin: null,
+  setLocating: (locating) => set({ isLocating: locating }),
+  setPendingPin: (pin) => set({ pendingPin: pin }),
+  clearPendingPin: () => set({ pendingPin: null }),
+  setSelectedPin: (pin) => set({ selectedPin: pin }),
+}));
