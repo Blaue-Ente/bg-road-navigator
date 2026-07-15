@@ -1,14 +1,29 @@
 /**
  * Border status — Nakordoni live queues (optional) + historical fallback
+ * Supports all European crossings (BG + transit borders)
  */
 
-import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
+import {
+  getAllEuropeanCrossings,
+  getCrossingsByIds,
+  getCrossingsByRegion,
+  getCrossingsForCorridor,
+  type EuropeanBorderRegion,
+} from "@/lib/constants/european-borders";
+import type { BorderCrossing } from "@/lib/constants/border-crossings";
 import {
   fetchNakordoniQueues,
   type NakordoniQueueData,
 } from "@/lib/api-clients/nakordoni";
 import { getNakordoniPageUrl } from "@/lib/constants/nakordoni-checkpoints";
 import type { BorderStatus } from "@/types/border.types";
+
+export interface BorderFetchOptions {
+  crossingId?: string;
+  region?: EuropeanBorderRegion;
+  corridorId?: string;
+  borderIds?: string[];
+}
 
 function waitToStatus(waitMinutes: number): BorderStatus["status"] {
   if (waitMinutes < 30) return "green";
@@ -17,9 +32,23 @@ function waitToStatus(waitMinutes: number): BorderStatus["status"] {
   return "red";
 }
 
-function buildFallbackStatus(
-  crossing: (typeof BORDER_CROSSINGS)[number]
-): BorderStatus {
+function resolveCrossings(options: BorderFetchOptions): BorderCrossing[] {
+  if (options.crossingId) {
+    return getAllEuropeanCrossings().filter((c) => c.id === options.crossingId);
+  }
+  if (options.borderIds?.length) {
+    return getCrossingsByIds(options.borderIds);
+  }
+  if (options.corridorId) {
+    return getCrossingsForCorridor(options.corridorId);
+  }
+  if (options.region && options.region !== "all") {
+    return getCrossingsByRegion(options.region);
+  }
+  return getAllEuropeanCrossings();
+}
+
+function buildFallbackStatus(crossing: BorderCrossing): BorderStatus {
   const hour = new Date().getHours();
   const baseWait = crossing.typical_wait_minutes[hour] ?? 30;
   const waitCars = Math.round(baseWait);
@@ -39,14 +68,18 @@ function buildFallbackStatus(
     last_updated: new Date().toISOString(),
     nakordoni_url: getNakordoniPageUrl(crossing.id) ?? undefined,
     data_source: "estimate",
+    region: crossing.region,
   };
 }
 
 function mergeNakordoni(
-  crossing: (typeof BORDER_CROSSINGS)[number],
+  crossing: BorderCrossing,
   live: NakordoniQueueData | undefined
 ): BorderStatus {
-  const waitCars = live?.waitMinutes ?? crossing.typical_wait_minutes[new Date().getHours()] ?? 30;
+  const waitCars =
+    live?.waitMinutes ??
+    crossing.typical_wait_minutes[new Date().getHours()] ??
+    30;
 
   return {
     crossing_id: crossing.id,
@@ -65,11 +98,12 @@ function mergeNakordoni(
     nakordoni_url: getNakordoniPageUrl(crossing.id) ?? undefined,
     nakordoni_ppid: live?.ppid,
     data_source: live ? "nakordoni" : "estimate",
+    region: crossing.region,
   };
 }
 
 export async function fetchBorderStatus(
-  crossingId?: string
+  options: BorderFetchOptions = {}
 ): Promise<BorderStatus[]> {
   const liveQueues = await fetchNakordoniQueues();
   const queueByCrossing = Object.fromEntries(
@@ -77,20 +111,13 @@ export async function fetchBorderStatus(
   );
 
   const hasLiveData = liveQueues.length > 0;
-  const crossings = crossingId
-    ? BORDER_CROSSINGS.filter((c) => c.id === crossingId)
-    : BORDER_CROSSINGS;
+  const crossings = resolveCrossings(options);
 
-  const results = crossings.map((crossing) => {
+  return crossings.map((crossing) => {
     const live = queueByCrossing[crossing.id];
-    if (hasLiveData && live) {
-      return mergeNakordoni(crossing, live);
-    }
     if (hasLiveData) {
-      return mergeNakordoni(crossing, undefined);
+      return mergeNakordoni(crossing, live);
     }
     return buildFallbackStatus(crossing);
   });
-
-  return results;
 }

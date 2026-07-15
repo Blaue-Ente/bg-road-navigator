@@ -17,6 +17,7 @@ export interface BorderStatus {
   nakordoni_url?: string;
   nakordoni_ppid?: string;
   data_source?: "nakordoni" | "estimate";
+  region?: string;
 }
 
 export interface BorderWebcamFeed {

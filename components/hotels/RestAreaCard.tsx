@@ -25,7 +25,7 @@ export function RestAreaCard({ name, location, facilities, distanceKm, coords }:
           <p className="text-sm text-gray-400">{location}</p>
         </div>
         <span className="text-sm text-blue-400 bg-blue-600/20 px-2 py-1 rounded">
-          {distanceKm.toFixed(1)} км
+          {distanceKm > 0 ? `${distanceKm.toFixed(1)} км` : "по маршрута"}
         </span>
       </div>
 
