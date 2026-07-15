@@ -5,36 +5,41 @@ interface CountryEmergencyCardProps {
 }
 
 export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
+  const numbers = [
+    { label: "Полиция", value: country.police || "112" },
+    { label: "Линейка", value: country.ambulance || "112" },
+    { label: "Пожар", value: country.fire || "112" },
+    { label: "Пътна помощ", value: country.roadside_assistance || "112" },
+  ];
+
   return (
-    <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
-      <div className="flex items-center gap-3 mb-3">
+    <div className="waze-panel p-4">
+      <div className="mb-3 flex items-center gap-3">
         <span className="text-2xl">{country.flag}</span>
-        <h3 className="font-semibold text-lg">{country.country_bg}</h3>
+        <h3 className="text-lg font-semibold text-[var(--waze-text)]">
+          {country.country_bg}
+        </h3>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <div className="bg-gray-800 p-2 rounded">
-          <span className="text-gray-400 block">Полиция</span>
-          <span className="font-medium">{country.police || "112"}</span>
-        </div>
-        <div className="bg-gray-800 p-2 rounded">
-          <span className="text-gray-400 block">Скора помощ</span>
-          <span className="font-medium">{country.ambulance || "112"}</span>
-        </div>
-        <div className="bg-gray-800 p-2 rounded">
-          <span className="text-gray-400 block">Пожар</span>
-          <span className="font-medium">{country.fire || "112"}</span>
-        </div>
-        <div className="bg-gray-800 p-2 rounded">
-          <span className="text-gray-400 block">Пътна помощ</span>
-          <span className="font-medium">{country.roadside_assistance || "112"}</span>
-        </div>
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        {numbers.map((n) => (
+          <a
+            key={n.label}
+            href={`tel:${n.value.replace(/\s/g, "")}`}
+            className="rounded-xl bg-[var(--waze-surface-elevated)] p-2.5 transition hover:ring-1 hover:ring-[var(--waze-accent)]/30"
+          >
+            <span className="block text-xs text-[var(--waze-text-muted)]">
+              {n.label}
+            </span>
+            <span className="font-bold text-[var(--waze-accent)]">{n.value}</span>
+          </a>
+        ))}
       </div>
 
       {country.notes_bg && (
-        <div className="mt-3 text-xs text-gray-400 p-2 bg-gray-800 rounded">
+        <p className="mt-3 rounded-xl bg-[var(--waze-surface-elevated)] p-2 text-xs text-[var(--waze-text-secondary)]">
           {country.notes_bg}
-        </div>
+        </p>
       )}
     </div>
   );
