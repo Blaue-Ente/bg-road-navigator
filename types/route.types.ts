@@ -15,6 +15,15 @@ export interface RouteWaypoint {
   coords: GeoPoint;
 }
 
+/**
+ * A searchable European place. It can be a curated city, address, hotel,
+ * motorway service area, or any geocoded point selected by the traveler.
+ */
+export interface RoutePoint extends RouteWaypoint {
+  subtitle?: string;
+  source: "curated" | "geocoder" | "user";
+}
+
 export interface Route {
   id: string;
   origin: RouteWaypoint;

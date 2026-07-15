@@ -1,18 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { fetchOsrmRoute } from "@/lib/api-clients/osrm";
-import { getCityById } from "@/lib/constants/european-cities";
 import { getCorridorById } from "@/lib/utils/route-planner";
 import {
   buildEstimatedRoute,
-  type RouteBuildInput,
+  resolveRoutePointsFromCityIds,
 } from "@/lib/utils/route-builder";
+import type { RoutePoint } from "@/types/route.types";
+
+const EuropePointSchema = z.object({
+  id: z.string().min(1).max(240),
+  label: z.string().trim().min(1).max(160),
+  subtitle: z.string().trim().max(240).optional(),
+  coords: z.object({
+    lng: z.number().finite().min(-25).max(45),
+    lat: z.number().finite().min(34).max(72),
+  }),
+  source: z.enum(["curated", "geocoder", "user"]),
+});
 
 const RouteBodySchema = z.object({
   city_ids: z.array(z.string()).min(2).optional(),
   corridor_id: z.string().optional(),
   origin_id: z.string().optional(),
   destination_id: z.string().optional(),
+  points: z.array(EuropePointSchema).min(2).max(12).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -27,7 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let cityIds = parsed.data.city_ids;
+    let points: RoutePoint[] | undefined;
 
     if (parsed.data.corridor_id) {
       const corridor = getCorridorById(parsed.data.corridor_id);
@@ -37,34 +49,37 @@ export async function POST(request: NextRequest) {
           { status: 404 }
         );
       }
-      cityIds = corridor.cityIds;
+      points = resolveRoutePointsFromCityIds(corridor.cityIds);
+    } else if (parsed.data.points) {
+      points = parsed.data.points;
     } else if (parsed.data.origin_id && parsed.data.destination_id) {
-      cityIds = [parsed.data.origin_id, parsed.data.destination_id];
+      points = resolveRoutePointsFromCityIds([
+        parsed.data.origin_id,
+        parsed.data.destination_id,
+      ]);
+    } else if (parsed.data.city_ids) {
+      points = resolveRoutePointsFromCityIds(parsed.data.city_ids);
     }
 
-    if (!cityIds || cityIds.length < 2) {
+    if (!points || points.length < 2) {
       return NextResponse.json(
         { error: "At least two cities required", code: "INSUFFICIENT_POINTS" },
         { status: 400 }
       );
     }
 
-    const cities = cityIds
-      .map((id) => getCityById(id))
-      .filter((c): c is NonNullable<typeof c> => Boolean(c));
-
-    if (cities.length < 2) {
+    if (points.length < 2) {
       return NextResponse.json(
-        { error: "Unknown city id", code: "UNKNOWN_CITY" },
+        { error: "Unknown or invalid route point", code: "INVALID_ROUTE_POINT" },
         { status: 400 }
       );
     }
 
-    const coords = cities.map((c) => c.coords);
+    const coords = points.map((point) => point.coords);
     const osrm = await fetchOsrmRoute(coords);
 
-    const input: RouteBuildInput = {
-      cities,
+    const input = {
+      points,
       corridorId: parsed.data.corridor_id,
     };
 
