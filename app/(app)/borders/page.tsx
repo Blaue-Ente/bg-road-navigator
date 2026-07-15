@@ -7,6 +7,8 @@ import { BorderCard } from "@/components/borders/BorderCard";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
 import { BorderWebcam } from "@/components/borders/BorderWebcam";
 import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { WazeCard } from "@/components/ui/WazeCard";
 import type { EuropeanBorderRegion } from "@/lib/constants/european-borders";
 
 type TabId = "bulgaria" | "europe" | "route";
@@ -21,7 +23,7 @@ export default function BorderPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex h-screen items-center justify-center text-blue-400">
+        <div className="flex h-screen items-center justify-center text-[var(--waze-accent)]">
           Зареждане на граници...
         </div>
       }
@@ -68,7 +70,7 @@ function BorderPageContent() {
 
   if (isLoading && fetchOptions.enabled !== false) {
     return (
-      <div className="flex h-screen items-center justify-center text-blue-400">
+      <div className="flex h-screen items-center justify-center text-[var(--waze-accent)]">
         Зареждане на граници...
       </div>
     );
@@ -80,7 +82,7 @@ function BorderPageContent() {
         Не може да се заредят данните за границите.
         <button
           onClick={() => window.location.reload()}
-          className="mt-4 block text-blue-400 hover:text-blue-300"
+          className="mt-4 block text-[var(--waze-accent)]"
         >
           Опитай отново
         </button>
@@ -91,24 +93,22 @@ function BorderPageContent() {
   const hasLiveData = displayedBorders.some((b) => b.data_source === "nakordoni");
 
   return (
-    <div className="h-full overflow-y-auto p-4 pb-24">
-      <h1 className="mb-2 text-2xl font-bold text-blue-400">
-        Гранични пролази
-      </h1>
-      <p className="mb-4 text-sm text-gray-400">
-        Граници в цяла Европа — България, транзитни пунктове и коридори за
-        дълги пътувания
-      </p>
+    <div className="waze-page">
+      <div className="mx-auto max-w-2xl">
+      <PageHeader
+        title="Гранични пролази"
+        subtitle="България, Европа и граници по вашия маршрут"
+      />
 
       <div className="mb-6 flex gap-2">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`rounded-lg px-4 py-2 text-sm transition ${
+            className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition ${
               activeTab === tab.id
-                ? "bg-blue-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)] ring-1 ring-[var(--waze-accent)]/40"
+                : "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)]"
             }`}
           >
             {tab.label}
@@ -117,12 +117,12 @@ function BorderPageContent() {
       </div>
 
       {activeTab === "route" && !borderIds?.length && (
-        <p className="mb-4 rounded-lg border border-amber-800/50 bg-amber-900/20 p-3 text-sm text-amber-200">
+        <p className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
           Изберете маршрут от секция Маршрут, за да видите границите по пътя.
         </p>
       )}
 
-      <p className="mb-6 text-xs text-gray-500">
+      <p className="mb-6 text-xs text-[var(--waze-text-muted)]">
         {hasLiveData
           ? "Реални опашки от nakordoni.eu · камери от Windy или Nakordoni"
           : "Оценка по исторически данни · добавете NAKORDONI_API_KEY за live опашки"}
@@ -133,10 +133,7 @@ function BorderPageContent() {
           <p className="text-center text-gray-500">Няма граници за показване.</p>
         ) : (
           displayedBorders.map((border) => (
-            <div
-              key={border.crossing_id}
-              className="rounded-lg border border-gray-800 bg-gray-900 p-4"
-            >
+            <WazeCard key={border.crossing_id} className="!p-4">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <BorderCard border={border} />
                 <div className="flex flex-col items-end gap-1">
@@ -161,32 +158,32 @@ function BorderPageContent() {
                   nakordoniUrl={border.nakordoni_url}
                 />
               </div>
-            </div>
+            </WazeCard>
           ))
         )}
       </div>
 
-      <p className="mt-8 text-center text-xs text-gray-500">
-        Данни за опашки:{" "}
+      <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
+        Данни:{" "}
         <a
           href="https://nakordoni.eu/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300"
+          className="text-[var(--waze-accent)]"
         >
           nakordoni.eu
         </a>
         {" · "}
-        Камери:{" "}
         <a
           href="https://www.windy.com/webcams"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300"
+          className="text-[var(--waze-accent)]"
         >
           Windy Webcams
         </a>
       </p>
+      </div>
     </div>
   );
 }

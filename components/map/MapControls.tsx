@@ -1,11 +1,38 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, type ReactNode } from "react";
 import type { Map } from "maplibre-gl";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
+import { LocateIcon, PlusIcon, MinusIcon } from "@/components/icons/NavIcons";
 
 export interface MapControlsProps {
   map: Map | null;
+}
+
+function ControlButton({
+  onClick,
+  label,
+  children,
+  accent,
+}: {
+  onClick: () => void;
+  label: string;
+  children: ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition active:scale-95 ${
+        accent
+          ? "bg-gradient-to-b from-[#4dd4ff] to-[#1a9fd4] text-[#0b0f14]"
+          : "waze-panel text-[var(--waze-text)]"
+      }`}
+      aria-label={label}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function MapControls({ map }: MapControlsProps) {
@@ -31,28 +58,19 @@ export function MapControls({ map }: MapControlsProps) {
   }, [map, getCurrentLocation]);
 
   return (
-    <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
-      <button
-        onClick={zoomIn}
-        className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-900/80 text-white transition hover:bg-gray-900"
-        aria-label="Приближи"
-      >
-        +
-      </button>
-      <button
-        onClick={zoomOut}
-        className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-900/80 text-white transition hover:bg-gray-900"
-        aria-label="Отдалечи"
-      >
-        −
-      </button>
-      <button
-        onClick={locate}
-        className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600/80 text-white transition hover:bg-blue-600"
-        aria-label="Намери ме"
-      >
-        📍
-      </button>
+    <div
+      className="absolute right-3 z-10 flex flex-col gap-2"
+      style={{ top: "calc(4.5rem + env(safe-area-inset-top, 0px))" }}
+    >
+      <ControlButton onClick={zoomIn} label="Приближи">
+        <PlusIcon />
+      </ControlButton>
+      <ControlButton onClick={zoomOut} label="Отдалечи">
+        <MinusIcon />
+      </ControlButton>
+      <ControlButton onClick={locate} label="Намери ме" accent>
+        <LocateIcon />
+      </ControlButton>
     </div>
   );
 }

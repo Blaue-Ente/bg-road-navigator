@@ -6,15 +6,24 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { useUserStore } from "@/lib/stores/user.store";
+import { usePathname } from "next/navigation";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useUserStore((s) => s.session?.user);
+  const pathname = usePathname();
+  const isMap = pathname === "/";
 
   return (
     <AuthGuard>
-      <div className="relative h-screen overflow-hidden">
+      <div className="relative h-screen overflow-hidden bg-[var(--waze-bg)]">
         <TopBar user={user} />
-        <main className="h-[calc(100vh-4rem)] overflow-hidden pt-16 pb-20">
+        <main
+          className={
+            isMap
+              ? "h-screen overflow-hidden"
+              : "h-screen overflow-hidden pt-[4.25rem]"
+          }
+        >
           {children}
         </main>
         <BottomNav />

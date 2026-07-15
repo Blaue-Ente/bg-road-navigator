@@ -1,18 +1,12 @@
 "use client";
 
-import { useState } from "react";
-
 interface AccordionProps {
   className?: string;
   children: React.ReactNode;
 }
 
 export function Accordion({ className, children }: AccordionProps) {
-  return (
-    <div className={className}>
-      {children}
-    </div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 interface AccordionItemProps {
@@ -21,10 +15,10 @@ interface AccordionItemProps {
   className?: string;
 }
 
-export function AccordionItem({ value, children, className }: AccordionItemProps) {
+export function AccordionItem({ children, className }: AccordionItemProps) {
   return (
-    <details 
-      className={`border border-gray-700 rounded-md p-3 mb-2 last:mb-0 ${className || ""}`}
+    <details
+      className={`mb-2 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] last:mb-0 ${className || ""}`}
     >
       {children}
     </details>
@@ -38,7 +32,9 @@ interface AccordionTriggerProps {
 
 export function AccordionTrigger({ children, className }: AccordionTriggerProps) {
   return (
-    <summary className={`cursor-pointer text-sm font-medium text-gray-400 hover:text-white list-none ${className || ""}`}>
+    <summary
+      className={`cursor-pointer list-none px-4 py-3 text-sm font-medium text-[var(--waze-text)] hover:text-[var(--waze-accent)] ${className || ""}`}
+    >
       {children}
     </summary>
   );
@@ -51,7 +47,9 @@ interface AccordionContentProps {
 
 export function AccordionContent({ children, className }: AccordionContentProps) {
   return (
-    <div className={`mt-2 p-2 bg-gray-800 text-gray-200 rounded-md ${className || ""}`}>
+    <div
+      className={`border-t border-[var(--waze-border)] px-4 py-3 text-sm text-[var(--waze-text-secondary)] ${className || ""}`}
+    >
       {children}
     </div>
   );

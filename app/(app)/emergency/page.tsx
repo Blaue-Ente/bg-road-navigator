@@ -5,32 +5,39 @@ import { EMERGENCY_DATA } from "@/lib/constants/emergency-numbers";
 import { CountryEmergencyCard } from "@/components/emergency/CountryEmergencyCard";
 import { RoadsideAdviceAccordion } from "@/components/emergency/RoadsideAdviceAccordion";
 import { RecommendedGarageCard } from "@/components/emergency/RecommendedGarageCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const ROADSIDE_ADVICE = [
   {
     title: "Какво да правите при катастрофа",
-    content: "1. Спрете на безопасно място\n2. Включете аварийните светлини\n3. Поставете тригълника на 30-100м зад колата\n4. Обадете се на 112\n5. Не мести автомобила без полиция, ако има пострадали"
+    content:
+      "1. Спрете на безопасно място\n2. Включете аварийните светлини\n3. Поставете тригълника на 30-100м зад колата\n4. Обадете се на 112\n5. Не мести автомобила без полиция, ако има пострадали",
   },
   {
     title: "Какво да правите при повреда",
-    content: "1. Отдръпнете се от пътното платно\n2. Сложете жилетка\n3. Поставете предупредителен тригълник\n4. Извикайте пътна помощ\n5. Не правете ремонт на активна лента"
+    content:
+      "1. Отдръпнете се от пътното платно\n2. Сложете жилетка\n3. Поставете предупредителен тригълник\n4. Извикайте пътна помощ\n5. Не правете ремонт на активна лента",
   },
   {
     title: "Задължителни документи за пътуване в ЕС",
-    content: "Лична карта/паспорт, шофьорска книжка, регистрационен талон, застраховка \"Зелена карта\", винетка (ако се изисква)"
+    content:
+      'Лична карта/паспорт, шофьорска книжка, регистрационен талон, застраховка "Зелена карта", винетка (ако се изисква)',
   },
   {
     title: "Задължително оборудване по страни",
-    content: "Светлоотразяваща жилетка, тригълник, аптечка, огнегасител (някъде), зимни вериги (в планините)"
+    content:
+      "Светлоотразяваща жилетка, тригълник, аптечка, огнегасител (някъде), зимни вериги (в планините)",
   },
   {
     title: "Права на пътника при закъснение",
-    content: "При закъснение на автобус/влак над 2 часа имате право на храна, нощувка и възстановяване на сума"
+    content:
+      "При закъснение на автобус/влак над 2 часа имате право на храна, нощувка и възстановяване на сума",
   },
   {
     title: "Застраховка в чужбина — какво покрива",
-    content: "Зелената карта покрива гражданска отговорност. Задължително проверете дали включва планински спасителни операции"
-  }
+    content:
+      "Зелената карта покрива гражданска отговорност. Проверете дали включва планински спасителни операции",
+  },
 ];
 
 const GARAGES = [
@@ -39,22 +46,22 @@ const GARAGES = [
     address: "бул. Цариградско шосе 45, София",
     phone: "+359 2 123 4567",
     mapsLink: "https://maps.google.com/?q=София+Автоцентър",
-    speaksBulgarian: true
+    speaksBulgarian: true,
   },
   {
     name: "Thessaloniki Auto Service",
     address: "Tsimiski 120, Thessaloniki",
     phone: "+30 2310 123456",
     mapsLink: "https://maps.google.com/?q=Thessaloniki+Auto+Service",
-    speaksBulgarian: false
+    speaksBulgarian: false,
   },
   {
     name: "Istanbul Oto Tamir",
     address: "Fatih Mah. 15, Istanbul",
     phone: "+90 212 123 4567",
     mapsLink: "https://maps.google.com/?q=Istanbul+Oto+Tamir",
-    speaksBulgarian: true
-  }
+    speaksBulgarian: true,
+  },
 ];
 
 export default function EmergencyPage() {
@@ -66,41 +73,45 @@ export default function EmergencyPage() {
 
   if (!mounted) {
     return (
-      <div className="p-4">
-        <div className="text-center text-blue-400">Зареждане на спешни номера...</div>
+      <div className="flex h-full items-center justify-center text-[var(--waze-accent)]">
+        Зареждане...
       </div>
     );
   }
 
   return (
-    <div className="p-4 pb-20 bg-gray-950">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-blue-400">Спешни ситуации и пътна помощ</h1>
+    <div className="waze-page">
+      <div className="mx-auto max-w-4xl">
+        <PageHeader
+          title="Спешни ситуации"
+          subtitle="Телефони, съвети и сервизи в 20+ европейски държави"
+        />
 
-        {/* Emergency numbers */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Спешни телефони по държави</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <section className="mb-8">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+            Спешни телефони
+          </h2>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {EMERGENCY_DATA.map((country) => (
               <CountryEmergencyCard key={country.country} country={country} />
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Roadside advice */}
-        <div className="mb-8">
+        <section className="mb-8">
           <RoadsideAdviceAccordion adviceSections={ROADSIDE_ADVICE} />
-        </div>
+        </section>
 
-        {/* Recommended garages */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Препоръчани сервизи</h2>
-          <div className="space-y-4">
+        <section>
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+            Препоръчани сервизи
+          </h2>
+          <div className="space-y-3">
             {GARAGES.map((garage, idx) => (
               <RecommendedGarageCard key={idx} {...garage} />
             ))}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

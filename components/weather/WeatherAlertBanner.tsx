@@ -10,11 +10,11 @@ export function WeatherAlertBanner({ alerts }: WeatherAlertBannerProps) {
   const getSeverityStyles = (severity: WeatherAlert["severity"]) => {
     switch (severity) {
       case "low":
-        return "bg-yellow-500/20 border-yellow-500 text-yellow-300";
+        return "border-yellow-500/40 bg-yellow-500/10 text-yellow-200";
       case "medium":
-        return "bg-orange-500/20 border-orange-500 text-orange-300";
+        return "border-orange-500/40 bg-orange-500/10 text-orange-200";
       case "high":
-        return "bg-red-500/20 border-red-500 text-red-300";
+        return "border-red-500/40 bg-red-500/10 text-red-200";
     }
   };
 
@@ -23,15 +23,10 @@ export function WeatherAlertBanner({ alerts }: WeatherAlertBannerProps) {
       {alerts.map((alert) => (
         <div
           key={alert.id}
-          className={`rounded-lg border p-3 ${getSeverityStyles(alert.severity)}`}
+          className={`rounded-2xl border p-3 ${getSeverityStyles(alert.severity)}`}
         >
-          <div className="flex items-start gap-2">
-            <span className="text-lg">⚠️</span>
-            <div>
-              <div className="font-semibold">{alert.title}</div>
-              <div className="text-sm opacity-90">{alert.description}</div>
-            </div>
-          </div>
+          <div className="font-semibold">{alert.title}</div>
+          <div className="mt-0.5 text-sm opacity-90">{alert.description}</div>
         </div>
       ))}
     </div>

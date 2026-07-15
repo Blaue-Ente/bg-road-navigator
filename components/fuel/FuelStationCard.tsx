@@ -7,48 +7,63 @@ interface FuelStationCardProps {
 
 export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
   return (
-    <div 
-      className="bg-gray-900 rounded-lg p-4 border border-gray-800 cursor-pointer hover:border-blue-500 transition"
+    <div
+      className="waze-panel cursor-pointer p-4 transition hover:ring-1 hover:ring-[var(--waze-accent)]/40"
       onClick={() => onSelect?.(station)}
     >
-      <div className="flex justify-between items-start mb-2">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-semibold">{station.brand}</h3>
-          <p className="text-sm text-gray-400">{station.name}</p>
+          <h3 className="font-semibold text-[var(--waze-text)]">{station.brand}</h3>
+          <p className="text-sm text-[var(--waze-text-secondary)]">{station.name}</p>
         </div>
-        <span className={`px-2 py-1 rounded text-xs ${station.open ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            station.open
+              ? "bg-emerald-500/20 text-emerald-300"
+              : "bg-red-500/20 text-red-300"
+          }`}
+        >
           {station.open ? "Отворен" : "Затворен"}
         </span>
       </div>
 
-      <div className="text-sm text-gray-300 mb-2">{station.address}</div>
+      <p className="mb-3 text-sm text-[var(--waze-text-secondary)]">{station.address}</p>
 
       <div className="grid grid-cols-3 gap-2 text-sm">
         {station.prices.diesel && (
-          <div className="bg-gray-800 rounded p-2">
-            <span className="text-gray-400">Дизел</span>
-            <div className="font-medium">{station.prices.diesel.toFixed(2)} лв/л</div>
+          <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
+            <span className="text-xs text-[var(--waze-text-muted)]">Дизел</span>
+            <div className="font-semibold text-[var(--waze-text)]">
+              {station.prices.diesel.toFixed(2)} лв
+            </div>
           </div>
         )}
         {station.prices.petrol95 && (
-          <div className="bg-gray-800 rounded p-2">
-            <span className="text-gray-400">Бензин 95</span>
-            <div className="font-medium">{station.prices.petrol95.toFixed(2)} лв/л</div>
+          <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
+            <span className="text-xs text-[var(--waze-text-muted)]">А95</span>
+            <div className="font-semibold text-[var(--waze-text)]">
+              {station.prices.petrol95.toFixed(2)} лв
+            </div>
           </div>
         )}
         {station.prices.lpg && (
-          <div className="bg-gray-800 rounded p-2">
-            <span className="text-gray-400">Газ</span>
-            <div className="font-medium">{station.prices.lpg.toFixed(2)} лв/л</div>
+          <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
+            <span className="text-xs text-[var(--waze-text-muted)]">Газ</span>
+            <div className="font-semibold text-[var(--waze-text)]">
+              {station.prices.lpg.toFixed(2)} лв
+            </div>
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
-        <span>{station.distance_km.toFixed(1)} км от маршрута</span>
+      <div className="mt-3 flex items-center justify-between text-xs text-[var(--waze-text-muted)]">
+        <span>{station.distance_km.toFixed(1)} км</span>
         <div className="flex gap-1">
           {station.payment_methods.map((method) => (
-            <span key={method} className="px-1.5 py-0.5 bg-gray-800 rounded">
+            <span
+              key={method}
+              className="rounded-full bg-[var(--waze-surface-elevated)] px-2 py-0.5"
+            >
               {method}
             </span>
           ))}

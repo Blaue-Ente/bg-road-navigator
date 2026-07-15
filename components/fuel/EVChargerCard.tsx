@@ -7,44 +7,53 @@ interface EVChargerCardProps {
 
 export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
   return (
-    <div 
-      className="bg-gray-900 rounded-lg p-4 border border-gray-800 cursor-pointer hover:border-blue-500 transition"
+    <div
+      className="waze-panel cursor-pointer p-4 transition hover:ring-1 hover:ring-[var(--waze-accent)]/40"
       onClick={() => onSelect?.(station)}
     >
-      <div className="flex justify-between items-start mb-2">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-semibold">{station.name}</h3>
-          <p className="text-sm text-gray-400">{station.operator}</p>
+          <h3 className="font-semibold text-[var(--waze-text)]">{station.name}</h3>
+          <p className="text-sm text-[var(--waze-text-secondary)]">{station.operator}</p>
         </div>
-        <span className={`px-2 py-1 rounded text-xs ${station.available ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            station.available
+              ? "bg-emerald-500/20 text-emerald-300"
+              : "bg-red-500/20 text-red-300"
+          }`}
+        >
           {station.available ? "Свободен" : "Зает"}
         </span>
       </div>
 
-      <div className="text-sm text-gray-300 mb-2">{station.address}</div>
+      <p className="mb-3 text-sm text-[var(--waze-text-secondary)]">{station.address}</p>
 
-      <div className="flex flex-wrap gap-2 mb-2">
+      <div className="mb-3 flex flex-wrap gap-1.5">
         {station.connector_types.map((type) => (
-          <span key={type} className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">
+          <span
+            key={type}
+            className="rounded-full bg-[var(--waze-accent-muted)] px-2 py-0.5 text-xs text-[var(--waze-accent)]"
+          >
             {type}
           </span>
         ))}
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-sm">
-        <div className="bg-gray-800 rounded p-2">
-          <span className="text-gray-400">Мощност</span>
-          <div className="font-medium">{station.power_kw} kW</div>
+        <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
+          <span className="text-xs text-[var(--waze-text-muted)]">kW</span>
+          <div className="font-semibold">{station.power_kw}</div>
         </div>
         {station.price_kwh && (
-          <div className="bg-gray-800 rounded p-2">
-            <span className="text-gray-400">Цена</span>
-            <div className="font-medium">{station.price_kwh.toFixed(2)} лв/kWh</div>
+          <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
+            <span className="text-xs text-[var(--waze-text-muted)]">лв/kWh</span>
+            <div className="font-semibold">{station.price_kwh.toFixed(2)}</div>
           </div>
         )}
-        <div className="bg-gray-800 rounded p-2">
-          <span className="text-gray-400">Разстояние</span>
-          <div className="font-medium">{station.distance_km.toFixed(1)} км</div>
+        <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
+          <span className="text-xs text-[var(--waze-text-muted)]">км</span>
+          <div className="font-semibold">{station.distance_km.toFixed(1)}</div>
         </div>
       </div>
     </div>

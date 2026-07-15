@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useWeather } from "@/lib/hooks/useWeather";
 import { WeatherCard } from "@/components/weather/WeatherCard";
 import { WeatherAlertBanner } from "@/components/weather/WeatherAlertBanner";
 import { RouteWeatherTimeline } from "@/components/weather/RouteWeatherTimeline";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { WazeCard } from "@/components/ui/WazeCard";
 
 const MOUNTAIN_PASSES = [
   { name: "Шипченски проход", coords: { lng: 25.1, lat: 42.1 } },
@@ -15,35 +18,27 @@ const MOUNTAIN_PASSES = [
 ];
 
 export default function WeatherPage() {
-  const routeStore = useRouteStore();
-  const { activeRoute } = routeStore;
+  const { activeRoute } = useRouteStore();
   const [routePoints, setRoutePoints] = useState<Array<{ lng: number; lat: number }>>([]);
-  const [weatherData, setWeatherData] = useState<{ points: any[], alerts: any[] }>({ points: [], alerts: [] });
+  const [weatherData, setWeatherData] = useState<{
+    points: Parameters<typeof WeatherCard>[0]["weather"][];
+    alerts: Parameters<typeof WeatherAlertBanner>[0]["alerts"];
+  }>({ points: [], alerts: [] });
 
   useEffect(() => {
     if (activeRoute) {
-      // Sample points every ~50km along route
       const points: Array<{ lng: number; lat: number }> = [];
-      
-      // Add origin, destination, and midpoints
       points.push(activeRoute.origin.coords);
-      
-      if (activeRoute.waypoints.length > 0) {
-        activeRoute.waypoints.forEach(wp => points.push(wp.coords));
-      }
-      
+      activeRoute.waypoints.forEach((wp) => points.push(wp.coords));
       points.push(activeRoute.destination.coords);
-      
-      // Add mountain passes if route crosses them (simplified check)
-      points.push(...MOUNTAIN_PASSES.map(p => p.coords));
-      
-      const unique = Array.from(
-        new Set(points.map((p) => `${p.lng},${p.lat}`))
-      ).map((s) => {
-        const [lng, lat] = s.split(",").map(Number);
-        return { lng, lat };
-      });
+      points.push(...MOUNTAIN_PASSES.map((p) => p.coords));
 
+      const unique = Array.from(new Set(points.map((p) => `${p.lng},${p.lat}`))).map(
+        (s) => {
+          const [lng, lat] = s.split(",").map(Number);
+          return { lng, lat };
+        }
+      );
       setRoutePoints(unique);
     }
   }, [activeRoute]);
@@ -51,17 +46,25 @@ export default function WeatherPage() {
   const { data, isLoading, error } = useWeather(routePoints);
 
   useEffect(() => {
-    if (data) {
-      setWeatherData(data);
-    }
+    if (data) setWeatherData(data);
   }, [data]);
 
   if (!activeRoute) {
     return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4 text-blue-400">Време по маршрут</h1>
-        <div className="text-center text-gray-400 py-8">
-          Моля изберете маршрут от страницата "Маршрут", за да видите прогноза.
+      <div className="waze-page">
+        <div className="mx-auto max-w-2xl text-center">
+          <PageHeader
+            title="Време по маршрут"
+            subtitle="Прогноза по точките на вашето пътуване"
+          />
+          <WazeCard className="py-8">
+            <p className="text-[var(--waze-text-secondary)]">
+              Изберете маршрут, за да видите прогнозата.
+            </p>
+            <Link href="/route" className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm">
+              Планирай маршрут
+            </Link>
+          </WazeCard>
         </div>
       </div>
     );
@@ -69,58 +72,54 @@ export default function WeatherPage() {
 
   if (isLoading) {
     return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4 text-blue-400">Време по маршрут</h1>
-        <div className="text-center text-blue-400">Зареждане...</div>
+      <div className="flex h-full items-center justify-center text-[var(--waze-accent)]">
+        Зареждане на прогнозата...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4 text-blue-400">Време по маршрут</h1>
-        <div className="text-center text-red-400">Грешка при зареждане на прогнозата.</div>
+      <div className="waze-page text-center text-red-400">
+        Грешка при зареждане на прогнозата.
       </div>
     );
   }
 
   return (
-    <div className="p-4 pb-20">
-      <h1 className="text-2xl font-bold mb-6 text-blue-400">Време по маршрут</h1>
+    <div className="waze-page">
+      <div className="mx-auto max-w-4xl">
+        <PageHeader
+          title="Време по маршрут"
+          subtitle={`${activeRoute.origin.label} → ${activeRoute.destination.label}`}
+        />
 
-      {/* Weather Alerts for mountain passes */}
-      <WeatherAlertBanner alerts={weatherData.alerts} />
+        <WeatherAlertBanner alerts={weatherData.alerts} />
 
-      {/* Timeline */}
-      <RouteWeatherTimeline 
-        weatherPoints={weatherData.points}
-        departureTime={new Date()}
-      />
+        <RouteWeatherTimeline
+          weatherPoints={weatherData.points}
+          departureTime={new Date()}
+        />
 
-      {/* Individual weather cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {weatherData.points.map((point, idx) => (
-          <WeatherCard 
-            key={idx} 
-            weather={point} 
-            distance={idx * 50}
-          />
-        ))}
+        <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {weatherData.points.map((point, idx) => (
+            <WeatherCard key={idx} weather={point} distance={idx * 50} />
+          ))}
+        </div>
+
+        <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
+          Прогноза от{" "}
+          <a
+            href="https://open-meteo.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--waze-accent)]"
+          >
+            Open-Meteo
+          </a>{" "}
+          (CC BY 4.0)
+        </p>
       </div>
-
-      <p className="mt-8 text-center text-xs text-gray-500">
-        Прогноза от{" "}
-        <a
-          href="https://open-meteo.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300"
-        >
-          Open-Meteo
-        </a>{" "}
-        (CC BY 4.0) — безплатна open-source услуга
-      </p>
     </div>
   );
 }

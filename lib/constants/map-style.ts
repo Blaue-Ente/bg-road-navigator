@@ -6,6 +6,9 @@
 export const DEFAULT_MAP_STYLE =
   "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
+/** Waze-tuned variant — same tiles, themed at runtime via applyWazeMapTheme */
+export const WAZE_DARK_STYLE = DEFAULT_MAP_STYLE;
+
 export const MAP_STYLE_OPTIONS = {
   dark: DEFAULT_MAP_STYLE,
   voyager: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
@@ -14,5 +17,5 @@ export const MAP_STYLE_OPTIONS = {
 } as const;
 
 export function getMapStyleUrl(): string {
-  return process.env.NEXT_PUBLIC_MAP_STYLE_URL ?? DEFAULT_MAP_STYLE;
+  return process.env.NEXT_PUBLIC_MAP_STYLE_URL ?? WAZE_DARK_STYLE;
 }

@@ -3,126 +3,118 @@
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { CommentThread } from "@/components/community/CommentThread";
 import { useUserStore } from "@/lib/stores/user.store";
+import { WazeCard } from "@/components/ui/WazeCard";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  border_info: "Граница",
+  road_works: "Ремонт",
+  traffic_jam: "Опашка",
+  accident: "Инцидент",
+  police: "Полиция",
+  hazard: "Опасност",
+  fuel_issue: "Гориво",
+  rest_area: "Почивка",
+  point_of_interest: "Точка",
+  other: "Друго",
+};
 
 export function CommunityFeed() {
-  const communityStore = useCommunityStore();
-  const userStore = useUserStore();
-  const { pins, setSelectedPin, selectedPin, upvotePin } = communityStore;
-  const authenticated = !!userStore.session;
+  const { pins, setSelectedPin, selectedPin, upvotePin } = useCommunityStore();
+  const authenticated = !!useUserStore((s) => s.session);
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Последни маркери</h2>
-        <span className="text-sm text-gray-400">{pins.length} активни</span>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+          Активни маркери
+        </h2>
+        <span className="text-xs text-[var(--waze-text-muted)]">{pins.length}</span>
       </div>
 
-      {pins.length === 0 ? (
-        <div className="text-center text-gray-400 py-8">
-          Няма активни маркери в момента.
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {pins.map((pin) => (
-            <div 
-              key={pin.id} 
-              className="bg-gray-900 rounded-lg p-4 border border-gray-800"
-              onClick={() => setSelectedPin(pin)}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="font-semibold">{pin.title}</h3>
-                  <p className="text-sm text-gray-400">{pin.category}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">{pin.upvotes}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      upvotePin(pin.id);
-                    }}
-                    className="text-xl hover:scale-110 transition"
-                    aria-label="Подхвали"
-                  >
-                    👍
-                  </button>
-                </div>
-              </div>
-              
-              {pin.description && (
-                <p className="text-sm text-gray-300 mb-2">{pin.description}</p>
-              )}
-              
-              <div className="flex items-center justify-between text-xs text-gray-400">
-                <span>
-                  {pin.expires_at 
-                    ? `Изтича: ${new Date(pin.expires_at).toLocaleString("bg-BG")}`
-                    : "Постоянно"}
-                </span>
-                {authenticated && pin.user_id && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Report pin
-                    }}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    Доклади
-                  </button>
-                )}
-              </div>
+      {pins.map((pin) => (
+        <WazeCard
+          key={pin.id}
+          className="cursor-pointer !p-4 transition hover:ring-1 hover:ring-[var(--waze-accent)]/30"
+          onClick={() => setSelectedPin(pin)}
+        >
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <div>
+              <h3 className="font-semibold text-[var(--waze-text)]">{pin.title}</h3>
+              <p className="text-xs text-[var(--waze-accent)]">
+                {CATEGORY_LABELS[pin.category] ?? pin.category}
+              </p>
             </div>
-          ))}
-        </div>
-      )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                upvotePin(pin.id);
+              }}
+              className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-sm text-[var(--waze-text-secondary)]"
+              aria-label="Подхвали"
+            >
+              👍 {pin.upvotes}
+            </button>
+          </div>
 
-      {/* Selected pin detail */}
+          {pin.description && (
+            <p className="text-sm text-[var(--waze-text-secondary)]">{pin.description}</p>
+          )}
+
+          {pin.is_verified && (
+            <span className="mt-2 inline-block text-[10px] font-medium text-emerald-400">
+              ✓ Потвърдено
+            </span>
+          )}
+        </WazeCard>
+      ))}
+
       {selectedPin && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-40">
-          <div className="bg-gray-900 rounded-t-2xl p-4 max-h-[80vh] overflow-y-auto w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">{selectedPin.title}</h2>
+        <>
+          <button
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedPin(null)}
+            aria-label="Затвори"
+          />
+          <div className="fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-[var(--waze-border)] bg-[var(--waze-surface)] p-5 pb-8">
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[var(--waze-text-muted)]/40" />
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-[var(--waze-text)]">
+                {selectedPin.title}
+              </h2>
               <button
                 onClick={() => setSelectedPin(null)}
-                className="text-gray-400 hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-[var(--waze-text-muted)]"
               >
                 ✕
               </button>
             </div>
-            
-            <div className="mb-4">
-              <span className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">
-                {selectedPin.category}
-              </span>
-              {selectedPin.description && (
-                <p className="mt-2 text-gray-300">{selectedPin.description}</p>
-              )}
-            </div>
 
-            <div className="mb-4">
-              <div className="text-xs text-gray-400">
-                {selectedPin.expires_at 
-                  ? `Изтича: ${new Date(selectedPin.expires_at).toLocaleString("bg-BG")}`
-                  : "Постоянен маркер"}
-              </div>
-              <div className="flex gap-4 mt-2">
-                <button
-                  onClick={() => upvotePin(selectedPin.id)}
-                  className="flex-1 py-2 bg-green-600/20 text-green-400 rounded"
-                >
-                  Подхвали ({selectedPin.upvotes})
+            <span className="rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-0.5 text-xs text-[var(--waze-accent)]">
+              {CATEGORY_LABELS[selectedPin.category] ?? selectedPin.category}
+            </span>
+            {selectedPin.description && (
+              <p className="mt-3 text-[var(--waze-text-secondary)]">
+                {selectedPin.description}
+              </p>
+            )}
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => upvotePin(selectedPin.id)}
+                className="waze-btn-primary flex-1 py-2.5 text-sm"
+              >
+                Подхвали ({selectedPin.upvotes})
+              </button>
+              {authenticated && (
+                <button className="waze-btn-secondary flex-1 py-2.5 text-sm">
+                  Доклади
                 </button>
-                {authenticated && (
-                  <button className="flex-1 py-2 bg-gray-700 text-white rounded">
-                    Подробности
-                  </button>
-                )}
-              </div>
+              )}
             </div>
 
             <CommentThread pinId={selectedPin.id} />
           </div>
-        </div>
+        </>
       )}
     </div>
   );

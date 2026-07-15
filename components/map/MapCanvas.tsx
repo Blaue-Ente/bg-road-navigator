@@ -4,12 +4,14 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getMapStyleUrl } from "@/lib/constants/map-style";
+import { applyWazeMapTheme } from "@/lib/map/apply-waze-style";
 
 export interface MapCanvasProps {
   onMapLoad?: (map: maplibregl.Map) => void;
   className?: string;
   center?: [number, number];
   zoom?: number;
+  wazeTheme?: boolean;
 }
 
 export function MapCanvas({
@@ -17,6 +19,7 @@ export function MapCanvas({
   className,
   center = [23.3219, 42.6977],
   zoom = 7,
+  wazeTheme = true,
 }: MapCanvasProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<maplibregl.Map | null>(null);
@@ -29,6 +32,7 @@ export function MapCanvas({
       style: getMapStyleUrl(),
       center,
       zoom,
+      attributionControl: false,
     });
 
     mapInstance.current.addControl(
@@ -37,16 +41,18 @@ export function MapCanvas({
     );
 
     mapInstance.current.on("load", () => {
-      if (mapInstance.current) {
-        onMapLoad?.(mapInstance.current);
+      if (!mapInstance.current) return;
+      if (wazeTheme) {
+        applyWazeMapTheme(mapInstance.current);
       }
+      onMapLoad?.(mapInstance.current);
     });
 
     return () => {
       mapInstance.current?.remove();
       mapInstance.current = null;
     };
-  }, [center, zoom, onMapLoad]);
+  }, [center, zoom, onMapLoad, wazeTheme]);
 
   return (
     <div className={`relative h-full w-full ${className ?? ""}`}>

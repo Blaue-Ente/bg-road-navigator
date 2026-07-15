@@ -8,16 +8,16 @@ interface RoadsideAdviceAccordionProps {
 
 export function RoadsideAdviceAccordion({ adviceSections }: RoadsideAdviceAccordionProps) {
   return (
-    <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
-      <h2 className="text-xl font-bold mb-4">Какво да правите при пътни възпроизшествия</h2>
+    <div className="waze-panel p-4">
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+        Съвети при инцидент
+      </h2>
       <Accordion>
         {adviceSections.map((section, idx) => (
           <AccordionItem key={idx} value={section.title}>
-            <AccordionTrigger className="w-full text-left text-sm font-medium">
-              {section.title}
-            </AccordionTrigger>
-            <AccordionContent className="text-sm text-gray-300">
-              <p>{section.content}</p>
+            <AccordionTrigger>{section.title}</AccordionTrigger>
+            <AccordionContent>
+              <p className="whitespace-pre-line">{section.content}</p>
             </AccordionContent>
           </AccordionItem>
         ))}
