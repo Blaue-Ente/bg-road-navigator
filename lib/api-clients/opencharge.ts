@@ -59,6 +59,7 @@ export async function getEVStations(
       const stationLat = address?.Latitude;
       const stationLng = address?.Longitude;
       if (
+        !address ||
         typeof stationLat !== "number" ||
         typeof stationLng !== "number"
       ) {
