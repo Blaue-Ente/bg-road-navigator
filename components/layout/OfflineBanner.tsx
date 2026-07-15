@@ -19,11 +19,14 @@ export function OfflineBanner() {
   if (isOnline) return null;
 
   return (
-    <div className="fixed top-16 left-0 right-0 bg-amber-600 text-white text-center py-2 z-25">
-      <span className="text-sm">
-        ⚠️ Няма интернет връзка. Спешните номера са достъпни офлайн.
-        <a href="/emergency" className="underline ml-2">Отвори</a>
-      </span>
+    <div
+      className="fixed left-3 right-3 z-50 rounded-2xl bg-amber-500/95 px-4 py-2.5 text-center text-sm font-medium text-amber-950 shadow-lg"
+      style={{ top: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
+    >
+      Няма интернет. Спешните номера са офлайн.
+      <a href="/emergency" className="ml-2 underline font-semibold">
+        Отвори
+      </a>
     </div>
   );
 }

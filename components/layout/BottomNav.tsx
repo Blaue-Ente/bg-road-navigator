@@ -2,40 +2,61 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  MapIcon,
+  RouteIcon,
+  BorderIcon,
+  FuelIcon,
+  EmergencyIcon,
+} from "@/components/icons/NavIcons";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Карта", icon: "🗺️" },
-  { href: "/route", label: "Маршрут", icon: "🧭" },
-  { href: "/borders", label: "Граници", icon: "🛃" },
-  { href: "/fuel", label: "Горива", icon: "⛽" },
-  { href: "/emergency", label: "Спешно", icon: "🚨" },
+  { href: "/", label: "Карта", Icon: MapIcon },
+  { href: "/route", label: "Маршрут", Icon: RouteIcon },
+  { href: "/borders", label: "Граници", Icon: BorderIcon },
+  { href: "/fuel", label: "Горива", Icon: FuelIcon },
+  { href: "/emergency", label: "Спешно", Icon: EmergencyIcon },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const isMap = pathname === "/";
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-gray-900 border-t border-gray-800 flex items-center justify-around z-20">
-      {NAV_ITEMS.map((item) => {
-        const isActive = pathname === item.href || 
-          (item.href === "/" && pathname === "/(app)");
-        
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex flex-col items-center justify-center min-w-[44px] min-h-[44px] rounded-lg transition ${
-              isActive ? "text-blue-400" : "text-gray-400 hover:text-white"
-            }`}
-            aria-label={item.label}
-          >
-            <span className="text-xl" aria-hidden="true">
-              {item.icon}
-            </span>
-            <span className="text-xs mt-1 hidden sm:block">{item.label}</span>
-          </Link>
-        );
-      })}
+    <nav
+      className={`fixed z-30 ${
+        isMap
+          ? "bottom-4 left-3 right-3"
+          : "bottom-3 left-3 right-3"
+      }`}
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      <div className="waze-panel mx-auto flex max-w-lg items-center justify-around px-1 py-1.5">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href === "/" && pathname === "/(app)");
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex min-h-[48px] min-w-[52px] flex-col items-center justify-center rounded-xl px-2 py-1 transition-all ${
+                isActive
+                  ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)]"
+                  : "text-[var(--waze-text-muted)] hover:text-[var(--waze-text-secondary)]"
+              }`}
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <item.Icon className="h-5 w-5" />
+              <span className="mt-0.5 text-[10px] font-medium leading-none">
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

@@ -8,6 +8,7 @@ import {
   getRestAreasForCorridor,
 } from "@/lib/constants/rest-areas";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function HotelsPage() {
   return (
@@ -29,24 +30,17 @@ function HotelsPageContent() {
     : EUROPEAN_REST_AREAS;
 
   return (
-    <div className="h-full overflow-y-auto p-4 pb-24">
+    <div className="waze-page">
       <div className="mx-auto max-w-2xl">
-        <h1 className="mb-2 text-2xl font-bold text-blue-400">
-          Почивки и нощувки
-        </h1>
-        <p className="mb-6 text-sm text-gray-400">
-          Места за почивка и пренощуване по европейските коридори — за дълги
-          пътувания над 12–30+ часа
-        </p>
+        <PageHeader
+          title="Почивки и нощувки"
+          subtitle="Зони за почивка по европейските коридори"
+        />
 
         <div className="mb-6 flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedCorridor(null)}
-            className={`rounded-full border px-3 py-1.5 text-xs transition ${
-              !selectedCorridor
-                ? "border-blue-500 bg-blue-600/30 text-blue-300"
-                : "border-gray-700 bg-gray-900 text-gray-300"
-            }`}
+            className={`waze-chip ${!selectedCorridor ? "waze-chip-active" : ""}`}
           >
             Всички
           </button>
@@ -54,10 +48,8 @@ function HotelsPageContent() {
             <button
               key={corridor.id}
               onClick={() => setSelectedCorridor(corridor.id)}
-              className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                selectedCorridor === corridor.id
-                  ? "border-blue-500 bg-blue-600/30 text-blue-300"
-                  : "border-gray-700 bg-gray-900 text-gray-300"
+              className={`waze-chip ${
+                selectedCorridor === corridor.id ? "waze-chip-active" : ""
               }`}
             >
               {corridor.label}

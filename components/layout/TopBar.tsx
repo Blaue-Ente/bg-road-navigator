@@ -1,49 +1,71 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useUserStore } from "@/lib/stores/user.store";
-import { useRouteStore } from "@/lib/stores/route.store";
+import { ChevronLeftIcon } from "@/components/icons/NavIcons";
 
 interface TopBarProps {
   user: { id: string; email: string } | undefined;
 }
 
+const PAGE_TITLES: Record<string, string> = {
+  "/route": "Маршрут",
+  "/borders": "Граници",
+  "/fuel": "Гориво",
+  "/emergency": "Спешно",
+  "/weather": "Време",
+  "/community": "Общност",
+  "/hotels": "Почивки",
+  "/tips": "Съвети",
+  "/profile": "Профил",
+};
+
 export function TopBar({ user }: TopBarProps) {
-  const routeStore = useRouteStore();
-  const { activeRoute } = routeStore;
+  const pathname = usePathname();
+
+  if (pathname === "/") return null;
+
+  const title = PAGE_TITLES[pathname] ?? "БГ Навигатор";
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-4 z-30">
-      <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold text-blue-400">БГ Навигатор</h1>
-      </div>
+    <header className="fixed top-0 left-0 right-0 z-30 px-3 pt-3">
+      <div
+        className="waze-panel mx-auto flex h-14 max-w-lg items-center gap-3 px-3"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+      >
+        <Link
+          href="/"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
+          aria-label="Към картата"
+        >
+          <ChevronLeftIcon />
+        </Link>
 
-      <div className="flex-1 max-w-md mx-4">
-        {activeRoute && (
-          <div className="bg-gray-800 rounded-lg px-3 py-1.5 text-sm text-white flex items-center justify-between overflow-hidden">
-            <span className="truncate">
-              {activeRoute.origin.label} → {activeRoute.destination.label}
-            </span>
-            <span className="text-blue-400 ml-2 whitespace-nowrap">
-              {activeRoute.distance_km.toFixed(1)} км · {activeRoute.duration_min} мин
-            </span>
-          </div>
-        )}
-      </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-base font-semibold text-[var(--waze-text)]">
+            {title}
+          </p>
+          <p className="truncate text-xs text-[var(--waze-text-muted)]">
+            БГ Пътен Навигатор
+          </p>
+        </div>
 
-      <div className="flex items-center gap-3">
         {user ? (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-              {user.email.charAt(0).toUpperCase()}
-            </div>
-            <span className="text-sm text-gray-300 hidden md:block">
-              {user.email}
-            </span>
-          </div>
+          <Link
+            href="/profile"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-[#4dd4ff] to-[#1a9fd4] text-sm font-bold text-[#0b0f14]"
+            aria-label="Профил"
+          >
+            {user.email.charAt(0).toUpperCase()}
+          </Link>
         ) : (
-          <a href="/login" className="text-blue-400 hover:text-blue-300 text-sm">
+          <Link
+            href="/login"
+            className="shrink-0 text-sm font-medium text-[var(--waze-accent)]"
+          >
             Влез
-          </a>
+          </Link>
         )}
       </div>
     </header>

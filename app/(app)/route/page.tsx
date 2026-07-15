@@ -14,6 +14,8 @@ import {
   formatDuration,
   isLongHaul,
 } from "@/lib/utils/route-planner";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { WazeCard } from "@/components/ui/WazeCard";
 import type { Route } from "@/types/route.types";
 
 const REGIONS = Object.keys(REGION_LABELS) as EuropeanRegion[];
@@ -117,29 +119,24 @@ export default function RoutePage() {
     : 0;
 
   return (
-    <div className="h-full overflow-y-auto p-4 pb-24">
+    <div className="waze-page">
       <div className="mx-auto max-w-2xl">
-        <h1 className="mb-2 text-2xl font-bold text-blue-400">
-          Планиране на маршрут
-        </h1>
-        <p className="mb-6 text-sm text-gray-400">
-          Реални пътни разстояния чрез OSRM · маршрути из цяла Европа,
-          включително над 30 часа
-        </p>
+        <PageHeader
+          title="Планиране на маршрут"
+          subtitle="Реални пътни разстояния (OSRM) · Европа, включително 30+ часа"
+        />
 
         <section className="mb-6">
-          <h2 className="mb-3 text-sm font-medium text-gray-300">
-            Популярни коридори ({TRAVEL_CORRIDORS.length})
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]">
+            Коридори ({TRAVEL_CORRIDORS.length})
           </h2>
           <div className="flex flex-wrap gap-2">
             {TRAVEL_CORRIDORS.map((corridor) => (
               <button
                 key={corridor.id}
                 onClick={() => handleCorridorSelect(corridor.id)}
-                className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                  selectedCorridor === corridor.id
-                    ? "border-blue-500 bg-blue-600/30 text-blue-300"
-                    : "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-600"
+                className={`waze-chip ${
+                  selectedCorridor === corridor.id ? "waze-chip-active" : ""
                 }`}
               >
                 {corridor.label} · ~{corridor.estimatedHours}ч
@@ -148,16 +145,18 @@ export default function RoutePage() {
           </div>
         </section>
 
-        <div className="space-y-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
+        <WazeCard className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm text-gray-400">Откъде</label>
+            <label className="mb-1.5 block text-xs font-medium text-[var(--waze-text-secondary)]">
+              Откъде
+            </label>
             <select
               value={originLabel}
               onChange={(e) => {
                 setOriginLabel(e.target.value);
                 setSelectedCorridor(null);
               }}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2"
+              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)] outline-none focus:border-[var(--waze-accent)]"
             >
               {REGIONS.map((region) => (
                 <optgroup key={region} label={REGION_LABELS[region]}>
@@ -174,14 +173,16 @@ export default function RoutePage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-gray-400">Накъде</label>
+            <label className="mb-1.5 block text-xs font-medium text-[var(--waze-text-secondary)]">
+              Накъде
+            </label>
             <select
               value={destLabel}
               onChange={(e) => {
                 setDestLabel(e.target.value);
                 setSelectedCorridor(null);
               }}
-              className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2"
+              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)] outline-none focus:border-[var(--waze-accent)]"
             >
               {REGIONS.map((region) => (
                 <optgroup key={region} label={REGION_LABELS[region]}>
@@ -204,99 +205,92 @@ export default function RoutePage() {
           <button
             onClick={() => runCalculation(selectedCorridor)}
             disabled={calculating || (!selectedCorridor && originLabel === destLabel)}
-            className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
           >
             {calculating ? "Изчисляване по пътища..." : "Изчисли маршрут"}
           </button>
-        </div>
+        </WazeCard>
 
         {activeRoute && (
           <div className="mt-6 space-y-4">
-            <div className="rounded-lg border border-blue-800/50 bg-blue-900/20 p-4">
-              <h2 className="mb-3 font-semibold text-blue-300">
+            <WazeCard className="border-[var(--waze-accent)]/20 bg-[var(--waze-accent-muted)]">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--waze-accent)]">
                 Активен маршрут
               </h2>
-              <p className="text-lg">
+              <p className="text-lg font-semibold text-[var(--waze-text)]">
                 {activeRoute.origin.label} → {activeRoute.destination.label}
               </p>
               {activeRoute.waypoints.length > 0 && (
-                <p className="mt-1 text-sm text-gray-400">
+                <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
                   През:{" "}
                   {activeRoute.waypoints.map((w) => w.label).join(" → ")}
                 </p>
               )}
-              <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-300">
-                <span>📏 {activeRoute.distance_km} км</span>
-                <span>⏱️ {formatDuration(activeRoute.duration_min)}</span>
-                <span className="text-xs text-gray-500">
-                  {activeRoute.routing_source === "osrm"
-                    ? "🛣️ OSRM (реални пътища)"
-                    : "≈ оценка"}
+              <div className="mt-3 flex flex-wrap gap-3 text-sm text-[var(--waze-text-secondary)]">
+                <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
+                  {activeRoute.distance_km} км
+                </span>
+                <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
+                  {formatDuration(activeRoute.duration_min)}
+                </span>
+                <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
+                  {activeRoute.routing_source === "osrm" ? "OSRM" : "≈ оценка"}
                 </span>
                 {longHaul && (
-                  <span className="text-amber-400">
-                    🌙 Дълго пътуване — препоръчват се {restStops + 1} почивки
+                  <span className="rounded-full bg-amber-500/15 px-3 py-1 text-amber-200">
+                    {restStops + 1} почивки препоръчани
                   </span>
                 )}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  href="/"
-                  className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-                >
-                  Виж на картата
+                <Link href="/" className="waze-btn-primary px-4 py-2 text-sm">
+                  Картата
                 </Link>
                 <Link
                   href={`/borders?route=1${routeBorders.length ? `&border_ids=${routeBorders.join(",")}` : ""}`}
-                  className="rounded bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
+                  className="waze-btn-secondary px-4 py-2 text-sm"
                 >
                   Граници ({routeBorders.length || "всички"})
                 </Link>
-                <Link
-                  href="/weather"
-                  className="rounded bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
-                >
+                <Link href="/weather" className="waze-btn-secondary px-4 py-2 text-sm">
                   Прогноза
                 </Link>
-                <Link
-                  href="/fuel"
-                  className="rounded bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
-                >
-                  Гориво / EV
+                <Link href="/fuel" className="waze-btn-secondary px-4 py-2 text-sm">
+                  Гориво
                 </Link>
                 <Link
                   href={selectedCorridor ? `/hotels?corridor=${selectedCorridor}` : "/hotels"}
-                  className="rounded bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
+                  className="waze-btn-secondary px-4 py-2 text-sm"
                 >
                   Почивки
                 </Link>
                 {longHaul && (
                   <Link
                     href="/tips"
-                    className="rounded bg-amber-700/50 px-4 py-2 text-sm text-amber-200 hover:bg-amber-700/70"
+                    className="waze-btn-secondary border-amber-500/30 px-4 py-2 text-sm text-amber-200"
                   >
-                    Съвети за дълъг път
+                    Съвети
                   </Link>
                 )}
                 <button
                   onClick={clearRoute}
-                  className="rounded bg-gray-800 px-4 py-2 text-sm text-gray-400 hover:text-red-400"
+                  className="waze-btn-secondary px-4 py-2 text-sm text-red-400"
                 >
                   Изчисти
                 </button>
               </div>
-            </div>
+            </WazeCard>
 
             {routeBorders.length > 0 && (
-              <div className="rounded-lg border border-gray-800 bg-gray-900 p-4">
-                <h3 className="mb-2 text-sm font-medium text-gray-300">
+              <WazeCard>
+                <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">
                   Граници по маршрута ({routeBorders.length})
                 </h3>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[var(--waze-text-muted)]">
                   Проверете опашките преди тръгване — особено при пътувания над
                   24 часа.
                 </p>
-              </div>
+              </WazeCard>
             )}
           </div>
         )}

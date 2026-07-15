@@ -4,8 +4,8 @@
   "description": "Комплексен пътен асистент за български шофьори пътуващи в Европа",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0F2537",
-  "theme_color": "#1B4F72",
+  "background_color": "#0B0F14",
+  "theme_color": "#0B0F14",
   "orientation": "portrait",
   "icons": [
     {
