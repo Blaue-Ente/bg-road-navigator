@@ -150,7 +150,11 @@ function addEnergyStops(
   const safetyRangeKm = Math.max(80, Math.round(rangeKm * 0.8));
   const stops: TripPlanStop[] = [];
 
-  for (let km = safetyRangeKm; km < route.distance_km; km += safetyRangeKm) {
+  for (
+    let km = safetyRangeKm;
+    km < route.distance_km - 60;
+    km += safetyRangeKm
+  ) {
     const targetMin = Math.round((km / route.distance_km) * route.duration_min);
     stops.push(
       stopAt(
