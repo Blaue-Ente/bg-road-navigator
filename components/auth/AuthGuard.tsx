@@ -6,21 +6,42 @@ import { useUserStore } from "@/lib/stores/user.store";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const userStore = useUserStore();
-  const { session, isLoading } = userStore;
+  const session = useUserStore((s) => s.session);
+  const isLoading = useUserStore((s) => s.isLoading);
 
   useEffect(() => {
     if (!isLoading && !session) {
-      router.push("/login");
+      const hasSupabase =
+        process.env.NEXT_PUBLIC_SUPABASE_URL &&
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (hasSupabase) {
+        router.push("/login");
+      }
     }
   }, [session, isLoading, router]);
 
   if (isLoading) {
-    return <div className="text-center p-8">Зареждане...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center text-blue-400">
+        Зареждане...
+      </div>
+    );
   }
 
-  if (!session) {
-    return <div className="text-center p-8">Моля влезте в профила си</div>;
+  const hasSupabase =
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!session && hasSupabase) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4 p-8 text-center">
+        <p>Моля, влезте в профила си, за да продължите.</p>
+        <a href="/login" className="text-blue-400 hover:text-blue-300">
+          Вход
+        </a>
+      </div>
+    );
   }
 
   return <>{children}</>;

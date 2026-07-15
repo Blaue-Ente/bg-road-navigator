@@ -25,8 +25,10 @@ export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
       id: "route-main",
       type: "line",
       source: "route-main",
-      "line-width": 5,
-      "line-color": "#1B4F72",
+      paint: {
+        "line-width": 5,
+        "line-color": "#1B4F72",
+      },
     });
 
     // Add alternatives
@@ -40,9 +42,11 @@ export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
         id: `route-alt-${idx}`,
         type: "line",
         source: `route-alt-${idx}`,
-        "line-width": 4,
-        "line-color": colors[idx % colors.length],
-        "line-opacity": 0.7,
+        paint: {
+          "line-width": 4,
+          "line-color": colors[idx % colors.length],
+          "line-opacity": 0.7,
+        },
       });
     });
 

@@ -1,69 +1,66 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Coordinates } from "@/types/map.types";
+import { useFuelStations } from "@/lib/hooks/useFuelStations";
+import { FuelStationCard } from "@/components/fuel/FuelStationCard";
+import { EVChargerCard } from "@/components/fuel/EVChargerCard";
 
-interface FuelPageProps {
-  mapLocation?: Coordinates;
-  zoom?: number;
-}
+const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
-export function FuelPage({ mapLocation, zoom = 10 }: FuelPageProps) {
-  // Mock bbox for Thrace/Eastern Bulgaria where most stations are
-  const mockBbox = { w: 27.0, s: 41.5, e: 28.5, n: 43.5 };
-
-  const { data: stations, isLoading, isError } = useFuelStations(mockBbox as any);
+export default function FuelPage() {
+  const { data, isLoading, isError } = useFuelStations(DEFAULT_BBOX);
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center">
+      <div className="flex h-full items-center justify-center text-blue-400">
         Зареждане...
       </div>
     );
   }
 
-  if (isError) {
+  if (isError || !data) {
     return (
       <div className="text-center text-red-400 p-8">
-        Не може да се заредят данните за гориво/зарядка.
+        Не може да се заредят данните за гориво и зарядка.
       </div>
-    </div>
+    );
   }
 
   return (
-    <div className="p-4">
-      <div className="max-w-2xl mx-auto py-8">
-        <h1 className="text-2xl font-bold mb-6 text-blue-400">Гориво и зарядка</h1>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Fuel Stations */}
-          <div>
-            <h2 className="text-xl font-medium mb-4 text-blue-400">Ходилни станции</h2>
+    <div className="h-full overflow-y-auto p-4 pb-24">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-2 text-2xl font-bold text-blue-400">
+          Гориво и зарядка
+        </h1>
+        <p className="mb-6 text-sm text-gray-400">
+          Бензиностанции и EV зарядни точки по маршрута до България
+        </p>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <section>
+            <h2 className="mb-4 text-xl font-medium text-blue-400">
+              Бензиностанции
+            </h2>
             <div className="space-y-4">
-              {stations && 
-                stations.map((station) => {
-                  if (station.brand) {
-                    return <FuelStationCard key={station.id} station={station} />;
-                  }
-                  return null;
-                })}
+              {data.fuelStations.map((station) => (
+                <FuelStationCard key={station.id} station={station} />
+              ))}
             </div>
-          </div>
-          
-          {/* EV Chargers */}
-          <div>
-            <h2 className="text-xl font-medium mb-4 text-blue-400">Електроточкови станции</h2>
+          </section>
+
+          <section>
+            <h2 className="mb-4 text-xl font-medium text-blue-400">
+              EV зарядни станции
+            </h2>
             <div className="space-y-4">
-              {stations && 
-                stations.filter((s) => s.operator && s.operator.toLowerCase().includes('charge')).map((evStation) => (
-                  <EVChargerCard 
-                    key={evStation.id} 
-                    station={evStation} 
-                  />
-                ))}
-              </div>
+              {data.evStations.length === 0 ? (
+                <p className="text-gray-400">Няма налични EV станции в района.</p>
+              ) : (
+                data.evStations.map((station) => (
+                  <EVChargerCard key={station.id} station={station} />
+                ))
+              )}
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

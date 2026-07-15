@@ -31,9 +31,9 @@ export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
         </div>
       </div>
 
-      {country.notes && (
+      {country.notes_bg && (
         <div className="mt-3 text-xs text-gray-400 p-2 bg-gray-800 rounded">
-          {country.notes}
+          {country.notes_bg}
         </div>
       )}
     </div>

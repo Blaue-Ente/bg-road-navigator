@@ -4,8 +4,9 @@ import { useUserStore } from "@/lib/stores/user.store";
 
 export default function ProfilePage() {
   const userStore = useUserStore();
-  const { session, profile } = userStore;
-  const authenticated = session !== null;
+  const userSession = userStore.session;
+  const profile = userStore.profile;
+  const authenticated = userSession !== null;
 
   if (!authenticated) {
     return (
@@ -38,7 +39,7 @@ export default function ProfilePage() {
         {/* Profile info */}
         <div className="bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700">
           <p className="text-lg mb-2">
-            Потребител: <span className="text-blue-400 font-medium">{profile?.username || session?.email}</span>
+            Потребител: <span className="text-blue-400 font-medium">{profile?.username || userSession?.user.email}</span>
           </p>
           
           <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
