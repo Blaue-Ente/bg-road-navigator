@@ -77,10 +77,7 @@ export async function getEVStations(
         0,
         ...connections.map((connection) => connection.PowerKW ?? 0)
       );
-      const addressLabel = [
-        address.AddressLine1,
-        address.Town,
-      ]
+      const addressLabel = [address?.AddressLine1, address?.Town]
         .filter(Boolean)
         .join(", ");
 
