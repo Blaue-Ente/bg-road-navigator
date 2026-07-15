@@ -6,6 +6,13 @@ interface EVChargerCardProps {
 }
 
 export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
+  const availability =
+    station.availability === "available"
+      ? { label: "Свободен", style: "bg-emerald-500/20 text-emerald-300" }
+      : station.availability === "unavailable"
+        ? { label: "Недостъпен", style: "bg-red-500/20 text-red-300" }
+        : { label: "Проверете в оператора", style: "bg-slate-500/20 text-slate-300" };
+
   return (
     <div
       className="waze-panel cursor-pointer p-4 transition hover:ring-1 hover:ring-[var(--waze-accent)]/40"
@@ -17,13 +24,9 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
           <p className="text-sm text-[var(--waze-text-secondary)]">{station.operator}</p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            station.available
-              ? "bg-emerald-500/20 text-emerald-300"
-              : "bg-red-500/20 text-red-300"
-          }`}
+          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${availability.style}`}
         >
-          {station.available ? "Свободен" : "Зает"}
+          {availability.label}
         </span>
       </div>
 

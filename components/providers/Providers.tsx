@@ -20,8 +20,13 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
     }
 
     const supabase = createClient();
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const syncSession = async (
+      session: {
+        user: { id: string; email?: string };
+        access_token: string;
+        expires_at?: number;
+      } | null
+    ) => {
       if (session?.user) {
         setSession({
           user: {
@@ -31,26 +36,29 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
           access_token: session.access_token,
           expires_at: session.expires_at ?? Date.now() + 3600000,
         });
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select(
+            "id, username, avatar_url, vehicle_type, fuel_type, tank_capacity_liters, ev_range_km"
+          )
+          .eq("id", session.user.id)
+          .maybeSingle();
+        setProfile(profile);
+      } else {
+        setSession(null);
+        setProfile(null);
       }
       setLoading(false);
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      void syncSession(session);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setSession({
-          user: {
-            id: session.user.id,
-            email: session.user.email ?? "",
-          },
-          access_token: session.access_token,
-          expires_at: session.expires_at ?? Date.now() + 3600000,
-        });
-      } else {
-        setSession(null);
-      }
-      setLoading(false);
+      void syncSession(session);
     });
 
     return () => subscription.unsubscribe();

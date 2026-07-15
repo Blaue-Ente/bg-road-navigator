@@ -40,9 +40,16 @@ export default function FuelPage() {
               Бензиностанции
             </h2>
             <div className="space-y-3">
-              {data.fuelStations.map((station) => (
-                <FuelStationCard key={station.id} station={station} />
-              ))}
+              {data.fuelStations.length === 0 ? (
+                <p className="text-sm text-[var(--waze-text-muted)]">
+                  Няма потвърдени данни за бензиностанции в този район в
+                  момента.
+                </p>
+              ) : (
+                data.fuelStations.map((station) => (
+                  <FuelStationCard key={station.id} station={station} />
+                ))
+              )}
             </div>
           </section>
 
@@ -53,7 +60,7 @@ export default function FuelPage() {
             <div className="space-y-3">
               {data.evStations.length === 0 ? (
                 <p className="text-[var(--waze-text-muted)]">
-                  Няма EV станции в района.
+                  Няма потвърдени EV станции в този район в момента.
                 </p>
               ) : (
                 data.evStations.map((station) => (

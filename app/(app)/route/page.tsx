@@ -13,6 +13,7 @@ import {
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
+import { TripPlanCard } from "@/components/trips/TripPlanCard";
 import type { Route, RoutePoint } from "@/types/route.types";
 
 async function fetchRoute(params: {
@@ -266,6 +267,8 @@ export default function RoutePage() {
                 </button>
               </div>
             </WazeCard>
+
+            <TripPlanCard route={activeRoute} />
 
             {routeBorders.length > 0 && (
               <WazeCard>

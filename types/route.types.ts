@@ -95,7 +95,7 @@ export interface EVStation {
   coords: GeoPoint;
   power_kw: number;
   connector_types: string[];
-  available: boolean;
+  availability: "available" | "unavailable" | "unknown";
   price_kwh: number | null;
   distance_km: number;
 }

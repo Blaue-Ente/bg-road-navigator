@@ -6,6 +6,13 @@ interface FuelStationCardProps {
 }
 
 export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
+  const stationStatus =
+    station.open === true
+      ? { label: "Отворен", style: "bg-emerald-500/20 text-emerald-300" }
+      : station.open === false
+        ? { label: "Затворен", style: "bg-red-500/20 text-red-300" }
+        : { label: "Статус неизвестен", style: "bg-slate-500/20 text-slate-300" };
+
   return (
     <div
       className="waze-panel cursor-pointer p-4 transition hover:ring-1 hover:ring-[var(--waze-accent)]/40"
@@ -17,13 +24,9 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
           <p className="text-sm text-[var(--waze-text-secondary)]">{station.name}</p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            station.open
-              ? "bg-emerald-500/20 text-emerald-300"
-              : "bg-red-500/20 text-red-300"
-          }`}
+          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${stationStatus.style}`}
         >
-          {station.open ? "Отворен" : "Затворен"}
+          {stationStatus.label}
         </span>
       </div>
 

@@ -16,7 +16,7 @@ export interface FuelStation {
   address?: string;
   location?: string;
   prices: FuelPrices;
-  open: boolean;
+  open: boolean | "unknown";
   distance_km: number;
   payment_methods: string[];
 }
@@ -29,7 +29,7 @@ export interface EVStation {
   address?: string;
   power_kw: number;
   connector_types: string[];
-  available: boolean;
+  availability: "available" | "unavailable" | "unknown";
   price_kwh: number | null;
   distance_km: number;
 }
