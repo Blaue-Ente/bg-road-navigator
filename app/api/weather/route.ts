@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getWeatherByPoints } from "@/lib/api-clients/openweather";
+import { getWeatherByPoints } from "@/lib/api-clients/open-meteo";
 
 const WeatherQuerySchema = z.object({
   points: z.string().optional(),
@@ -13,7 +13,10 @@ export async function GET(request: NextRequest) {
     const pointsParam = searchParams.get("points");
     const departureTime = searchParams.get("departure_time");
 
-    const parsed = WeatherQuerySchema.safeParse({ points: pointsParam, departure_time: departureTime });
+    const parsed = WeatherQuerySchema.safeParse({
+      points: pointsParam,
+      departure_time: departureTime,
+    });
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Invalid query parameters", code: "INVALID_QUERY" },
@@ -21,7 +24,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Parse points: JSON array string
     let points: Array<{ lng: number; lat: number }> = [];
     if (pointsParam) {
       try {
@@ -34,9 +36,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const weatherData = await getWeatherByPoints(points, departureTime ? new Date(departureTime) : new Date());
+    const weatherData = await getWeatherByPoints(
+      points,
+      departureTime ? new Date(departureTime) : new Date()
+    );
 
-    return NextResponse.json(weatherData);
+    return NextResponse.json({
+      ...weatherData,
+      attribution: "Прогноза: Open-Meteo.com (CC BY 4.0)",
+    });
   } catch (error) {
     console.error("Weather API error:", error);
     return NextResponse.json(

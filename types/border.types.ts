@@ -13,5 +13,19 @@ export interface BorderStatus {
   working_hours: string;
   status: "green" | "yellow" | "orange" | "red";
   last_updated: string;
-  webcam_urls?: string[];
+  queue_length?: number;
+  nakordoni_url?: string;
+  nakordoni_ppid?: string;
+  data_source?: "nakordoni" | "estimate";
+}
+
+export interface BorderWebcamFeed {
+  crossing_id: string;
+  label: string;
+  image_url: string | null;
+  player_url: string | null;
+  nakordoni_url: string | null;
+  windy_url: string | null;
+  source: "windy" | "nakordoni" | "none";
+  attribution: string;
 }
