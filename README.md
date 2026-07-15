@@ -4,7 +4,7 @@
 
 ## Функции
 
-- **Карта** — Mapbox с маршрут, трафик и общностни маркери
+- **Карта** — MapLibre GL с маршрут, трафик и общностни маркери (без API ключ)
 - **Маршрут** — планиране на пътуване между градове
 - **Граници** — време за изчакване на 12 гранични пункта
 - **Гориво / EV** — бензиностанции и зарядни точки
@@ -17,7 +17,7 @@
 
 - Next.js 16 (App Router, TypeScript)
 - Tailwind CSS v4
-- Mapbox GL JS
+- MapLibre GL JS ([open-source](https://github.com/maplibre))
 - Supabase (auth, по избор)
 - Zustand + TanStack React Query
 
@@ -35,7 +35,7 @@ npm run dev
 
 | Променлива | Услуга |
 |------------|--------|
-| `NEXT_PUBLIC_MAPBOX_TOKEN` | Интерактивна карта |
+| `NEXT_PUBLIC_MAP_STYLE_URL` | По избор — custom MapLibre style URL (по подразбиране: Carto Dark Matter) |
 | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Регистрация и профил |
 | `TOMTOM_API_KEY` | Реален трафик |
 | `OPENWEATHER_API_KEY` | Реална прогноза |

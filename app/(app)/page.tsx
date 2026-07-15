@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import type { Map as MapboxMap } from "mapbox-gl";
+import type { Map } from "maplibre-gl";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { useTraffic } from "@/lib/hooks/useTraffic";
@@ -34,10 +34,9 @@ export default function MapPage() {
   const communityPins = useCommunityStore((s) => s.pins);
   const { data: borders } = useBorderStatus();
   const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
-  const [mapInstance, setMapInstance] = useState<MapboxMap | null>(null);
-  const hasMapboxToken = !!process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const [mapInstance, setMapInstance] = useState<Map | null>(null);
 
-  const handleMapLoad = useCallback((map: MapboxMap) => {
+  const handleMapLoad = useCallback((map: Map) => {
     setMapInstance(map);
   }, []);
 
@@ -46,30 +45,11 @@ export default function MapPage() {
 
   return (
     <div className="relative h-full">
-      {hasMapboxToken ? (
-        <>
-          <MapCanvas onMapLoad={handleMapLoad} className="h-full" />
-          <MapControls map={mapInstance} />
-          <RouteLayer map={mapInstance} route={activeRoute} />
-          <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
-          <CommunityPins map={mapInstance} pins={communityPins} />
-        </>
-      ) : (
-        <div className="flex h-full flex-col items-center justify-center gap-4 bg-gray-900 p-6 text-center">
-          <span className="text-5xl">🗺️</span>
-          <h2 className="text-xl font-semibold text-blue-400">Карта</h2>
-          <p className="max-w-sm text-sm text-gray-400">
-            Добавете <code className="text-blue-300">NEXT_PUBLIC_MAPBOX_TOKEN</code> за
-            интерактивна карта. До тогава използвайте маршрута и границите.
-          </p>
-          <Link
-            href="/route"
-            className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
-          >
-            Планирай маршрут
-          </Link>
-        </div>
-      )}
+      <MapCanvas onMapLoad={handleMapLoad} className="h-full" />
+      <MapControls map={mapInstance} />
+      <RouteLayer map={mapInstance} route={activeRoute} />
+      <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
+      <CommunityPins map={mapInstance} pins={communityPins} />
 
       {mapInstance && (
         <div className="pointer-events-none absolute inset-x-0 top-0 p-4">
