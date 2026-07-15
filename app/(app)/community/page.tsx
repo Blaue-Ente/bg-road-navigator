@@ -9,56 +9,66 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import type { CommunityPin } from "@/types/community.types";
 
-const SAMPLE_PINS: CommunityPin[] = [
-  {
-    id: "pin-1",
-    category: "border_info",
-    title: "Опашка на Калотина",
-    description: "Около 45 минути за леки автомобили, дясната лента по-бърза.",
-    coords: { lng: 22.8969, lat: 42.9833 },
-    is_verified: true,
-    upvotes: 12,
-    expires_at: new Date(Date.now() + 86400000).toISOString(),
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "pin-2",
-    category: "road_works",
-    title: "Ремонт на А1",
-    description: "Стеснено движение между 42-ти и 45-ти км, скорост 60 км/ч.",
-    coords: { lng: 23.5, lat: 42.4 },
-    is_verified: false,
-    upvotes: 5,
-    expires_at: new Date(Date.now() + 172800000).toISOString(),
-    created_at: new Date().toISOString(),
-  },
-];
-
 export default function CommunityPage() {
   const { pins, isDropMode, setDropMode, addPin, setPins } = useCommunityStore();
   const [selectedCategory, setSelectedCategory] =
     useState<CommunityPin["category"]>("border_info");
   const [title, setTitle] = useState("");
+  const [serviceAvailable, setServiceAvailable] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (pins.length === 0) setPins(SAMPLE_PINS);
-  }, [pins.length, setPins]);
+    let cancelled = false;
+
+    const loadPins = async () => {
+      try {
+        const response = await fetch("/api/community/pins");
+        if (!response.ok) throw new Error("Community load failed");
+        const data = (await response.json()) as {
+          pins: CommunityPin[];
+          configured: boolean;
+        };
+        if (cancelled) return;
+        setPins(data.pins);
+        setServiceAvailable(data.configured);
+      } catch {
+        if (!cancelled) setLoadError("Сигналите не могат да бъдат заредени.");
+      }
+    };
+
+    void loadPins();
+    return () => {
+      cancelled = true;
+    };
+  }, [setPins]);
 
   const handleSavePin = () => {
     if (!title.trim()) return;
-    addPin({
-      id: `pin-${Date.now()}`,
-      category: selectedCategory,
-      title: title.trim(),
-      description: null,
-      coords: { lng: 23.32, lat: 42.7 },
-      is_verified: false,
-      upvotes: 0,
-      expires_at: new Date(Date.now() + 86400000).toISOString(),
-      created_at: new Date().toISOString(),
-    });
-    setTitle("");
-    setDropMode(false);
+
+    const publish = async () => {
+      try {
+        const response = await fetch("/api/community/pins", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            category: selectedCategory,
+            title: title.trim(),
+            coords: { lng: 23.32, lat: 42.7 },
+            expires_in_hours: 24,
+          }),
+        });
+        if (!response.ok) throw new Error("Community publish failed");
+
+        const { pin } = (await response.json()) as { pin: CommunityPin };
+        addPin(pin);
+        setTitle("");
+        setDropMode(false);
+      } catch {
+        setLoadError("Сигналът не можа да бъде публикуван.");
+      }
+    };
+
+    void publish();
   };
 
   return (
@@ -117,7 +127,16 @@ export default function CommunityPage() {
           </>
         )}
 
-        {pins.length === 0 ? (
+        {loadError && (
+          <p className="mb-3 text-sm text-red-400">{loadError}</p>
+        )}
+
+        {!serviceAvailable ? (
+          <WazeCard className="py-8 text-center text-[var(--waze-text-muted)]">
+            Общността ще бъде активна след конфигуриране на защитеното
+            Supabase хранилище.
+          </WazeCard>
+        ) : pins.length === 0 ? (
           <WazeCard className="py-8 text-center text-[var(--waze-text-muted)]">
             Няма активни маркери.
           </WazeCard>

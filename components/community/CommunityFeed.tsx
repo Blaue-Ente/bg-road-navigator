@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { CommentThread } from "@/components/community/CommentThread";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -19,8 +20,49 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function CommunityFeed() {
-  const { pins, setSelectedPin, selectedPin, upvotePin } = useCommunityStore();
+  const { pins, setSelectedPin, selectedPin, setPinUpvotes } =
+    useCommunityStore();
   const authenticated = !!useUserStore((s) => s.session);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const confirmPin = async (pinId: string) => {
+    if (!authenticated) {
+      setActionError("Влезте в профила си, за да потвърдите сигнал.");
+      return;
+    }
+
+    const response = await fetch(`/api/community/pins/${pinId}/vote`, {
+      method: "POST",
+    });
+    if (!response.ok) {
+      const message =
+        response.status === 409
+          ? "Вече сте потвърдили този сигнал."
+          : "Потвърждението не беше записано.";
+      setActionError(message);
+      return;
+    }
+
+    const { upvotes } = (await response.json()) as { upvotes: number };
+    setPinUpvotes(pinId, upvotes);
+    setActionError(null);
+  };
+
+  const reportPin = async (pinId: string) => {
+    const response = await fetch(`/api/community/pins/${pinId}/report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason: "Неточен или неактуален сигнал" }),
+    });
+
+    setActionError(
+      response.ok
+        ? "Сигналът е изпратен за преглед."
+        : response.status === 409
+          ? "Вече сте докладвали този сигнал."
+          : "Докладът не беше изпратен."
+    );
+  };
 
   return (
     <div className="space-y-3">
@@ -47,7 +89,7 @@ export function CommunityFeed() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                upvotePin(pin.id);
+                void confirmPin(pin.id);
               }}
               className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-sm text-[var(--waze-text-secondary)]"
               aria-label="Подхвали"
@@ -100,17 +142,26 @@ export function CommunityFeed() {
 
             <div className="mt-4 flex gap-2">
               <button
-                onClick={() => upvotePin(selectedPin.id)}
+                onClick={() => void confirmPin(selectedPin.id)}
                 className="waze-btn-primary flex-1 py-2.5 text-sm"
               >
                 Подхвали ({selectedPin.upvotes})
               </button>
               {authenticated && (
-                <button className="waze-btn-secondary flex-1 py-2.5 text-sm">
+                <button
+                  onClick={() => void reportPin(selectedPin.id)}
+                  className="waze-btn-secondary flex-1 py-2.5 text-sm"
+                >
                   Доклади
                 </button>
               )}
             </div>
+
+            {actionError && (
+              <p className="mt-3 text-sm text-[var(--waze-text-secondary)]">
+                {actionError}
+              </p>
+            )}
 
             <CommentThread pinId={selectedPin.id} />
           </div>

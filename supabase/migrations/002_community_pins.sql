@@ -16,10 +16,10 @@ create table if not exists public.community_pins (
   created_at timestamptz not null default now()
 );
 
--- community_pins spatial index
-create extension if not exists postgis;
-create index if not exists community_pins_gist_idx on public.community_pins 
-using gist (coords);
+-- JSON coordinates can be filtered by bbox in application code. A GIN index
+-- supports JSON containment without requiring a PostGIS geometry migration.
+create index if not exists community_pins_coords_idx on public.community_pins
+using gin (coords);
 
 -- pin_comments: comments on community pins
 create table if not exists public.pin_comments (
