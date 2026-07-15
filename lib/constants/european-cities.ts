@@ -81,6 +81,11 @@ export const EUROPEAN_CITIES: EuropeanCity[] = [
   // Nordic
   { id: "copenhagen", label: "Копенхаген", country: "Дания", countryCode: "DK", region: "nordic", coords: { lng: 12.5683, lat: 55.6761 } },
   { id: "stockholm", label: "Стокхолм", country: "Швеция", countryCode: "SE", region: "nordic", coords: { lng: 18.0686, lat: 59.3293 } },
+  { id: "hamburg", label: "Хамбург", country: "Германия", countryCode: "DE", region: "western", coords: { lng: 9.9937, lat: 53.5511 } },
+  { id: "stuttgart", label: "Щутгарт", country: "Германия", countryCode: "DE", region: "central", coords: { lng: 9.1829, lat: 48.7758 } },
+  { id: "lyon", label: "Лион", country: "Франция", countryCode: "FR", region: "western", coords: { lng: 4.8357, lat: 45.764 } },
+  { id: "bratislava", label: "Братислава", country: "Словакия", countryCode: "SK", region: "central", coords: { lng: 17.1077, lat: 48.1486 } },
+  { id: "turin", label: "Торино", country: "Италия", countryCode: "IT", region: "southern", coords: { lng: 7.6869, lat: 45.0703 } },
 ];
 
 export function getCityByLabel(label: string): EuropeanCity | undefined {

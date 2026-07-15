@@ -10,14 +10,32 @@ import {
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { useRouteStore } from "@/lib/stores/route.store";
 import {
-  buildCorridorRoute,
-  calculateRouteFromLabels,
   estimateRestStops,
   formatDuration,
   isLongHaul,
 } from "@/lib/utils/route-planner";
+import type { Route } from "@/types/route.types";
 
 const REGIONS = Object.keys(REGION_LABELS) as EuropeanRegion[];
+
+async function fetchRoute(params: {
+  corridorId?: string;
+  originId?: string;
+  destinationId?: string;
+}): Promise<Route | null> {
+  const response = await fetch("/api/route", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      corridor_id: params.corridorId,
+      origin_id: params.originId,
+      destination_id: params.destinationId,
+    }),
+  });
+
+  if (!response.ok) return null;
+  return response.json();
+}
 
 export default function RoutePage() {
   const { activeRoute, setActiveRoute, clearRoute } = useRouteStore();
@@ -30,6 +48,7 @@ export default function RoutePage() {
   const [selectedCorridor, setSelectedCorridor] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
   const [routeBorders, setRouteBorders] = useState<string[]>([]);
+  const [routeError, setRouteError] = useState<string | null>(null);
 
   const handleCorridorSelect = (corridorId: string) => {
     const corridor = TRAVEL_CORRIDORS.find((c) => c.id === corridorId);
@@ -45,47 +64,51 @@ export default function RoutePage() {
     setRouteBorders(corridor.borderIds);
   };
 
-  const handleCalculate = () => {
+  const runCalculation = async (corridorId?: string | null) => {
     setCalculating(true);
-    setSelectedCorridor(null);
-    setRouteBorders([]);
+    setRouteError(null);
 
-    const route =
-      selectedCorridor
-        ? buildCorridorRoute(selectedCorridor)
-        : calculateRouteFromLabels(originLabel, destLabel, EUROPEAN_CITIES);
+    const origin = EUROPEAN_CITIES.find((c) => c.label === originLabel);
+    const dest = EUROPEAN_CITIES.find((c) => c.label === destLabel);
 
-    if (!route) {
+    if (!corridorId && (!origin || !dest)) {
+      setCalculating(false);
+      setRouteError("Изберете валидни градове.");
+      return;
+    }
+
+    if (!corridorId && origin?.id === dest?.id) {
       setCalculating(false);
       return;
     }
 
-    setTimeout(() => {
-      setActiveRoute(route);
-      setCalculating(false);
-    }, 400);
-  };
-
-  const handleCorridorCalculate = (corridorId: string) => {
-    setCalculating(true);
-    const corridor = TRAVEL_CORRIDORS.find((c) => c.id === corridorId);
-    const route = buildCorridorRoute(corridorId);
+    const corridor = corridorId
+      ? TRAVEL_CORRIDORS.find((c) => c.id === corridorId)
+      : null;
 
     if (corridor) {
-      setSelectedCorridor(corridorId);
+      setSelectedCorridor(corridorId!);
       setRouteBorders(corridor.borderIds);
-      const first = EUROPEAN_CITIES.find((c) => c.id === corridor.cityIds[0]);
-      const last = EUROPEAN_CITIES.find(
-        (c) => c.id === corridor.cityIds[corridor.cityIds.length - 1]
-      );
-      if (first) setOriginLabel(first.label);
-      if (last) setDestLabel(last.label);
+    } else {
+      setSelectedCorridor(null);
+      setRouteBorders([]);
     }
 
-    setTimeout(() => {
-      if (route) setActiveRoute(route);
+    const route = await fetchRoute({
+      corridorId: corridorId ?? undefined,
+      originId: origin?.id,
+      destinationId: dest?.id,
+    });
+
+    if (!route) {
+      setRouteError("Неуспешно изчисление. Опитайте отново.");
       setCalculating(false);
-    }, 400);
+      return;
+    }
+
+    if (corridor) setRouteBorders(corridor.borderIds);
+    setActiveRoute(route);
+    setCalculating(false);
   };
 
   const longHaul = activeRoute ? isLongHaul(activeRoute.duration_min) : false;
@@ -100,13 +123,13 @@ export default function RoutePage() {
           Планиране на маршрут
         </h1>
         <p className="mb-6 text-sm text-gray-400">
-          Маршрути из цяла Европа за български пътуващи — включително
-          дълги пътувания над 30 часа
+          Реални пътни разстояния чрез OSRM · маршрути из цяла Европа,
+          включително над 30 часа
         </p>
 
         <section className="mb-6">
           <h2 className="mb-3 text-sm font-medium text-gray-300">
-            Популярни коридори
+            Популярни коридори ({TRAVEL_CORRIDORS.length})
           </h2>
           <div className="flex flex-wrap gap-2">
             {TRAVEL_CORRIDORS.map((corridor) => (
@@ -174,16 +197,16 @@ export default function RoutePage() {
             </select>
           </div>
 
+          {routeError && (
+            <p className="text-sm text-red-400">{routeError}</p>
+          )}
+
           <button
-            onClick={() =>
-              selectedCorridor
-                ? handleCorridorCalculate(selectedCorridor)
-                : handleCalculate()
-            }
-            disabled={calculating || originLabel === destLabel}
+            onClick={() => runCalculation(selectedCorridor)}
+            disabled={calculating || (!selectedCorridor && originLabel === destLabel)}
             className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {calculating ? "Изчисляване..." : "Изчисли маршрут"}
+            {calculating ? "Изчисляване по пътища..." : "Изчисли маршрут"}
           </button>
         </div>
 
@@ -205,6 +228,11 @@ export default function RoutePage() {
               <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-300">
                 <span>📏 {activeRoute.distance_km} км</span>
                 <span>⏱️ {formatDuration(activeRoute.duration_min)}</span>
+                <span className="text-xs text-gray-500">
+                  {activeRoute.routing_source === "osrm"
+                    ? "🛣️ OSRM (реални пътища)"
+                    : "≈ оценка"}
+                </span>
                 {longHaul && (
                   <span className="text-amber-400">
                     🌙 Дълго пътуване — препоръчват се {restStops + 1} почивки
@@ -222,7 +250,7 @@ export default function RoutePage() {
                   href={`/borders?route=1${routeBorders.length ? `&border_ids=${routeBorders.join(",")}` : ""}`}
                   className="rounded bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
                 >
-                  Граници по маршрута
+                  Граници ({routeBorders.length || "всички"})
                 </Link>
                 <Link
                   href="/weather"
@@ -237,7 +265,7 @@ export default function RoutePage() {
                   Гориво / EV
                 </Link>
                 <Link
-                  href="/hotels"
+                  href={selectedCorridor ? `/hotels?corridor=${selectedCorridor}` : "/hotels"}
                   className="rounded bg-gray-700 px-4 py-2 text-sm text-white hover:bg-gray-600"
                 >
                   Почивки

@@ -5,7 +5,7 @@
 ## Функции
 
 - **Карта** — MapLibre GL с маршрут, трафик и общностни маркери (без API ключ)
-- **Маршрут** — планиране между 40+ европейски града и популярни коридори
+- **Маршрут** — реални пътни разстояния (OSRM) между 45+ града и 18 коридора
 - **Граници** — България + европейски транзитни пунктове; live опашки (Nakordoni)
 - **Гориво / EV** — бензиностанции и зарядни точки
 - **Време** — прогноза по маршрута (Open-Meteo, без ключ)
@@ -41,6 +41,7 @@ npm run dev
 | `NAKORDONI_API_KEY` | **Безплатен** — live опашки + камери на границите ([nakordoni.eu](https://nakordoni.eu/en/developers)) |
 | `WINDY_WEBCAMS_API_KEY` | По избор — вградени webcam изображения ([Windy](https://api.windy.com/webcams)) |
 | `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Регистрация и профил |
+| `OSRM_API_URL` | Не | Собствен OSRM сървър (по подразбиране: публичен demo) |
 | `TOMTOM_API_KEY` | Реален трафик |
 
 **Времето** използва [Open-Meteo](https://open-meteo.com) — **без API ключ**, open-source.

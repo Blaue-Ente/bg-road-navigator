@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { RestAreaCard } from "@/components/hotels/RestAreaCard";
 import {
   EUROPEAN_REST_AREAS,
@@ -9,7 +10,19 @@ import {
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 
 export default function HotelsPage() {
-  const [selectedCorridor, setSelectedCorridor] = useState<string | null>(null);
+  return (
+    <Suspense fallback={<div className="p-4 text-gray-400">Зареждане...</div>}>
+      <HotelsPageContent />
+    </Suspense>
+  );
+}
+
+function HotelsPageContent() {
+  const searchParams = useSearchParams();
+  const corridorFromUrl = searchParams.get("corridor");
+  const [selectedCorridor, setSelectedCorridor] = useState<string | null>(
+    corridorFromUrl
+  );
 
   const areas = selectedCorridor
     ? getRestAreasForCorridor(selectedCorridor)
