@@ -17,5 +17,6 @@ export const MAP_STYLE_OPTIONS = {
 } as const;
 
 export function getMapStyleUrl(): string {
-  return process.env.NEXT_PUBLIC_MAP_STYLE_URL ?? WAZE_DARK_STYLE;
+  const configured = process.env.NEXT_PUBLIC_MAP_STYLE_URL?.trim();
+  return configured || WAZE_DARK_STYLE;
 }

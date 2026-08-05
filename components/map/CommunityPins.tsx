@@ -3,20 +3,28 @@
 import { useEffect } from "react";
 import type { Map } from "maplibre-gl";
 import type { CommunityPin } from "@/types/community.types";
+import { isMapReady } from "@/lib/map/is-map-ready";
 
 export interface CommunityPinsProps {
   map: Map | null;
   pins?: CommunityPin[];
 }
 
+function removeCommunityPinsLayer(map: Map) {
+  if (!isMapReady(map)) return;
+  if (map.getLayer("community-pins")) {
+    map.removeLayer("community-pins");
+  }
+  if (map.getSource("community-pins")) {
+    map.removeSource("community-pins");
+  }
+}
+
 export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
   useEffect(() => {
-    if (!map) return;
+    if (!isMapReady(map)) return;
 
-    if (map.getLayer("community-pins")) {
-      map.removeLayer("community-pins");
-      map.removeSource("community-pins");
-    }
+    removeCommunityPinsLayer(map);
 
     if (pins.length > 0) {
       const colorMap = {
@@ -66,10 +74,7 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
     }
 
     return () => {
-      if (map.getLayer("community-pins")) {
-        map.removeLayer("community-pins");
-        map.removeSource("community-pins");
-      }
+      removeCommunityPinsLayer(map);
     };
   }, [map, pins]);
 
