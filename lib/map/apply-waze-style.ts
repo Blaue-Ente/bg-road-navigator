@@ -4,6 +4,7 @@
 
 import type { Map } from "maplibre-gl";
 import { theme } from "@/lib/constants/theme";
+import { isMapReady } from "@/lib/map/is-map-ready";
 
 const ROAD_LAYER_PAINT: Record<string, Record<string, unknown>> = {
   motorway: { "line-color": "#4a6a8a", "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 3, 16, 6] },
@@ -27,6 +28,8 @@ function patchLayer(map: Map, layerId: string, paint: Record<string, unknown>) {
 }
 
 export function applyWazeMapTheme(map: Map): void {
+  if (!isMapReady(map)) return;
+
   // Darken background / water for Waze feel
   const backgroundLayers = ["background", "water", "water_shadow"];
   for (const id of backgroundLayers) {
@@ -76,7 +79,7 @@ export function fitMapToRoute(
   map: Map,
   coordinates: [number, number][]
 ): void {
-  if (coordinates.length < 2) return;
+  if (!isMapReady(map) || coordinates.length < 2) return;
 
   let minLng = Infinity;
   let minLat = Infinity;
