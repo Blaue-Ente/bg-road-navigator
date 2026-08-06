@@ -29,7 +29,7 @@ export const LONG_HAUL_TIPS: TravelTip[] = [
     id: "vignettes",
     category: "documents",
     title: "Винетки и пътни такси",
-    body: "Проверете винетки за AT, HU, CH, SI, CZ и електронни тол системи (HU, PL). Запазете касови бележки.",
+    body: "Купувайте само от официални портали (BGTOLL, ASFINAG, e-matrica, DARS, edalnice…). Вижте секция Винетки в приложението.",
     priority: "high",
   },
   {

@@ -8,6 +8,7 @@ import { MenuIcon } from "@/components/icons/NavIcons";
 const MENU_ITEMS = [
   { href: "/weather", label: "Време", emoji: "🌤️" },
   { href: "/tips", label: "Съвети", emoji: "💡" },
+  { href: "/vignettes", label: "Винетки", emoji: "🎫" },
   { href: "/community", label: "Общност", emoji: "📍" },
   { href: "/hotels", label: "Почивки", emoji: "🏨" },
   { href: "/profile", label: "Профил", emoji: "👤" },

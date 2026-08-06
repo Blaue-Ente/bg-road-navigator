@@ -6,7 +6,7 @@ interface RouteState {
   destination: GeoPoint | null;
   waypoints: GeoPoint[];
   activeRoute: Route | null;
-  /** Populated when OSRM alternatives are enabled (Phase 3). */
+  /** Populated from OSRM alternatives when available. */
   alternativeRoutes: Route[];
   routeStatus: "idle" | "loading" | "success" | "error";
   routeError: string | null;

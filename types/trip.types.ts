@@ -6,7 +6,12 @@ export type TripStopType =
   | "rest"
   | "overnight";
 
-export type TripStopSource = "calculation" | "curated_rest_area";
+export type TripStopSource =
+  | "calculation"
+  | "curated_rest_area"
+  | "ai_nvidia";
+
+export type TripPlannerSource = "heuristic" | "nvidia";
 
 export interface TripPlanStop {
   id: string;
@@ -23,6 +28,8 @@ export interface TripPlanStop {
 
 export interface TripPlan {
   generated_at: string;
+  /** Which planner produced this plan (AI always falls back to heuristic). */
+  planner_source?: TripPlannerSource;
   assumptions: {
     driving_break_every_min: number;
     overnight_after_min: number;

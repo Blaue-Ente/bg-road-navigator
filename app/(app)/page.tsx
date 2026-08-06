@@ -41,6 +41,7 @@ function MapFallback() {
 
 export default function MapPage() {
   const activeRoute = useRouteStore((s) => s.activeRoute);
+  const alternativeRoutes = useRouteStore((s) => s.alternativeRoutes);
   const localPins = useCommunityStore((s) => s.pins);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
   const dropCoords = useCommunityStore((s) => s.dropCoords);
@@ -93,7 +94,11 @@ export default function MapPage() {
         wazeTheme
       />
       <MapControls map={mapInstance} />
-      <RouteLayer map={mapInstance} route={activeRoute} />
+      <RouteLayer
+        map={mapInstance}
+        route={activeRoute}
+        alternatives={alternativeRoutes}
+      />
       <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
       <CommunityPins map={mapInstance} pins={communityPins} />
 

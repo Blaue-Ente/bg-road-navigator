@@ -4,7 +4,12 @@
 
 import { getCityById } from "@/lib/constants/european-cities";
 import { getCorridorById } from "@/lib/utils/route-planner";
-import type { Route, RoutePoint, RouteWaypoint } from "@/types/route.types";
+import type {
+  Route,
+  RouteAlternative,
+  RoutePoint,
+  RouteWaypoint,
+} from "@/types/route.types";
 
 const ROAD_FACTOR = 1.28;
 const AVG_SPEED_KMH = 85;
@@ -21,6 +26,7 @@ export interface RouteMetrics {
   duration_min: number;
   geometry: GeoJSON.LineString;
   routing_source: RoutingSource;
+  alternatives?: RouteAlternative[];
 }
 
 function haversineKm(
@@ -89,6 +95,13 @@ export function buildEstimatedRoute(
   const origin = points[0]!;
   const destination = points[points.length - 1]!;
 
+  const alternatives: RouteAlternative[] = (overrides?.alternatives ?? []).map(
+    (alt, index) => ({
+      ...alt,
+      id: alt.id || `alt-${Date.now()}-${index}`,
+    })
+  );
+
   return {
     id: `route-${Date.now()}`,
     origin: { id: origin.id, label: origin.label, coords: origin.coords },
@@ -101,7 +114,7 @@ export function buildEstimatedRoute(
     distance_km,
     duration_min,
     geometry,
-    alternatives: [],
+    alternatives,
     routing_source,
     corridor_id: corridorId,
   };

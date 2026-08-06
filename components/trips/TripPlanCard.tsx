@@ -82,7 +82,8 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
             План за пътуването
           </h2>
           <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-            Автоматични почивки, зареждане и нощувки според маршрута.
+            Автоматични почивки, зареждане и нощувки — AI когато е наличен,
+            иначе евристика.
           </p>
         </div>
         <button
@@ -98,6 +99,20 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
 
       {plan && (
         <>
+          <div className="mt-3">
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
+                plan.planner_source === "nvidia"
+                  ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)]"
+                  : "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-muted)]"
+              }`}
+            >
+              {plan.planner_source === "nvidia"
+                ? "NVIDIA AI"
+                : "Евристичен план"}
+            </span>
+          </div>
+
           <div className="mt-4 space-y-2">
             {plan.stops.length === 0 ? (
               <p className="text-sm text-[var(--waze-text-muted)]">
@@ -157,8 +172,11 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
           )}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/fuel" className="waze-btn-secondary px-3 py-2 text-sm">
+            <Link href="/fuel?route=1" className="waze-btn-secondary px-3 py-2 text-sm">
               Избери гориво / EV
+            </Link>
+            <Link href="/vignettes" className="waze-btn-secondary px-3 py-2 text-sm">
+              Винетки
             </Link>
             <Link href="/hotels" className="waze-btn-secondary px-3 py-2 text-sm">
               Виж почивки

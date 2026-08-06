@@ -29,6 +29,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Categories include camera / food / overnight (`008_community_categories_comments.sql`)
 - Apply Supabase migrations through `008` before enabling community writes in production.
 
+### Phase 3 — borders / vignettes / fuel / AI
+
+- Border alternatives: `lib/constants/border-alternatives.ts` + `BorderAlternatives` on `/borders`
+- OSRM route alternatives: `fetchOsrmRoute` with `alternatives=true`; picker on `/route`; drawn on home map via `alternativeRoutes`
+- Official vignettes only: `lib/constants/vignettes.ts`, `/vignettes`, also on tips/borders/route
+- Route-scoped fuel/EV: `GET /api/fuel?route=lng,lat;...` and `/fuel?route=1` with active route
+- Trip planner: try NVIDIA (`NVIDIA_API_KEY`) then always fall back to heuristic; `planner_source` on response
+
 ### Dev commands
 
 See `README.md` / `package.json`: `npm run dev`, `npm run lint`, `npm test`, `npm run build`.
