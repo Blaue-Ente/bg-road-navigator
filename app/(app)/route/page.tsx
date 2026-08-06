@@ -16,7 +16,9 @@ import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
-import type { Route, RoutePoint } from "@/types/route.types";
+import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
+import { OFFICIAL_VIGNETTE_LINKS } from "@/lib/constants/vignettes";
+import type { Route, RouteAlternative, RoutePoint } from "@/types/route.types";
 
 async function fetchRoute(params: {
   corridorId?: string;
@@ -49,7 +51,12 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 }
 
 export default function RoutePage() {
-  const { activeRoute, setActiveRoute, clearRoute } = useRouteStore();
+  const {
+    activeRoute,
+    setActiveRoute,
+    setAlternativeRoutes,
+    clearRoute,
+  } = useRouteStore();
   const [origin, setOrigin] = useState<RoutePoint | null>(() =>
     activeRoute
       ? { ...activeRoute.origin, source: "user" }
@@ -64,6 +71,40 @@ export default function RoutePage() {
   const [calculating, setCalculating] = useState(false);
   const [routeBorders, setRouteBorders] = useState<string[]>([]);
   const [routeError, setRouteError] = useState<string | null>(null);
+
+  const promoteAlternative = (alt: RouteAlternative) => {
+    if (!activeRoute) return;
+    const previousMain: RouteAlternative = {
+      id: `prev-${activeRoute.id}`,
+      distance_km: activeRoute.distance_km,
+      duration_min: activeRoute.duration_min,
+      geometry: activeRoute.geometry,
+      weight: 0,
+    };
+    const remaining = [
+      previousMain,
+      ...activeRoute.alternatives.filter((a) => a.id !== alt.id),
+    ];
+    const next: Route = {
+      ...activeRoute,
+      id: `route-${Date.now()}`,
+      distance_km: alt.distance_km,
+      duration_min: alt.duration_min,
+      geometry: alt.geometry,
+      alternatives: remaining,
+    };
+    setActiveRoute(next);
+    setAlternativeRoutes(
+      remaining.map((a) => ({
+        ...activeRoute,
+        id: a.id,
+        distance_km: a.distance_km,
+        duration_min: a.duration_min,
+        geometry: a.geometry,
+        alternatives: [],
+      }))
+    );
+  };
 
   const handleCorridorSelect = (corridorId: string) => {
     const corridor = TRAVEL_CORRIDORS.find((c) => c.id === corridorId);
@@ -118,6 +159,16 @@ export default function RoutePage() {
 
     if (corridor) setRouteBorders(corridor.borderIds);
     setActiveRoute(route);
+    setAlternativeRoutes(
+      (route.alternatives ?? []).map((alt) => ({
+        ...route,
+        id: alt.id,
+        distance_km: alt.distance_km,
+        duration_min: alt.duration_min,
+        geometry: alt.geometry,
+        alternatives: [],
+      }))
+    );
     setCalculating(false);
   };
 
@@ -246,8 +297,14 @@ export default function RoutePage() {
                 <Link href="/weather" className="waze-btn-secondary px-4 py-2 text-sm">
                   Прогноза
                 </Link>
-                <Link href="/fuel" className="waze-btn-secondary px-4 py-2 text-sm">
-                  Гориво
+                <Link
+                  href="/fuel?route=1"
+                  className="waze-btn-secondary px-4 py-2 text-sm"
+                >
+                  Гориво по маршрута
+                </Link>
+                <Link href="/vignettes" className="waze-btn-secondary px-4 py-2 text-sm">
+                  Винетки
                 </Link>
                 <Link
                   href={selectedCorridor ? `/hotels?corridor=${selectedCorridor}` : "/hotels"}
@@ -272,7 +329,34 @@ export default function RoutePage() {
               </div>
             </WazeCard>
 
+            {activeRoute.alternatives.length > 0 && (
+              <WazeCard>
+                <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
+                  Алтернативни маршрути ({activeRoute.alternatives.length})
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {activeRoute.alternatives.map((alt, index) => (
+                    <button
+                      key={alt.id}
+                      type="button"
+                      onClick={() => promoteAlternative(alt)}
+                      className="waze-chip"
+                    >
+                      Вариант {index + 1}: {alt.distance_km} км ·{" "}
+                      {formatDuration(alt.duration_min)}
+                    </button>
+                  ))}
+                </div>
+              </WazeCard>
+            )}
+
             <TripPlanCard route={activeRoute} />
+
+            <VignetteLinks
+              links={OFFICIAL_VIGNETTE_LINKS.slice(0, 5)}
+              title="Винетки по пътя"
+              compact
+            />
 
             {routeBorders.length > 0 && (
               <WazeCard>
@@ -280,8 +364,8 @@ export default function RoutePage() {
                   Граници по маршрута ({routeBorders.length})
                 </h3>
                 <p className="text-xs text-[var(--waze-text-muted)]">
-                  Проверете опашките преди тръгване — особено при пътувания над
-                  24 часа.
+                  Проверете опашките и алтернативните пролази преди тръгване —
+                  особено при пътувания над 24 часа.
                 </p>
               </WazeCard>
             )}

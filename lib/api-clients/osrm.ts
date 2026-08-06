@@ -10,6 +10,13 @@ export interface OsrmRouteResult {
   distance_km: number;
   duration_min: number;
   geometry: GeoJSON.LineString;
+  /** Extra OSRM routes when alternatives were requested. */
+  alternatives: Array<{
+    distance_km: number;
+    duration_min: number;
+    geometry: GeoJSON.LineString;
+    weight: number;
+  }>;
 }
 
 interface OsrmResponse {
@@ -17,6 +24,7 @@ interface OsrmResponse {
   routes?: Array<{
     distance: number;
     duration: number;
+    weight?: number;
     geometry: GeoJSON.LineString;
   }>;
 }
@@ -35,12 +43,17 @@ export function buildOsrmCoordinateString(
 }
 
 export async function fetchOsrmRoute(
-  coords: Array<{ lng: number; lat: number }>
+  coords: Array<{ lng: number; lat: number }>,
+  options?: { alternatives?: boolean }
 ): Promise<OsrmRouteResult | null> {
   if (coords.length < 2) return null;
 
   const coordinateString = buildOsrmCoordinateString(coords);
-  const url = `${getOsrmBaseUrl()}/route/v1/driving/${coordinateString}?overview=full&geometries=geojson&steps=false`;
+  const wantAlts = options?.alternatives ?? true;
+  const url =
+    `${getOsrmBaseUrl()}/route/v1/driving/${coordinateString}` +
+    `?overview=full&geometries=geojson&steps=false` +
+    (wantAlts ? "&alternatives=true" : "");
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -55,13 +68,22 @@ export async function fetchOsrmRoute(
     if (!response.ok) return null;
 
     const data = (await response.json()) as OsrmResponse;
-    const route = data.routes?.[0];
-    if (data.code !== "Ok" || !route) return null;
+    const routes = data.routes ?? [];
+    const primary = routes[0];
+    if (data.code !== "Ok" || !primary) return null;
 
-    return {
+    const alternatives = routes.slice(1, 4).map((route, index) => ({
       distance_km: Math.round(route.distance / 1000),
       duration_min: Math.round(route.duration / 60),
       geometry: route.geometry,
+      weight: route.weight ?? index + 1,
+    }));
+
+    return {
+      distance_km: Math.round(primary.distance / 1000),
+      duration_min: Math.round(primary.duration / 60),
+      geometry: primary.geometry,
+      alternatives,
     };
   } catch {
     return null;

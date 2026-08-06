@@ -7,9 +7,12 @@ import { BorderCard } from "@/components/borders/BorderCard";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
 import { BorderWebcam } from "@/components/borders/BorderWebcam";
 import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
+import { BorderAlternatives } from "@/components/borders/BorderAlternatives";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
 import type { EuropeanBorderRegion } from "@/lib/constants/european-borders";
+import { vignettesForCountryPairs } from "@/lib/constants/vignettes";
 
 type TabId = "bulgaria" | "europe" | "route";
 
@@ -91,6 +94,9 @@ function BorderPageContent() {
   }
 
   const hasLiveData = displayedBorders.some((b) => b.data_source === "nakordoni");
+  const routeVignettes = vignettesForCountryPairs(
+    displayedBorders.map((b) => b.country_pair)
+  );
 
   return (
     <div className="waze-page">
@@ -128,6 +134,16 @@ function BorderPageContent() {
           : "Оценка по исторически данни · добавете NAKORDONI_API_KEY за live опашки"}
       </p>
 
+      {routeVignettes.length > 0 && (
+        <div className="mb-6">
+          <VignetteLinks
+            links={routeVignettes}
+            title="Винетки за тези държави"
+            compact
+          />
+        </div>
+      )}
+
       <div className="grid gap-4">
         {displayedBorders.length === 0 ? (
           <p className="text-center text-gray-500">Няма граници за показване.</p>
@@ -146,6 +162,11 @@ function BorderPageContent() {
                   )}
                 </div>
               </div>
+
+              <BorderAlternatives
+                border={border}
+                allBorders={borderStatus ?? []}
+              />
 
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <BorderStatsChart

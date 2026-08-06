@@ -208,6 +208,7 @@ export function buildTripPlan(
 
   return {
     generated_at: new Date().toISOString(),
+    planner_source: "heuristic",
     assumptions: {
       driving_break_every_min: breakEveryMin,
       overnight_after_min: overnightAfterMin,

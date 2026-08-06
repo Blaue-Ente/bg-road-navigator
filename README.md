@@ -77,7 +77,9 @@ npm run lint   # ESLint
 | `WINDY_WEBCAMS_API_KEY` | Не | Безплатен Windy ключ за вградени webcam изображения |
 | `NEXT_PUBLIC_SUPABASE_URL` | Не | Supabase auth |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Не | Supabase anon key |
-| `TOMTOM_API_KEY` | Не | Реален трафик |
+| `TOMTOM_API_KEY` | Не | Реален трафик / бензиностанции |
+| `OPENCHARGE_API_KEY` | Не | EV зарядни станции |
+| `NVIDIA_API_KEY` | Не | AI trip planner (пада към евристика без ключ) |
 
 Railway задава `PORT` автоматично — не го променяй.
 

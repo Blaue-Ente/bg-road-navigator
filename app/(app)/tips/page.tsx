@@ -8,6 +8,7 @@ import {
 } from "@/lib/constants/travel-tips";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as TravelTip["category"][];
 
@@ -32,6 +33,10 @@ export default function TipsPage() {
           title="Съвети за пътуване"
           subtitle="Граници, гориво, почивки и безопасност при дълги пътувания"
         />
+
+        <div className="mb-6">
+          <VignetteLinks compact title="Официални винетки" />
+        </div>
 
         <div className="mb-6 flex flex-wrap gap-2">
           <button

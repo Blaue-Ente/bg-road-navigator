@@ -89,6 +89,13 @@ export async function POST(request: NextRequest) {
         duration_min: osrm.duration_min,
         geometry: osrm.geometry,
         routing_source: "osrm",
+        alternatives: osrm.alternatives.map((alt, index) => ({
+          id: `osrm-alt-${index}`,
+          distance_km: alt.distance_km,
+          duration_min: alt.duration_min,
+          geometry: alt.geometry,
+          weight: alt.weight,
+        })),
       });
       return NextResponse.json(route);
     }

@@ -37,4 +37,8 @@ export interface EVStation {
 export interface FuelApiResponse {
   fuelStations: FuelStation[];
   evStations: EVStation[];
+  /** True when TomTom / OpenCharge keys are missing (empty results expected). */
+  degraded?: boolean;
+  mode?: "route" | "bbox" | "default";
+  bbox?: { w: number; s: number; e: number; n: number } | null;
 }

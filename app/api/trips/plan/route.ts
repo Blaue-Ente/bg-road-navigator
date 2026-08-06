@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { fetchNvidiaTripPlan } from "@/lib/api-clients/nvidia";
 import { buildTripPlan } from "@/lib/utils/trip-stop-planner";
 import type { Route } from "@/types/route.types";
 
@@ -50,6 +51,8 @@ const PlanRequestSchema = z.object({
     break_every_min: z.number().int().min(120).max(360).optional(),
     overnight_after_min: z.number().int().min(480).max(900).optional(),
   }),
+  /** Prefer NVIDIA when configured; always falls back to heuristic. */
+  prefer_ai: z.boolean().optional().default(true),
 });
 
 export async function POST(request: NextRequest) {
@@ -62,9 +65,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      buildTripPlan(parsed.data.route as Route, parsed.data.preferences)
-    );
+    const route = parsed.data.route as Route;
+    const preferences = parsed.data.preferences;
+
+    if (parsed.data.prefer_ai) {
+      const aiPlan = await fetchNvidiaTripPlan(route, preferences);
+      if (aiPlan) return NextResponse.json(aiPlan);
+    }
+
+    return NextResponse.json(buildTripPlan(route, preferences));
   } catch (error) {
     console.error("Trip plan API error:", error);
     return NextResponse.json(
