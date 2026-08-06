@@ -31,21 +31,35 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Отворете [http://localhost:3000](http://localhost:3000).
+Отворете [http://localhost:3000](http://localhost:3000) или [http://localhost:3000/setup](http://localhost:3000/setup).
 
-Приложението работи и **без API ключове** (с демо/оценъчни данни). За пълна функционалност:
+Приложението работи и **без API ключове** (карта, маршрут, оценки за граници, винетки, евристичен план).  
+Кодът е в режим **keys-only**: остава да попълните `.env.local` и веднъж Supabase SQL.
 
-| Променлива | Услуга |
-|------------|--------|
-| `NEXT_PUBLIC_MAP_STYLE_URL` | По избор — custom MapLibre style URL |
-| `NAKORDONI_API_KEY` | **Безплатен** — live опашки + камери на границите ([nakordoni.eu](https://nakordoni.eu/en/developers)) |
-| `WINDY_WEBCAMS_API_KEY` | По избор — вградени webcam изображения ([Windy](https://api.windy.com/webcams)) |
-| `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Регистрация и профил |
-| `OSRM_API_URL` | Не | Собствен OSRM сървър (по подразбиране: публичен demo) |
-| `GEOCODING_API_URL` | Не | Собствен/договорен geocoding provider; без стойност ползва Nominatim server-side с кеш |
-| `TOMTOM_API_KEY` | Реален трафик |
+### Keys-only checklist
 
-**Времето** използва [Open-Meteo](https://open-meteo.com) — **без API ключ**, open-source.
+1. `cp .env.example .env.local` и попълнете ключовете (виж таблицата по-долу)
+2. Supabase проект → URL + anon key
+3. В SQL Editor: съдържанието на `supabase/apply_all.sql` (веднъж)
+4. Supabase Auth → Redirect URLs: `http://localhost:3000` и публичният URL
+5. Рестарт на `npm run dev` → проверка: [`/api/config/status`](http://localhost:3000/api/config/status)
+
+| Променлива | Услуга | Нужна? |
+|------------|--------|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Акаунти, любими, общност | За auth/writes |
+| `NAKORDONI_API_KEY` | Live гранични опашки ([nakordoni.eu](https://nakordoni.eu/en/developers)) | Препоръчително (безплатно) |
+| `WINDY_WEBCAMS_API_KEY` | Webcam изображения ([Windy](https://api.windy.com/webcams)) | По избор |
+| `TOMTOM_API_KEY` | Трафик + бензиностанции | По избор |
+| `OPENCHARGE_API_KEY` | EV зарядни | По избор |
+| `NVIDIA_API_KEY` | AI план (иначе евристика) | По избор |
+| `NEXT_PUBLIC_APP_URL` | Публичен URL / Auth redirects | Препоръчително при deploy |
+| `NEXT_PUBLIC_MAP_STYLE_URL` | Custom MapLibre style | По избор |
+| `OSRM_API_URL` | Собствен OSRM | По избор |
+| `GEOCODING_API_URL` | Собствен geocoder | По избор |
+
+**Времето** използва [Open-Meteo](https://open-meteo.com) — **без API ключ**.
+
+Статус без секрети: `GET /api/config/status` · health: `GET /api/health` · UI: `/setup`
 
 ## Скриптове
 
@@ -72,14 +86,16 @@ npm run lint   # ESLint
 
 | Променлива | Задължителна | Описание |
 |------------|--------------|----------|
-| `NEXT_PUBLIC_APP_URL` | Да | Публичният URL на услугата, напр. `https://bg-navigator.up.railway.app` |
-| `NAKORDONI_API_KEY` | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) — live гранични опашки |
-| `WINDY_WEBCAMS_API_KEY` | Не | Безплатен Windy ключ за вградени webcam изображения |
-| `NEXT_PUBLIC_SUPABASE_URL` | Не | Supabase auth |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Не | Supabase anon key |
-| `TOMTOM_API_KEY` | Не | Реален трафик / бензиностанции |
-| `OPENCHARGE_API_KEY` | Не | EV зарядни станции |
-| `NVIDIA_API_KEY` | Не | AI trip planner (пада към евристика без ключ) |
+| `NEXT_PUBLIC_APP_URL` | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app` (Auth redirects) |
+| `NEXT_PUBLIC_SUPABASE_URL` | За акаунти | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | За акаунти | Supabase anon key |
+| `NAKORDONI_API_KEY` | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) |
+| `WINDY_WEBCAMS_API_KEY` | Не | Windy webcams |
+| `TOMTOM_API_KEY` | Не | Трафик + гориво |
+| `OPENCHARGE_API_KEY` | Не | EV станции |
+| `NVIDIA_API_KEY` | Не | AI trip planner |
+
+След Supabase ключовете приложете `supabase/apply_all.sql` веднъж в SQL Editor.
 
 Railway задава `PORT` автоматично — не го променяй.
 
@@ -99,5 +115,6 @@ PORT=3000 npm run start
 ### Бележки
 
 - Картата (MapLibre) работи без API ключ
-- Health check: `GET /` (зададен в `railway.toml`)
+- Health check: `GET /api/health` (или `/`)
+- След deploy: отворете `/setup` и `/api/config/status`
 - За custom домейн: Railway → Settings → Custom Domain → CNAME към Railway

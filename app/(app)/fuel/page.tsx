@@ -77,7 +77,10 @@ function FuelPageContent() {
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-muted)]">
               Липсват TomTom / OpenCharge ключове — списъкът е празен докато не
-              се конфигурират.
+              се конфигурират.{" "}
+              <a href="/setup" className="text-[var(--waze-accent)] underline">
+                Настройка
+              </a>
             </p>
           </WazeCard>
         )}

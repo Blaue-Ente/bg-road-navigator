@@ -8,6 +8,7 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { SavedRoutesPanel } from "@/components/profile/SavedRoutesPanel";
 import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
+import { ServicesStatusPanel } from "@/components/setup/ServicesStatusPanel";
 import { signOut } from "@/lib/auth/sign-out";
 
 export default function ProfilePage() {
@@ -49,6 +50,7 @@ export default function ProfilePage() {
           </WazeCard>
 
           <ProfileEditForm />
+          <ServicesStatusPanel compact />
           <SavedRoutesPanel />
           <SavedPlacesPanel />
 
