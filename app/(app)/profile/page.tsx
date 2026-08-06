@@ -1,87 +1,121 @@
 "use client";
 
+import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
+import { RequireAuth } from "@/components/auth/RequireAuth";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { WazeCard } from "@/components/ui/WazeCard";
+import { signOut } from "@/lib/auth/sign-out";
+
+const VEHICLE_LABELS = {
+  car: "Автомобил",
+  ev: "Електромобил",
+  truck: "Камион",
+  motorcycle: "Мотоциклет",
+} as const;
+
+const FUEL_LABELS = {
+  diesel: "Дизел",
+  petrol: "Бензин",
+  lpg: "Газ",
+  electric: "Електричество",
+} as const;
 
 export default function ProfilePage() {
-  const userStore = useUserStore();
-  const userSession = userStore.session;
-  const profile = userStore.profile;
-  const authenticated = userSession !== null;
+  const session = useUserStore((s) => s.session);
+  const profile = useUserStore((s) => s.profile);
 
-  if (!authenticated) {
-    return (
-      <div className="text-center p-8">
-        <p>Моля влезте за да видите профил.</p>
-        <a href="/login" className="mt-4 inline-block text-blue-400">
-          Влез
-        </a>
-      </div>
-    );
-  }
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = "/";
+  };
 
   return (
-    <div className="p-4 pb-20">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-blue-400">Профил</h1>
-          <button
-            onClick={() => {
-              // Logout logic
-              userStore.clearUser();
-              window.location.href = "/";
-            }}
-            className="text-sm text-gray-400 hover:text-red-400"
-          >
-            Изход
-          </button>
-        </div>
+    <div className="waze-page">
+      <div className="mx-auto max-w-2xl">
+        <PageHeader
+          title="Профил"
+          subtitle="Любими, запазени маршрути и настройки на превозното средство"
+        />
 
-        {/* Profile info */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700">
-          <p className="text-lg mb-2">
-            Потребител: <span className="text-blue-400 font-medium">{profile?.username || userSession?.user.email}</span>
-          </p>
-          
-          <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
-            <div>
-              <span className="text-gray-400">Транспорт:</span>
-              <span className="ml-2">{profile?.vehicle_type === "car" ? "Автомобил" : 
-                profile?.vehicle_type === "ev" ? "Електромобили" : 
-                profile?.vehicle_type === "truck" ? "Камион" : "Мотоциклет"}</span>
-            </div>
-            <div>
-              <span className="text-gray-400">Гориво:</span>
-              <span className="ml-2">{profile?.fuel_type === "diesel" ? "Дизел" :
-                profile?.fuel_type === "petrol" ? "Бензин" :
-                profile?.fuel_type === "lpg" ? "Газ" : "Електрическо"}</span>
-            </div>
-          </div>
-          
-          {profile?.tank_capacity_liters && (
-            <div className="mt-3 text-sm">
-              <span className="text-gray-400">Резервоар:</span>
-              <span className="ml-2">{profile.tank_capacity_liters} л</span>
-            </div>
-          )}
-          
-          {profile?.ev_range_km && (
-            <div className="mt-3 text-sm">
-              <span className="text-gray-400">Обхват:</span>
-              <span className="ml-2">{profile.ev_range_km} км</span>
-            </div>
-          )}
-        </div>
+        <RequireAuth reason="Влезте, за да видите профила и запазените маршрути.">
+          <div className="space-y-4">
+            <WazeCard>
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold text-[var(--waze-text)]">
+                    {profile?.username || session?.user.email}
+                  </p>
+                  <p className="text-sm text-[var(--waze-text-muted)]">
+                    {session?.user.email}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className="text-sm text-[var(--waze-text-muted)] hover:text-red-400"
+                >
+                  Изход
+                </button>
+              </div>
 
-        {/* Saved Routes Section */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-blue-400">Запазени маршрути</h2>
-          <div className="space-y-3">
-            {/* Placeholder - actual saved routes from Supabase */}
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-              <p className="text-gray-400">Няма запазени маршрути</p>
-            </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-[var(--waze-text-muted)]">Транспорт</span>
+                  <p className="font-medium">
+                    {profile
+                      ? VEHICLE_LABELS[profile.vehicle_type]
+                      : "—"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[var(--waze-text-muted)]">Гориво</span>
+                  <p className="font-medium">
+                    {profile ? FUEL_LABELS[profile.fuel_type] : "—"}
+                  </p>
+                </div>
+                {profile?.tank_capacity_liters != null && (
+                  <div>
+                    <span className="text-[var(--waze-text-muted)]">Резервоар</span>
+                    <p className="font-medium">{profile.tank_capacity_liters} л</p>
+                  </div>
+                )}
+                {profile?.ev_range_km != null && (
+                  <div>
+                    <span className="text-[var(--waze-text-muted)]">Обхват</span>
+                    <p className="font-medium">{profile.ev_range_km} км</p>
+                  </div>
+                )}
+              </div>
+            </WazeCard>
+
+            <WazeCard>
+              <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent)]">
+                Запазени маршрути
+              </h2>
+              <p className="text-sm text-[var(--waze-text-muted)]">
+                Още няма запазени маршрути. Планирайте маршрут и го запазете от
+                екрана „Маршрут“ (идва във Фаза 1).
+              </p>
+              <Link
+                href="/route"
+                className="mt-3 inline-flex waze-btn-secondary px-4 py-2 text-xs"
+              >
+                Към планиране
+              </Link>
+            </WazeCard>
+
+            <WazeCard>
+              <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent)]">
+                Любими места
+              </h2>
+              <p className="text-sm text-[var(--waze-text-muted)]">
+                Любими граници, бензиностанции и места за почивка ще се появят
+                тук след следващата фаза.
+              </p>
+            </WazeCard>
           </div>
-        </div>
+        </RequireAuth>
       </div>
     </div>
   );
