@@ -4,6 +4,7 @@
 
 export type CommunityPinCategory =
   | "police"
+  | "camera"
   | "accident"
   | "hazard"
   | "road_works"
@@ -11,6 +12,8 @@ export type CommunityPinCategory =
   | "fuel_issue"
   | "border_info"
   | "rest_area"
+  | "overnight"
+  | "food"
   | "point_of_interest"
   | "other";
 

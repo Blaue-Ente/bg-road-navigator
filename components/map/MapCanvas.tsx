@@ -11,22 +11,28 @@ const DEFAULT_ZOOM = 7;
 
 export interface MapCanvasProps {
   onMapLoad?: (map: maplibregl.Map) => void;
+  onMapClick?: (coords: { lng: number; lat: number }) => void;
   className?: string;
   center?: [number, number];
   zoom?: number;
   wazeTheme?: boolean;
+  /** Crosshair cursor when waiting for a report drop. */
+  dropMode?: boolean;
 }
 
 export function MapCanvas({
   onMapLoad,
+  onMapClick,
   className,
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
   wazeTheme = true,
+  dropMode = false,
 }: MapCanvasProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<maplibregl.Map | null>(null);
   const onMapLoadRef = useRef(onMapLoad);
+  const onMapClickRef = useRef(onMapClick);
   const wazeThemeRef = useRef(wazeTheme);
   const initialCenterRef = useRef(center);
   const initialZoomRef = useRef(zoom);
@@ -34,6 +40,10 @@ export function MapCanvas({
   useEffect(() => {
     onMapLoadRef.current = onMapLoad;
   }, [onMapLoad]);
+
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
 
   useEffect(() => {
     wazeThemeRef.current = wazeTheme;
@@ -64,6 +74,13 @@ export function MapCanvas({
       onMapLoadRef.current?.(map);
     });
 
+    map.on("click", (event) => {
+      onMapClickRef.current?.({
+        lng: event.lngLat.lng,
+        lat: event.lngLat.lat,
+      });
+    });
+
     return () => {
       map.remove();
       mapInstance.current = null;
@@ -87,6 +104,12 @@ export function MapCanvas({
       map.setZoom(zoom);
     }
   }, [zoom]);
+
+  useEffect(() => {
+    const canvas = mapInstance.current?.getCanvas();
+    if (!canvas) return;
+    canvas.style.cursor = dropMode ? "crosshair" : "";
+  }, [dropMode]);
 
   return (
     <div className={`relative h-full w-full ${className ?? ""}`}>

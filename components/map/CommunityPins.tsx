@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { Map } from "maplibre-gl";
 import type { CommunityPin } from "@/types/community.types";
+import { communityPinColor } from "@/lib/constants/community-pins";
 import { isMapReady } from "@/lib/map/is-map-ready";
 
 export interface CommunityPinsProps {
@@ -27,19 +28,6 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
     removeCommunityPinsLayer(map);
 
     if (pins.length > 0) {
-      const colorMap = {
-        police: "#E74C3C",
-        accident: "#E74C3C",
-        hazard: "#F39C12",
-        road_works: "#F39C12",
-        traffic_jam: "#F39C12",
-        fuel_issue: "#E67E22",
-        border_info: "#3498DB",
-        rest_area: "#27AE60",
-        point_of_interest: "#9B59B6",
-        other: "#95A5A6",
-      };
-
       map.addSource("community-pins", {
         type: "geojson",
         data: {
@@ -53,7 +41,7 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
             properties: {
               title: pin.title,
               category: pin.category,
-              color: colorMap[pin.category],
+              color: communityPinColor(pin.category),
             },
           })),
         },
@@ -63,12 +51,21 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
         id: "community-pins",
         type: "circle",
         source: "community-pins",
-        minzoom: 6,
+        minzoom: 5,
         paint: {
-          "circle-radius": 6,
-          "circle-color": "rgba(0, 0, 0, 0.3)",
+          "circle-radius": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            5,
+            4,
+            12,
+            8,
+          ],
+          "circle-color": ["get", "color"],
+          "circle-opacity": 0.85,
           "circle-stroke-width": 2,
-          "circle-stroke-color": ["get", "color"],
+          "circle-stroke-color": "#0b0f14",
         },
       });
     }
