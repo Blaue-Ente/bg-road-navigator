@@ -1,4 +1,7 @@
+"use client";
+
 import type { EVStation } from "@/types/fuel.types";
+import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
 
 interface EVChargerCardProps {
   station: EVStation;
@@ -43,7 +46,7 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-sm">
+      <div className="mb-3 grid grid-cols-3 gap-2 text-sm">
         <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
           <span className="text-xs text-[var(--waze-text-muted)]">kW</span>
           <div className="font-semibold">{station.power_kw}</div>
@@ -59,6 +62,17 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
           <div className="font-semibold">{station.distance_km.toFixed(1)}</div>
         </div>
       </div>
+
+      <FavoritePlaceButton
+        label={station.name}
+        category="ev_charge"
+        place={{
+          coords: station.coords,
+          address: station.address,
+          brand: station.operator,
+          external_id: station.id,
+        }}
+      />
     </div>
   );
 }

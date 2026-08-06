@@ -14,6 +14,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Cost-constrained: graceful degradation without TomTom / OpenCharge / Nakordoni keys.
 - Killer features for first public release: live borders, vignettes (official deep links only), community, places/favorites.
 
+### Phase 1 APIs (auth + Supabase required for writes)
+
+- `GET/PATCH /api/profile`
+- `GET/POST /api/saved-routes`, `DELETE /api/saved-routes/[id]`
+- `GET/POST /api/saved-places`, `DELETE /api/saved-places/[id]`
+- Maps handoff helpers: `lib/utils/maps-handoff.ts`
+
 ### Dev commands
 
 See `README.md` / `package.json`: `npm run dev`, `npm run lint`, `npm test`, `npm run build`.
