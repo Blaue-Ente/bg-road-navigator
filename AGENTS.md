@@ -21,6 +21,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `GET/POST /api/saved-places`, `DELETE /api/saved-places/[id]`
 - Maps handoff helpers: `lib/utils/maps-handoff.ts`
 
+### Phase 2 community
+
+- Map `+` → tap map → compose pin; list page uses geolocation.
+- `GET /api/community/pins?west&south&east&north` (bbox filter)
+- `GET/POST /api/community/pins/[id]/comments`
+- Categories include camera / food / overnight (`008_community_categories_comments.sql`)
+- Apply Supabase migrations through `008` before enabling community writes in production.
+
 ### Dev commands
 
 See `README.md` / `package.json`: `npm run dev`, `npm run lint`, `npm test`, `npm run build`.

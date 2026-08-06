@@ -8,6 +8,10 @@ import { useRouteStore } from "@/lib/stores/route.store";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { useTraffic } from "@/lib/hooks/useTraffic";
+import {
+  DEFAULT_COMMUNITY_BBOX,
+  useCommunityPins,
+} from "@/lib/hooks/useCommunityPins";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
 import { MapControls } from "@/components/map/MapControls";
@@ -15,6 +19,8 @@ import { RouteLayer } from "@/components/map/RouteLayer";
 import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
 import { TrafficLayer } from "@/components/map/TrafficLayer";
 import { CommunityPins } from "@/components/map/CommunityPins";
+import { PinDropButton } from "@/components/community/PinDropButton";
+import { PinComposer } from "@/components/community/PinComposer";
 import { SearchIcon } from "@/components/icons/NavIcons";
 import { fitMapToRoute } from "@/lib/map/apply-waze-style";
 
@@ -35,14 +41,33 @@ function MapFallback() {
 
 export default function MapPage() {
   const activeRoute = useRouteStore((s) => s.activeRoute);
-  const communityPins = useCommunityStore((s) => s.pins);
+  const localPins = useCommunityStore((s) => s.pins);
+  const isDropMode = useCommunityStore((s) => s.isDropMode);
+  const dropCoords = useCommunityStore((s) => s.dropCoords);
+  const setDropCoords = useCommunityStore((s) => s.setDropCoords);
   const { data: borders } = useBorderStatus({ region: "bulgaria" });
   const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
+  const { data: communityData } = useCommunityPins({
+    bbox: DEFAULT_COMMUNITY_BBOX,
+  });
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
+
+  const communityPins = communityData?.pins ?? localPins;
 
   const handleMapLoad = useCallback((map: Map) => {
     setMapInstance(map);
   }, []);
+
+  const handleMapClick = useCallback(
+    (coords: { lng: number; lat: number }) => {
+      if (!isDropMode) return;
+      // Accept tap while waiting for a location, or when user asked to retap.
+      if (!dropCoords) {
+        setDropCoords(coords);
+      }
+    },
+    [isDropMode, dropCoords, setDropCoords]
+  );
 
   useEffect(() => {
     if (!mapInstance || !activeRoute?.geometry?.coordinates?.length) return;
@@ -60,7 +85,13 @@ export default function MapPage() {
 
   return (
     <div className="relative h-full">
-      <MapCanvas onMapLoad={handleMapLoad} className="h-full" wazeTheme />
+      <MapCanvas
+        onMapLoad={handleMapLoad}
+        onMapClick={handleMapClick}
+        dropMode={isDropMode && !dropCoords}
+        className="h-full"
+        wazeTheme
+      />
       <MapControls map={mapInstance} />
       <RouteLayer map={mapInstance} route={activeRoute} />
       <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
@@ -82,7 +113,8 @@ export default function MapPage() {
                   {activeRoute.origin.label} → {activeRoute.destination.label}
                 </p>
                 <p className="truncate text-xs text-[var(--waze-text-muted)]">
-                  {activeRoute.distance_km} км · {formatDuration(activeRoute.duration_min)}
+                  {activeRoute.distance_km} км ·{" "}
+                  {formatDuration(activeRoute.duration_min)}
                 </p>
               </>
             ) : (
@@ -100,6 +132,12 @@ export default function MapPage() {
             {activeRoute ? "Промени" : "Тръгни"}
           </span>
         </Link>
+
+        {isDropMode && !dropCoords && (
+          <div className="pointer-events-none mx-auto mt-3 max-w-lg rounded-full bg-[var(--waze-accent)] px-4 py-2 text-center text-sm font-semibold text-[#0b0f14] shadow-lg">
+            Докоснете картата за позиция на сигнала
+          </div>
+        )}
       </div>
 
       <div
@@ -126,10 +164,22 @@ export default function MapPage() {
               </p>
             </div>
           )}
+          {communityPins.length > 0 && (
+            <Link
+              href="/community"
+              className="waze-panel shrink-0 px-3 py-2 transition hover:scale-[1.02]"
+            >
+              <p className="text-xs font-medium text-[var(--waze-accent)]">
+                📣 {communityPins.length} сигнала
+              </p>
+            </Link>
+          )}
         </div>
       </div>
 
       {activeRoute && <RouteBottomSheet route={activeRoute} />}
+      <PinDropButton mode="map" />
+      <PinComposer requireMapTap />
     </div>
   );
 }
