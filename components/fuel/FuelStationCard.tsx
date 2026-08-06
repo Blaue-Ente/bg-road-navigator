@@ -1,4 +1,7 @@
+"use client";
+
 import type { FuelStation } from "@/types/fuel.types";
+import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
 
 interface FuelStationCardProps {
   station: FuelStation;
@@ -59,9 +62,19 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs text-[var(--waze-text-muted)]">
+      <div className="mt-3 flex items-center justify-between gap-2 text-xs text-[var(--waze-text-muted)]">
         <span>{station.distance_km.toFixed(1)} км</span>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <FavoritePlaceButton
+            label={`${station.brand} ${station.name}`.trim()}
+            category="fuel"
+            place={{
+              coords: station.coords,
+              address: station.address,
+              brand: station.brand,
+              external_id: station.id,
+            }}
+          />
           {station.payment_methods.map((method) => (
             <span
               key={method}

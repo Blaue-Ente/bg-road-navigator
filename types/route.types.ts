@@ -54,8 +54,8 @@ export interface SavedRoute {
   destination_coords: GeoPoint;
   waypoints: GeoPoint[];
   route_geojson: GeoJSON.LineString | null;
-  distance_km: number;
-  duration_min: number;
+  distance_km: number | null;
+  duration_min: number | null;
   vehicle_type?: "car" | "ev" | "truck" | "motorcycle";
   created_at: string;
 }

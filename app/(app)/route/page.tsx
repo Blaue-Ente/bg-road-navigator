@@ -13,6 +13,8 @@ import {
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
+import { SaveRouteButton } from "@/components/route/SaveRouteButton";
+import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
 import type { Route, RoutePoint } from "@/types/route.types";
 
@@ -230,7 +232,9 @@ export default function RoutePage() {
                 )}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link href="/" className="waze-btn-primary px-4 py-2 text-sm">
+                <MapsHandoffButtons route={activeRoute} />
+                <SaveRouteButton route={activeRoute} />
+                <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">
                   Картата
                 </Link>
                 <Link
