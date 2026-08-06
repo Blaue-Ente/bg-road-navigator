@@ -37,6 +37,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Route-scoped fuel/EV: `GET /api/fuel?route=lng,lat;...` and `/fuel?route=1` with active route
 - Trip planner: try NVIDIA (`NVIDIA_API_KEY`) then always fall back to heuristic; `planner_source` on response
 
+### Keys-only readiness
+
+- Code is ready for operators to paste env vars only (+ one-shot Supabase SQL).
+- `GET /api/config/status` — booleans/labels, never secret values
+- `GET /api/health` — liveness
+- UI: `/setup`, profile “Услуги и ключове”, sidebar → Настройка
+- Apply DB once: `supabase/apply_all.sql` (see `supabase/README.md`)
+- Template: `.env.example`
+
 ### Dev commands
 
 See `README.md` / `package.json`: `npm run dev`, `npm run lint`, `npm test`, `npm run build`.
@@ -45,4 +54,5 @@ See `README.md` / `package.json`: `npm run dev`, `npm run lint`, `npm test`, `np
 
 - Do not copy `.env.example` blindly into `.env.local` for production builds of map style — empty `NEXT_PUBLIC_*` values are treated as unset by helpers, but prefer omitting blank vars.
 - `AuthGuard` is a no-op shell; gate writes with `RequireAuth` / session checks.
-- Supabase RLS lives in `supabase/migrations/`; `004` was rewritten for valid Postgres policies; apply `007` for profile-on-signup trigger.
+- Supabase RLS lives in `supabase/migrations/`; `004` was rewritten for valid Postgres policies; apply `007` for profile-on-signup trigger (included in `apply_all.sql`).
+- Without Supabase keys, login creates a **demo** session — writes return 503 until real Supabase + migrations.

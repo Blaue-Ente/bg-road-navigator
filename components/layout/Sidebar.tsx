@@ -11,6 +11,7 @@ const MENU_ITEMS = [
   { href: "/vignettes", label: "Винетки", emoji: "🎫" },
   { href: "/community", label: "Общност", emoji: "📍" },
   { href: "/hotels", label: "Почивки", emoji: "🏨" },
+  { href: "/setup", label: "Настройка", emoji: "🔑" },
   { href: "/profile", label: "Профил", emoji: "👤" },
 ];
 
