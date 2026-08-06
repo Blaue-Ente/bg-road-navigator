@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/stores/user.store";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -21,10 +22,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey) {
+      if (isSupabaseConfigured()) {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
         const { error: authError } = await supabase.auth.signUp({
@@ -41,13 +39,14 @@ export default function RegisterPage() {
       }
 
       if (email && password && username) {
+        const id = `user-${Date.now()}`;
         setSession({
-          user: { id: `user-${Date.now()}`, email },
+          user: { id, email },
           access_token: "demo-token",
           expires_at: Date.now() + 3600000,
         });
         setProfile({
-          id: `user-${Date.now()}`,
+          id,
           username,
           avatar_url: null,
           vehicle_type: "car",
@@ -67,11 +66,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 p-4">
-      <div className="w-full max-w-md rounded-lg border border-gray-800 bg-gray-900 p-6 text-white">
-        <h1 className="mb-2 text-center text-2xl font-bold">Регистрация</h1>
-        <p className="mb-6 text-center text-sm text-gray-400">
-          Създайте профил за запазване на маршрути
+    <div className="flex min-h-screen items-center justify-center bg-[var(--waze-bg)] p-4">
+      <div className="waze-panel w-full max-w-md p-6 text-[var(--waze-text)]">
+        <h1 className="mb-2 text-center text-2xl font-bold text-[var(--waze-accent)]">
+          Регистрация
+        </h1>
+        <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">
+          Профилът отключва любими места, запазени маршрути и общностни сигнали
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -82,7 +83,7 @@ export default function RegisterPage() {
               id="username"
               type="text"
               required
-              className="w-full rounded-md border border-gray-600 bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-[var(--waze-text)] focus:outline-none focus:ring-2 focus:ring-[var(--waze-accent)]"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -95,7 +96,7 @@ export default function RegisterPage() {
               id="email"
               type="email"
               required
-              className="w-full rounded-md border border-gray-600 bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-[var(--waze-text)] focus:outline-none focus:ring-2 focus:ring-[var(--waze-accent)]"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -109,7 +110,7 @@ export default function RegisterPage() {
               type="password"
               required
               minLength={6}
-              className="w-full rounded-md border border-gray-600 bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-[var(--waze-text)] focus:outline-none focus:ring-2 focus:ring-[var(--waze-accent)]"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -118,15 +119,20 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="waze-btn-primary w-full py-2.5 disabled:opacity-50"
           >
             {loading ? "Регистрация..." : "Регистрирай се"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-400">
+        <p className="mt-4 text-center text-sm text-[var(--waze-text-muted)]">
           Вече имате акаунт?{" "}
-          <Link href="/login" className="text-blue-400 hover:text-blue-300">
+          <Link href="/login" className="text-[var(--waze-accent)] hover:underline">
             Вход
+          </Link>
+        </p>
+        <p className="mt-3 text-center text-xs text-[var(--waze-text-muted)]">
+          <Link href="/" className="hover:text-[var(--waze-text-secondary)]">
+            Продължи без регистрация
           </Link>
         </p>
       </div>

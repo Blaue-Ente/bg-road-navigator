@@ -1,55 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useCommunityStore } from "@/lib/stores/community.store";
-
-export function CommentThread({ pinId }: { pinId: string }) {
-  const communityStore = useCommunityStore();
-  const { comments, addComment } = communityStore;
-
-  const pinComments = comments.filter((c) => c.pin_id === pinId);
-  const [newComment, setNewComment] = useState("");
-
-  const handleSubmit = () => {
-    if (newComment.trim()) {
-      addComment({
-        id: crypto.randomUUID(),
-        pin_id: pinId,
-        body: newComment.trim(),
-        created_at: new Date().toISOString(),
-      });
-      setNewComment("");
-    }
-  };
-
+/**
+ * Comments UI placeholder until Phase 2 wires pin_comments API.
+ * Avoids fake local-only persistence that looks like it worked.
+ */
+export function CommentThread(_props: { pinId: string }) {
   return (
-    <div className="space-y-3">
-      {pinComments.map((comment) => (
-        <div key={comment.id} className="bg-gray-800 rounded p-3">
-          <p className="text-sm">{comment.body}</p>
-          <div className="text-xs text-gray-400 mt-1">
-            {new Date(comment.created_at).toLocaleString("bg-BG")}
-          </div>
-        </div>
-      ))}
-
-      <div className="mt-3">
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-900 text-white text-sm resize-none"
-          placeholder="Добави коментар..."
-          rows={2}
-          maxLength={500}
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={!newComment.trim()}
-          className="mt-1 w-full py-1.5 px-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          Публикувай
-        </button>
-      </div>
+    <div className="waze-panel p-3 text-sm text-[var(--waze-text-muted)]">
+      Коментарите към сигналите идват скоро. Засега ползвайте гласуване и
+      докладване.
     </div>
   );
 }

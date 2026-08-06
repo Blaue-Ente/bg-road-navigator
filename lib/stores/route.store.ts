@@ -1,11 +1,12 @@
 import { create } from "zustand";
-import type { GeoPoint, Route, RouteWaypoint } from "@/types/route.types";
+import type { GeoPoint, Route } from "@/types/route.types";
 
 interface RouteState {
   origin: GeoPoint | null;
   destination: GeoPoint | null;
   waypoints: GeoPoint[];
   activeRoute: Route | null;
+  /** Populated when OSRM alternatives are enabled (Phase 3). */
   alternativeRoutes: Route[];
   routeStatus: "idle" | "loading" | "success" | "error";
   routeError: string | null;
@@ -14,6 +15,7 @@ interface RouteState {
   addWaypoint: (point: GeoPoint) => void;
   removeWaypoint: (index: number) => void;
   setActiveRoute: (route: Route | null) => void;
+  setAlternativeRoutes: (routes: Route[]) => void;
   clearRoute: () => void;
 }
 
@@ -35,7 +37,9 @@ export const useRouteStore = create<RouteState>((set) => ({
     set((state) => ({
       waypoints: state.waypoints.filter((_, i) => i !== index),
     })),
-  setActiveRoute: (route) => set({ activeRoute: route, routeStatus: "success" }),
+  setActiveRoute: (route) =>
+    set({ activeRoute: route, routeStatus: "success", routeError: null }),
+  setAlternativeRoutes: (routes) => set({ alternativeRoutes: routes }),
   clearRoute: () =>
     set({
       origin: null,
@@ -47,5 +51,3 @@ export const useRouteStore = create<RouteState>((set) => ({
       routeError: null,
     }),
 }));
-
-export type { GeoPoint, Route, RouteWaypoint };

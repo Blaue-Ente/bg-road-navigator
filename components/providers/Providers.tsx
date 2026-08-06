@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUserStore } from "@/lib/stores/user.store";
 import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const setSession = useUserStore((s) => s.setSession);
@@ -11,10 +12,7 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
   const setLoading = useUserStore((s) => s.setLoading);
 
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
+    if (!isSupabaseConfigured()) {
       setLoading(false);
       return;
     }
