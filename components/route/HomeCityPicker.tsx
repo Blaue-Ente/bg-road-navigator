@@ -3,7 +3,11 @@
 import { getBulgarianHomeCities } from "@/lib/constants/european-cities";
 import { useHomeStore } from "@/lib/stores/home.store";
 
-export function HomeCityPicker() {
+interface HomeCityPickerProps {
+  onSelect?: (cityId: string) => void;
+}
+
+export function HomeCityPicker({ onSelect }: HomeCityPickerProps) {
   const homeCityId = useHomeStore((s) => s.homeCityId);
   const setHomeCityId = useHomeStore((s) => s.setHomeCityId);
   const cities = getBulgarianHomeCities();
@@ -18,7 +22,10 @@ export function HomeCityPicker() {
           <button
             key={city.id}
             type="button"
-            onClick={() => setHomeCityId(city.id)}
+            onClick={() => {
+              setHomeCityId(city.id);
+              onSelect?.(city.id);
+            }}
             className={`waze-chip ${
               homeCityId === city.id ? "waze-chip-active" : ""
             }`}

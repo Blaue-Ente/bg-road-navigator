@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useWeather } from "@/lib/hooks/useWeather";
@@ -10,7 +10,7 @@ import { RouteWeatherTimeline } from "@/components/weather/RouteWeatherTimeline"
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { haversineKm } from "@/lib/utils/route-planner";
-import type { Route } from "@/types/route.types";
+import type { GeoPoint, Route } from "@/types/route.types";
 
 const MOUNTAIN_PASSES = [
   { name: "Шипченски проход", coords: { lng: 25.1, lat: 42.1 } },
@@ -29,37 +29,29 @@ function mountainPassesOnRoute(route: Route) {
   );
 }
 
+function weatherPointsForRoute(route: Route): GeoPoint[] {
+  const points = [
+    route.origin.coords,
+    ...route.waypoints.map((wp) => wp.coords),
+    route.destination.coords,
+    ...mountainPassesOnRoute(route).map((p) => p.coords),
+  ];
+  const seen = new Set<string>();
+  return points.filter((point) => {
+    const key = `${point.lng},${point.lat}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export default function WeatherPage() {
   const { activeRoute } = useRouteStore();
-  const [routePoints, setRoutePoints] = useState<Array<{ lng: number; lat: number }>>([]);
-  const [weatherData, setWeatherData] = useState<{
-    points: Parameters<typeof WeatherCard>[0]["weather"][];
-    alerts: Parameters<typeof WeatherAlertBanner>[0]["alerts"];
-  }>({ points: [], alerts: [] });
-
-  useEffect(() => {
-    if (activeRoute) {
-      const points: Array<{ lng: number; lat: number }> = [];
-      points.push(activeRoute.origin.coords);
-      activeRoute.waypoints.forEach((wp) => points.push(wp.coords));
-      points.push(activeRoute.destination.coords);
-      points.push(...mountainPassesOnRoute(activeRoute).map((p) => p.coords));
-
-      const unique = Array.from(new Set(points.map((p) => `${p.lng},${p.lat}`))).map(
-        (s) => {
-          const [lng, lat] = s.split(",").map(Number);
-          return { lng, lat };
-        }
-      );
-      setRoutePoints(unique);
-    }
-  }, [activeRoute]);
-
+  const routePoints = useMemo(
+    () => (activeRoute ? weatherPointsForRoute(activeRoute) : []),
+    [activeRoute]
+  );
   const { data, isLoading, error } = useWeather(routePoints);
-
-  useEffect(() => {
-    if (data) setWeatherData(data);
-  }, [data]);
 
   if (!activeRoute) {
     return (
@@ -74,7 +66,7 @@ export default function WeatherPage() {
               Изберете маршрут, за да видите прогнозата.
             </p>
             <Link href="/route" className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm">
-              Планирай маршрут
+              Път към вкъщи
             </Link>
           </WazeCard>
         </div>
@@ -98,6 +90,9 @@ export default function WeatherPage() {
     );
   }
 
+  const weatherPoints = data?.points ?? [];
+  const alerts = data?.alerts ?? [];
+
   return (
     <div className="waze-page">
       <div className="mx-auto max-w-4xl">
@@ -106,15 +101,15 @@ export default function WeatherPage() {
           subtitle={`${activeRoute.origin.label} → ${activeRoute.destination.label}`}
         />
 
-        <WeatherAlertBanner alerts={weatherData.alerts} />
+        <WeatherAlertBanner alerts={alerts} />
 
         <RouteWeatherTimeline
-          weatherPoints={weatherData.points}
+          weatherPoints={weatherPoints}
           departureTime={new Date()}
         />
 
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {weatherData.points.map((point, idx) => (
+          {weatherPoints.map((point, idx) => (
             <WeatherCard key={idx} weather={point} distance={idx * 50} />
           ))}
         </div>

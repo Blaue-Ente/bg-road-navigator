@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { getCityById } from "@/lib/constants/european-cities";
@@ -11,10 +11,7 @@ import {
 } from "@/lib/hooks/useGoHome";
 import { useHomeStore } from "@/lib/stores/home.store";
 import { useRouteStore } from "@/lib/stores/route.store";
-import {
-  homeCityToRoutePoint,
-  matchCorridor,
-} from "@/lib/utils/home-briefing";
+import { homeCityToRoutePoint } from "@/lib/utils/home-briefing";
 import {
   estimateRestStops,
   formatDuration,
@@ -74,17 +71,6 @@ export default function RoutePage() {
   const [locatingOrigin, setLocatingOrigin] = useState(false);
   const [showCorridors, setShowCorridors] = useState(false);
 
-  useEffect(() => {
-    if (activeRoute) return;
-    setDestination(homeCityToRoutePoint(homeCityId));
-  }, [homeCityId, activeRoute]);
-
-  const matchedCorridor = useMemo(
-    () => (activeRoute ? matchCorridor(activeRoute) : null),
-    [activeRoute]
-  );
-  const routeBorders = matchedCorridor?.borderIds ?? [];
-
   const promoteAlternative = (alt: RouteAlternative) => {
     if (!activeRoute) return;
     const previousMain: RouteAlternative = {
@@ -100,7 +86,7 @@ export default function RoutePage() {
     ];
     const next: Route = {
       ...activeRoute,
-      id: `route-${Date.now()}`,
+      id: `route-alt-${alt.id}`,
       distance_km: alt.distance_km,
       duration_min: alt.duration_min,
       geometry: alt.geometry,
@@ -152,7 +138,7 @@ export default function RoutePage() {
     });
   };
 
-  const useMyLocation = async () => {
+  const fillOriginFromGps = async () => {
     setLocatingOrigin(true);
     setError(null);
     const place = await resolveGps();
@@ -198,7 +184,11 @@ export default function RoutePage() {
         />
 
         <WazeCard className="mb-4 space-y-3">
-          <HomeCityPicker />
+          <HomeCityPicker
+            onSelect={(cityId) => {
+              if (!activeRoute) setDestination(homeCityToRoutePoint(cityId));
+            }}
+          />
           <button
             type="button"
             onClick={() => void handleGoHome()}
@@ -230,7 +220,7 @@ export default function RoutePage() {
             </div>
             <button
               type="button"
-              onClick={() => void useMyLocation()}
+              onClick={() => void fillOriginFromGps()}
               disabled={locatingOrigin || busy}
               className="mb-0.5 shrink-0 rounded-xl px-3 py-3 text-xs font-medium text-[var(--waze-accent)] disabled:opacity-50"
             >

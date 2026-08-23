@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { fetchNvidiaTripPlan } from "@/lib/api-clients/nvidia";
+import { compactRouteForPlanning } from "@/lib/utils/route-geometry";
 import { buildTripPlan } from "@/lib/utils/trip-stop-planner";
 import type { Route } from "@/types/route.types";
 
@@ -35,7 +36,7 @@ const RouteSchema = z.object({
     coordinates: z
       .array(z.tuple([z.number(), z.number()]))
       .min(2)
-      .max(20_000),
+      .max(80_000),
   }),
   alternatives: z.array(z.unknown()),
   routing_source: z.enum(["osrm", "estimate"]).optional(),
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const route = parsed.data.route as Route;
+    const route = compactRouteForPlanning(parsed.data.route as Route);
     const preferences = parsed.data.preferences;
 
     if (parsed.data.prefer_ai) {

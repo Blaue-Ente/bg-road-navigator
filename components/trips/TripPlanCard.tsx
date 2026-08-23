@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   useUserStore,
   type Profile,
 } from "@/lib/stores/user.store";
 import type { Route } from "@/types/route.types";
 import type { TripPlan, TripPlannerPreferences } from "@/types/trip.types";
+import { compactRouteForPlanning } from "@/lib/utils/route-geometry";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { WazeCard } from "@/components/ui/WazeCard";
 
@@ -45,40 +46,35 @@ function defaultPreferences(
   };
 }
 
+async function fetchTripPlan(
+  route: Route,
+  profile: Profile | null
+): Promise<TripPlan> {
+  const response = await fetch("/api/trips/plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      route: compactRouteForPlanning(route),
+      preferences: defaultPreferences(profile),
+    }),
+  });
+
+  if (!response.ok) throw new Error("Trip plan failed");
+  return (await response.json()) as TripPlan;
+}
+
 export function TripPlanCard({ route }: TripPlanCardProps) {
   const profile = useUserStore((state) => state.profile);
-  const [plan, setPlan] = useState<TripPlan | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const generatePlan = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/trips/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          route,
-          preferences: defaultPreferences(profile),
-        }),
-      });
-
-      if (!response.ok) throw new Error("Trip plan failed");
-      setPlan((await response.json()) as TripPlan);
-    } catch {
-      setError("Планът не можа да бъде изчислен. Опитайте отново.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void generatePlan();
-    // Recalculate when the chosen route changes — not on every parent render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- route.id is the stable trip key
-  }, [route.id]);
+  const { data: plan, isFetching, isError, refetch } = useQuery({
+    queryKey: [
+      "trip-plan",
+      route.id,
+      profile?.vehicle_type,
+      profile?.tank_capacity_liters,
+      profile?.ev_range_km,
+    ],
+    queryFn: () => fetchTripPlan(route, profile),
+  });
 
   return (
     <WazeCard>
@@ -92,15 +88,20 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
           </p>
         </div>
         <button
-          onClick={generatePlan}
-          disabled={loading}
+          type="button"
+          onClick={() => void refetch()}
+          disabled={isFetching}
           className="waze-btn-primary shrink-0 px-4 py-2 text-sm disabled:opacity-50"
         >
-          {loading ? "Изчисляване…" : plan ? "Обнови" : "Създай план"}
+          {isFetching ? "Изчисляване…" : plan ? "Обнови" : "Създай план"}
         </button>
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+      {isError && (
+        <p className="mt-3 text-sm text-red-400">
+          Планът не можа да бъде изчислен. Опитайте отново.
+        </p>
+      )}
 
       {plan && (
         <>
