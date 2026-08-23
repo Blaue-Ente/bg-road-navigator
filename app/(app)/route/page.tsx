@@ -44,6 +44,21 @@ const HOMEBOUND_CORRIDORS = TRAVEL_CORRIDORS.filter((corridor) => {
   return last === "sofia" || last === "plovdiv";
 });
 
+const FEATURED_HOMEBOUND_IDS = [
+  "munich-sofia",
+  "vienna-sofia",
+  "berlin-sofia",
+  "istanbul-sofia",
+  "athens-sofia",
+  "paris-sofia",
+];
+
+const FEATURED_CORRIDORS = FEATURED_HOMEBOUND_IDS.map((id) =>
+  HOMEBOUND_CORRIDORS.find((corridor) => corridor.id === id)
+).filter((corridor): corridor is (typeof HOMEBOUND_CORRIDORS)[number] =>
+  Boolean(corridor)
+);
+
 export default function RoutePage() {
   const { activeRoute, setActiveRoute, setAlternativeRoutes, clearRoute } =
     useRouteStore();
@@ -105,7 +120,7 @@ export default function RoutePage() {
     );
   };
 
-  const handleCorridorSelect = (corridorId: string) => {
+  const handleCorridorSelect = async (corridorId: string) => {
     const corridor = TRAVEL_CORRIDORS.find((c) => c.id === corridorId);
     if (!corridor) return;
 
@@ -116,6 +131,7 @@ export default function RoutePage() {
     if (last) setDestination(last);
     setError(null);
     setGoHomeError(null);
+    await calculate({ corridorId });
   };
 
   const runCalculation = async (corridorId?: string | null) => {
@@ -267,20 +283,41 @@ export default function RoutePage() {
         </WazeCard>
 
         <section className="mt-5">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]">
+            Често към вкъщи — докоснете и тръгва изчислението
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {FEATURED_CORRIDORS.map((corridor) => (
+              <button
+                key={corridor.id}
+                type="button"
+                disabled={busy}
+                onClick={() => void handleCorridorSelect(corridor.id)}
+                className={`waze-chip ${
+                  selectedCorridor === corridor.id ? "waze-chip-active" : ""
+                }`}
+              >
+                {corridor.label} · ~{corridor.estimatedHours}ч
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             onClick={() => setShowCorridors((open) => !open)}
-            className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]"
+            className="mt-3 text-xs font-semibold text-[var(--waze-text-muted)]"
           >
-            {showCorridors ? "▾" : "▸"} Популярни пътища към България
+            {showCorridors ? "▾ По-малко" : "▸ Още коридори"}
           </button>
           {showCorridors && (
-            <div className="flex flex-wrap gap-2">
-              {HOMEBOUND_CORRIDORS.map((corridor) => (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {HOMEBOUND_CORRIDORS.filter(
+                (corridor) => !FEATURED_HOMEBOUND_IDS.includes(corridor.id)
+              ).map((corridor) => (
                 <button
                   key={corridor.id}
                   type="button"
-                  onClick={() => handleCorridorSelect(corridor.id)}
+                  disabled={busy}
+                  onClick={() => void handleCorridorSelect(corridor.id)}
                   className={`waze-chip ${
                     selectedCorridor === corridor.id ? "waze-chip-active" : ""
                   }`}

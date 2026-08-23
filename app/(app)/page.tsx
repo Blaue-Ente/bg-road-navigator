@@ -116,7 +116,7 @@ export default function MapPage() {
           href="/route"
           className="pointer-events-auto mx-auto flex max-w-lg items-center gap-3 rounded-full waze-panel px-4 py-3 transition hover:scale-[1.01] active:scale-[0.99]"
         >
-          <SearchIcon className="shrink-0 text-[var(--waze-accent)]" />
+          <SearchIcon className="h-5 w-5 shrink-0 text-[var(--waze-accent)]" />
           <div className="min-w-0 flex-1">
             {activeRoute ? (
               <>
