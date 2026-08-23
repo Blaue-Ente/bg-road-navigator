@@ -9,6 +9,8 @@ import {
 } from "@/lib/constants/rest-areas";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { useRouteStore } from "@/lib/stores/route.store";
+import { matchCorridor } from "@/lib/utils/home-briefing";
 
 export default function HotelsPage() {
   return (
@@ -21,8 +23,10 @@ export default function HotelsPage() {
 function HotelsPageContent() {
   const searchParams = useSearchParams();
   const corridorFromUrl = searchParams.get("corridor");
+  const activeRoute = useRouteStore((s) => s.activeRoute);
+  const routeCorridor = activeRoute ? matchCorridor(activeRoute)?.id : null;
   const [selectedCorridor, setSelectedCorridor] = useState<string | null>(
-    corridorFromUrl
+    corridorFromUrl ?? routeCorridor ?? null
   );
 
   const areas = selectedCorridor

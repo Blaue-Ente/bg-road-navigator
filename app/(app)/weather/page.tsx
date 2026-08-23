@@ -9,13 +9,25 @@ import { WeatherAlertBanner } from "@/components/weather/WeatherAlertBanner";
 import { RouteWeatherTimeline } from "@/components/weather/RouteWeatherTimeline";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { haversineKm } from "@/lib/utils/route-planner";
+import type { Route } from "@/types/route.types";
 
 const MOUNTAIN_PASSES = [
   { name: "Шипченски проход", coords: { lng: 25.1, lat: 42.1 } },
   { name: "Предела", coords: { lng: 23.9, lat: 42.3 } },
-  { name: "Петрохан", coords: { lng: 26.5, lat: 42.5 } },
-  { name: "Троянски проход", coords: { lng: 25.4, lat: 42.7 } },
+  { name: "Петрохан", coords: { lng: 23.15, lat: 43.12 } },
+  { name: "Троянски проход", coords: { lng: 24.65, lat: 42.78 } },
 ];
+
+const PASS_NEAR_ROUTE_KM = 70;
+
+function mountainPassesOnRoute(route: Route) {
+  return MOUNTAIN_PASSES.filter((pass) =>
+    route.geometry.coordinates.some(([lng, lat]) =>
+      haversineKm({ lng, lat }, pass.coords) <= PASS_NEAR_ROUTE_KM
+    )
+  );
+}
 
 export default function WeatherPage() {
   const { activeRoute } = useRouteStore();
@@ -31,7 +43,7 @@ export default function WeatherPage() {
       points.push(activeRoute.origin.coords);
       activeRoute.waypoints.forEach((wp) => points.push(wp.coords));
       points.push(activeRoute.destination.coords);
-      points.push(...MOUNTAIN_PASSES.map((p) => p.coords));
+      points.push(...mountainPassesOnRoute(activeRoute).map((p) => p.coords));
 
       const unique = Array.from(new Set(points.map((p) => `${p.lng},${p.lat}`))).map(
         (s) => {

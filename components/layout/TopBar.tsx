@@ -18,6 +18,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/community": "Общност",
   "/hotels": "Почивки",
   "/tips": "Съвети",
+  "/vignettes": "Винетки",
+  "/setup": "Настройка",
   "/profile": "Профил",
 };
 

@@ -90,6 +90,16 @@ export function getVignetteByCountryCode(
   return OFFICIAL_VIGNETTE_LINKS.find((v) => v.country_code === mapped);
 }
 
+export function vignettesForCountryCodes(codes: string[]): VignetteLink[] {
+  const wanted = new Set(
+    codes.map((code) => {
+      const normalized = code.trim().toUpperCase();
+      return CODE_ALIASES[normalized] ?? normalized;
+    })
+  );
+  return OFFICIAL_VIGNETTE_LINKS.filter((v) => wanted.has(v.country_code));
+}
+
 /** Infer country codes from corridor labels / country_pair strings like "BG - RS". */
 export function vignettesForCountryPairs(
   pairs: string[]
@@ -101,5 +111,5 @@ export function vignettesForCountryPairs(
       if (code.length === 2) codes.add(code);
     }
   }
-  return OFFICIAL_VIGNETTE_LINKS.filter((v) => codes.has(v.country_code));
+  return vignettesForCountryCodes([...codes]);
 }

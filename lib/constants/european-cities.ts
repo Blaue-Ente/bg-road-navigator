@@ -99,3 +99,58 @@ export function getCitiesByRegion(region: EuropeanRegion): EuropeanCity[] {
 export function getCityById(id: string): EuropeanCity | undefined {
   return EUROPEAN_CITIES.find((c) => c.id === id);
 }
+
+const DEFAULT_HOME_CITY_ID = "sofia";
+
+export const HOME_CITY_IDS = [
+  "sofia",
+  "plovdiv",
+  "varna",
+  "burgas",
+  "ruse",
+] as const;
+
+export function getHomeCity(cityId?: string | null): EuropeanCity {
+  return (
+    getCityById(cityId ?? DEFAULT_HOME_CITY_ID) ??
+    getCityById(DEFAULT_HOME_CITY_ID)!
+  );
+}
+
+export function getBulgarianHomeCities(): EuropeanCity[] {
+  return HOME_CITY_IDS.map((id) => getCityById(id)).filter(
+    (city): city is EuropeanCity => Boolean(city)
+  );
+}
+
+/** Nearest curated city within maxKm, or null if nothing is close. */
+export function findNearestCity(
+  point: { lng: number; lat: number },
+  maxKm = 80
+): EuropeanCity | null {
+  let nearest: { city: EuropeanCity; km: number } | null = null;
+
+  for (const city of EUROPEAN_CITIES) {
+    const km = cityDistanceKm(point, city.coords);
+    if (!nearest || km < nearest.km) {
+      nearest = { city, km };
+    }
+  }
+
+  return nearest && nearest.km <= maxKm ? nearest.city : null;
+}
+
+function cityDistanceKm(
+  a: { lng: number; lat: number },
+  b: { lng: number; lat: number }
+): number {
+  const radius = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}

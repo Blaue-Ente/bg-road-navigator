@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Route } from "@/types/route.types";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { useHomeStore } from "@/lib/stores/home.store";
+import { useUserStore } from "@/lib/stores/user.store";
+import { buildHomeBriefing, matchCorridor } from "@/lib/utils/home-briefing";
+import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 
 interface RouteBottomSheetProps {
   route: Route;
@@ -13,6 +17,13 @@ interface RouteBottomSheetProps {
 export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   const [expanded, setExpanded] = useState(false);
   const clearRoute = useRouteStore((s) => s.clearRoute);
+  const homeCityId = useHomeStore((s) => s.homeCityId);
+  const vehicleType = useUserStore((s) => s.profile?.vehicle_type);
+  const briefing = useMemo(
+    () => buildHomeBriefing(route, { homeCityId, vehicleType }),
+    [route, homeCityId, vehicleType]
+  );
+  const corridor = matchCorridor(route);
 
   const hours = Math.floor(route.duration_min / 60);
   const mins = route.duration_min % 60;
@@ -22,6 +33,13 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
       : mins > 0
         ? `${hours}ч ${mins}м`
         : `${hours}ч`;
+
+  const bordersHref = briefing.borderIds.length
+    ? `/borders?route=1&border_ids=${briefing.borderIds.join(",")}`
+    : "/borders?route=1";
+  const hotelsHref = corridor
+    ? `/hotels?corridor=${corridor.id}`
+    : "/hotels";
 
   return (
     <div
@@ -46,13 +64,14 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
 
           <div className="min-w-0 flex-1">
             <p className="truncate text-base font-semibold text-[var(--waze-text)]">
-              {route.destination.label}
+              {briefing.isGoingHome
+                ? `Към ${route.destination.label}`
+                : route.destination.label}
             </p>
             <p className="text-sm text-[var(--waze-text-secondary)]">
               {etaDisplay} · {route.distance_km} км
-              {route.routing_source === "osrm" && (
-                <span className="ml-1 text-[var(--waze-accent)]">· OSRM</span>
-              )}
+              {briefing.borderIds.length > 0 &&
+                ` · ${briefing.borderIds.length} гр.`}
             </p>
           </div>
 
@@ -68,19 +87,20 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
 
         {expanded && (
           <div className="border-t border-[var(--waze-border)] px-4 pb-4 pt-3">
-            <p className="mb-1 text-xs text-[var(--waze-text-muted)]">Маршрут</p>
-            <p className="text-sm text-[var(--waze-text)]">
+            <p className="text-sm leading-relaxed text-[var(--waze-text)]">
+              {briefing.nextAction}
+            </p>
+            <p className="mt-2 text-xs text-[var(--waze-text-muted)]">
               {route.origin.label} → {route.destination.label}
             </p>
-            {route.waypoints.length > 0 && (
-              <p className="mt-1 text-xs text-[var(--waze-text-secondary)]">
-                През: {route.waypoints.map((w) => w.label).join(" → ")}
-              </p>
-            )}
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <MapsHandoffButtons route={route} />
+            </div>
 
             <div className="mt-4 grid grid-cols-4 gap-2">
               <Link
-                href="/fuel"
+                href="/fuel?route=1"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
                 <span className="text-lg">⛽</span>
@@ -94,14 +114,14 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
                 Време
               </Link>
               <Link
-                href="/borders"
+                href={bordersHref}
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
                 <span className="text-lg">🛃</span>
                 Граници
               </Link>
               <Link
-                href="/hotels"
+                href={hotelsHref}
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
                 <span className="text-lg">🏨</span>
@@ -110,10 +130,14 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             </div>
 
             <div className="mt-3 flex gap-2">
-              <Link href="/route" className="waze-btn-primary flex-1 py-2.5 text-center text-sm">
-                Промени
+              <Link
+                href="/route"
+                className="waze-btn-primary flex-1 py-2.5 text-center text-sm"
+              >
+                Пълният план
               </Link>
               <button
+                type="button"
                 onClick={clearRoute}
                 className="waze-btn-secondary flex-1 py-2.5 text-sm text-red-400"
               >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   useUserStore,
@@ -74,6 +74,12 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
     }
   };
 
+  useEffect(() => {
+    void generatePlan();
+    // Recalculate when the chosen route changes — not on every parent render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- route.id is the stable trip key
+  }, [route.id]);
+
   return (
     <WazeCard>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -82,8 +88,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
             План за пътуването
           </h2>
           <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-            Автоматични почивки, зареждане и нощувки — AI когато е наличен,
-            иначе евристика.
+            Къде да спрете за гориво, кафе и сън — без да търсите в полунощ.
           </p>
         </div>
         <button

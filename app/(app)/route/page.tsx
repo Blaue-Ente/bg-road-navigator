@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getCityById } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
+import { getCityById } from "@/lib/constants/european-cities";
+import { useCalculateRoute } from "@/lib/hooks/useCalculateRoute";
+import {
+  goHomeErrorMessage,
+  useGoHome,
+} from "@/lib/hooks/useGoHome";
+import { useHomeStore } from "@/lib/stores/home.store";
 import { useRouteStore } from "@/lib/stores/route.store";
+import {
+  homeCityToRoutePoint,
+  matchCorridor,
+} from "@/lib/utils/home-briefing";
 import {
   estimateRestStops,
   formatDuration,
@@ -14,28 +24,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
-import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
+import { HomeBriefingCard } from "@/components/route/HomeBriefingCard";
+import { HomeCityPicker } from "@/components/route/HomeCityPicker";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
-import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
-import { OFFICIAL_VIGNETTE_LINKS } from "@/lib/constants/vignettes";
 import type { Route, RouteAlternative, RoutePoint } from "@/types/route.types";
-
-async function fetchRoute(params: {
-  corridorId?: string;
-  points?: RoutePoint[];
-}): Promise<Route | null> {
-  const response = await fetch("/api/route", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      corridor_id: params.corridorId,
-      points: params.points,
-    }),
-  });
-
-  if (!response.ok) return null;
-  return response.json();
-}
 
 function toRoutePoint(cityId: string): RoutePoint | null {
   const city = getCityById(cityId);
@@ -50,27 +42,48 @@ function toRoutePoint(cityId: string): RoutePoint | null {
   };
 }
 
+const HOMEBOUND_CORRIDORS = TRAVEL_CORRIDORS.filter((corridor) => {
+  const last = corridor.cityIds[corridor.cityIds.length - 1];
+  return last === "sofia" || last === "plovdiv";
+});
+
 export default function RoutePage() {
+  const { activeRoute, setActiveRoute, setAlternativeRoutes, clearRoute } =
+    useRouteStore();
+  const homeCityId = useHomeStore((s) => s.homeCityId);
+  const { calculate, calculating, error, setError } = useCalculateRoute();
   const {
-    activeRoute,
-    setActiveRoute,
-    setAlternativeRoutes,
-    clearRoute,
-  } = useRouteStore();
+    goHome,
+    resolveGps,
+    busy: goingHome,
+    error: goHomeError,
+    setError: setGoHomeError,
+  } = useGoHome();
+
   const [origin, setOrigin] = useState<RoutePoint | null>(() =>
-    activeRoute
-      ? { ...activeRoute.origin, source: "user" }
-      : toRoutePoint("london")
+    activeRoute ? { ...activeRoute.origin, source: "user" } : null
   );
   const [destination, setDestination] = useState<RoutePoint | null>(() =>
     activeRoute
       ? { ...activeRoute.destination, source: "user" }
-      : toRoutePoint("sofia")
+      : homeCityToRoutePoint(homeCityId)
   );
-  const [selectedCorridor, setSelectedCorridor] = useState<string | null>(null);
-  const [calculating, setCalculating] = useState(false);
-  const [routeBorders, setRouteBorders] = useState<string[]>([]);
-  const [routeError, setRouteError] = useState<string | null>(null);
+  const [selectedCorridor, setSelectedCorridor] = useState<string | null>(
+    () => activeRoute?.corridor_id ?? null
+  );
+  const [locatingOrigin, setLocatingOrigin] = useState(false);
+  const [showCorridors, setShowCorridors] = useState(false);
+
+  useEffect(() => {
+    if (activeRoute) return;
+    setDestination(homeCityToRoutePoint(homeCityId));
+  }, [homeCityId, activeRoute]);
+
+  const matchedCorridor = useMemo(
+    () => (activeRoute ? matchCorridor(activeRoute) : null),
+    [activeRoute]
+  );
+  const routeBorders = matchedCorridor?.borderIds ?? [];
 
   const promoteAlternative = (alt: RouteAlternative) => {
     if (!activeRoute) return;
@@ -115,225 +128,218 @@ export default function RoutePage() {
     const last = toRoutePoint(corridor.cityIds[corridor.cityIds.length - 1]!);
     if (first) setOrigin(first);
     if (last) setDestination(last);
-    setRouteBorders(corridor.borderIds);
+    setError(null);
+    setGoHomeError(null);
   };
 
   const runCalculation = async (corridorId?: string | null) => {
-    setCalculating(true);
-    setRouteError(null);
-
     if (!corridorId && (!origin || !destination)) {
-      setCalculating(false);
-      setRouteError("Изберете начална и крайна точка от резултатите.");
+      setError("Изберете начална и крайна точка от резултатите.");
       return;
     }
 
     if (!corridorId && origin?.id === destination?.id) {
-      setCalculating(false);
-      setRouteError("Началната и крайната точка трябва да са различни.");
+      setError("Началната и крайната точка трябва да са различни.");
       return;
     }
 
-    const corridor = corridorId
-      ? TRAVEL_CORRIDORS.find((c) => c.id === corridorId)
-      : null;
+    if (corridorId) setSelectedCorridor(corridorId);
+    else setSelectedCorridor(null);
 
-    if (corridor) {
-      setSelectedCorridor(corridorId!);
-      setRouteBorders(corridor.borderIds);
-    } else {
-      setSelectedCorridor(null);
-      setRouteBorders([]);
-    }
-
-    const route = await fetchRoute({
+    await calculate({
       corridorId: corridorId ?? undefined,
       points: corridorId ? undefined : [origin!, destination!],
     });
+  };
 
-    if (!route) {
-      setRouteError("Неуспешно изчисление. Опитайте отново.");
-      setCalculating(false);
+  const useMyLocation = async () => {
+    setLocatingOrigin(true);
+    setError(null);
+    const place = await resolveGps();
+    setLocatingOrigin(false);
+    if (!place) {
+      setError(
+        "Не успяхме да вземем локацията. Разрешете достъп или потърсете град."
+      );
       return;
     }
+    setOrigin(place);
+    setSelectedCorridor(null);
+  };
 
-    if (corridor) setRouteBorders(corridor.borderIds);
-    setActiveRoute(route);
-    setAlternativeRoutes(
-      (route.alternatives ?? []).map((alt) => ({
-        ...route,
-        id: alt.id,
-        distance_km: alt.distance_km,
-        duration_min: alt.duration_min,
-        geometry: alt.geometry,
-        alternatives: [],
-      }))
-    );
-    setCalculating(false);
+  const swapEnds = () => {
+    setOrigin(destination);
+    setDestination(origin);
+    setSelectedCorridor(null);
+  };
+
+  const handleGoHome = async () => {
+    const result = await goHome();
+    if (result.origin) {
+      setOrigin(result.origin);
+      setDestination(homeCityToRoutePoint(homeCityId));
+      setSelectedCorridor(null);
+    }
   };
 
   const longHaul = activeRoute ? isLongHaul(activeRoute.duration_min) : false;
   const restStops = activeRoute
     ? estimateRestStops(activeRoute.duration_min)
     : 0;
+  const formError = error ?? goHomeErrorMessage(goHomeError);
+  const busy = calculating || goingHome;
 
   return (
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
         <PageHeader
-          title="Планиране на маршрут"
-          subtitle="Въведете град, адрес, хотел или друга точка в Европа"
+          title="Път към вкъщи"
+          subtitle="Едно докосване от вашата позиция — или изберете град. Ще получите ясен план: граници, винетки, почивки и кога да тръгнете."
         />
 
-        <section className="mb-6">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]">
-            Коридори ({TRAVEL_CORRIDORS.length})
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {TRAVEL_CORRIDORS.map((corridor) => (
-              <button
-                key={corridor.id}
-                onClick={() => handleCorridorSelect(corridor.id)}
-                className={`waze-chip ${
-                  selectedCorridor === corridor.id ? "waze-chip-active" : ""
-                }`}
-              >
-                {corridor.label} · ~{corridor.estimatedHours}ч
-              </button>
-            ))}
-          </div>
-        </section>
+        <WazeCard className="mb-4 space-y-3">
+          <HomeCityPicker />
+          <button
+            type="button"
+            onClick={() => void handleGoHome()}
+            disabled={busy}
+            className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
+          >
+            {goingHome ? "Търся пътя към вкъщи…" : "Прибери ме вкъщи"}
+          </button>
+          <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
+            Взема текущата ви позиция и смята най-прекия път към{" "}
+            {homeCityToRoutePoint(homeCityId).label}. После казва какво да
+            направите преди да тръгнете.
+          </p>
+        </WazeCard>
 
         <WazeCard className="space-y-4">
-          <LocationSearchInput
-            id="origin"
-            label="Откъде"
-            value={origin}
-            placeholder="Напр. Berlin Hbf, Мюнхен или адрес"
-            onSelect={(place) => {
-              setOrigin(place);
-              setSelectedCorridor(null);
-            }}
-          />
+          <div className="flex items-end justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <LocationSearchInput
+                id="origin"
+                label="Откъде тръгвате"
+                value={origin}
+                placeholder="Град, адрес или хотел в Европа"
+                onSelect={(place) => {
+                  setOrigin(place);
+                  setSelectedCorridor(null);
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => void useMyLocation()}
+              disabled={locatingOrigin || busy}
+              className="mb-0.5 shrink-0 rounded-xl px-3 py-3 text-xs font-medium text-[var(--waze-accent)] disabled:opacity-50"
+            >
+              {locatingOrigin ? "…" : "Моята локация"}
+            </button>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={swapEnds}
+              className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1.5 text-xs text-[var(--waze-text-secondary)]"
+              aria-label="Размени начална и крайна точка"
+            >
+              ↕ Размени
+            </button>
+          </div>
 
           <LocationSearchInput
             id="destination"
             label="Накъде"
             value={destination}
-            placeholder="Напр. София, хотел или точен адрес"
+            placeholder="По подразбиране — вкъщи"
             onSelect={(place) => {
               setDestination(place);
               setSelectedCorridor(null);
             }}
           />
 
-          <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
-            Изберете резултат от търсенето, за да използвате точни координати.
-            Поддържат се адреси, градове, хотели и пътни обекти в Европа.
-          </p>
-
-          {routeError && (
-            <p className="text-sm text-red-400">{routeError}</p>
-          )}
+          {formError && <p className="text-sm text-red-400">{formError}</p>}
 
           <button
-            onClick={() => runCalculation(selectedCorridor)}
+            type="button"
+            onClick={() => void runCalculation(selectedCorridor)}
             disabled={
-              calculating ||
+              busy ||
               (!selectedCorridor &&
-                (!origin ||
-                  !destination ||
-                  origin.id === destination.id))
+                (!origin || !destination || origin.id === destination.id))
             }
             className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
           >
-            {calculating ? "Изчисляване по пътища..." : "Изчисли маршрут"}
+            {calculating ? "Изчисляване по пътища..." : "Изчисли този маршрут"}
           </button>
         </WazeCard>
 
+        <section className="mt-5">
+          <button
+            type="button"
+            onClick={() => setShowCorridors((open) => !open)}
+            className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]"
+          >
+            {showCorridors ? "▾" : "▸"} Популярни пътища към България
+          </button>
+          {showCorridors && (
+            <div className="flex flex-wrap gap-2">
+              {HOMEBOUND_CORRIDORS.map((corridor) => (
+                <button
+                  key={corridor.id}
+                  type="button"
+                  onClick={() => handleCorridorSelect(corridor.id)}
+                  className={`waze-chip ${
+                    selectedCorridor === corridor.id ? "waze-chip-active" : ""
+                  }`}
+                >
+                  {corridor.label} · ~{corridor.estimatedHours}ч
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
         {activeRoute && (
           <div className="mt-6 space-y-4">
-            <WazeCard className="border-[var(--waze-accent)]/20 bg-[var(--waze-accent-muted)]">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--waze-accent)]">
-                Активен маршрут
-              </h2>
-              <p className="text-lg font-semibold text-[var(--waze-text)]">
-                {activeRoute.origin.label} → {activeRoute.destination.label}
-              </p>
-              {activeRoute.waypoints.length > 0 && (
-                <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-                  През:{" "}
-                  {activeRoute.waypoints.map((w) => w.label).join(" → ")}
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap gap-3 text-sm text-[var(--waze-text-secondary)]">
-                <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
-                  {activeRoute.distance_km} км
-                </span>
-                <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
+            <HomeBriefingCard route={activeRoute} />
+
+            <WazeCard>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm text-[var(--waze-text-secondary)]">
+                  {activeRoute.distance_km} км ·{" "}
                   {formatDuration(activeRoute.duration_min)}
-                </span>
-                <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
-                  {activeRoute.routing_source === "osrm" ? "OSRM" : "≈ оценка"}
-                </span>
-                {longHaul && (
-                  <span className="rounded-full bg-amber-500/15 px-3 py-1 text-amber-200">
-                    {restStops + 1} почивки препоръчани
-                  </span>
-                )}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <MapsHandoffButtons route={activeRoute} />
-                <SaveRouteButton route={activeRoute} />
-                <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">
-                  Картата
-                </Link>
-                <Link
-                  href={`/borders?route=1${routeBorders.length ? `&border_ids=${routeBorders.join(",")}` : ""}`}
-                  className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Граници ({routeBorders.length || "всички"})
-                </Link>
-                <Link href="/weather" className="waze-btn-secondary px-4 py-2 text-sm">
-                  Прогноза
-                </Link>
-                <Link
-                  href="/fuel?route=1"
-                  className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Гориво по маршрута
-                </Link>
-                <Link href="/vignettes" className="waze-btn-secondary px-4 py-2 text-sm">
-                  Винетки
-                </Link>
-                <Link
-                  href={selectedCorridor ? `/hotels?corridor=${selectedCorridor}` : "/hotels"}
-                  className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Почивки
-                </Link>
-                {longHaul && (
-                  <Link
-                    href="/tips"
-                    className="waze-btn-secondary border-amber-500/30 px-4 py-2 text-sm text-amber-200"
+                  {activeRoute.routing_source === "osrm"
+                    ? " · реални пътища"
+                    : " · приблизителна оценка"}
+                  {longHaul
+                    ? ` · ${restStops + 1} почивки`
+                    : ""}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <SaveRouteButton route={activeRoute} />
+                  <button
+                    type="button"
+                    onClick={clearRoute}
+                    className="waze-btn-secondary px-3 py-2 text-sm text-red-400"
                   >
-                    Съвети
-                  </Link>
-                )}
-                <button
-                  onClick={clearRoute}
-                  className="waze-btn-secondary px-4 py-2 text-sm text-red-400"
-                >
-                  Изчисти
-                </button>
+                    Изчисти
+                  </button>
+                </div>
               </div>
             </WazeCard>
 
             {activeRoute.alternatives.length > 0 && (
               <WazeCard>
                 <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
-                  Алтернативни маршрути ({activeRoute.alternatives.length})
+                  По-къс или по-свободен вариант?
                 </h3>
+                <p className="mb-3 text-xs text-[var(--waze-text-muted)]">
+                  Изберете алтернатива, ако искате да избегнете натоварен
+                  участък. Времето е чисто шофиране — без опашки на граница.
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {activeRoute.alternatives.map((alt, index) => (
                     <button
@@ -352,23 +358,11 @@ export default function RoutePage() {
 
             <TripPlanCard route={activeRoute} />
 
-            <VignetteLinks
-              links={OFFICIAL_VIGNETTE_LINKS.slice(0, 5)}
-              title="Винетки по пътя"
-              compact
-            />
-
-            {routeBorders.length > 0 && (
-              <WazeCard>
-                <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">
-                  Граници по маршрута ({routeBorders.length})
-                </h3>
-                <p className="text-xs text-[var(--waze-text-muted)]">
-                  Проверете опашките и алтернативните пролази преди тръгване —
-                  особено при пътувания над 24 часа.
-                </p>
-              </WazeCard>
-            )}
+            <p className="pb-2 text-center text-xs text-[var(--waze-text-muted)]">
+              <Link href="/emergency" className="text-[var(--waze-accent)]">
+                Спешни телефони по пътя
+              </Link>
+            </p>
           </div>
         )}
       </div>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getVignetteByCountryCode,
   OFFICIAL_VIGNETTE_LINKS,
+  vignettesForCountryCodes,
   vignettesForCountryPairs,
 } from "@/lib/constants/vignettes";
 
@@ -22,5 +23,15 @@ describe("official vignette links", () => {
       "BG",
       "HU",
     ]);
+  });
+});
+
+describe("vignettesForCountryCodes", () => {
+  it("returns official links for a route country set", () => {
+    expect(
+      vignettesForCountryCodes(["DE", "AT", "HU", "RS", "BG"]).map(
+        (v) => v.country_code
+      )
+    ).toEqual(["BG", "AT", "HU"]);
   });
 });

@@ -125,3 +125,53 @@ export async function searchEuropeanPlaces(query: string): Promise<RoutePoint[]>
     clearTimeout(timeout);
   }
 }
+
+/** Reverse-geocode a GPS fix in Europe. Server-side only. */
+export async function reverseEuropeanPlace(
+  lat: number,
+  lng: number
+): Promise<RoutePoint | null> {
+  if (!isInEurope(lat, lng)) return null;
+
+  const cacheKey = `rev:${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const cached = resultCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.places[0] ?? null;
+  }
+
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lng),
+    format: "jsonv2",
+    addressdetails: "1",
+    zoom: "14",
+    "accept-language": "bg,en",
+  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${getBaseUrl()}/reverse?${params}`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "BG-Road-Navigator/1.0 (travel planning)",
+      },
+      signal: controller.signal,
+      next: { revalidate: 600 },
+    });
+
+    if (!response.ok) return null;
+
+    const result = (await response.json()) as NominatimResult;
+    const place = toRoutePoint(result);
+    resultCache.set(cacheKey, {
+      places: place ? [place] : [],
+      expiresAt: Date.now() + CACHE_TTL_MS,
+    });
+    return place;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}

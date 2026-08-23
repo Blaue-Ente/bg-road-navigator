@@ -23,6 +23,9 @@ import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
 import { SearchIcon } from "@/components/icons/NavIcons";
 import { fitMapToRoute } from "@/lib/map/apply-waze-style";
+import { goHomeErrorMessage, useGoHome } from "@/lib/hooks/useGoHome";
+import { getHomeCity } from "@/lib/constants/european-cities";
+import { useHomeStore } from "@/lib/stores/home.store";
 
 const MapCanvas = dynamic(
   () => import("@/components/map/MapCanvas").then((m) => m.MapCanvas),
@@ -52,6 +55,9 @@ export default function MapPage() {
     bbox: DEFAULT_COMMUNITY_BBOX,
   });
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
+  const homeCityId = useHomeStore((s) => s.homeCityId);
+  const homeCity = getHomeCity(homeCityId);
+  const { goHome, busy: goingHome, error: goHomeError } = useGoHome();
 
   const communityPins = communityData?.pins ?? localPins;
 
@@ -128,15 +134,33 @@ export default function MapPage() {
                   Къде отивате?
                 </p>
                 <p className="text-xs text-[var(--waze-text-muted)]">
-                  Планирайте маршрут в Европа
+                  Или се приберете в {homeCity.label}
                 </p>
               </>
             )}
           </div>
           <span className="waze-btn-primary shrink-0 px-4 py-2 text-xs">
-            {activeRoute ? "Промени" : "Тръгни"}
+            {activeRoute ? "План" : "Тръгни"}
           </span>
         </Link>
+
+        {!activeRoute && (
+          <button
+            type="button"
+            onClick={() => void goHome()}
+            disabled={goingHome}
+            className="pointer-events-auto mx-auto mt-2 flex max-w-lg items-center justify-center rounded-full waze-panel px-4 py-2.5 text-sm font-semibold text-[var(--waze-accent)] disabled:opacity-50"
+          >
+            {goingHome
+              ? "Търся пътя към вкъщи…"
+              : `Прибери ме в ${homeCity.label}`}
+          </button>
+        )}
+        {goHomeError && !activeRoute && (
+          <p className="pointer-events-auto mx-auto mt-2 max-w-lg rounded-2xl bg-red-500/15 px-3 py-2 text-center text-xs text-red-200">
+            {goHomeErrorMessage(goHomeError)}
+          </p>
+        )}
 
         {isDropMode && !dropCoords && (
           <div className="pointer-events-none mx-auto mt-3 max-w-lg rounded-full bg-[var(--waze-accent)] px-4 py-2 text-center text-sm font-semibold text-[#0b0f14] shadow-lg">
