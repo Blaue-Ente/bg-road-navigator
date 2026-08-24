@@ -38,8 +38,9 @@ export function LocationSearchInput({
     onSelectRef.current = onSelect;
   }, [onSelect]);
 
-  if (value?.id !== boundPlaceId) {
-    setBoundPlaceId(value?.id ?? null);
+  const nextBoundId = value?.id ?? null;
+  if (nextBoundId !== boundPlaceId) {
+    setBoundPlaceId(nextBoundId);
     setQuery(formatPlaceInputValue(value));
     setResults([]);
     setMessage(null);
