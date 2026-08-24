@@ -76,6 +76,16 @@ export function formatNominatimAddress(result: {
   return { label, subtitle: subtitle || result.display_name };
 }
 
+const ADDRESS_PREFIX =
+  /^(ул\.?|улица|бул\.?|булевард|пл\.?|площад|жк|ж\.к\.?|кв\.?|село|гр\.?|град)\s+/iu;
+
+/** Drop common BG street prefixes so Nominatim can match house numbers. */
+export function normalizeGeocodeQuery(query: string): string {
+  const trimmed = query.trim().replace(/\s+/g, " ");
+  const withoutPrefix = trimmed.replace(ADDRESS_PREFIX, "").trim();
+  return withoutPrefix || trimmed;
+}
+
 const DEFAULT_NOMINATIM_URL = "https://nominatim.openstreetmap.org";
 const SEARCH_TIMEOUT_MS = 8_000;
 const CACHE_TTL_MS = 10 * 60 * 1000;
@@ -128,7 +138,7 @@ function toRoutePoint(result: NominatimResult): RoutePoint | null {
  * production can set GEOCODING_API_URL to a contracted/self-hosted provider.
  */
 export async function searchEuropeanPlaces(query: string): Promise<RoutePoint[]> {
-  const normalizedQuery = query.trim().toLocaleLowerCase("bg-BG");
+  const normalizedQuery = normalizeGeocodeQuery(query).toLocaleLowerCase("bg-BG");
   const cached = resultCache.get(normalizedQuery);
 
   if (cached && cached.expiresAt > Date.now()) {
@@ -136,7 +146,7 @@ export async function searchEuropeanPlaces(query: string): Promise<RoutePoint[]>
   }
 
   const params = new URLSearchParams({
-    q: query.trim(),
+    q: normalizeGeocodeQuery(query),
     format: "jsonv2",
     addressdetails: "1",
     limit: "8",

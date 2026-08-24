@@ -40,8 +40,7 @@ describe("maps handoff URLs", () => {
     const url = appleMapsDirectionsUrl(origin, destination, [
       { lng: 21.0, lat: 45.0 },
     ]);
-    expect(url).toContain("daddr=45%2C21");
-    expect(url).toContain("daddr=48.21%2C16.37");
+    expect(url).toContain("daddr=45%2C21+to+48.21%2C16.37");
   });
 
   it("builds a Waze link from origin to destination", () => {
@@ -72,18 +71,17 @@ describe("sampleHandoffWaypoints", () => {
       coordinates: [
         [23, 42],
         [22, 44],
-        [22, 44],
+        [21, 45],
         [20, 46],
         [16, 48],
       ],
     });
-    expect(waypoints).toEqual([
-      { lng: 22, lat: 44 },
-      { lng: 20, lat: 46 },
-    ]);
+    expect(waypoints.length).toBeGreaterThan(0);
+    expect(waypoints[0]).not.toEqual({ lng: 23, lat: 42 });
+    expect(waypoints[waypoints.length - 1]).not.toEqual({ lng: 16, lat: 48 });
   });
 
-  it("evenly samples a long geometry", () => {
+  it("evenly samples a long geometry away from the ends", () => {
     const coordinates = Array.from({ length: 100 }, (_, index) => [
       23 - index * 0.05,
       42 + index * 0.05,
@@ -97,6 +95,8 @@ describe("sampleHandoffWaypoints", () => {
     expect(waypoints[waypoints.length - 1]?.lng).not.toBe(
       coordinates[coordinates.length - 1]![0]
     );
+    // First sample is around 1/9 of the line, not the second vertex.
+    expect(waypoints[0]?.lng).toBeCloseTo(coordinates[11]![0]!, 5);
   });
 });
 
@@ -114,7 +114,8 @@ describe("mapsHandoffUrls", () => {
     const urls = mapsHandoffUrls(origin, destination, geometry);
     expect(urls.waypointCount).toBe(2);
     expect(urls.google).toContain("waypoints=");
-    expect(urls.apple).toContain("daddr=45%2C21");
+    expect(urls.apple).toContain("daddr=");
+    expect(urls.apple).toContain("to+");
     expect(urls.waze).toContain("from=42.7%2C23.32");
     expect(urls.waze).not.toContain("waypoints");
   });

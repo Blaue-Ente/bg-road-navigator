@@ -13,29 +13,20 @@ export function sampleHandoffWaypoints(
     return [];
   }
 
-  const inner = coordinates.slice(1, -1);
-  const picked: Array<[number, number]> = [];
-
-  if (inner.length <= maxWaypoints) {
-    for (const coord of inner) {
-      picked.push([Number(coord[0]), Number(coord[1])]);
-    }
-  } else {
-    const last = inner.length - 1;
-    const step = last / (maxWaypoints - 1);
-    for (let index = 0; index < maxWaypoints; index++) {
-      const point = inner[Math.round(index * step)]!;
-      picked.push([Number(point[0]), Number(point[1])]);
-    }
-  }
-
+  const lastIndex = coordinates.length - 1;
   const waypoints: GeoPoint[] = [];
-  for (const [lng, lat] of picked) {
+
+  for (let step = 1; step <= maxWaypoints; step++) {
+    const index = Math.round((step / (maxWaypoints + 1)) * lastIndex);
+    if (index <= 0 || index >= lastIndex) continue;
+    const lng = Number(coordinates[index]![0]);
+    const lat = Number(coordinates[index]![1]);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
     const previous = waypoints[waypoints.length - 1];
     if (previous && previous.lng === lng && previous.lat === lat) continue;
     waypoints.push({ lng, lat });
   }
+
   return waypoints;
 }
 
@@ -76,9 +67,7 @@ export function appleMapsDirectionsUrl(
     dirflg: "d",
   });
   const hops = [...waypoints.slice(0, MAX_APPLE_VIA_POINTS), destination];
-  for (const hop of hops) {
-    params.append("daddr", coordParam(hop));
-  }
+  params.set("daddr", hops.map(coordParam).join(" to "));
   return `https://maps.apple.com/?${params.toString()}`;
 }
 

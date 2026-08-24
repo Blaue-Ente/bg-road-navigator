@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatNominatimAddress } from "@/lib/api-clients/nominatim";
+import { formatNominatimAddress, normalizeGeocodeQuery } from "@/lib/api-clients/nominatim";
 
 describe("formatNominatimAddress", () => {
   it("prefers street and house number over the POI name", () => {
@@ -40,5 +40,22 @@ describe("formatNominatimAddress", () => {
     });
     expect(formatted.label).toBe("Karlovo");
     expect(formatted.subtitle).toContain("България");
+  });
+});
+
+describe("normalizeGeocodeQuery", () => {
+  it("strips Bulgarian street prefixes so house numbers match", () => {
+    expect(normalizeGeocodeQuery("улица Патриарх Евтимий 15 София")).toBe(
+      "Патриарх Евтимий 15 София"
+    );
+    expect(normalizeGeocodeQuery("ул. Витоша 1, София")).toBe("Витоша 1, София");
+    expect(normalizeGeocodeQuery("бул. Витоша 1 София")).toBe("Витоша 1 София");
+    expect(normalizeGeocodeQuery("село Белчин")).toBe("Белчин");
+  });
+
+  it("leaves queries without a prefix unchanged", () => {
+    expect(normalizeGeocodeQuery("Marienplatz 1 München")).toBe(
+      "Marienplatz 1 München"
+    );
   });
 });
