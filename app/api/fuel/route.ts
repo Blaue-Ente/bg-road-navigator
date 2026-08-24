@@ -4,6 +4,7 @@ import { getEVStations } from "@/lib/api-clients/opencharge";
 import { getFuelStations } from "@/lib/api-clients/tomtom-places";
 import {
   bboxFromCoordinates,
+  fuelLookupPointsForBbox,
   sampleRouteCoordinates,
 } from "@/lib/utils/route-fuel-sample";
 import type { EVStation, FuelApiResponse, FuelStation } from "@/types/fuel.types";
@@ -94,26 +95,32 @@ export async function GET(request: NextRequest) {
       fuelStations = dedupeFuel(batches.flatMap((b) => b.fuel));
       evStations = dedupeEv(batches.flatMap((b) => b.ev));
     } else {
-      const centerLng =
-        parsed.data.w !== undefined && parsed.data.e !== undefined
-          ? (parsed.data.w + parsed.data.e) / 2
-          : 23.32;
-      const centerLat =
-        parsed.data.s !== undefined && parsed.data.n !== undefined
-          ? (parsed.data.s + parsed.data.n) / 2
-          : 42.7;
-      mode =
+      const hasBbox =
         parsed.data.w !== undefined &&
         parsed.data.s !== undefined &&
         parsed.data.e !== undefined &&
-        parsed.data.n !== undefined
-          ? "bbox"
-          : "default";
+        parsed.data.n !== undefined;
+      mode = hasBbox ? "bbox" : "default";
+      const lookupPoints = hasBbox
+        ? fuelLookupPointsForBbox({
+            w: parsed.data.w!,
+            s: parsed.data.s!,
+            e: parsed.data.e!,
+            n: parsed.data.n!,
+          })
+        : [{ lng: 23.32, lat: 42.7 }];
 
-      [fuelStations, evStations] = await Promise.all([
-        getFuelStations(centerLng, centerLat),
-        getEVStations(centerLng, centerLat),
-      ]);
+      const batches = await Promise.all(
+        lookupPoints.map(async (point) => {
+          const [fuel, ev] = await Promise.all([
+            getFuelStations(point.lng, point.lat, 25),
+            getEVStations(point.lng, point.lat, 25),
+          ]);
+          return { fuel, ev };
+        })
+      );
+      fuelStations = dedupeFuel(batches.flatMap((b) => b.fuel));
+      evStations = dedupeEv(batches.flatMap((b) => b.ev));
     }
 
     const bbox =

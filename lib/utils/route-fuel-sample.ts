@@ -87,3 +87,43 @@ export function sampleRouteCoordinates(
 
   return samples;
 }
+
+/** Major BG cities used when a country-sized bbox would otherwise hit empty countryside. */
+export const BULGARIA_FUEL_CENTERS: GeoPoint[] = [
+  { lng: 23.3219, lat: 42.6977 },
+  { lng: 24.7453, lat: 42.1354 },
+  { lng: 27.9147, lat: 43.2141 },
+  { lng: 27.4626, lat: 42.5048 },
+  { lng: 25.9546, lat: 43.8486 },
+];
+
+export function isWideFuelBbox(bbox: {
+  w: number;
+  s: number;
+  e: number;
+  n: number;
+}): boolean {
+  return bbox.e - bbox.w >= 3 || bbox.n - bbox.s >= 2;
+}
+
+export function fuelLookupPointsForBbox(bbox: {
+  w: number;
+  s: number;
+  e: number;
+  n: number;
+}): GeoPoint[] {
+  const center = {
+    lng: (bbox.w + bbox.e) / 2,
+    lat: (bbox.s + bbox.n) / 2,
+  };
+  if (!isWideFuelBbox(bbox)) return [center];
+
+  const cities = BULGARIA_FUEL_CENTERS.filter(
+    (point) =>
+      point.lng >= bbox.w &&
+      point.lng <= bbox.e &&
+      point.lat >= bbox.s &&
+      point.lat <= bbox.n
+  );
+  return cities.length > 0 ? cities : [center];
+}

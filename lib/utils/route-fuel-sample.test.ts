@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   bboxFromCoordinates,
+  fuelLookupPointsForBbox,
   sampleRouteCoordinates,
 } from "@/lib/utils/route-fuel-sample";
 
@@ -24,5 +25,31 @@ describe("route fuel sampling", () => {
     expect(samples.length).toBeGreaterThanOrEqual(2);
     expect(samples.length).toBeLessThanOrEqual(6);
     expect(samples[0]!.lng).toBeCloseTo(23.3, 1);
+  });
+});
+
+describe("fuelLookupPointsForBbox", () => {
+  it("uses the bbox center for a city-sized box", () => {
+    const [point] = fuelLookupPointsForBbox({
+      w: 23.2,
+      s: 42.6,
+      e: 23.4,
+      n: 42.8,
+    });
+    expect(point?.lng).toBeCloseTo(23.3, 5);
+    expect(point?.lat).toBeCloseTo(42.7, 5);
+  });
+
+  it("samples Bulgarian cities inside a country-sized box", () => {
+    const points = fuelLookupPointsForBbox({
+      w: 22,
+      s: 41,
+      e: 29,
+      n: 44.5,
+    });
+    expect(points.length).toBeGreaterThanOrEqual(4);
+    expect(points.some((point) => point.lng < 23.5 && point.lat > 42.6)).toBe(
+      true
+    );
   });
 });
