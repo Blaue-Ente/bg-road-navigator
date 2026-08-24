@@ -1,5 +1,21 @@
 import type { RoutePoint } from "@/types/route.types";
 
+export interface NominatimAddress {
+  house_number?: string;
+  road?: string;
+  pedestrian?: string;
+  footway?: string;
+  suburb?: string;
+  neighbourhood?: string;
+  city?: string;
+  town?: string;
+  village?: string;
+  hamlet?: string;
+  municipality?: string;
+  postcode?: string;
+  country?: string;
+}
+
 interface NominatimResult {
   place_id: number;
   osm_type: string;
@@ -9,13 +25,55 @@ interface NominatimResult {
   lon: string;
   name?: string;
   type?: string;
-  address?: {
-    city?: string;
-    town?: string;
-    village?: string;
-    municipality?: string;
-    country?: string;
-  };
+  address?: NominatimAddress;
+}
+
+/** Street + number when Nominatim has them; otherwise the place name. */
+export function formatNominatimAddress(result: {
+  name?: string;
+  display_name: string;
+  address?: NominatimAddress;
+}): { label: string; subtitle: string } {
+  const address = result.address ?? {};
+  const road = address.road ?? address.pedestrian ?? address.footway;
+  const locality =
+    address.city ??
+    address.town ??
+    address.village ??
+    address.municipality ??
+    address.hamlet;
+  const country = address.country;
+  const postcode = address.postcode;
+
+  let label: string;
+  if (road && address.house_number) {
+    label = `${road} ${address.house_number}`;
+  } else if (road) {
+    label = road;
+  } else if (result.name && result.name !== locality) {
+    label = result.name;
+  } else {
+    label = locality || result.display_name.split(",")[0]!.trim();
+  }
+
+  const subtitleParts = [
+    address.suburb && address.suburb !== label ? address.suburb : null,
+    locality && locality !== label ? locality : null,
+    postcode,
+    country,
+  ].filter(Boolean);
+
+  let subtitle = subtitleParts.join(", ");
+  if (!subtitle || subtitle === label) {
+    subtitle = result.display_name
+      .split(",")
+      .map((part) => part.trim())
+      .filter((part) => part && part !== label)
+      .slice(0, 4)
+      .join(", ");
+  }
+
+  return { label, subtitle: subtitle || result.display_name };
 }
 
 const DEFAULT_NOMINATIM_URL = "https://nominatim.openstreetmap.org";
@@ -54,21 +112,12 @@ function toRoutePoint(result: NominatimResult): RoutePoint | null {
     return null;
   }
 
-  const locality =
-    result.address?.city ??
-    result.address?.town ??
-    result.address?.village ??
-    result.address?.municipality;
-  const country = result.address?.country;
-  const label = result.name || locality || result.display_name.split(",")[0]!;
-  const subtitle = [locality && locality !== label ? locality : null, country]
-    .filter(Boolean)
-    .join(", ");
+  const { label, subtitle } = formatNominatimAddress(result);
 
   return {
     id: `geocode:${result.osm_type}:${result.osm_id}:${result.place_id}`,
     label,
-    subtitle: subtitle || result.display_name,
+    subtitle,
     coords: { lng, lat },
     source: "geocoder",
   };
@@ -90,7 +139,7 @@ export async function searchEuropeanPlaces(query: string): Promise<RoutePoint[]>
     q: query.trim(),
     format: "jsonv2",
     addressdetails: "1",
-    limit: "7",
+    limit: "8",
     "accept-language": "bg,en",
   });
   const controller = new AbortController();

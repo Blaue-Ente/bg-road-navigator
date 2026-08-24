@@ -136,7 +136,9 @@ export default function RoutePage() {
 
   const runCalculation = async (corridorId?: string | null) => {
     if (!corridorId && (!origin || !destination)) {
-      setError("Изберете начална и крайна точка от резултатите.");
+      setError(
+        "Напишете адрес или град и изберете го от списъка (Enter взема първия резултат)."
+      );
       return;
     }
 
@@ -161,7 +163,7 @@ export default function RoutePage() {
     setLocatingOrigin(false);
     if (!place) {
       setError(
-        "Не успяхме да вземем локацията. Разрешете достъп или потърсете град."
+        "Не успяхме да вземем локацията. Разрешете достъп или напишете улица и град."
       );
       return;
     }
@@ -196,7 +198,7 @@ export default function RoutePage() {
       <div className="mx-auto max-w-2xl">
         <PageHeader
           title="Път към вкъщи"
-          subtitle="Едно докосване от вашата позиция — или изберете град. Ще получите ясен план: граници, винетки, почивки и кога да тръгнете."
+          subtitle="Едно докосване от вашата позиция — или напишете улица и номер. После отваряте същия маршрут в Google Maps, Waze или Apple Maps."
         />
 
         <WazeCard className="mb-4 space-y-3">
@@ -227,7 +229,7 @@ export default function RoutePage() {
                 id="origin"
                 label="Откъде тръгвате"
                 value={origin}
-                placeholder="Град, адрес или хотел в Европа"
+                placeholder="напр. Vitosha 1, Sofia или Marienplatz 1, München"
                 onSelect={(place) => {
                   setOrigin(place);
                   setSelectedCorridor(null);
@@ -259,12 +261,17 @@ export default function RoutePage() {
             id="destination"
             label="Накъде"
             value={destination}
-            placeholder="По подразбиране — вкъщи"
+            placeholder="улица, номер, град или село — не само големи градове"
             onSelect={(place) => {
               setDestination(place);
               setSelectedCorridor(null);
             }}
           />
+
+          <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
+            Пишете конкретен адрес — улица и номер, хотел, село. Изберете го от
+            списъка или натиснете Enter за първия резултат.
+          </p>
 
           {formError && <p className="text-sm text-red-400">{formError}</p>}
 

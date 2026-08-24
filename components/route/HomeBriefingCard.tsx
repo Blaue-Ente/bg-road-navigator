@@ -38,11 +38,12 @@ export function HomeBriefingCard({ route }: HomeBriefingCardProps) {
         {briefing.nextAction}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <MapsHandoffButtons route={route} />
-        <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">
-          Виж на картата
-        </Link>
+      <div className="mt-4">
+        <MapsHandoffButtons route={route}>
+          <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">
+            Виж на картата
+          </Link>
+        </MapsHandoffButtons>
       </div>
 
       <ol className="mt-5 space-y-2">

@@ -94,7 +94,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
               {route.origin.label} → {route.destination.label}
             </p>
 
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-3">
               <MapsHandoffButtons route={route} />
             </div>
 
