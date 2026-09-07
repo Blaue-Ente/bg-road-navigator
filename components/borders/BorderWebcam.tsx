@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { BorderWebcamFeed } from "@/types/border.types";
 import { isAllowedHttpsUrl, stripHtml } from "@/lib/geo/escape-html";
+import { Camera } from "lucide-react";
 
 const WINDY_HOSTS = ["webcams.windy.com", "windy.com"] as const;
 
@@ -91,7 +92,11 @@ export function BorderWebcam({
 
   return (
     <div className="flex h-48 flex-col items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-800 p-4 text-center">
-      <span className="text-3xl">📷</span>
+      <Camera
+        className="h-8 w-8 text-[var(--waze-text-muted)]"
+        strokeWidth={2}
+        aria-hidden
+      />
       <p className="text-sm text-gray-300">Жива камера — {label}</p>
       {livePageUrl ? (
         <a
@@ -100,7 +105,7 @@ export function BorderWebcam({
           rel="noopener noreferrer"
           className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
         >
-          Виж на живо (Nakordoni)
+          Виж на живо
         </a>
       ) : (
         <p className="text-xs text-gray-500">
@@ -136,7 +141,7 @@ function WebcamFooter({
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300"
           >
-            Nakordoni
+            Страница на пункта
           </a>
         )}
         {feed?.windy_url && (
@@ -146,7 +151,7 @@ function WebcamFooter({
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300"
           >
-            Windy
+            Камера
           </a>
         )}
       </div>

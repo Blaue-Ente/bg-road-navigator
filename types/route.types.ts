@@ -21,6 +21,7 @@ export interface RouteWaypoint {
 export interface RoutePoint extends RouteWaypoint {
   subtitle?: string;
   source: "curated" | "geocoder" | "user";
+  countryCode?: string;
 }
 
 export interface RouteManeuver {

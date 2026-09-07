@@ -6,8 +6,9 @@ export function ManeuverList({ maneuvers }: { maneuvers: RouteManeuver[] }) {
   if (!maneuvers.length) {
     return (
       <p className="text-xs text-[var(--waze-text-muted)]">
-        Списък с маневри е наличен при OSRM маршрут. Жива навигация в
-        приложението още не е включена — стартирайте Google/Apple Maps.
+        Списъкът с маневри се появява след изчисляване по реални пътища. Жива
+        навигация в приложението още не е включена — стартирайте Google Maps или
+        Apple Maps.
       </p>
     );
   }
@@ -18,7 +19,8 @@ export function ManeuverList({ maneuvers }: { maneuvers: RouteManeuver[] }) {
         Маневри ({maneuvers.length})
       </h3>
       <p className="mb-2 text-xs text-[var(--waze-text-muted)]">
-        Подготовка за turn-by-turn. Live guidance в приложението не е активен.
+        Преглед на завоите. За жива навигация използвайте Google Maps или Apple
+        Maps.
       </p>
       <ol className="max-h-56 space-y-1 overflow-y-auto text-sm">
         {maneuvers.slice(0, 40).map((step, index) => (

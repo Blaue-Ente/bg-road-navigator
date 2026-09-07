@@ -5,6 +5,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { MenuProvider } from "@/components/layout/MenuContext";
 import { useUserStore } from "@/lib/stores/user.store";
 import { usePathname } from "next/navigation";
 
@@ -15,22 +16,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthGuard>
-      <div className="relative h-screen overflow-hidden bg-[var(--waze-bg)]">
-        <TopBar user={user} />
-        <main
-          id="main-content"
-          className={
-            isMap
-              ? "h-screen overflow-hidden"
-              : "h-screen overflow-hidden pt-[4.25rem]"
-          }
-        >
-          {children}
-        </main>
-        <BottomNav />
-        <Sidebar />
-        <OfflineBanner />
-      </div>
+      <MenuProvider>
+        <div className="relative h-screen overflow-hidden bg-[var(--waze-bg)]">
+          <TopBar user={user} />
+          <main
+            id="main-content"
+            className={
+              isMap
+                ? "h-screen overflow-hidden"
+                : "h-screen overflow-hidden pt-[4.25rem]"
+            }
+          >
+            {children}
+          </main>
+          <BottomNav />
+          <Sidebar />
+          <OfflineBanner />
+        </div>
+      </MenuProvider>
     </AuthGuard>
   );
 }

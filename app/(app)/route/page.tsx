@@ -16,8 +16,6 @@ import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
-import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
-import { OFFICIAL_VIGNETTE_LINKS } from "@/lib/constants/vignettes";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 import { FxRatesCard } from "@/components/route/FxRatesCard";
@@ -51,6 +49,7 @@ function toRoutePoint(cityId: string): RoutePoint | null {
     subtitle: city.country,
     coords: city.coords,
     source: "curated",
+    countryCode: city.countryCode,
   };
 }
 
@@ -211,7 +210,7 @@ export default function RoutePage() {
             id="origin"
             label="Откъде"
             value={origin}
-            placeholder="Напр. Berlin Hbf, Мюнхен или адрес"
+            placeholder="Град, адрес или обект — напр. Мюнхен"
             onSelect={(place) => {
               setOrigin(place);
               setSelectedCorridor(null);
@@ -223,7 +222,7 @@ export default function RoutePage() {
             id="destination"
             label="Накъде"
             value={destination}
-            placeholder="Напр. София, хотел или точен адрес"
+            placeholder="Къде пътувате — напр. София"
             onSelect={(place) => {
               setDestination(place);
               setSelectedCorridor(null);
@@ -272,7 +271,9 @@ export default function RoutePage() {
                   {formatDuration(activeRoute.duration_min)}
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
-                  {activeRoute.routing_source === "osrm" ? "OSRM" : "≈ оценка"}
+                  {activeRoute.routing_source === "osrm"
+                    ? "по пътищата"
+                    : "приблизителна оценка"}
                 </span>
                 {longHaul && (
                   <span className="rounded-full bg-amber-500/15 px-3 py-1 text-amber-200">
@@ -374,11 +375,21 @@ export default function RoutePage() {
               <WinterRulesList />
             </WazeCard>
 
-            <VignetteLinks
-              links={OFFICIAL_VIGNETTE_LINKS.slice(0, 5)}
-              title="Винетки по пътя"
-              compact
-            />
+            <WazeCard>
+              <h3 className="text-sm font-semibold text-[var(--waze-text)]">
+                Винетки по пътя
+              </h3>
+              <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
+                Преди тръгване проверете официалните портали за електронни
+                винетки в държавите по маршрута.
+              </p>
+              <Link
+                href="/vignettes"
+                className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent)] hover:underline"
+              >
+                Отвори пълния списък
+              </Link>
+            </WazeCard>
 
             {routeBorders.length > 0 && (
               <WazeCard>

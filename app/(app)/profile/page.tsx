@@ -9,18 +9,29 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { SavedRoutesPanel } from "@/components/profile/SavedRoutesPanel";
 import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
-import { ServicesStatusPanel } from "@/components/setup/ServicesStatusPanel";
+import { UserServicesPanel } from "@/components/setup/UserServicesPanel";
+import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
+import { PRODUCT_NAME } from "@/lib/constants/brand";
 import { signOut } from "@/lib/auth/sign-out";
+import { useState } from "react";
 
 export default function ProfilePage() {
   const session = useUserStore((s) => s.session);
   const profile = useUserStore((s) => s.profile);
   const router = useRouter();
+  const { enabled: isOperator, enable: enableOperator } = useOperatorMode();
+  const [tapCount, setTapCount] = useState(0);
 
   const handleLogout = async () => {
     await signOut();
     router.push("/");
     router.refresh();
+  };
+
+  const handleBrandTap = () => {
+    const next = tapCount + 1;
+    setTapCount(next);
+    if (next >= 7) enableOperator();
   };
 
   return (
@@ -53,17 +64,26 @@ export default function ProfilePage() {
           </WazeCard>
 
           <ProfileEditForm />
-          <ServicesStatusPanel compact />
+          <UserServicesPanel />
           <SavedRoutesPanel />
           <SavedPlacesPanel />
 
-          <p className="pb-6 text-center text-xs text-[var(--waze-text-muted)]">
+          <p className="pb-2 text-center text-xs text-[var(--waze-text-muted)]">
             <Link
               href="/route"
               className="text-[var(--waze-accent)] hover:underline"
             >
               Планирай нов маршрут
             </Link>
+          </p>
+          <p className="pb-6 text-center">
+            <button
+              type="button"
+              onClick={handleBrandTap}
+              className="text-[11px] text-[var(--waze-text-muted)]"
+            >
+              {isOperator ? "Операторски режим е активен" : PRODUCT_NAME}
+            </button>
           </p>
         </RequireAuth>
       </div>

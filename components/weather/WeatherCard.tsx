@@ -1,3 +1,5 @@
+import type { WeatherGlyph } from "@/lib/utils/weather-codes";
+import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
 import type { WeatherPoint } from "@/types/weather.types";
 
 interface WeatherCardProps {
@@ -14,7 +16,10 @@ export function WeatherCard({ weather, distance }: WeatherCardProps) {
             {distance.toFixed(0)} км
           </div>
         )}
-        <div className="text-3xl">{weather.icon}</div>
+        <WeatherGlyphIcon
+          name={weather.icon as WeatherGlyph}
+          className="h-8 w-8 text-[var(--waze-accent)]"
+        />
         <div>
           <div className="text-2xl font-bold text-[var(--waze-text)]">
             {weather.temperature_c}°C

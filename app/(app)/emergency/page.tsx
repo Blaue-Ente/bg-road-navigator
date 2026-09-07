@@ -59,7 +59,7 @@ export default function EmergencyPage() {
       };
       setPlaces(payload.places);
     } catch {
-      setNearbyError("OpenStreetMap не върна резултати. Опитайте отново.");
+      setNearbyError("Не намерихме близки болници и сервизи. Опитайте отново.");
     } finally {
       setLoadingNearby(false);
     }

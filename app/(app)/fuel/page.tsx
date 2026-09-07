@@ -59,7 +59,7 @@ function FuelPageContent() {
           subtitle={
             alongRoute
               ? "Станции по активния маршрут"
-              : "Бензиностанции и EV точки (България по подразбиране)"
+              : "Бензиностанции и зарядни точки около България"
           }
         />
 
@@ -75,11 +75,8 @@ function FuelPageContent() {
         {data.degraded && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-muted)]">
-              Липсват TomTom / OpenCharge ключове — списъкът е празен докато не
-              се конфигурират.{" "}
-              <a href="/setup" className="text-[var(--waze-accent)] underline">
-                Настройка
-              </a>
+              Списъкът със станции е ограничен в момента. Оценката на разхода
+              по-долу остава налична.
             </p>
           </WazeCard>
         )}

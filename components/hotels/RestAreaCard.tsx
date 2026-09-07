@@ -1,3 +1,14 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Bath,
+  Droplets,
+  Fuel,
+  Plug,
+  SquareParking,
+  Utensils,
+  Wifi,
+} from "lucide-react";
+
 interface RestAreaCardProps {
   name: string;
   location: string;
@@ -6,6 +17,16 @@ interface RestAreaCardProps {
   coords: { lng: number; lat: number };
 }
 
+const FACILITIES: Record<string, { label: string; Icon: LucideIcon }> = {
+  toilet: { label: "Тоалетна", Icon: Bath },
+  shower: { label: "Душ", Icon: Droplets },
+  restaurant: { label: "Ресторант", Icon: Utensils },
+  fuel: { label: "Гориво", Icon: Fuel },
+  parking: { label: "Паркинг", Icon: SquareParking },
+  wifi: { label: "Wi-Fi", Icon: Wifi },
+  ev_charging: { label: "EV заряд", Icon: Plug },
+};
+
 export function RestAreaCard({
   name,
   location,
@@ -13,16 +34,6 @@ export function RestAreaCard({
   distanceKm,
   coords,
 }: RestAreaCardProps) {
-  const facilityIcons: Record<string, string> = {
-    toilet: "🚻",
-    shower: "🚿",
-    restaurant: "🍽️",
-    fuel: "⛽",
-    parking: "🅿️",
-    wifi: "📶",
-    ev_charging: "🔌",
-  };
-
   return (
     <div className="waze-panel p-4">
       <div className="mb-2 flex items-start justify-between gap-2">
@@ -38,14 +49,19 @@ export function RestAreaCard({
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
-        {facilities.map((facility) => (
-          <span
-            key={facility}
-            className="rounded-full bg-[var(--waze-surface-elevated)] px-2 py-0.5 text-xs text-[var(--waze-text-secondary)]"
-          >
-            {facilityIcons[facility] || "•"} {facility}
-          </span>
-        ))}
+        {facilities.map((facility) => {
+          const meta = FACILITIES[facility];
+          const Icon = meta?.Icon;
+          return (
+            <span
+              key={facility}
+              className="inline-flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-0.5 text-xs text-[var(--waze-text-secondary)]"
+            >
+              {Icon ? <Icon className="h-3.5 w-3.5" strokeWidth={2} /> : null}
+              {meta?.label ?? facility}
+            </span>
+          );
+        })}
       </div>
 
       <a

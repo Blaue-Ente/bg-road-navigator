@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/stores/user.store";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { PRODUCT_NAME } from "@/lib/constants/brand";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -69,7 +70,8 @@ export default function LoginPage() {
           Вход
         </h1>
         <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">
-          БГ Пътен Навигатор — отключете любими, общност и запазени маршрути
+          {PRODUCT_NAME} — входът отключва любими места, общност и запазени
+          маршрути
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

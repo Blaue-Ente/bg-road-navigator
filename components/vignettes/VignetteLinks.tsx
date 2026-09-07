@@ -5,6 +5,7 @@ import {
   type VignetteLink,
 } from "@/lib/constants/vignettes";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 interface VignetteLinksProps {
   links?: VignetteLink[];
@@ -31,7 +32,8 @@ export function VignetteLinks({
         {title}
       </h2>
       <p className="mb-3 text-xs text-[var(--waze-text-muted)]">
-        Само официални портали — купувайте директно от държавата / концесионера.
+        Само официални портали. Купувайте директно от държавата или
+        концесионера.
       </p>
       <ul className="space-y-2">
         {links.map((link) => (
@@ -44,8 +46,8 @@ export function VignetteLinks({
             >
               <div className="min-w-0">
                 <p className="font-medium text-[var(--waze-text)]">
-                  <span className="mr-2 text-[var(--waze-accent)]">
-                    {link.country_code}
+                  <span className="mr-2 inline-flex align-middle">
+                    <CountryFlag code={link.country_code} />
                   </span>
                   {link.name_bg}
                 </p>
@@ -56,7 +58,7 @@ export function VignetteLinks({
                 )}
               </div>
               <span className="shrink-0 text-xs text-[var(--waze-accent)]">
-                Отвори ↗
+                Отвори
               </span>
             </a>
           </li>

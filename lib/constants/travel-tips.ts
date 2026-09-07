@@ -30,7 +30,7 @@ export const LONG_HAUL_TIPS: TravelTip[] = [
     id: "vignettes",
     category: "documents",
     title: "Винетки и пътни такси",
-    body: "Купувайте само от официални портали (BGTOLL, ASFINAG, e-matrica, DARS, edalnice…). Вижте секция Винетки в приложението.",
+    body: "Купувайте само от официални портали. Пълният списък е в раздела Винетки.",
     priority: "high",
   },
   {

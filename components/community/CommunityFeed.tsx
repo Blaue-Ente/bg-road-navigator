@@ -9,6 +9,7 @@ import {
   communityPinLabel,
   formatPinExpiry,
 } from "@/lib/constants/community-pins";
+import { Check, ThumbsUp, X } from "lucide-react";
 
 export function CommunityFeed({
   pins: pinsProp,
@@ -98,7 +99,8 @@ export function CommunityFeed({
                 className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-sm text-[var(--waze-text-secondary)]"
                 aria-label="Потвърди че още важи"
               >
-                👍 {pin.upvotes}
+                <ThumbsUp className="h-3.5 w-3.5" strokeWidth={2} />
+                {pin.upvotes}
               </button>
             </div>
 
@@ -109,8 +111,9 @@ export function CommunityFeed({
             )}
 
             {pin.is_verified && (
-              <span className="mt-2 inline-block text-[10px] font-medium text-emerald-400">
-                ✓ Потвърдено
+              <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
+                <Check className="h-3 w-3" strokeWidth={2} />
+                Потвърдено
               </span>
             )}
           </WazeCard>
@@ -136,7 +139,7 @@ export function CommunityFeed({
                 onClick={() => setSelectedPin(null)}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-[var(--waze-text-muted)]"
               >
-                ✕
+                <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
 

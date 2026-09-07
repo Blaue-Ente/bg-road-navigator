@@ -57,8 +57,8 @@ export default function CommunityPage() {
         {!serviceAvailable && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-muted)]">
-              Общността изисква конфигуриран Supabase. Четенето и писането ще се
-              активират след миграциите през `008`.
+              Общността изисква свързан акаунт. Влезте, за да четете и пускате
+              сигнали.
             </p>
           </WazeCard>
         )}

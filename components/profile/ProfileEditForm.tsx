@@ -189,7 +189,7 @@ export function ProfileEditForm() {
           className="waze-btn-primary w-full py-2.5 text-sm disabled:opacity-50"
         >
           {status === "saved"
-            ? "✓ Запазено"
+            ? "Запазено"
             : status === "saving"
               ? "Запис…"
               : "Запази настройки"}
