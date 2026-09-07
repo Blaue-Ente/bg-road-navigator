@@ -28,7 +28,10 @@ const EUROPE_BOUNDS = {
   maxLng: 45,
 };
 
-const resultCache = new Map<string, { expiresAt: number; places: RoutePoint[] }>();
+const resultCache = new Map<
+  string,
+  { expiresAt: number; places: RoutePoint[] }
+>();
 
 function getBaseUrl(): string {
   return (process.env.GEOCODING_API_URL ?? DEFAULT_NOMINATIM_URL).replace(
@@ -78,7 +81,9 @@ function toRoutePoint(result: NominatimResult): RoutePoint | null {
  * Searches for user-entered destinations in Europe. Calls run server-side only;
  * production can set GEOCODING_API_URL to a contracted/self-hosted provider.
  */
-export async function searchEuropeanPlaces(query: string): Promise<RoutePoint[]> {
+export async function searchEuropeanPlaces(
+  query: string
+): Promise<RoutePoint[]> {
   const normalizedQuery = query.trim().toLocaleLowerCase("bg-BG");
   const cached = resultCache.get(normalizedQuery);
 
@@ -117,6 +122,10 @@ export async function searchEuropeanPlaces(query: string): Promise<RoutePoint[]>
       places,
       expiresAt: Date.now() + CACHE_TTL_MS,
     });
+    if (resultCache.size > 250) {
+      const oldest = resultCache.keys().next().value;
+      if (oldest) resultCache.delete(oldest);
+    }
 
     return places;
   } catch {

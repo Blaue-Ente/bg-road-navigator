@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "prettier --check ."
   },
   "engines": {
     "node": ">=20"
@@ -18,7 +19,7 @@
     "@supabase/supabase-js": "^2.110.5",
     "@tanstack/react-query": "^5.101.2",
     "maplibre-gl": "^5.24.0",
-    "next": "16.2.10",
+    "next": "16.3.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.4.3",
@@ -30,7 +31,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.3.4",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "3.2.7"

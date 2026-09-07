@@ -14,7 +14,10 @@ export async function POST(
 ) {
   if (!isSupabaseConfigured()) {
     return NextResponse.json(
-      { error: "Community service is not configured", code: "COMMUNITY_UNAVAILABLE" },
+      {
+        error: "Community service is not configured",
+        code: "COMMUNITY_UNAVAILABLE",
+      },
       { status: 503 }
     );
   }

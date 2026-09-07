@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getEVStations } from "@/lib/api-clients/opencharge";
 import { getFuelStations } from "@/lib/api-clients/tomtom-places";
+import { EuropeBboxSchema, EuropePointSchema } from "@/lib/server/geo-schema";
 import {
   bboxFromCoordinates,
   sampleRouteCoordinates,
 } from "@/lib/utils/route-fuel-sample";
-import type { EVStation, FuelApiResponse, FuelStation } from "@/types/fuel.types";
+import type {
+  EVStation,
+  FuelApiResponse,
+  FuelStation,
+} from "@/types/fuel.types";
 
 const FuelQuerySchema = z.object({
   w: z.coerce.number().optional(),
@@ -14,21 +19,24 @@ const FuelQuerySchema = z.object({
   e: z.coerce.number().optional(),
   n: z.coerce.number().optional(),
   /** Compact polyline: "lng,lat;lng,lat;..." — samples along the route. */
-  route: z.string().max(20_000).optional(),
+  route: z.string().max(8_000).optional(),
 });
 
 function parseRouteParam(raw: string | undefined): Array<[number, number]> {
   if (!raw?.trim()) return [];
   return raw
     .split(";")
+    .slice(0, 40)
     .map((part) => part.trim())
     .filter(Boolean)
     .flatMap((part) => {
       const [lngRaw, latRaw] = part.split(",");
-      const lng = Number(lngRaw);
-      const lat = Number(latRaw);
-      if (!Number.isFinite(lng) || !Number.isFinite(lat)) return [];
-      return [[lng, lat] as [number, number]];
+      const parsed = EuropePointSchema.safeParse({
+        lng: Number(lngRaw),
+        lat: Number(latRaw),
+      });
+      if (!parsed.success) return [];
+      return [[parsed.data.lng, parsed.data.lat] as [number, number]];
     });
 }
 
@@ -94,6 +102,26 @@ export async function GET(request: NextRequest) {
       fuelStations = dedupeFuel(batches.flatMap((b) => b.fuel));
       evStations = dedupeEv(batches.flatMap((b) => b.ev));
     } else {
+      const bboxCandidate = {
+        w: parsed.data.w,
+        s: parsed.data.s,
+        e: parsed.data.e,
+        n: parsed.data.n,
+      };
+      const hasBbox =
+        parsed.data.w !== undefined &&
+        parsed.data.s !== undefined &&
+        parsed.data.e !== undefined &&
+        parsed.data.n !== undefined;
+      if (hasBbox) {
+        const bboxParsed = EuropeBboxSchema.safeParse(bboxCandidate);
+        if (!bboxParsed.success) {
+          return NextResponse.json(
+            { error: "Invalid bbox", code: "INVALID_BBOX" },
+            { status: 400 }
+          );
+        }
+      }
       const centerLng =
         parsed.data.w !== undefined && parsed.data.e !== undefined
           ? (parsed.data.w + parsed.data.e) / 2
@@ -102,13 +130,7 @@ export async function GET(request: NextRequest) {
         parsed.data.s !== undefined && parsed.data.n !== undefined
           ? (parsed.data.s + parsed.data.n) / 2
           : 42.7;
-      mode =
-        parsed.data.w !== undefined &&
-        parsed.data.s !== undefined &&
-        parsed.data.e !== undefined &&
-        parsed.data.n !== undefined
-          ? "bbox"
-          : "default";
+      mode = hasBbox ? "bbox" : "default";
 
       [fuelStations, evStations] = await Promise.all([
         getFuelStations(centerLng, centerLat),

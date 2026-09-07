@@ -20,10 +20,10 @@ const EuropePointSchema = z.object({
 });
 
 const RouteBodySchema = z.object({
-  city_ids: z.array(z.string()).min(2).optional(),
-  corridor_id: z.string().optional(),
-  origin_id: z.string().optional(),
-  destination_id: z.string().optional(),
+  city_ids: z.array(z.string().min(1).max(80)).min(2).max(12).optional(),
+  corridor_id: z.string().max(80).optional(),
+  origin_id: z.string().max(80).optional(),
+  destination_id: z.string().max(80).optional(),
   points: z.array(EuropePointSchema).min(2).max(12).optional(),
 });
 
@@ -63,14 +63,10 @@ export async function POST(request: NextRequest) {
 
     if (!points || points.length < 2) {
       return NextResponse.json(
-        { error: "At least two cities required", code: "INSUFFICIENT_POINTS" },
-        { status: 400 }
-      );
-    }
-
-    if (points.length < 2) {
-      return NextResponse.json(
-        { error: "Unknown or invalid route point", code: "INVALID_ROUTE_POINT" },
+        {
+          error: "At least two valid points required",
+          code: "INSUFFICIENT_POINTS",
+        },
         { status: 400 }
       );
     }
@@ -95,7 +91,9 @@ export async function POST(request: NextRequest) {
           duration_min: alt.duration_min,
           geometry: alt.geometry,
           weight: alt.weight,
+          maneuvers: alt.maneuvers,
         })),
+        maneuvers: osrm.maneuvers,
       });
       return NextResponse.json(route);
     }

@@ -60,7 +60,10 @@ export async function GET(request: NextRequest) {
   if (error) {
     console.error("Community pin list error:", error);
     return NextResponse.json(
-      { error: "Unable to load community reports", code: "COMMUNITY_LOAD_FAILED" },
+      {
+        error: "Unable to load community reports",
+        code: "COMMUNITY_LOAD_FAILED",
+      },
       { status: 500 }
     );
   }
@@ -80,7 +83,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   if (!isSupabaseConfigured()) {
     return NextResponse.json(
-      { error: "Community service is not configured", code: "COMMUNITY_UNAVAILABLE" },
+      {
+        error: "Community service is not configured",
+        code: "COMMUNITY_UNAVAILABLE",
+      },
       { status: 503 }
     );
   }

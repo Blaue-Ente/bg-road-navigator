@@ -1,4 +1,5 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
@@ -9,10 +10,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ### Product decisions (approved)
 
 - Browse without login. Auth unlocks favorites, saved routes, and community writes.
-- In-app planning + handoff to Google Maps / Apple Maps (no full turn-by-turn in v1).
+- In-app planning + handoff to Google Maps / Apple Maps. OSRM maneuver list is prep only — no live in-app turn-by-turn in this release.
+- Light and dark themes (map style switches with theme).
 - AI trip planner later via `NVIDIA_API_KEY` (free NVIDIA models); keep a heuristic fallback.
 - Cost-constrained: graceful degradation without TomTom / OpenCharge / Nakordoni keys.
 - Killer features for first public release: live borders, vignettes (official deep links only), community, places/favorites.
+- Operators paste env vars themselves; never commit secrets. Checklist: `/setup`, `.env.example`, `GET /api/config/status`.
 
 ### Phase 1 APIs (auth + Supabase required for writes)
 
@@ -27,7 +30,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `GET /api/community/pins?west&south&east&north` (bbox filter)
 - `GET/POST /api/community/pins/[id]/comments`
 - Categories include camera / food / overnight (`008_community_categories_comments.sql`)
-- Apply Supabase migrations through `008` before enabling community writes in production.
+- Apply Supabase migrations through `009` before enabling community writes in production.
 
 ### Phase 3 — borders / vignettes / fuel / AI
 
