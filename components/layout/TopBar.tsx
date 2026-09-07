@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeftIcon } from "@/components/icons/NavIcons";
+import { MenuIcon } from "@/components/icons/NavIcons";
+import { useMenu } from "@/components/layout/MenuContext";
 
 interface TopBarProps {
   user: { id: string; email: string } | undefined;
@@ -24,32 +25,33 @@ const PAGE_TITLES: Record<string, string> = {
 
 export function TopBar({ user }: TopBarProps) {
   const pathname = usePathname();
+  const { open, openMenu } = useMenu();
 
   if (pathname === "/") return null;
 
   const title = PAGE_TITLES[pathname] ?? "БГ Навигатор";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-30 px-3 pt-3">
+    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-3">
       <div
-        className="waze-panel mx-auto flex h-14 max-w-lg items-center gap-3 px-3"
+        className="waze-panel mx-auto flex min-h-14 max-w-lg items-center gap-0 px-2 py-2"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <Link
-          href="/"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
-          aria-label="Към картата"
+        <button
+          type="button"
+          onClick={openMenu}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[var(--waze-text)] transition hover:bg-[var(--waze-surface-elevated)]"
+          aria-label="Отвори меню"
+          aria-expanded={open}
+          aria-controls="app-menu"
         >
-          <ChevronLeftIcon />
-        </Link>
+          <MenuIcon className="h-5 w-5" />
+        </button>
 
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-base font-semibold text-[var(--waze-text)]">
+        <div className="flex min-w-0 flex-1 items-center py-1 pl-3 pr-2">
+          <h1 className="w-full text-base font-semibold leading-snug break-words text-[var(--waze-text)]">
             {title}
-          </p>
-          <p className="truncate text-xs text-[var(--waze-text-muted)]">
-            БГ Пътен Навигатор
-          </p>
+          </h1>
         </div>
 
         {user ? (
@@ -63,7 +65,7 @@ export function TopBar({ user }: TopBarProps) {
         ) : (
           <Link
             href="/login"
-            className="shrink-0 text-sm font-medium text-[var(--waze-accent)]"
+            className="shrink-0 px-2 text-sm font-medium text-[var(--waze-accent)]"
           >
             Влез
           </Link>

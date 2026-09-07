@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { MenuIcon } from "@/components/icons/NavIcons";
+import { useEffect, useRef } from "react";
+import { CloseIcon, MenuIcon } from "@/components/icons/NavIcons";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useMenu } from "@/components/layout/MenuContext";
 
 const MENU_ITEMS = [
   { href: "/weather", label: "Време", emoji: "🌤️" },
@@ -17,7 +18,7 @@ const MENU_ITEMS = [
 ];
 
 export function Sidebar() {
-  const [open, setOpen] = useState(false);
+  const { open, openMenu, closeMenu } = useMenu();
   const pathname = usePathname();
   const isMap = pathname === "/";
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -25,33 +26,35 @@ export function Sidebar() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closeMenu();
     };
     window.addEventListener("keydown", onKey);
     closeRef.current?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, closeMenu]);
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className={`fixed z-40 flex h-12 w-12 items-center justify-center rounded-full waze-panel transition hover:scale-105 active:scale-95 ${
-          isMap ? "left-3 top-3" : "left-3 top-[4.5rem]"
-        }`}
-        style={{ marginTop: isMap ? "env(safe-area-inset-top, 0px)" : 0 }}
-        aria-label="Меню"
-        aria-expanded={open}
-        aria-controls="app-menu"
-      >
-        <MenuIcon className="h-5 w-5 text-[var(--waze-text)]" />
-      </button>
+      {isMap && (
+        <button
+          type="button"
+          onClick={openMenu}
+          className="fixed left-3 top-3 z-40 flex h-12 w-12 items-center justify-center rounded-full waze-panel transition hover:scale-105 active:scale-95"
+          style={{ marginTop: "env(safe-area-inset-top, 0px)" }}
+          aria-label="Отвори меню"
+          aria-expanded={open}
+          aria-controls="app-menu"
+        >
+          <MenuIcon className="h-5 w-5 text-[var(--waze-text)]" />
+        </button>
+      )}
 
       {open && (
         <>
           <button
+            type="button"
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
+            onClick={closeMenu}
             aria-label="Затвори"
           />
           <aside
@@ -71,11 +74,12 @@ export function Sidebar() {
               </h2>
               <button
                 ref={closeRef}
-                onClick={() => setOpen(false)}
+                type="button"
+                onClick={closeMenu}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-[var(--waze-text-muted)]"
                 aria-label="Затвори меню"
               >
-                ✕
+                <CloseIcon className="h-4 w-4" />
               </button>
             </div>
 
@@ -84,7 +88,7 @@ export function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setOpen(false)}
+                  onClick={closeMenu}
                   className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 transition ${
                     pathname === item.href
                       ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)]"
