@@ -70,13 +70,21 @@ export function MapCanvas({
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current) return;
 
-    const map = new maplibregl.Map({
-      container: mapContainer.current,
-      style: getMapStyleUrl(scheme),
-      center: initialCenterRef.current,
-      zoom: initialZoomRef.current,
-      attributionControl: false,
-    });
+    let map: maplibregl.Map;
+    try {
+      map = new maplibregl.Map({
+        container: mapContainer.current,
+        style: getMapStyleUrl(scheme),
+        center: initialCenterRef.current,
+        zoom: initialZoomRef.current,
+        attributionControl: false,
+      });
+    } catch {
+      setMapError(
+        "Картата не можа да се зареди (WebGL). Опитайте друг браузър или презаредете."
+      );
+      return;
+    }
 
     mapInstance.current = map;
     setMapError(null);

@@ -3,6 +3,7 @@ import { SECURITY_HEADERS } from "./lib/server/security-headers";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: ["127.0.0.1"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "maps.googleapis.com" },

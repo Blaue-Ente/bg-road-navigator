@@ -74,7 +74,7 @@ export function MapControls({ map }: MapControlsProps) {
 
   return (
     <div
-      className="absolute right-3 z-10 flex flex-col items-end gap-2"
+      className="absolute right-3 z-20 flex flex-col items-end gap-2"
       style={{ top: "calc(4.5rem + env(safe-area-inset-top, 0px))" }}
     >
       <ControlButton onClick={zoomIn} label="Приближи">

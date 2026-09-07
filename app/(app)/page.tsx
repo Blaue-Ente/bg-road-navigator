@@ -114,7 +114,7 @@ export default function MapPage() {
       <UserLocationMarker map={mapInstance} />
 
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 px-3 pt-3"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 px-3 pt-3 pr-[4.25rem]"
         style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
       >
         <Link
