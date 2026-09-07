@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "@/components/icons/NavIcons";
 import { useMenu } from "@/components/layout/MenuContext";
+import { PRODUCT_NAME } from "@/lib/constants/brand";
 
 interface TopBarProps {
   user: { id: string; email: string } | undefined;
@@ -29,7 +30,7 @@ export function TopBar({ user }: TopBarProps) {
 
   if (pathname === "/") return null;
 
-  const title = PAGE_TITLES[pathname] ?? "БГ Навигатор";
+  const title = PAGE_TITLES[pathname] ?? PRODUCT_NAME;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-3">

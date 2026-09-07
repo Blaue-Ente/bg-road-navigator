@@ -100,7 +100,7 @@ export function BorderWebcam({
           rel="noopener noreferrer"
           className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
         >
-          Виж на живо (Nakordoni)
+          Виж на живо
         </a>
       ) : (
         <p className="text-xs text-gray-500">
@@ -136,7 +136,7 @@ function WebcamFooter({
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300"
           >
-            Nakordoni
+            Страница на пункта
           </a>
         )}
         {feed?.windy_url && (
@@ -146,7 +146,7 @@ function WebcamFooter({
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300"
           >
-            Windy
+            Камера
           </a>
         )}
       </div>

@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers/Providers";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
+import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/constants/brand";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
@@ -10,9 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "БГ Пътен Навигатор",
-  description:
-    "Пътен помощник за българи, пътуващи в цяла Европа — маршрути, граници, трафик, гориво, EV, време и почивки",
+  title: PRODUCT_NAME,
+  description: PRODUCT_TAGLINE,
   manifest: "/manifest.json",
 };
 

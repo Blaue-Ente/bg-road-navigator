@@ -210,7 +210,7 @@ export default function RoutePage() {
             id="origin"
             label="Откъде"
             value={origin}
-            placeholder="Напр. Berlin Hbf, Мюнхен или адрес"
+            placeholder="Град, адрес или обект — напр. Мюнхен"
             onSelect={(place) => {
               setOrigin(place);
               setSelectedCorridor(null);
@@ -222,7 +222,7 @@ export default function RoutePage() {
             id="destination"
             label="Накъде"
             value={destination}
-            placeholder="Напр. София, хотел или точен адрес"
+            placeholder="Къде пътувате — напр. София"
             onSelect={(place) => {
               setDestination(place);
               setSelectedCorridor(null);
@@ -271,7 +271,9 @@ export default function RoutePage() {
                   {formatDuration(activeRoute.duration_min)}
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
-                  {activeRoute.routing_source === "osrm" ? "OSRM" : "≈ оценка"}
+                  {activeRoute.routing_source === "osrm"
+                    ? "по пътищата"
+                    : "приблизителна оценка"}
                 </span>
                 {longHaul && (
                   <span className="rounded-full bg-amber-500/15 px-3 py-1 text-amber-200">

@@ -77,8 +77,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
             План за пътуването
           </h2>
           <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-            Автоматични почивки, зареждане и нощувки — AI когато е наличен,
-            иначе евристика.
+            Автоматични почивки, зареждане и нощувки по дължината на маршрута.
           </p>
         </div>
         <button
@@ -103,8 +102,8 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
               }`}
             >
               {plan.planner_source === "nvidia"
-                ? "NVIDIA AI"
-                : "Евристичен план"}
+                ? "Подробен план"
+                : "Стандартен план"}
             </span>
           </div>
 

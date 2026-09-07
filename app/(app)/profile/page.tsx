@@ -11,6 +11,7 @@ import { SavedRoutesPanel } from "@/components/profile/SavedRoutesPanel";
 import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
 import { UserServicesPanel } from "@/components/setup/UserServicesPanel";
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
+import { PRODUCT_NAME } from "@/lib/constants/brand";
 import { signOut } from "@/lib/auth/sign-out";
 import { useState } from "react";
 
@@ -81,7 +82,7 @@ export default function ProfilePage() {
               onClick={handleBrandTap}
               className="text-[11px] text-[var(--waze-text-muted)]"
             >
-              {isOperator ? "Операторски режим е активен" : "БГ Навигатор"}
+              {isOperator ? "Операторски режим е активен" : PRODUCT_NAME}
             </button>
           </p>
         </RequireAuth>

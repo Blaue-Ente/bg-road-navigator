@@ -51,7 +51,9 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             <p className="text-sm text-[var(--waze-text-secondary)]">
               {etaDisplay} · {route.distance_km} км
               {route.routing_source === "osrm" && (
-                <span className="ml-1 text-[var(--waze-accent)]">· OSRM</span>
+                <span className="ml-1 text-[var(--waze-accent)]">
+                  · по пътищата
+                </span>
               )}
             </p>
           </div>

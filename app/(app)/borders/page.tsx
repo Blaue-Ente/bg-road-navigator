@@ -132,8 +132,8 @@ function BorderPageContent() {
 
         <p className="mb-6 text-xs text-[var(--waze-text-muted)]">
           {hasLiveData
-            ? "Реални опашки от nakordoni.eu · камери от Windy или Nakordoni"
-            : "Оценка по исторически данни · добавете NAKORDONI_API_KEY за live опашки"}
+            ? "Живи опашки от граничните камери и официалните източници"
+            : "Показваме оценка по обичайните часове. Живите опашки се появяват, когато услугата е свързана."}
         </p>
 
         <WazeCard className="mb-6">
@@ -168,7 +168,9 @@ function BorderPageContent() {
                       label="Коли"
                     />
                     {border.data_source === "nakordoni" && (
-                      <span className="text-[10px] text-green-400">● live</span>
+                      <span className="text-[10px] font-medium text-emerald-400">
+                        на живо
+                      </span>
                     )}
                   </div>
                 </div>
@@ -195,14 +197,14 @@ function BorderPageContent() {
         </div>
 
         <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
-          Данни:{" "}
+          Данни за опашки:{" "}
           <a
             href="https://nakordoni.eu/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[var(--waze-accent)]"
           >
-            nakordoni.eu
+            гранични камери
           </a>
           {" · "}
           <a
@@ -211,7 +213,7 @@ function BorderPageContent() {
             rel="noopener noreferrer"
             className="text-[var(--waze-accent)]"
           >
-            Windy Webcams
+            уеб камери
           </a>
         </p>
       </div>
