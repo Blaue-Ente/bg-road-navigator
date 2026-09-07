@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { RoutePoint } from "@/types/route.types";
 import { searchCuratedCities } from "@/lib/constants/european-cities";
 import { CountryFlag } from "@/components/ui/CountryFlag";
@@ -53,22 +53,31 @@ export function LocationSearchInput({
   placeholder,
 }: LocationSearchInputProps) {
   const [query, setQuery] = useState(value?.label ?? "");
-  const [results, setResults] = useState<RoutePoint[]>([]);
+  const [remoteResults, setRemoteResults] = useState<RoutePoint[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const requestVersion = useRef(0);
 
+  const trimmedQuery = query.trim();
+  const showSuggestions =
+    trimmedQuery.length >= 1 && trimmedQuery !== value?.label;
+
+  const curated = useMemo(
+    () =>
+      showSuggestions ? searchCuratedCities(trimmedQuery).map(cityToPoint) : [],
+    [showSuggestions, trimmedQuery]
+  );
+
+  const results = useMemo(
+    () => mergePlaces(curated, remoteResults),
+    [curated, remoteResults]
+  );
+
   useEffect(() => {
-    const trimmedQuery = query.trim();
-    if (trimmedQuery.length < 1 || trimmedQuery === value?.label) {
+    if (!showSuggestions) {
       return;
     }
-
-    const curated = searchCuratedCities(trimmedQuery).map(cityToPoint);
-    setResults(curated);
-    setOpen(curated.length > 0);
-    setMessage(null);
 
     if (trimmedQuery.length < 3) {
       return;
@@ -89,20 +98,17 @@ export function LocationSearchInput({
         const data = (await response.json()) as PlacesResponse;
         if (version !== requestVersion.current) return;
 
-        const merged = mergePlaces(curated, data.places);
-        setResults(merged);
+        setRemoteResults(data.places);
         setOpen(true);
-        if (merged.length === 0) {
+        if (data.places.length === 0 && curated.length === 0) {
           setMessage("Не е намерено място в Европа. Опитайте адрес или град.");
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError")
           return;
-        if (version === requestVersion.current) {
-          if (curated.length === 0) {
-            setResults([]);
-            setMessage("Търсенето не е достъпно в момента.");
-          }
+        if (version === requestVersion.current && curated.length === 0) {
+          setRemoteResults([]);
+          setMessage("Търсенето не е достъпно в момента.");
         }
       } finally {
         if (version === requestVersion.current) setIsSearching(false);
@@ -113,12 +119,12 @@ export function LocationSearchInput({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [query, value?.label]);
+  }, [showSuggestions, trimmedQuery, curated.length]);
 
   const choosePlace = (place: RoutePoint) => {
     onSelect(place);
     setQuery(place.label);
-    setResults([]);
+    setRemoteResults([]);
     setMessage(null);
     setOpen(false);
   };
@@ -143,11 +149,9 @@ export function LocationSearchInput({
           onChange={(event) => {
             const next = event.target.value;
             setQuery(next);
-            if (next.trim().length < 1) {
-              setResults([]);
-              setMessage(null);
-              setOpen(false);
-            }
+            setRemoteResults([]);
+            setMessage(null);
+            setOpen(next.trim().length >= 1);
           }}
           onFocus={() => {
             if (results.length > 0 || message) setOpen(true);
@@ -165,7 +169,7 @@ export function LocationSearchInput({
         </span>
       )}
 
-      {open && (results.length > 0 || message) && (
+      {open && showSuggestions && (results.length > 0 || message) && (
         <div className="absolute inset-x-0 z-30 mt-2 overflow-hidden rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] shadow-2xl">
           {results.map((place) => (
             <button
