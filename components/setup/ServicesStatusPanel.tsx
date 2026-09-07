@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useServiceStatus } from "@/lib/hooks/useServiceStatus";
 import { WazeCard } from "@/components/ui/WazeCard";
 
@@ -10,14 +9,8 @@ const PRIORITY_LABEL = {
   optional: "По избор",
 } as const;
 
-interface ServicesStatusPanelProps {
-  /** Compact chips only (profile). */
-  compact?: boolean;
-}
-
-export function ServicesStatusPanel({
-  compact = false,
-}: ServicesStatusPanelProps) {
+/** Operator-only catalog. Never render this for regular users. */
+export function ServicesStatusPanel() {
   const { data, isLoading, isError, refetch } = useServiceStatus();
 
   if (isLoading) {
@@ -51,26 +44,17 @@ export function ServicesStatusPanel({
 
   return (
     <WazeCard>
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
-            Услуги и ключове
-          </h2>
-          <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
-            {data.summary.configured_count}/{data.summary.total_count}{" "}
-            конфигурирани · кодът е готов — остават env ключове
-            {data.supabase.configured ? "" : " + Supabase SQL"}
-          </p>
-        </div>
-        <Link
-          href="/setup"
-          className="text-xs font-medium text-[var(--waze-accent)] hover:underline"
-        >
-          Пълна настройка →
-        </Link>
+      <div className="mb-3">
+        <h2 className="text-sm font-semibold text-[var(--waze-text)]">
+          Услуги и ключове
+        </h2>
+        <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
+          {data.summary.configured_count}/{data.summary.total_count} свързани
+          {data.supabase.configured ? "" : " · липсва база за акаунти"}
+        </p>
       </div>
 
-      <ul className={compact ? "space-y-1.5" : "space-y-2"}>
+      <ul className="space-y-2">
         {data.services.map((service) => (
           <li
             key={service.id}
@@ -80,11 +64,9 @@ export function ServicesStatusPanel({
               <p className="text-sm font-medium text-[var(--waze-text)]">
                 {service.label}
               </p>
-              {!compact && (
-                <p className="text-[11px] text-[var(--waze-text-muted)]">
-                  {PRIORITY_LABEL[service.priority]} · {service.unlocks}
-                </p>
-              )}
+              <p className="text-[11px] text-[var(--waze-text-muted)]">
+                {PRIORITY_LABEL[service.priority]} · {service.unlocks}
+              </p>
             </div>
             <span
               className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
@@ -101,17 +83,14 @@ export function ServicesStatusPanel({
 
       {missing.length > 0 && (
         <p className="mt-3 text-xs text-[var(--waze-text-muted)]">
-          Липсват: {missing.map((s) => s.env_vars.join(", ")).join(" · ")}
+          Липсват ключове за: {missing.map((s) => s.label).join(" · ")}
         </p>
       )}
 
       {data.supabase.configured && (
         <p className="mt-2 text-xs text-amber-200/90">
-          След ключовете за Supabase приложете SQL от{" "}
-          <code className="text-[var(--waze-accent)]">
-            supabase/apply_all.sql
-          </code>{" "}
-          в SQL Editor (веднъж).
+          След ключовете за Supabase изпълнете еднократно SQL скрипта от
+          документацията в SQL Editor.
         </p>
       )}
     </WazeCard>

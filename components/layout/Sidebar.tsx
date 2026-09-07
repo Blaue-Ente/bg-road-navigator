@@ -7,21 +7,26 @@ import { CloseIcon, MenuIcon } from "@/components/icons/NavIcons";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useMenu } from "@/components/layout/MenuContext";
 
+import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
+
 const MENU_ITEMS = [
   { href: "/weather", label: "Време", emoji: "🌤️" },
   { href: "/tips", label: "Съвети", emoji: "💡" },
   { href: "/vignettes", label: "Винетки", emoji: "🎫" },
   { href: "/community", label: "Общност", emoji: "📍" },
   { href: "/hotels", label: "Почивки", emoji: "🏨" },
-  { href: "/setup", label: "Настройка", emoji: "🔑" },
   { href: "/profile", label: "Профил", emoji: "👤" },
 ];
 
+const OPERATOR_ITEMS = [{ href: "/setup", label: "Настройка", emoji: "🔑" }];
+
 export function Sidebar() {
   const { open, openMenu, closeMenu } = useMenu();
+  const { enabled: isOperator } = useOperatorMode();
   const pathname = usePathname();
   const isMap = pathname === "/";
   const closeRef = useRef<HTMLButtonElement>(null);
+  const items = isOperator ? [...MENU_ITEMS, ...OPERATOR_ITEMS] : MENU_ITEMS;
 
   useEffect(() => {
     if (!open) return;
@@ -84,7 +89,7 @@ export function Sidebar() {
             </div>
 
             <nav className="grid gap-1">
-              {MENU_ITEMS.map((item) => (
+              {items.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
