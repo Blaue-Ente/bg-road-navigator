@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
 import type { TrafficIncident } from "@/types/traffic.types";
+import { escapeHtml } from "@/lib/geo/escape-html";
+import { useMapStore } from "@/lib/stores/map.store";
 
 export interface TrafficLayerProps {
   map: Map | null;
@@ -11,8 +13,10 @@ export interface TrafficLayerProps {
 }
 
 export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
+  const enabled = useMapStore((s) => s.layers.traffic);
+
   useEffect(() => {
-    if (!map) return;
+    if (!map || !enabled) return;
 
     const markers: maplibregl.Marker[] = [];
 
@@ -34,8 +38,8 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
         .setPopup(
           new maplibregl.Popup({ offset: 25 }).setHTML(`
           <div class="p-2 text-sm">
-            <strong>${incident.title}</strong>
-            <p>Задържане: ${incident.delay_min} мин.</p>
+            <strong>${escapeHtml(incident.title)}</strong>
+            <p>Задържане: ${escapeHtml(String(incident.delay_min))} мин.</p>
           </div>
         `)
         )
@@ -47,7 +51,7 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
-  }, [map, incidents]);
+  }, [map, incidents, enabled]);
 
   return null;
 }

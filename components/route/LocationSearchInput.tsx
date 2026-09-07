@@ -30,14 +30,8 @@ export function LocationSearchInput({
   const requestVersion = useRef(0);
 
   useEffect(() => {
-    setQuery(value?.label ?? "");
-  }, [value?.id, value?.label]);
-
-  useEffect(() => {
     const trimmedQuery = query.trim();
     if (trimmedQuery.length < 3 || trimmedQuery === value?.label) {
-      setResults([]);
-      setMessage(null);
       return;
     }
 
@@ -63,7 +57,8 @@ export function LocationSearchInput({
           setMessage("Не е намерено място в Европа. Опитайте адрес или град.");
         }
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
         if (version === requestVersion.current) {
           setResults([]);
           setMessage("Търсенето не е достъпно в момента.");
@@ -99,7 +94,14 @@ export function LocationSearchInput({
         id={id}
         value={query}
         onChange={(event) => {
-          setQuery(event.target.value);
+          const next = event.target.value;
+          setQuery(next);
+          if (next.trim().length < 3) {
+            setResults([]);
+            setMessage(null);
+            setOpen(false);
+            return;
+          }
           setOpen(true);
         }}
         onFocus={() => {

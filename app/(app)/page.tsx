@@ -23,6 +23,9 @@ import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
 import { SearchIcon } from "@/components/icons/NavIcons";
 import { fitMapToRoute } from "@/lib/map/apply-waze-style";
+import { MapPoiLayers } from "@/components/map/MapPoiLayers";
+import { UserLocationMarker } from "@/components/map/UserLocationMarker";
+import { useThemeStore } from "@/lib/stores/theme.store";
 
 const MapCanvas = dynamic(
   () => import("@/components/map/MapCanvas").then((m) => m.MapCanvas),
@@ -52,11 +55,16 @@ export default function MapPage() {
     bbox: DEFAULT_COMMUNITY_BBOX,
   });
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
+  const scheme = useThemeStore((s) => s.scheme);
 
   const communityPins = communityData?.pins ?? localPins;
 
   const handleMapLoad = useCallback((map: Map) => {
     setMapInstance(map);
+  }, []);
+
+  const handleMapUnload = useCallback(() => {
+    setMapInstance(null);
   }, []);
 
   const handleMapClick = useCallback(
@@ -87,11 +95,12 @@ export default function MapPage() {
   return (
     <div className="relative h-full">
       <MapCanvas
+        key={scheme}
         onMapLoad={handleMapLoad}
+        onMapUnload={handleMapUnload}
         onMapClick={handleMapClick}
         dropMode={isDropMode && !dropCoords}
         className="h-full"
-        wazeTheme
       />
       <MapControls map={mapInstance} />
       <RouteLayer
@@ -101,6 +110,8 @@ export default function MapPage() {
       />
       <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
       <CommunityPins map={mapInstance} pins={communityPins} />
+      <MapPoiLayers map={mapInstance} />
+      <UserLocationMarker map={mapInstance} />
 
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-10 px-3 pt-3"

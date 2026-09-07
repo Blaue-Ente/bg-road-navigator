@@ -14,4 +14,9 @@ describe("getMapStyleUrl", () => {
     process.env.NEXT_PUBLIC_MAP_STYLE_URL = "https://example.com/style.json";
     expect(getMapStyleUrl()).toBe("https://example.com/style.json");
   });
+
+  it("uses voyager for light theme when no custom style", () => {
+    delete process.env.NEXT_PUBLIC_MAP_STYLE_URL;
+    expect(getMapStyleUrl("light")).toContain("voyager");
+  });
 });

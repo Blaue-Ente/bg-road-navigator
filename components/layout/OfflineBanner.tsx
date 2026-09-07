@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export function OfflineBanner() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator === "undefined" ? true : navigator.onLine
+  );
 
   useEffect(() => {
     const updateOnlineStatus = () => setIsOnline(navigator.onLine);
     window.addEventListener("online", updateOnlineStatus);
     window.addEventListener("offline", updateOnlineStatus);
-    setIsOnline(navigator.onLine);
     return () => {
       window.removeEventListener("online", updateOnlineStatus);
       window.removeEventListener("offline", updateOnlineStatus);
@@ -24,9 +26,9 @@ export function OfflineBanner() {
       style={{ top: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
     >
       Няма интернет. Спешните номера са офлайн.
-      <a href="/emergency" className="ml-2 underline font-semibold">
+      <Link href="/emergency" className="ml-2 underline font-semibold">
         Отвори
-      </a>
+      </Link>
     </div>
   );
 }

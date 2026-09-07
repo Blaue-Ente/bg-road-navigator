@@ -3,10 +3,12 @@
  */
 
 import { getCityById } from "@/lib/constants/european-cities";
+import { haversineKm } from "@/lib/geo/haversine";
 import { getCorridorById } from "@/lib/utils/route-planner";
 import type {
   Route,
   RouteAlternative,
+  RouteManeuver,
   RoutePoint,
   RouteWaypoint,
 } from "@/types/route.types";
@@ -27,21 +29,7 @@ export interface RouteMetrics {
   geometry: GeoJSON.LineString;
   routing_source: RoutingSource;
   alternatives?: RouteAlternative[];
-}
-
-function haversineKm(
-  a: { lng: number; lat: number },
-  b: { lng: number; lat: number }
-): number {
-  const R = 6371;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  maneuvers?: RouteManeuver[];
 }
 
 function estimateMetrics(
@@ -84,13 +72,11 @@ export function buildEstimatedRoute(
   const geometry = overrides?.geometry ?? estimated.geometry;
   const routing_source = overrides?.routing_source ?? "estimate";
 
-  const waypoints: RouteWaypoint[] = points
-    .slice(1, -1)
-    .map((city) => ({
-      id: city.id,
-      label: city.label,
-      coords: city.coords,
-    }));
+  const waypoints: RouteWaypoint[] = points.slice(1, -1).map((city) => ({
+    id: city.id,
+    label: city.label,
+    coords: city.coords,
+  }));
 
   const origin = points[0]!;
   const destination = points[points.length - 1]!;
@@ -117,6 +103,7 @@ export function buildEstimatedRoute(
     alternatives,
     routing_source,
     corridor_id: corridorId,
+    maneuvers: overrides?.maneuvers ?? [],
   };
 }
 

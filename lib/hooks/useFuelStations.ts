@@ -23,9 +23,7 @@ export function useFuelStations(
         params.set("n", String(bbox.n));
       }
       const query = params.toString();
-      const response = await fetch(
-        query ? `/api/fuel?${query}` : "/api/fuel"
-      );
+      const response = await fetch(query ? `/api/fuel?${query}` : "/api/fuel");
       if (!response.ok) {
         throw new Error("Failed to fetch fuel data");
       }

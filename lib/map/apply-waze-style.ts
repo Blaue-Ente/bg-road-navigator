@@ -7,7 +7,10 @@ import { theme } from "@/lib/constants/theme";
 import { isMapReady } from "@/lib/map/is-map-ready";
 
 const ROAD_LAYER_PAINT: Record<string, Record<string, unknown>> = {
-  motorway: { "line-color": "#4a6a8a", "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 3, 16, 6] },
+  motorway: {
+    "line-color": "#4a6a8a",
+    "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 3, 16, 6],
+  },
   trunk: { "line-color": "#3d5568" },
   primary: { "line-color": "#354a5c" },
   secondary: { "line-color": "#2d3f4f" },
@@ -75,10 +78,7 @@ export function applyWazeMapTheme(map: Map): void {
   }
 }
 
-export function fitMapToRoute(
-  map: Map,
-  coordinates: [number, number][]
-): void {
+export function fitMapToRoute(map: Map, coordinates: [number, number][]): void {
   if (!isMapReady(map) || coordinates.length < 2) return;
 
   let minLng = Infinity;

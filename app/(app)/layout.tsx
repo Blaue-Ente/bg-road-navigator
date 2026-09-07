@@ -18,6 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="relative h-screen overflow-hidden bg-[var(--waze-bg)]">
         <TopBar user={user} />
         <main
+          id="main-content"
           className={
             isMap
               ? "h-screen overflow-hidden"

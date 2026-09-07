@@ -18,6 +18,10 @@ import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
 import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
 import { OFFICIAL_VIGNETTE_LINKS } from "@/lib/constants/vignettes";
+import { ManeuverList } from "@/components/route/ManeuverList";
+import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
+import { FxRatesCard } from "@/components/route/FxRatesCard";
+import { WinterRulesList } from "@/components/route/WinterRulesList";
 import type { Route, RouteAlternative, RoutePoint } from "@/types/route.types";
 
 async function fetchRoute(params: {
@@ -51,12 +55,8 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 }
 
 export default function RoutePage() {
-  const {
-    activeRoute,
-    setActiveRoute,
-    setAlternativeRoutes,
-    clearRoute,
-  } = useRouteStore();
+  const { activeRoute, setActiveRoute, setAlternativeRoutes, clearRoute } =
+    useRouteStore();
   const [origin, setOrigin] = useState<RoutePoint | null>(() =>
     activeRoute
       ? { ...activeRoute.origin, source: "user" }
@@ -87,10 +87,11 @@ export default function RoutePage() {
     ];
     const next: Route = {
       ...activeRoute,
-      id: `route-${Date.now()}`,
+      id: `${alt.id}-active`,
       distance_km: alt.distance_km,
       duration_min: alt.duration_min,
       geometry: alt.geometry,
+      maneuvers: alt.maneuvers ?? [],
       alternatives: remaining,
     };
     setActiveRoute(next);
@@ -206,6 +207,7 @@ export default function RoutePage() {
 
         <WazeCard className="space-y-4">
           <LocationSearchInput
+            key={origin?.id ?? "origin-empty"}
             id="origin"
             label="Откъде"
             value={origin}
@@ -217,6 +219,7 @@ export default function RoutePage() {
           />
 
           <LocationSearchInput
+            key={destination?.id ?? "destination-empty"}
             id="destination"
             label="Накъде"
             value={destination}
@@ -232,18 +235,14 @@ export default function RoutePage() {
             Поддържат се адреси, градове, хотели и пътни обекти в Европа.
           </p>
 
-          {routeError && (
-            <p className="text-sm text-red-400">{routeError}</p>
-          )}
+          {routeError && <p className="text-sm text-red-400">{routeError}</p>}
 
           <button
             onClick={() => runCalculation(selectedCorridor)}
             disabled={
               calculating ||
               (!selectedCorridor &&
-                (!origin ||
-                  !destination ||
-                  origin.id === destination.id))
+                (!origin || !destination || origin.id === destination.id))
             }
             className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
           >
@@ -262,8 +261,7 @@ export default function RoutePage() {
               </p>
               {activeRoute.waypoints.length > 0 && (
                 <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-                  През:{" "}
-                  {activeRoute.waypoints.map((w) => w.label).join(" → ")}
+                  През: {activeRoute.waypoints.map((w) => w.label).join(" → ")}
                 </p>
               )}
               <div className="mt-3 flex flex-wrap gap-3 text-sm text-[var(--waze-text-secondary)]">
@@ -294,7 +292,10 @@ export default function RoutePage() {
                 >
                   Граници ({routeBorders.length || "всички"})
                 </Link>
-                <Link href="/weather" className="waze-btn-secondary px-4 py-2 text-sm">
+                <Link
+                  href="/weather"
+                  className="waze-btn-secondary px-4 py-2 text-sm"
+                >
                   Прогноза
                 </Link>
                 <Link
@@ -303,11 +304,18 @@ export default function RoutePage() {
                 >
                   Гориво по маршрута
                 </Link>
-                <Link href="/vignettes" className="waze-btn-secondary px-4 py-2 text-sm">
+                <Link
+                  href="/vignettes"
+                  className="waze-btn-secondary px-4 py-2 text-sm"
+                >
                   Винетки
                 </Link>
                 <Link
-                  href={selectedCorridor ? `/hotels?corridor=${selectedCorridor}` : "/hotels"}
+                  href={
+                    selectedCorridor
+                      ? `/hotels?corridor=${selectedCorridor}`
+                      : "/hotels"
+                  }
                   className="waze-btn-secondary px-4 py-2 text-sm"
                 >
                   Почивки
@@ -351,6 +359,20 @@ export default function RoutePage() {
             )}
 
             <TripPlanCard route={activeRoute} />
+
+            <FuelEstimateCard distanceKm={activeRoute.distance_km} />
+
+            <WazeCard>
+              <ManeuverList maneuvers={activeRoute.maneuvers ?? []} />
+            </WazeCard>
+
+            <WazeCard>
+              <FxRatesCard />
+            </WazeCard>
+
+            <WazeCard>
+              <WinterRulesList />
+            </WazeCard>
 
             <VignetteLinks
               links={OFFICIAL_VIGNETTE_LINKS.slice(0, 5)}

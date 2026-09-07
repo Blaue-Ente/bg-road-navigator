@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+html[data-theme="dark"] {
   --waze-bg: #0b0f14;
   --waze-surface: #161b22;
   --waze-surface-elevated: #1e2530;
@@ -16,6 +17,21 @@
   --waze-radius: 16px;
   --waze-radius-pill: 9999px;
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+html[data-theme="light"] {
+  --waze-bg: #eef2f6;
+  --waze-surface: #ffffff;
+  --waze-surface-elevated: #f7f9fc;
+  --waze-surface-overlay: rgba(255, 255, 255, 0.94);
+  --waze-accent: #0077b6;
+  --waze-accent-dark: #023e8a;
+  --waze-accent-muted: rgba(0, 119, 182, 0.12);
+  --waze-border: rgba(15, 23, 42, 0.12);
+  --waze-text: #0b1220;
+  --waze-text-secondary: #334155;
+  --waze-text-muted: #64748b;
+  --waze-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
 }
 
 @theme inline {
@@ -63,7 +79,9 @@ body {
   font-weight: 600;
   border-radius: var(--waze-radius-pill);
   box-shadow: 0 4px 14px rgba(51, 204, 255, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .waze-btn-primary:hover {
@@ -84,7 +102,8 @@ body {
 }
 
 .waze-btn-secondary:hover {
-  background: #252d3a;
+  background: var(--waze-surface-elevated);
+  filter: brightness(1.08);
 }
 
 /* Chip / filter pills */

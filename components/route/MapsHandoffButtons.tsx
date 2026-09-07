@@ -28,7 +28,7 @@ export function MapsHandoffButtons({ route }: MapsHandoffButtonsProps) {
         rel="noopener noreferrer"
         className="waze-btn-primary px-4 py-2 text-sm"
       >
-        Google Maps
+        Google Maps — старт навигация
       </a>
       <a
         href={apple}

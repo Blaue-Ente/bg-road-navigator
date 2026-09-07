@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUserStore } from "@/lib/stores/user.store";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const setSession = useUserStore((s) => s.setSession);
@@ -77,7 +78,9 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthInitializer>{children}</AuthInitializer>
+      <ThemeProvider>
+        <AuthInitializer>{children}</AuthInitializer>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
