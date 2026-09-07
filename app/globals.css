@@ -136,3 +136,12 @@ body {
 .waze-bottom-safe {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

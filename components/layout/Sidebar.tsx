@@ -2,23 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { CloseIcon, MenuIcon } from "@/components/icons/NavIcons";
+import { useEffect, useRef, type ComponentType } from "react";
+import {
+  CloseIcon,
+  MenuIcon,
+  SettingsIcon,
+  TipsIcon,
+  UserIcon,
+  WeatherNavIcon,
+} from "@/components/icons/NavIcons";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useMenu } from "@/components/layout/MenuContext";
-
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
 
-const MENU_ITEMS = [
-  { href: "/weather", label: "Време", emoji: "🌤️" },
-  { href: "/tips", label: "Съвети", emoji: "💡" },
-  { href: "/vignettes", label: "Винетки", emoji: "🎫" },
-  { href: "/community", label: "Общност", emoji: "📍" },
-  { href: "/hotels", label: "Почивки", emoji: "🏨" },
-  { href: "/profile", label: "Профил", emoji: "👤" },
+const MENU_ITEMS: Array<{
+  href: string;
+  label: string;
+  Icon: ComponentType<{ className?: string }>;
+}> = [
+  { href: "/weather", label: "Време", Icon: WeatherNavIcon },
+  { href: "/tips", label: "Съвети", Icon: TipsIcon },
+  { href: "/profile", label: "Профил", Icon: UserIcon },
 ];
-
-const OPERATOR_ITEMS = [{ href: "/setup", label: "Настройка", emoji: "🔑" }];
 
 export function Sidebar() {
   const { open, openMenu, closeMenu } = useMenu();
@@ -26,7 +31,6 @@ export function Sidebar() {
   const pathname = usePathname();
   const isMap = pathname === "/";
   const closeRef = useRef<HTMLButtonElement>(null);
-  const items = isOperator ? [...MENU_ITEMS, ...OPERATOR_ITEMS] : MENU_ITEMS;
 
   useEffect(() => {
     if (!open) return;
@@ -75,7 +79,7 @@ export function Sidebar() {
                 id="app-menu-title"
                 className="text-lg font-bold text-[var(--waze-text)]"
               >
-                Меню
+                Още
               </h2>
               <button
                 ref={closeRef}
@@ -88,8 +92,13 @@ export function Sidebar() {
               </button>
             </div>
 
+            <p className="mb-4 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
+              Лентата долу води към картата, маршрута, границите, общността,
+              почивките и винетките. Тук са прогнозата, съветите и профилът.
+            </p>
+
             <nav className="grid gap-1">
-              {items.map((item) => (
+              {MENU_ITEMS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -100,12 +109,24 @@ export function Sidebar() {
                       : "text-[var(--waze-text)] hover:bg-[var(--waze-surface-elevated)]"
                   }`}
                 >
-                  <span className="text-xl" aria-hidden>
-                    {item.emoji}
-                  </span>
+                  <item.Icon className="h-5 w-5" />
                   <span className="font-medium">{item.label}</span>
                 </Link>
               ))}
+              {isOperator && (
+                <Link
+                  href="/setup"
+                  onClick={closeMenu}
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 transition ${
+                    pathname === "/setup"
+                      ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)]"
+                      : "text-[var(--waze-text)] hover:bg-[var(--waze-surface-elevated)]"
+                  }`}
+                >
+                  <SettingsIcon className="h-5 w-5" />
+                  <span className="font-medium">Настройка</span>
+                </Link>
+              )}
               <ThemeToggle />
             </nav>
           </aside>
