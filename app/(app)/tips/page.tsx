@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   LONG_HAUL_TIPS,
   CATEGORY_LABELS,
@@ -8,7 +9,6 @@ import {
 } from "@/lib/constants/travel-tips";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
-import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as TravelTip["category"][];
 
@@ -31,12 +31,24 @@ export default function TipsPage() {
       <div className="mx-auto max-w-2xl">
         <PageHeader
           title="Съвети за пътуване"
-          subtitle="Граници, гориво, почивки и безопасност при дълги пътувания"
+          subtitle="Кратки насоки за граници, гориво, почивки и безопасност при дълги курсове"
         />
 
-        <div className="mb-6">
-          <VignetteLinks compact title="Официални винетки" />
-        </div>
+        <WazeCard className="mb-6">
+          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
+            Винетки и тол
+          </h2>
+          <p className="mt-1.5 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
+            Купувайте електронни винетки само от официалните държавни портали.
+            Пълният списък с връзки е в раздела Винетки.
+          </p>
+          <Link
+            href="/vignettes"
+            className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent)] hover:underline"
+          >
+            Към официалните винетки
+          </Link>
+        </WazeCard>
 
         <div className="mb-6 flex flex-wrap gap-2">
           <button

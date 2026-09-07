@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState, useMemo } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { BorderCard } from "@/components/borders/BorderCard";
@@ -10,9 +11,7 @@ import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
 import { BorderAlternatives } from "@/components/borders/BorderAlternatives";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
-import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
 import type { EuropeanBorderRegion } from "@/lib/constants/european-borders";
-import { vignettesForCountryPairs } from "@/lib/constants/vignettes";
 
 type TabId = "bulgaria" | "europe" | "route";
 
@@ -100,9 +99,6 @@ function BorderPageContent() {
   const hasLiveData = displayedBorders.some(
     (b) => b.data_source === "nakordoni"
   );
-  const routeVignettes = vignettesForCountryPairs(
-    displayedBorders.map((b) => b.country_pair)
-  );
 
   return (
     <div className="waze-page">
@@ -140,15 +136,21 @@ function BorderPageContent() {
             : "Оценка по исторически данни · добавете NAKORDONI_API_KEY за live опашки"}
         </p>
 
-        {routeVignettes.length > 0 && (
-          <div className="mb-6">
-            <VignetteLinks
-              links={routeVignettes}
-              title="Винетки за тези държави"
-              compact
-            />
-          </div>
-        )}
+        <WazeCard className="mb-6">
+          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
+            Винетки за преминаване
+          </h2>
+          <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
+            Преди граница проверете официалните портали за електронни винетки и
+            тол.
+          </p>
+          <Link
+            href="/vignettes"
+            className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent)] hover:underline"
+          >
+            Към пълния списък с винетки
+          </Link>
+        </WazeCard>
 
         <div className="grid gap-4">
           {displayedBorders.length === 0 ? (

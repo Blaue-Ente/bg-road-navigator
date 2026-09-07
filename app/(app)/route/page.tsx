@@ -16,8 +16,6 @@ import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
-import { VignetteLinks } from "@/components/vignettes/VignetteLinks";
-import { OFFICIAL_VIGNETTE_LINKS } from "@/lib/constants/vignettes";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 import { FxRatesCard } from "@/components/route/FxRatesCard";
@@ -374,11 +372,21 @@ export default function RoutePage() {
               <WinterRulesList />
             </WazeCard>
 
-            <VignetteLinks
-              links={OFFICIAL_VIGNETTE_LINKS.slice(0, 5)}
-              title="Винетки по пътя"
-              compact
-            />
+            <WazeCard>
+              <h3 className="text-sm font-semibold text-[var(--waze-text)]">
+                Винетки по пътя
+              </h3>
+              <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
+                Преди тръгване проверете официалните портали за електронни
+                винетки в държавите по маршрута.
+              </p>
+              <Link
+                href="/vignettes"
+                className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent)] hover:underline"
+              >
+                Отвори пълния списък
+              </Link>
+            </WazeCard>
 
             {routeBorders.length > 0 && (
               <WazeCard>
