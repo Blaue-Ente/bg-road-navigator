@@ -38,7 +38,10 @@ export default function CommunityPage() {
               храна, нощувка…), влезте в профила си.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Link href="/login" className="waze-btn-primary px-4 py-2 text-xs">
+              <Link
+                href="/login"
+                className="waze-btn-primary px-4 py-2 text-xs"
+              >
                 Вход
               </Link>
               <Link
@@ -54,8 +57,8 @@ export default function CommunityPage() {
         {!serviceAvailable && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-muted)]">
-              Общността изисква конфигуриран Supabase. Четенето и писането ще
-              се активират след миграциите през `008`.
+              Общността изисква конфигуриран Supabase. Четенето и писането ще се
+              активират след миграциите през `008`.
             </p>
           </WazeCard>
         )}

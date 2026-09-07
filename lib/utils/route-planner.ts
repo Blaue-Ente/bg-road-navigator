@@ -2,27 +2,18 @@
  * Route planning utilities for pan-European long-haul trips
  */
 
-import { getCityById, type EuropeanCity } from "@/lib/constants/european-cities";
+import {
+  getCityById,
+  type EuropeanCity,
+} from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
+import { haversineKm } from "@/lib/geo/haversine";
 import type { Route, RouteWaypoint } from "@/types/route.types";
+
+export { haversineKm };
 
 const ROAD_FACTOR = 1.28;
 const AVG_SPEED_KMH = 85;
-
-export function haversineKm(
-  a: { lng: number; lat: number },
-  b: { lng: number; lat: number }
-): number {
-  const R = 6371;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
 
 export function formatDuration(minutes: number): string {
   if (minutes < 60) return `~${minutes} мин`;

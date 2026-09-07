@@ -11,7 +11,10 @@ export async function POST(
 ) {
   if (!isSupabaseConfigured()) {
     return NextResponse.json(
-      { error: "Community service is not configured", code: "COMMUNITY_UNAVAILABLE" },
+      {
+        error: "Community service is not configured",
+        code: "COMMUNITY_UNAVAILABLE",
+      },
       { status: 503 }
     );
   }
@@ -35,10 +38,12 @@ export async function POST(
     );
   }
 
-  const { error: voteError } = await supabase.from("community_pin_votes").insert({
-    pin_id: parsedParams.data.id,
-    user_id: user.id,
-  });
+  const { error: voteError } = await supabase
+    .from("community_pin_votes")
+    .insert({
+      pin_id: parsedParams.data.id,
+      user_id: user.id,
+    });
 
   if (voteError) {
     if (voteError.code === "23505") {

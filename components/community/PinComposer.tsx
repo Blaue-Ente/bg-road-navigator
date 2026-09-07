@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { PinCategorySelector } from "@/components/community/PinCategorySelector";
-import type { CommunityPin, CommunityPinCategory } from "@/types/community.types";
+import type {
+  CommunityPin,
+  CommunityPinCategory,
+} from "@/types/community.types";
 
 interface PinComposerProps {
   /** When true, require map tap before publish (home map). */
@@ -13,15 +16,9 @@ interface PinComposerProps {
 
 export function PinComposer({ requireMapTap = false }: PinComposerProps) {
   const queryClient = useQueryClient();
-  const {
-    isDropMode,
-    dropCoords,
-    cancelDrop,
-    addPin,
-    setDropCoords,
-  } = useCommunityStore();
-  const [category, setCategory] =
-    useState<CommunityPinCategory>("traffic_jam");
+  const { isDropMode, dropCoords, cancelDrop, addPin, setDropCoords } =
+    useCommunityStore();
+  const [category, setCategory] = useState<CommunityPinCategory>("traffic_jam");
   const [title, setTitle] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,9 +1,14 @@
 "use client";
 
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import type { Map } from "maplibre-gl";
-import { useGeolocation } from "@/lib/hooks/useGeolocation";
+import {
+  useGeolocation,
+  locateStatusMessage,
+} from "@/lib/hooks/useGeolocation";
 import { LocateIcon, PlusIcon, MinusIcon } from "@/components/icons/NavIcons";
+import { LayerPanel } from "@/components/map/LayerPanel";
+import { useMapStore } from "@/lib/stores/map.store";
 
 export interface MapControlsProps {
   map: Map | null;
@@ -14,14 +19,19 @@ function ControlButton({
   label,
   children,
   accent,
+  busy,
+  expanded,
 }: {
   onClick: () => void;
   label: string;
   children: ReactNode;
   accent?: boolean;
+  busy?: boolean;
+  expanded?: boolean;
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition active:scale-95 ${
         accent
@@ -29,6 +39,8 @@ function ControlButton({
           : "waze-panel text-[var(--waze-text)]"
       }`}
       aria-label={label}
+      aria-busy={busy || undefined}
+      aria-expanded={expanded}
     >
       {children}
     </button>
@@ -37,6 +49,9 @@ function ControlButton({
 
 export function MapControls({ map }: MapControlsProps) {
   const { getCurrentLocation } = useGeolocation();
+  const locateStatus = useMapStore((s) => s.locateStatus);
+  const [layersOpen, setLayersOpen] = useState(false);
+  const message = locateStatusMessage(locateStatus);
 
   const zoomIn = useCallback(() => {
     if (map) map.zoomIn();
@@ -59,7 +74,7 @@ export function MapControls({ map }: MapControlsProps) {
 
   return (
     <div
-      className="absolute right-3 z-10 flex flex-col gap-2"
+      className="absolute right-3 z-20 flex flex-col items-end gap-2"
       style={{ top: "calc(4.5rem + env(safe-area-inset-top, 0px))" }}
     >
       <ControlButton onClick={zoomIn} label="Приближи">
@@ -68,9 +83,33 @@ export function MapControls({ map }: MapControlsProps) {
       <ControlButton onClick={zoomOut} label="Отдалечи">
         <MinusIcon />
       </ControlButton>
-      <ControlButton onClick={locate} label="Намери ме" accent>
+      <ControlButton
+        onClick={locate}
+        label="Намери ме"
+        accent
+        busy={locateStatus === "locating"}
+      >
         <LocateIcon />
       </ControlButton>
+      <ControlButton
+        onClick={() => setLayersOpen((open) => !open)}
+        label="Слоеве"
+        expanded={layersOpen}
+      >
+        <span className="text-sm font-bold" aria-hidden>
+          ≡
+        </span>
+      </ControlButton>
+      {layersOpen && <LayerPanel />}
+      {message && (
+        <p
+          className="mt-1 max-w-[11rem] rounded-xl bg-[var(--waze-surface)] px-2 py-1 text-[11px] leading-snug text-[var(--waze-text-secondary)]"
+          role="status"
+          aria-live="polite"
+        >
+          {message}
+        </p>
+      )}
     </div>
   );
 }

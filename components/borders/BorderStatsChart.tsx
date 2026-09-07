@@ -30,7 +30,9 @@ export function BorderStatsChart({
             >
               <div
                 className={`w-full rounded-t transition-colors ${
-                  isPeak ? "bg-blue-500" : "bg-blue-600/60 group-hover:bg-blue-500"
+                  isPeak
+                    ? "bg-blue-500"
+                    : "bg-blue-600/60 group-hover:bg-blue-500"
                 }`}
                 style={{ height: `${height}%` }}
               />

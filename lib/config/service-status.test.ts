@@ -11,9 +11,7 @@ describe("service status catalog", () => {
     expect(catalog.map((s) => s.id)).toContain("supabase");
     expect(catalog.map((s) => s.id)).toContain("nvidia");
     expect(SUPABASE_MIGRATION_FILES[0]).toBe("001_initial_schema.sql");
-    expect(SUPABASE_MIGRATION_FILES).toContain(
-      "008_community_categories_comments.sql"
-    );
+    expect(SUPABASE_MIGRATION_FILES).toContain("009_community_pin_checks.sql");
     expect(SUPABASE_MIGRATION_FILES).not.toContain("003");
   });
 

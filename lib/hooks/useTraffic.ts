@@ -42,9 +42,13 @@ export function useTraffic(bbox: BoundingBox, zoom: number) {
             severity: incident.severity,
             delay_min: incident.delay_min ?? incident.delayMin ?? 0,
             published_at:
-              incident.published_at ?? incident.publishedAt ?? new Date().toISOString(),
+              incident.published_at ??
+              incident.publishedAt ??
+              new Date().toISOString(),
             updated_at:
-              incident.updated_at ?? incident.updatedAt ?? new Date().toISOString(),
+              incident.updated_at ??
+              incident.updatedAt ??
+              new Date().toISOString(),
           })
         ),
       };

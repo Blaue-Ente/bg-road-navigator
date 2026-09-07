@@ -9,6 +9,8 @@ import {
 } from "@/lib/constants/rest-areas";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { haversineKm } from "@/lib/geo/haversine";
+import { useMapStore } from "@/lib/stores/map.store";
 
 export default function HotelsPage() {
   return (
@@ -25,6 +27,7 @@ function HotelsPageContent() {
     corridorFromUrl
   );
 
+  const userLocation = useMapStore((s) => s.userLocation);
   const areas = selectedCorridor
     ? getRestAreasForCorridor(selectedCorridor)
     : EUROPEAN_REST_AREAS;
@@ -69,11 +72,15 @@ function HotelsPageContent() {
                   name={area.name}
                   location={`${area.location} · ${area.country}`}
                   facilities={area.facilities}
-                  distanceKm={0}
+                  distanceKm={
+                    userLocation ? haversineKm(userLocation, area.coords) : 0
+                  }
                   coords={area.coords}
                 />
                 {area.notes && (
-                  <p className="mt-1 px-1 text-xs text-gray-500">{area.notes}</p>
+                  <p className="mt-1 px-1 text-xs text-gray-500">
+                    {area.notes}
+                  </p>
                 )}
               </div>
             ))

@@ -72,7 +72,9 @@ export default function TipsPage() {
                   </span>
                 )}
               </div>
-              <h2 className="font-semibold text-[var(--waze-text)]">{tip.title}</h2>
+              <h2 className="font-semibold text-[var(--waze-text)]">
+                {tip.title}
+              </h2>
               <p className="mt-1.5 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
                 {tip.body}
               </p>

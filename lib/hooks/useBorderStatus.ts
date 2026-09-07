@@ -15,7 +15,8 @@ function buildBorderUrl(options: UseBorderStatusOptions): string {
   if (options.crossingId) params.set("crossing_id", options.crossingId);
   if (options.region) params.set("region", options.region);
   if (options.corridorId) params.set("corridor_id", options.corridorId);
-  if (options.borderIds?.length) params.set("border_ids", options.borderIds.join(","));
+  if (options.borderIds?.length)
+    params.set("border_ids", options.borderIds.join(","));
   const query = params.toString();
   return query ? `/api/borders?${query}` : "/api/borders";
 }

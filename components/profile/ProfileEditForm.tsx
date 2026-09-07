@@ -32,7 +32,9 @@ export function ProfileEditForm() {
   const [tank, setTank] = useState(
     profile?.tank_capacity_liters?.toString() ?? ""
   );
-  const [evRange, setEvRange] = useState(profile?.ev_range_km?.toString() ?? "");
+  const [evRange, setEvRange] = useState(
+    profile?.ev_range_km?.toString() ?? ""
+  );
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
@@ -59,7 +61,8 @@ export function ProfileEditForm() {
         fuel_type: fuelType,
         tank_capacity_liters:
           tank.trim() === "" ? null : Number.parseFloat(tank),
-        ev_range_km: evRange.trim() === "" ? null : Number.parseInt(evRange, 10),
+        ev_range_km:
+          evRange.trim() === "" ? null : Number.parseInt(evRange, 10),
       };
 
       const response = await fetch("/api/profile", {
@@ -133,10 +136,14 @@ export function ProfileEditForm() {
           </select>
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">Гориво</span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">
+            Гориво
+          </span>
           <select
             value={fuelType}
-            onChange={(e) => setFuelType(e.target.value as Profile["fuel_type"])}
+            onChange={(e) =>
+              setFuelType(e.target.value as Profile["fuel_type"])
+            }
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           >
             {FUEL_OPTIONS.map(([value, label]) => (

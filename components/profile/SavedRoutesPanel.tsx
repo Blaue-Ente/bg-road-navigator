@@ -28,7 +28,9 @@ export function SavedRoutesPanel() {
   });
 
   const remove = async (id: string) => {
-    const response = await fetch(`/api/saved-routes/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/saved-routes/${id}`, {
+      method: "DELETE",
+    });
     if (!response.ok) return;
     await refetch();
   };
@@ -73,8 +75,8 @@ export function SavedRoutesPanel() {
           Запазени маршрути
         </h2>
         <p className="text-sm text-[var(--waze-text-muted)]">
-          Запазването изисква конфигуриран Supabase. Дотогава планирайте свободно
-          от екрана „Маршрут“.
+          Запазването изисква конфигуриран Supabase. Дотогава планирайте
+          свободно от екрана „Маршрут“.
         </p>
       </WazeCard>
     );
@@ -94,7 +96,8 @@ export function SavedRoutesPanel() {
       )}
       {routes.length === 0 ? (
         <p className="text-sm text-[var(--waze-text-muted)]">
-          Няма запазени маршрути. Изчислете маршрут и натиснете „Запази маршрут“.
+          Няма запазени маршрути. Изчислете маршрут и натиснете „Запази
+          маршрут“.
         </p>
       ) : (
         <ul className="space-y-3">
@@ -103,7 +106,9 @@ export function SavedRoutesPanel() {
               key={route.id}
               className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] p-3"
             >
-              <p className="font-medium text-[var(--waze-text)]">{route.name}</p>
+              <p className="font-medium text-[var(--waze-text)]">
+                {route.name}
+              </p>
               <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
                 {route.distance_km ?? "—"} км ·{" "}
                 {route.duration_min != null

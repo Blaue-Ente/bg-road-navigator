@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { BorderWebcamFeed } from "@/types/border.types";
+import { isAllowedHttpsUrl, stripHtml } from "@/lib/geo/escape-html";
+
+const WINDY_HOSTS = ["webcams.windy.com", "windy.com"] as const;
 
 interface BorderWebcamProps {
   crossingId: string;
@@ -47,7 +50,10 @@ export function BorderWebcam({
   }, [feed?.image_url]);
 
   const livePageUrl = feed?.nakordoni_url ?? nakordoniUrl ?? null;
-  const playerUrl = feed?.player_url;
+  const playerUrl =
+    feed?.player_url && isAllowedHttpsUrl(feed.player_url, WINDY_HOSTS)
+      ? feed.player_url
+      : null;
   const imageUrl = feed?.image_url
     ? `${feed.image_url}${feed.image_url.includes("?") ? "&" : "?"}t=${imageKey}`
     : null;
@@ -60,7 +66,7 @@ export function BorderWebcam({
           title={`Камера ${label}`}
           className="h-48 w-full border-0"
           loading="lazy"
-          allow="autoplay; fullscreen"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
         />
         <WebcamFooter label={label} feed={feed} livePageUrl={livePageUrl} />
       </div>
@@ -70,6 +76,8 @@ export function BorderWebcam({
   if (imageUrl && !error) {
     return (
       <div className="relative overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
+        {/* Dynamic Windy snapshot URLs; next/image remotePatterns cannot cover cache-busting query strings. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
           alt={`Камера ${label}`}
@@ -95,13 +103,14 @@ export function BorderWebcam({
           Виж на живо (Nakordoni)
         </a>
       ) : (
-        <p className="text-xs text-gray-500">Няма налична камера за този пункт</p>
+        <p className="text-xs text-gray-500">
+          Няма налична камера за този пункт
+        </p>
       )}
       {feed?.attribution && (
-        <p
-          className="text-[10px] text-gray-500"
-          dangerouslySetInnerHTML={{ __html: feed.attribution }}
-        />
+        <p className="text-[10px] text-gray-500">
+          {stripHtml(feed.attribution)}
+        </p>
       )}
     </div>
   );

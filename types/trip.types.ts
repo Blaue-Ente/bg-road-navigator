@@ -1,15 +1,8 @@
 import type { GeoPoint } from "@/types/route.types";
 
-export type TripStopType =
-  | "fuel"
-  | "ev_charge"
-  | "rest"
-  | "overnight";
+export type TripStopType = "fuel" | "ev_charge" | "rest" | "overnight";
 
-export type TripStopSource =
-  | "calculation"
-  | "curated_rest_area"
-  | "ai_nvidia";
+export type TripStopSource = "calculation" | "curated_rest_area" | "ai_nvidia";
 
 export type TripPlannerSource = "heuristic" | "nvidia";
 

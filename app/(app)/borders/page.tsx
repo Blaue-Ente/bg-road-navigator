@@ -61,7 +61,11 @@ function BorderPageContent() {
     return { region: "all" as const, enabled: true };
   }, [activeTab, borderIds]);
 
-  const { data: borderStatus, isLoading, error } = useBorderStatus(fetchOptions);
+  const {
+    data: borderStatus,
+    isLoading,
+    error,
+  } = useBorderStatus(fetchOptions);
 
   const displayedBorders = useMemo(() => {
     if (!borderStatus) return [];
@@ -93,7 +97,9 @@ function BorderPageContent() {
     );
   }
 
-  const hasLiveData = displayedBorders.some((b) => b.data_source === "nakordoni");
+  const hasLiveData = displayedBorders.some(
+    (b) => b.data_source === "nakordoni"
+  );
   const routeVignettes = vignettesForCountryPairs(
     displayedBorders.map((b) => b.country_pair)
   );
@@ -101,109 +107,111 @@ function BorderPageContent() {
   return (
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
-      <PageHeader
-        title="Гранични пролази"
-        subtitle="България, Европа и граници по вашия маршрут"
-      />
+        <PageHeader
+          title="Гранични пролази"
+          subtitle="България, Европа и граници по вашия маршрут"
+        />
 
-      <div className="mb-6 flex gap-2">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition ${
-              activeTab === tab.id
-                ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)] ring-1 ring-[var(--waze-accent)]/40"
-                : "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)]"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === "route" && !borderIds?.length && (
-        <p className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
-          Изберете маршрут от секция Маршрут, за да видите границите по пътя.
-        </p>
-      )}
-
-      <p className="mb-6 text-xs text-[var(--waze-text-muted)]">
-        {hasLiveData
-          ? "Реални опашки от nakordoni.eu · камери от Windy или Nakordoni"
-          : "Оценка по исторически данни · добавете NAKORDONI_API_KEY за live опашки"}
-      </p>
-
-      {routeVignettes.length > 0 && (
-        <div className="mb-6">
-          <VignetteLinks
-            links={routeVignettes}
-            title="Винетки за тези държави"
-            compact
-          />
+        <div className="mb-6 flex gap-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition ${
+                activeTab === tab.id
+                  ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)] ring-1 ring-[var(--waze-accent)]/40"
+                  : "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-      )}
 
-      <div className="grid gap-4">
-        {displayedBorders.length === 0 ? (
-          <p className="text-center text-gray-500">Няма граници за показване.</p>
-        ) : (
-          displayedBorders.map((border) => (
-            <WazeCard key={border.crossing_id} className="!p-4">
-              <div className="mb-3 flex items-start justify-between gap-3">
-                <BorderCard border={border} />
-                <div className="flex flex-col items-end gap-1">
-                  <BorderWaitBadge
-                    waitMinutes={border.wait_time_cars}
-                    label="Коли"
-                  />
-                  {border.data_source === "nakordoni" && (
-                    <span className="text-[10px] text-green-400">● live</span>
-                  )}
-                </div>
-              </div>
-
-              <BorderAlternatives
-                border={border}
-                allBorders={borderStatus ?? []}
-              />
-
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <BorderStatsChart
-                  hourlyData={border.avg_wait_by_hour}
-                  title={`Средно изчакване — ${border.name_bg}`}
-                />
-                <BorderWebcam
-                  crossingId={border.crossing_id}
-                  label={border.name_bg}
-                  nakordoniUrl={border.nakordoni_url}
-                />
-              </div>
-            </WazeCard>
-          ))
+        {activeTab === "route" && !borderIds?.length && (
+          <p className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+            Изберете маршрут от секция Маршрут, за да видите границите по пътя.
+          </p>
         )}
-      </div>
 
-      <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
-        Данни:{" "}
-        <a
-          href="https://nakordoni.eu/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[var(--waze-accent)]"
-        >
-          nakordoni.eu
-        </a>
-        {" · "}
-        <a
-          href="https://www.windy.com/webcams"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[var(--waze-accent)]"
-        >
-          Windy Webcams
-        </a>
-      </p>
+        <p className="mb-6 text-xs text-[var(--waze-text-muted)]">
+          {hasLiveData
+            ? "Реални опашки от nakordoni.eu · камери от Windy или Nakordoni"
+            : "Оценка по исторически данни · добавете NAKORDONI_API_KEY за live опашки"}
+        </p>
+
+        {routeVignettes.length > 0 && (
+          <div className="mb-6">
+            <VignetteLinks
+              links={routeVignettes}
+              title="Винетки за тези държави"
+              compact
+            />
+          </div>
+        )}
+
+        <div className="grid gap-4">
+          {displayedBorders.length === 0 ? (
+            <p className="text-center text-gray-500">
+              Няма граници за показване.
+            </p>
+          ) : (
+            displayedBorders.map((border) => (
+              <WazeCard key={border.crossing_id} className="!p-4">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <BorderCard border={border} />
+                  <div className="flex flex-col items-end gap-1">
+                    <BorderWaitBadge
+                      waitMinutes={border.wait_time_cars}
+                      label="Коли"
+                    />
+                    {border.data_source === "nakordoni" && (
+                      <span className="text-[10px] text-green-400">● live</span>
+                    )}
+                  </div>
+                </div>
+
+                <BorderAlternatives
+                  border={border}
+                  allBorders={borderStatus ?? []}
+                />
+
+                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <BorderStatsChart
+                    hourlyData={border.avg_wait_by_hour}
+                    title={`Средно изчакване — ${border.name_bg}`}
+                  />
+                  <BorderWebcam
+                    crossingId={border.crossing_id}
+                    label={border.name_bg}
+                    nakordoniUrl={border.nakordoni_url}
+                  />
+                </div>
+              </WazeCard>
+            ))
+          )}
+        </div>
+
+        <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
+          Данни:{" "}
+          <a
+            href="https://nakordoni.eu/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--waze-accent)]"
+          >
+            nakordoni.eu
+          </a>
+          {" · "}
+          <a
+            href="https://www.windy.com/webcams"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--waze-accent)]"
+          >
+            Windy Webcams
+          </a>
+        </p>
       </div>
     </div>
   );

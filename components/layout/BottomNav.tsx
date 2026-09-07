@@ -25,9 +25,7 @@ export function BottomNav() {
   return (
     <nav
       className={`fixed z-30 ${
-        isMap
-          ? "bottom-4 left-3 right-3"
-          : "bottom-3 left-3 right-3"
+        isMap ? "bottom-4 left-3 right-3" : "bottom-3 left-3 right-3"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >

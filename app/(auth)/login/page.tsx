@@ -39,8 +39,8 @@ export default function LoginPage() {
       if (email && password) {
         setSession({
           user: { id: "demo-user", email },
-          access_token: "demo-token",
           expires_at: Date.now() + 3600000,
+          is_demo: true,
         });
         setProfile({
           id: "demo-user",
@@ -86,7 +86,10 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="password">
+            <label
+              className="mb-1 block text-sm font-medium"
+              htmlFor="password"
+            >
               Парола
             </label>
             <input

@@ -37,12 +37,7 @@ interface WindyWebcamItem {
   };
 }
 
-function haversineKm(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-) {
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -75,7 +70,8 @@ export async function findNearestWebcam(
     }
 
     const data = await response.json();
-    const webcams: WindyWebcamItem[] = data?.result?.webcams ?? data?.webcams ?? [];
+    const webcams: WindyWebcamItem[] =
+      data?.result?.webcams ?? data?.webcams ?? [];
 
     if (webcams.length === 0) return null;
 
@@ -101,7 +97,9 @@ export async function findNearestWebcam(
       title: best.cam.title,
       imageUrl,
       playerUrl: best.cam.player?.live ?? best.cam.player?.day ?? null,
-      detailUrl: best.cam.urls?.detail ?? `https://www.windy.com/webcams/${best.cam.webcamId}`,
+      detailUrl:
+        best.cam.urls?.detail ??
+        `https://www.windy.com/webcams/${best.cam.webcamId}`,
       distanceKm: Math.round(best.distanceKm * 10) / 10,
       source: "windy",
     };

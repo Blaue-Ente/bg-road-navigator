@@ -4,16 +4,16 @@
 
 ## Функции
 
-- **Карта** — MapLibre GL с маршрут, трафик и общностни маркери (без API ключ)
-- **Маршрут** — реални пътни разстояния (OSRM) между 45+ града и 18 коридора, или до произволен адрес, хотел и пътна точка в Европа
+- **Карта** — MapLibre GL със слоеве, клъстери и светла/тъмна тема (без API ключ)
+- **Маршрут** — реални пътни разстояния (OSRM), алтернативи, списък с маневри; жива навигация през Google/Apple Maps
 - **Граници** — България + европейски транзитни пунктове; live опашки (Nakordoni)
-- **Гориво / EV** — бензиностанции и зарядни точки
-- **Време** — прогноза по маршрута (Open-Meteo, без ключ)
+- **Гориво / EV** — бензиностанции, зарядни точки и оценка на разход
+- **Време** — текущи условия по маршрута (Open-Meteo, без ключ)
 - **Почивки** — зони за почивка и нощувка по коридорите
 - **Съвети** — препоръки за дълги пътувания (граници, винетки, почивки)
-- **Спешно** — телефони за помощ в 20+ държави
+- **Спешно** — телефони за помощ + близки болници/сервизи (OSM)
 - **Общност** — споделяне на пътна информация
-- **PWA** — инсталируемо мобилно приложение
+- **PWA** — инсталируемо; shell cache за карта и спешни номера
 
 ## Технологии
 
@@ -44,18 +44,22 @@ npm run dev
 4. Supabase Auth → Redirect URLs: `http://localhost:3000` и публичният URL
 5. Рестарт на `npm run dev` → проверка: [`/api/config/status`](http://localhost:3000/api/config/status)
 
-| Променлива | Услуга | Нужна? |
-|------------|--------|--------|
-| `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Акаунти, любими, общност | За auth/writes |
-| `NAKORDONI_API_KEY` | Live гранични опашки ([nakordoni.eu](https://nakordoni.eu/en/developers)) | Препоръчително (безплатно) |
-| `WINDY_WEBCAMS_API_KEY` | Webcam изображения ([Windy](https://api.windy.com/webcams)) | По избор |
-| `TOMTOM_API_KEY` | Трафик + бензиностанции | По избор |
-| `OPENCHARGE_API_KEY` | EV зарядни | По избор |
-| `NVIDIA_API_KEY` | AI план (иначе евристика) | По избор |
-| `NEXT_PUBLIC_APP_URL` | Публичен URL / Auth redirects | Препоръчително при deploy |
-| `NEXT_PUBLIC_MAP_STYLE_URL` | Custom MapLibre style | По избор |
-| `OSRM_API_URL` | Собствен OSRM | По избор |
-| `GEOCODING_API_URL` | Собствен geocoder | По избор |
+| Променлива                                                   | Услуга                                                                    | Приоритет                             |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------- | ------------------------------------- |
+| `NEXT_PUBLIC_APP_URL`                                        | Публичен URL / Auth redirects                                             | **Must** при публичен сайт            |
+| `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Акаунти, любими, общност                                                  | **Must** за вход и запис              |
+| `NAKORDONI_API_KEY`                                          | Live гранични опашки ([nakordoni.eu](https://nakordoni.eu/en/developers)) | **Must** за публичен сайт (безплатно) |
+| `TOMTOM_API_KEY`                                             | Трафик + бензиностанции                                                   | Should                                |
+| `OPENCHARGE_API_KEY`                                         | EV зарядни                                                                | Should                                |
+| `WINDY_WEBCAMS_API_KEY`                                      | Webcam изображения ([Windy](https://api.windy.com/webcams))               | Should                                |
+| `NVIDIA_API_KEY`                                             | AI план (иначе евристика)                                                 | Optional                              |
+| `NEXT_PUBLIC_MAP_STYLE_URL`                                  | Custom MapLibre style                                                     | Optional                              |
+| `OSRM_API_URL`                                               | Собствен OSRM                                                             | Optional                              |
+| `GEOCODING_API_URL`                                          | Собствен geocoder                                                         | Optional                              |
+
+**Без ключ:** MapLibre/Carto, публичен OSRM, Nominatim, Open-Meteo, Frankfurter FX, Overpass (болници/сервизи).
+
+Не поставяйте реални секрети в git. Попълнете ги в `.env.local` / Vercel / Railway.
 
 **Времето** използва [Open-Meteo](https://open-meteo.com) — **без API ключ**.
 
@@ -64,10 +68,12 @@ npm run dev
 ## Скриптове
 
 ```bash
-npm run dev    # разработка
-npm run build  # production build
-npm run start  # production сървър
-npm run lint   # ESLint
+npm run dev     # разработка
+npm run build   # production build
+npm run start   # production сървър
+npm run lint    # ESLint
+npm test        # Vitest
+npm run format  # Prettier check
 ```
 
 ## Деплой на Railway
@@ -84,16 +90,16 @@ npm run lint   # ESLint
 
 В **Project → Variables** добави (копирай от `.env.example`):
 
-| Променлива | Задължителна | Описание |
-|------------|--------------|----------|
-| `NEXT_PUBLIC_APP_URL` | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app` (Auth redirects) |
-| `NEXT_PUBLIC_SUPABASE_URL` | За акаунти | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | За акаунти | Supabase anon key |
-| `NAKORDONI_API_KEY` | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) |
-| `WINDY_WEBCAMS_API_KEY` | Не | Windy webcams |
-| `TOMTOM_API_KEY` | Не | Трафик + гориво |
-| `OPENCHARGE_API_KEY` | Не | EV станции |
-| `NVIDIA_API_KEY` | Не | AI trip planner |
+| Променлива                      | Задължителна   | Описание                                                                        |
+| ------------------------------- | -------------- | ------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_URL`           | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app` (Auth redirects)    |
+| `NEXT_PUBLIC_SUPABASE_URL`      | За акаунти     | Supabase project URL                                                            |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | За акаунти     | Supabase anon key                                                               |
+| `NAKORDONI_API_KEY`             | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) |
+| `WINDY_WEBCAMS_API_KEY`         | Не             | Windy webcams                                                                   |
+| `TOMTOM_API_KEY`                | Не             | Трафик + гориво                                                                 |
+| `OPENCHARGE_API_KEY`            | Не             | EV станции                                                                      |
+| `NVIDIA_API_KEY`                | Не             | AI trip planner                                                                 |
 
 След Supabase ключовете приложете `supabase/apply_all.sql` веднъж в SQL Editor.
 

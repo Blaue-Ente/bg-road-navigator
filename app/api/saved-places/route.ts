@@ -58,7 +58,10 @@ export async function GET(request: NextRequest) {
   if (error) {
     console.error("Saved places list error:", error);
     return NextResponse.json(
-      { error: "Unable to load saved places", code: "SAVED_PLACES_LOAD_FAILED" },
+      {
+        error: "Unable to load saved places",
+        code: "SAVED_PLACES_LOAD_FAILED",
+      },
       { status: 500 }
     );
   }

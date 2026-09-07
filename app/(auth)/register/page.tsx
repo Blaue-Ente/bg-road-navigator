@@ -42,8 +42,8 @@ export default function RegisterPage() {
         const id = `user-${Date.now()}`;
         setSession({
           user: { id, email },
-          access_token: "demo-token",
           expires_at: Date.now() + 3600000,
+          is_demo: true,
         });
         setProfile({
           id,
@@ -76,7 +76,10 @@ export default function RegisterPage() {
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="username">
+            <label
+              className="mb-1 block text-sm font-medium"
+              htmlFor="username"
+            >
               Потребителско име
             </label>
             <input
@@ -102,7 +105,10 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="password">
+            <label
+              className="mb-1 block text-sm font-medium"
+              htmlFor="password"
+            >
               Парола
             </label>
             <input
@@ -126,7 +132,10 @@ export default function RegisterPage() {
         </form>
         <p className="mt-4 text-center text-sm text-[var(--waze-text-muted)]">
           Вече имате акаунт?{" "}
-          <Link href="/login" className="text-[var(--waze-accent)] hover:underline">
+          <Link
+            href="/login"
+            className="text-[var(--waze-accent)] hover:underline"
+          >
             Вход
           </Link>
         </p>

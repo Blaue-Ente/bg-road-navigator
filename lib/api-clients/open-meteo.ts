@@ -5,25 +5,9 @@
 
 import type { WeatherAlert, WeatherPoint } from "@/types/weather.types";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
+import { nearbyPassNames } from "@/lib/utils/route-weather-points";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
-
-const MOUNTAIN_ALERTS: WeatherAlert[] = [
-  {
-    id: "shipka-snow",
-    title: "Внимание: Шипка",
-    description: "Възможен сняг и ледени участъци над 1000 m.",
-    severity: "high",
-    coords: { lng: 25.1, lat: 42.1 },
-  },
-  {
-    id: "petrohan-wind",
-    title: "Силен вятър: Петрохан",
-    description: "Пориви до 70 km/h — шофирайте внимателно.",
-    severity: "medium",
-    coords: { lng: 26.5, lat: 42.5 },
-  },
-];
 
 interface OpenMeteoLocation {
   latitude: number;
@@ -37,11 +21,24 @@ interface OpenMeteoLocation {
   };
 }
 
-function buildAlerts(points: WeatherPoint[]): WeatherAlert[] {
+function buildAlerts(
+  points: WeatherPoint[],
+  coords: Array<{ lng: number; lat: number }>
+): WeatherAlert[] {
   const alerts: WeatherAlert[] = [];
-
-  if (points.some((p) => p.temperature_c < 2 || p.precipitation_mm > 0)) {
-    alerts.push(...MOUNTAIN_ALERTS);
+  const winterish = points.some(
+    (p) => p.temperature_c < 2 || p.precipitation_mm > 0
+  );
+  if (winterish) {
+    for (const name of nearbyPassNames(coords)) {
+      alerts.push({
+        id: `pass-${name}`,
+        title: `Внимание: ${name}`,
+        description:
+          "Възможен сняг, вятър или хлъзгав път в района на прохода. Проверете прогнозата преди тръгване.",
+        severity: "high",
+      });
+    }
   }
 
   if (points.some((p) => p.wind_kmh > 50)) {
@@ -57,7 +54,8 @@ function buildAlerts(points: WeatherPoint[]): WeatherAlert[] {
     alerts.push({
       id: "low-visibility",
       title: "Намалена видимост",
-      description: "Видимост под 2 km — включете светлините и намалете скоростта.",
+      description:
+        "Видимост под 2 km — включете светлините и намалете скоростта.",
       severity: "high",
     });
   }
@@ -66,8 +64,7 @@ function buildAlerts(points: WeatherPoint[]): WeatherAlert[] {
 }
 
 export async function getWeatherByPoints(
-  points: Array<{ lng: number; lat: number }>,
-  _departureTime?: Date
+  points: Array<{ lng: number; lat: number }>
 ): Promise<{ points: WeatherPoint[]; alerts: WeatherAlert[] }> {
   if (points.length === 0) {
     return { points: [], alerts: [] };
@@ -120,7 +117,7 @@ export async function getWeatherByPoints(
 
     return {
       points: pointsData,
-      alerts: buildAlerts(pointsData),
+      alerts: buildAlerts(pointsData, limited),
     };
   } catch (error) {
     console.error("Open-Meteo API error:", error);

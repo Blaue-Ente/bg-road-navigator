@@ -23,12 +23,23 @@ export interface RoutePoint extends RouteWaypoint {
   source: "curated" | "geocoder" | "user";
 }
 
+export interface RouteManeuver {
+  instruction_bg: string;
+  type: string;
+  modifier?: string;
+  street?: string;
+  distance_m: number;
+  duration_s: number;
+  coords: GeoPoint;
+}
+
 export interface RouteAlternative {
   id: string;
   distance_km: number;
   duration_min: number;
   geometry: GeoJSON.LineString;
   weight: number;
+  maneuvers?: RouteManeuver[];
 }
 
 export interface Route {
@@ -42,6 +53,8 @@ export interface Route {
   alternatives: RouteAlternative[];
   routing_source?: "osrm" | "estimate";
   corridor_id?: string;
+  /** OSRM steps — list preview only; live turn-by-turn is not enabled in v1. */
+  maneuvers?: RouteManeuver[];
 }
 
 export interface SavedRoute {

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUserStore } from "@/lib/stores/user.store";
 import { ChevronLeftIcon } from "@/components/icons/NavIcons";
 
 interface TopBarProps {
@@ -19,6 +18,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/hotels": "Почивки",
   "/tips": "Съвети",
   "/profile": "Профил",
+  "/vignettes": "Винетки",
+  "/setup": "Настройка",
 };
 
 export function TopBar({ user }: TopBarProps) {

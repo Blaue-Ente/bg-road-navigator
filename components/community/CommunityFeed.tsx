@@ -66,7 +66,9 @@ export function CommunityFeed({
         <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
           Активни маркери
         </h2>
-        <span className="text-xs text-[var(--waze-text-muted)]">{pins.length}</span>
+        <span className="text-xs text-[var(--waze-text-muted)]">
+          {pins.length}
+        </span>
       </div>
 
       {pins.map((pin) => {

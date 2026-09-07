@@ -68,7 +68,9 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
 
         {expanded && (
           <div className="border-t border-[var(--waze-border)] px-4 pb-4 pt-3">
-            <p className="mb-1 text-xs text-[var(--waze-text-muted)]">Маршрут</p>
+            <p className="mb-1 text-xs text-[var(--waze-text-muted)]">
+              Маршрут
+            </p>
             <p className="text-sm text-[var(--waze-text)]">
               {route.origin.label} → {route.destination.label}
             </p>
@@ -110,7 +112,10 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             </div>
 
             <div className="mt-3 flex gap-2">
-              <Link href="/route" className="waze-btn-primary flex-1 py-2.5 text-center text-sm">
+              <Link
+                href="/route"
+                className="waze-btn-primary flex-1 py-2.5 text-center text-sm"
+              >
                 Промени
               </Link>
               <button

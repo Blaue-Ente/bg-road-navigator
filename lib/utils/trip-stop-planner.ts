@@ -1,4 +1,5 @@
 import { EUROPEAN_REST_AREAS, type RestArea } from "@/lib/constants/rest-areas";
+import { haversineKm } from "@/lib/geo/haversine";
 import type { GeoPoint, Route } from "@/types/route.types";
 import type {
   TripPlan,
@@ -11,18 +12,6 @@ const DEFAULT_OVERNIGHT_MIN = 600;
 const DEFAULT_FUEL_RANGE_KM = 550;
 const DEFAULT_EV_RANGE_KM = 260;
 const REST_AREA_SEARCH_RADIUS_KM = 45;
-
-function haversineKm(a: GeoPoint, b: GeoPoint): number {
-  const radius = 6371;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return radius * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
 
 function getRoutePointAtDistance(route: Route, targetKm: number): GeoPoint {
   const coordinates = route.geometry.coordinates;
@@ -104,7 +93,11 @@ function addRestAndOvernightStops(
 ): TripPlanStop[] {
   const stops: TripPlanStop[] = [];
 
-  for (let minute = breakEveryMin; minute < route.duration_min; minute += breakEveryMin) {
+  for (
+    let minute = breakEveryMin;
+    minute < route.duration_min;
+    minute += breakEveryMin
+  ) {
     const isOvernight = minute % overnightAfterMin < breakEveryMin;
     const type = isOvernight ? "overnight" : "rest";
     const generic = stopAt(
@@ -145,8 +138,8 @@ function addEnergyStops(
 ): TripPlanStop[] {
   const isEv = preferences.vehicle_type === "ev";
   const rangeKm = isEv
-    ? preferences.ev_range_km ?? DEFAULT_EV_RANGE_KM
-    : preferences.fuel_range_km ?? DEFAULT_FUEL_RANGE_KM;
+    ? (preferences.ev_range_km ?? DEFAULT_EV_RANGE_KM)
+    : (preferences.fuel_range_km ?? DEFAULT_FUEL_RANGE_KM);
   const safetyRangeKm = Math.max(80, Math.round(rangeKm * 0.8));
   const stops: TripPlanStop[] = [];
 
@@ -215,10 +208,10 @@ export function buildTripPlan(
       fuel_range_km:
         preferences.vehicle_type === "ev"
           ? undefined
-          : preferences.fuel_range_km ?? DEFAULT_FUEL_RANGE_KM,
+          : (preferences.fuel_range_km ?? DEFAULT_FUEL_RANGE_KM),
       ev_range_km:
         preferences.vehicle_type === "ev"
-          ? preferences.ev_range_km ?? DEFAULT_EV_RANGE_KM
+          ? (preferences.ev_range_km ?? DEFAULT_EV_RANGE_KM)
           : undefined,
     },
     stops,

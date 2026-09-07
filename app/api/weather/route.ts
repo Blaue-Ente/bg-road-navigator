@@ -1,48 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { EuropePointSchema } from "@/lib/server/geo-schema";
 import { getWeatherByPoints } from "@/lib/api-clients/open-meteo";
-
-const WeatherQuerySchema = z.object({
-  points: z.string().optional(),
-  departure_time: z.string().optional(),
-});
+import { nearbyPassNames } from "@/lib/utils/route-weather-points";
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const pointsParam = searchParams.get("points");
-    const departureTime = searchParams.get("departure_time");
+    const pointsParam = request.nextUrl.searchParams.get("points");
 
-    const parsed = WeatherQuerySchema.safeParse({
-      points: pointsParam,
-      departure_time: departureTime,
-    });
-    if (!parsed.success) {
+    if (!pointsParam) {
       return NextResponse.json(
-        { error: "Invalid query parameters", code: "INVALID_QUERY" },
+        { error: "Missing points", code: "INVALID_POINTS" },
         { status: 400 }
       );
     }
 
-    let points: Array<{ lng: number; lat: number }> = [];
-    if (pointsParam) {
-      try {
-        points = JSON.parse(pointsParam);
-      } catch {
-        return NextResponse.json(
-          { error: "Invalid points JSON", code: "INVALID_POINTS" },
-          { status: 400 }
-        );
-      }
+    let raw: unknown;
+    try {
+      raw = JSON.parse(pointsParam);
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid points JSON", code: "INVALID_POINTS" },
+        { status: 400 }
+      );
     }
 
-    const weatherData = await getWeatherByPoints(
-      points,
-      departureTime ? new Date(departureTime) : new Date()
-    );
+    const parsed = EuropePointSchema.array().min(1).max(20).safeParse(raw);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid points", code: "INVALID_POINTS" },
+        { status: 400 }
+      );
+    }
+
+    const weatherData = await getWeatherByPoints(parsed.data);
+
+    const passes = nearbyPassNames(parsed.data);
 
     return NextResponse.json({
       ...weatherData,
+      nearby_passes: passes,
       attribution: "Прогноза: Open-Meteo.com (CC BY 4.0)",
     });
   } catch (error) {

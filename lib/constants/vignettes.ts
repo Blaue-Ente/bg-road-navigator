@@ -37,7 +37,8 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     country_code: "CH",
     name_bg: "Швейцария — винетка",
     name_en: "Switzerland vignette",
-    official_url: "https://www.astra.admin.ch/astra/en/home/running/motorways/vignette.html",
+    official_url:
+      "https://www.astra.admin.ch/astra/en/home/running/motorways/vignette.html",
     notes_bg: "Годишна автомагистрална винетка (via swisspost / ASTRA).",
   },
   {
@@ -91,9 +92,7 @@ export function getVignetteByCountryCode(
 }
 
 /** Infer country codes from corridor labels / country_pair strings like "BG - RS". */
-export function vignettesForCountryPairs(
-  pairs: string[]
-): VignetteLink[] {
+export function vignettesForCountryPairs(pairs: string[]): VignetteLink[] {
   const codes = new Set<string>();
   for (const pair of pairs) {
     for (const part of pair.split(/[-–—/]/)) {

@@ -24,7 +24,11 @@ export function RequireAuth({
 
   if (isLoading) {
     return (
-      <div className={className ?? "waze-panel p-4 text-sm text-[var(--waze-text-muted)]"}>
+      <div
+        className={
+          className ?? "waze-panel p-4 text-sm text-[var(--waze-text-muted)]"
+        }
+      >
         Зареждане...
       </div>
     );
@@ -43,7 +47,10 @@ export function RequireAuth({
           <Link href="/login" className="waze-btn-primary px-4 py-2 text-xs">
             Вход
           </Link>
-          <Link href="/register" className="waze-btn-secondary px-4 py-2 text-xs">
+          <Link
+            href="/register"
+            className="waze-btn-secondary px-4 py-2 text-xs"
+          >
             Регистрация
           </Link>
         </div>

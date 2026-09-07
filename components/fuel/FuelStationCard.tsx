@@ -14,7 +14,10 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
       ? { label: "Отворен", style: "bg-emerald-500/20 text-emerald-300" }
       : station.open === false
         ? { label: "Затворен", style: "bg-red-500/20 text-red-300" }
-        : { label: "Статус неизвестен", style: "bg-slate-500/20 text-slate-300" };
+        : {
+            label: "Статус неизвестен",
+            style: "bg-slate-500/20 text-slate-300",
+          };
 
   return (
     <div
@@ -23,8 +26,12 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
     >
       <div className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-semibold text-[var(--waze-text)]">{station.brand}</h3>
-          <p className="text-sm text-[var(--waze-text-secondary)]">{station.name}</p>
+          <h3 className="font-semibold text-[var(--waze-text)]">
+            {station.brand}
+          </h3>
+          <p className="text-sm text-[var(--waze-text-secondary)]">
+            {station.name}
+          </p>
         </div>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${stationStatus.style}`}
@@ -33,7 +40,9 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
         </span>
       </div>
 
-      <p className="mb-3 text-sm text-[var(--waze-text-secondary)]">{station.address}</p>
+      <p className="mb-3 text-sm text-[var(--waze-text-secondary)]">
+        {station.address}
+      </p>
 
       <div className="grid grid-cols-3 gap-2 text-sm">
         {station.prices.diesel && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useWeather } from "@/lib/hooks/useWeather";
@@ -9,45 +9,33 @@ import { WeatherAlertBanner } from "@/components/weather/WeatherAlertBanner";
 import { RouteWeatherTimeline } from "@/components/weather/RouteWeatherTimeline";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
-
-const MOUNTAIN_PASSES = [
-  { name: "Шипченски проход", coords: { lng: 25.1, lat: 42.1 } },
-  { name: "Предела", coords: { lng: 23.9, lat: 42.3 } },
-  { name: "Петрохан", coords: { lng: 26.5, lat: 42.5 } },
-  { name: "Троянски проход", coords: { lng: 25.4, lat: 42.7 } },
-];
+import { PageSkeleton, ErrorState } from "@/components/ui/PageSkeleton";
+import { sampleWeatherPoints } from "@/lib/utils/route-weather-points";
 
 export default function WeatherPage() {
   const { activeRoute } = useRouteStore();
-  const [routePoints, setRoutePoints] = useState<Array<{ lng: number; lat: number }>>([]);
-  const [weatherData, setWeatherData] = useState<{
-    points: Parameters<typeof WeatherCard>[0]["weather"][];
-    alerts: Parameters<typeof WeatherAlertBanner>[0]["alerts"];
-  }>({ points: [], alerts: [] });
+  const samples = useMemo(
+    () => (activeRoute ? sampleWeatherPoints(activeRoute, 6) : []),
+    [activeRoute]
+  );
+  const queryPoints = useMemo(
+    () => samples.map((p) => ({ lng: p.lng, lat: p.lat })),
+    [samples]
+  );
+  const { data, isLoading, error, refetch } = useWeather(queryPoints);
 
-  useEffect(() => {
-    if (activeRoute) {
-      const points: Array<{ lng: number; lat: number }> = [];
-      points.push(activeRoute.origin.coords);
-      activeRoute.waypoints.forEach((wp) => points.push(wp.coords));
-      points.push(activeRoute.destination.coords);
-      points.push(...MOUNTAIN_PASSES.map((p) => p.coords));
-
-      const unique = Array.from(new Set(points.map((p) => `${p.lng},${p.lat}`))).map(
-        (s) => {
-          const [lng, lat] = s.split(",").map(Number);
-          return { lng, lat };
-        }
-      );
-      setRoutePoints(unique);
-    }
-  }, [activeRoute]);
-
-  const { data, isLoading, error } = useWeather(routePoints);
-
-  useEffect(() => {
-    if (data) setWeatherData(data);
-  }, [data]);
+  const merged = useMemo(() => {
+    if (!data?.points) return [];
+    return data.points.map((point, index) => {
+      const sample = samples[index];
+      return {
+        ...point,
+        label: sample?.label,
+        distance_from_origin_km: sample?.distance_from_origin_km,
+        eta_min: sample?.eta_min,
+      };
+    });
+  }, [data, samples]);
 
   if (!activeRoute) {
     return (
@@ -55,13 +43,16 @@ export default function WeatherPage() {
         <div className="mx-auto max-w-2xl text-center">
           <PageHeader
             title="Време по маршрут"
-            subtitle="Прогноза по точките на вашето пътуване"
+            subtitle="Текущи условия в точки по активния маршрут"
           />
           <WazeCard className="py-8">
             <p className="text-[var(--waze-text-secondary)]">
               Изберете маршрут, за да видите прогнозата.
             </p>
-            <Link href="/route" className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm">
+            <Link
+              href="/route"
+              className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm"
+            >
               Планирай маршрут
             </Link>
           </WazeCard>
@@ -70,19 +61,13 @@ export default function WeatherPage() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center text-[var(--waze-accent)]">
-        Зареждане на прогнозата...
-      </div>
-    );
-  }
-
+  if (isLoading) return <PageSkeleton label="Зареждане на прогнозата" />;
   if (error) {
     return (
-      <div className="waze-page text-center text-red-400">
-        Грешка при зареждане на прогнозата.
-      </div>
+      <ErrorState
+        message="Грешка при зареждане на прогнозата."
+        onRetry={() => void refetch()}
+      />
     );
   }
 
@@ -93,17 +78,22 @@ export default function WeatherPage() {
           title="Време по маршрут"
           subtitle={`${activeRoute.origin.label} → ${activeRoute.destination.label}`}
         />
+        <p className="mb-4 text-xs text-[var(--waze-text-muted)]">
+          Текущи условия (Open-Meteo), не почасова прогноза за ETA. Часовете са
+          оценка според разстоянието по маршрута.
+        </p>
 
-        <WeatherAlertBanner alerts={weatherData.alerts} />
+        <WeatherAlertBanner alerts={data?.alerts ?? []} />
 
-        <RouteWeatherTimeline
-          weatherPoints={weatherData.points}
-          departureTime={new Date()}
-        />
+        <RouteWeatherTimeline weatherPoints={merged} />
 
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {weatherData.points.map((point, idx) => (
-            <WeatherCard key={idx} weather={point} distance={idx * 50} />
+          {merged.map((point, idx) => (
+            <WeatherCard
+              key={`${point.coords.lng}-${point.coords.lat}-${idx}`}
+              weather={point}
+              distance={point.distance_from_origin_km}
+            />
           ))}
         </div>
 

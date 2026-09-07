@@ -69,6 +69,10 @@ function buildFallbackStatus(crossing: BorderCrossing): BorderStatus {
     nakordoni_url: getNakordoniPageUrl(crossing.id) ?? undefined,
     data_source: "estimate",
     region: crossing.region,
+    accepted_documents: crossing.accepted_documents,
+    notes_bg: crossing.notes_bg,
+    vehicle_types_allowed: crossing.vehicle_types_allowed,
+    derived_heavy_wait: true,
   };
 }
 
@@ -99,6 +103,10 @@ function mergeNakordoni(
     nakordoni_ppid: live?.ppid,
     data_source: live ? "nakordoni" : "estimate",
     region: crossing.region,
+    accepted_documents: crossing.accepted_documents,
+    notes_bg: crossing.notes_bg,
+    vehicle_types_allowed: crossing.vehicle_types_allowed,
+    derived_heavy_wait: true,
   };
 }
 

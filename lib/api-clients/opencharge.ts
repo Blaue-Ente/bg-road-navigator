@@ -26,8 +26,7 @@ interface OpenChargePoi {
 export async function getEVStations(
   lng?: number,
   lat?: number,
-  radius_km: number = 10,
-  connector_types: string[] = []
+  radius_km: number = 10
 ): Promise<EVStation[]> {
   if (!OPENCHARGE_API_KEY) {
     return [];

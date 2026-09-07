@@ -17,7 +17,7 @@ const STEPS = [
   },
   {
     title: "3. Приложете SQL веднъж",
-    body: "В Supabase → SQL Editor поставете съдържанието на supabase/apply_all.sql (или миграциите 001→008 по ред; няма 003). Задължително за профили/любими/пинове.",
+    body: "В Supabase → SQL Editor поставете supabase/apply_all.sql (миграции 001→009; няма 003). Нужно за профили, любими и общност.",
   },
   {
     title: "4. Auth redirect",
@@ -59,6 +59,54 @@ export default function SetupPage() {
               ready_for_keys_only: true
             </p>
           )}
+        </WazeCard>
+
+        <WazeCard>
+          <h2 className="mb-3 text-sm font-semibold text-[var(--waze-text)]">
+            Кои ключове да подсигурите
+          </h2>
+          <ul className="space-y-2 text-sm text-[var(--waze-text-secondary)]">
+            <li>
+              <strong className="text-[var(--waze-text)]">
+                Задължителни за публичен сайт:
+              </strong>{" "}
+              <code className="text-[var(--waze-text)]">
+                NEXT_PUBLIC_APP_URL
+              </code>
+              , Supabase URL + anon key,{" "}
+              <code className="text-[var(--waze-text)]">NAKORDONI_API_KEY</code>{" "}
+              (безплатен).
+            </li>
+            <li>
+              <strong className="text-[var(--waze-text)]">
+                Силно препоръчани:
+              </strong>{" "}
+              <code className="text-[var(--waze-text)]">TOMTOM_API_KEY</code>{" "}
+              (трафик + бензиностанции),{" "}
+              <code className="text-[var(--waze-text)]">
+                OPENCHARGE_API_KEY
+              </code>{" "}
+              (EV),{" "}
+              <code className="text-[var(--waze-text)]">
+                WINDY_WEBCAMS_API_KEY
+              </code>
+              .
+            </li>
+            <li>
+              <strong className="text-[var(--waze-text)]">По избор:</strong>{" "}
+              <code className="text-[var(--waze-text)]">NVIDIA_API_KEY</code>,
+              собствен OSRM/geocoder,{" "}
+              <code className="text-[var(--waze-text)]">
+                NEXT_PUBLIC_MAP_STYLE_URL
+              </code>
+              .
+            </li>
+            <li>
+              <strong className="text-[var(--waze-text)]">Без ключ:</strong>{" "}
+              карта (MapLibre/Carto), публичен OSRM, Nominatim, Open-Meteo, курс
+              (Frankfurter/ECB), болници (Overpass).
+            </li>
+          </ul>
         </WazeCard>
 
         <ServicesStatusPanel />
@@ -106,15 +154,24 @@ export default function SetupPage() {
               </a>
             </li>
             <li>
-              <Link href="/vignettes" className="text-[var(--waze-accent)] hover:underline">
+              <Link
+                href="/vignettes"
+                className="text-[var(--waze-accent)] hover:underline"
+              >
                 Винетки
               </Link>
               {" · "}
-              <Link href="/borders" className="text-[var(--waze-accent)] hover:underline">
+              <Link
+                href="/borders"
+                className="text-[var(--waze-accent)] hover:underline"
+              >
                 Граници
               </Link>
               {" · "}
-              <Link href="/profile" className="text-[var(--waze-accent)] hover:underline">
+              <Link
+                href="/profile"
+                className="text-[var(--waze-accent)] hover:underline"
+              >
                 Профил
               </Link>
             </li>

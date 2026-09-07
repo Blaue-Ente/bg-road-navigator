@@ -9,8 +9,10 @@ export interface Session {
     id: string;
     email: string;
   };
-  access_token: string;
+  /** Never persisted. Real auth uses HttpOnly cookies. */
+  access_token?: string;
   expires_at: number;
+  is_demo?: boolean;
 }
 
 interface UserState {
@@ -37,7 +39,13 @@ export const useUserStore = create<UserState>()(
     {
       name: "bg-road-user",
       partialize: (state) => ({
-        session: state.session,
+        session: state.session
+          ? {
+              user: state.session.user,
+              expires_at: state.session.expires_at,
+              is_demo: state.session.is_demo ?? false,
+            }
+          : null,
         profile: state.profile,
       }),
       onRehydrateStorage: () => (state) => {

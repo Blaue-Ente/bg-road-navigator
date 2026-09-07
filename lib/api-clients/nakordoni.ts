@@ -75,13 +75,13 @@ async function nakordoniFetch<T>(path: string): Promise<T | null> {
   }
 }
 
-function extractWait(item: NakordoniMultiItem | NakordoniQueueResponse["data"]) {
+function extractWait(
+  item: NakordoniMultiItem | NakordoniQueueResponse["data"]
+) {
   if (!item) return { waitMinutes: 0, queueLength: 0, status: undefined };
 
   const snapshot = "snapshot" in item ? item.snapshot : undefined;
-  const waitMinutes = Math.round(
-    snapshot?.wait_min ?? item.wait_min ?? 0
-  );
+  const waitMinutes = Math.round(snapshot?.wait_min ?? item.wait_min ?? 0);
   const queueLength = Math.round(
     snapshot?.queue_now ?? ("queue_now" in item ? item.queue_now : 0) ?? 0
   );
@@ -103,7 +103,7 @@ export async function fetchNakordoniQueues(): Promise<NakordoniQueueData[]> {
 
   const items = Array.isArray(payload.data)
     ? payload.data
-    : payload.data.items ?? [];
+    : (payload.data.items ?? []);
 
   const crossingByPpid = Object.fromEntries(
     Object.entries(NAKORDONI_BY_CROSSING).map(([id, cfg]) => [cfg.ppid, id])
