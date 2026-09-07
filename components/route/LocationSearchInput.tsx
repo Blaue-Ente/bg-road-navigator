@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { RoutePoint } from "@/types/route.types";
+import { searchCuratedCities } from "@/lib/constants/european-cities";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 interface LocationSearchInputProps {
   id: string;
@@ -13,6 +15,34 @@ interface LocationSearchInputProps {
 
 interface PlacesResponse {
   places: RoutePoint[];
+}
+
+function cityToPoint(
+  city: ReturnType<typeof searchCuratedCities>[number]
+): RoutePoint {
+  return {
+    id: city.id,
+    label: city.label,
+    subtitle: city.country,
+    coords: city.coords,
+    source: "curated",
+    countryCode: city.countryCode,
+  };
+}
+
+function mergePlaces(
+  curated: RoutePoint[],
+  remote: RoutePoint[]
+): RoutePoint[] {
+  const seen = new Set<string>();
+  const merged: RoutePoint[] = [];
+  for (const place of [...curated, ...remote]) {
+    const key = `${place.coords.lat.toFixed(3)},${place.coords.lng.toFixed(3)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(place);
+  }
+  return merged.slice(0, 8);
 }
 
 export function LocationSearchInput({
@@ -31,7 +61,16 @@ export function LocationSearchInput({
 
   useEffect(() => {
     const trimmedQuery = query.trim();
-    if (trimmedQuery.length < 3 || trimmedQuery === value?.label) {
+    if (trimmedQuery.length < 1 || trimmedQuery === value?.label) {
+      return;
+    }
+
+    const curated = searchCuratedCities(trimmedQuery).map(cityToPoint);
+    setResults(curated);
+    setOpen(curated.length > 0);
+    setMessage(null);
+
+    if (trimmedQuery.length < 3) {
       return;
     }
 
@@ -39,7 +78,6 @@ export function LocationSearchInput({
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       setIsSearching(true);
-      setMessage(null);
 
       try {
         const response = await fetch(
@@ -51,17 +89,20 @@ export function LocationSearchInput({
         const data = (await response.json()) as PlacesResponse;
         if (version !== requestVersion.current) return;
 
-        setResults(data.places);
+        const merged = mergePlaces(curated, data.places);
+        setResults(merged);
         setOpen(true);
-        if (data.places.length === 0) {
+        if (merged.length === 0) {
           setMessage("Не е намерено място в Европа. Опитайте адрес или град.");
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError")
           return;
         if (version === requestVersion.current) {
-          setResults([]);
-          setMessage("Търсенето не е достъпно в момента.");
+          if (curated.length === 0) {
+            setResults([]);
+            setMessage("Търсенето не е достъпно в момента.");
+          }
         }
       } finally {
         if (version === requestVersion.current) setIsSearching(false);
@@ -90,27 +131,34 @@ export function LocationSearchInput({
       >
         {label}
       </label>
-      <input
-        id={id}
-        value={query}
-        onChange={(event) => {
-          const next = event.target.value;
-          setQuery(next);
-          if (next.trim().length < 3) {
-            setResults([]);
-            setMessage(null);
-            setOpen(false);
-            return;
-          }
-          setOpen(true);
-        }}
-        onFocus={() => {
-          if (results.length > 0 || message) setOpen(true);
-        }}
-        placeholder={placeholder}
-        autoComplete="off"
-        className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 pr-10 text-[var(--waze-text)] outline-none placeholder:text-[var(--waze-text-muted)] focus:border-[var(--waze-accent)]"
-      />
+      <div className="relative">
+        {value?.countryCode && query === value.label && (
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+            <CountryFlag code={value.countryCode} />
+          </span>
+        )}
+        <input
+          id={id}
+          value={query}
+          onChange={(event) => {
+            const next = event.target.value;
+            setQuery(next);
+            if (next.trim().length < 1) {
+              setResults([]);
+              setMessage(null);
+              setOpen(false);
+            }
+          }}
+          onFocus={() => {
+            if (results.length > 0 || message) setOpen(true);
+          }}
+          placeholder={placeholder}
+          autoComplete="off"
+          className={`w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] py-3 pr-10 text-[var(--waze-text)] outline-none placeholder:text-[var(--waze-text-muted)] focus:border-[var(--waze-accent)] ${
+            value?.countryCode && query === value.label ? "pl-10" : "px-3"
+          }`}
+        />
+      </div>
       {isSearching && (
         <span className="absolute right-3 top-9 text-xs text-[var(--waze-accent)]">
           Търсене…
@@ -124,16 +172,22 @@ export function LocationSearchInput({
               key={place.id}
               type="button"
               onClick={() => choosePlace(place)}
-              className="block w-full border-b border-[var(--waze-border)] px-3 py-3 text-left last:border-b-0 hover:bg-[var(--waze-surface-elevated)]"
+              className="flex w-full items-start gap-3 border-b border-[var(--waze-border)] px-3 py-3 text-left last:border-b-0 hover:bg-[var(--waze-surface-elevated)]"
             >
-              <span className="block text-sm font-medium text-[var(--waze-text)]">
-                {place.label}
-              </span>
-              {place.subtitle && (
-                <span className="mt-0.5 block truncate text-xs text-[var(--waze-text-secondary)]">
-                  {place.subtitle}
+              <CountryFlag
+                code={place.countryCode}
+                className="mt-0.5 h-4 w-[1.35rem]"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-[var(--waze-text)]">
+                  {place.label}
                 </span>
-              )}
+                {place.subtitle && (
+                  <span className="mt-0.5 block truncate text-xs text-[var(--waze-text-secondary)]">
+                    {place.subtitle}
+                  </span>
+                )}
+              </span>
             </button>
           ))}
           {message && (

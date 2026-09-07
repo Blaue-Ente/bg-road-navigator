@@ -15,6 +15,7 @@ interface NominatimResult {
     village?: string;
     municipality?: string;
     country?: string;
+    country_code?: string;
   };
 }
 
@@ -68,12 +69,15 @@ function toRoutePoint(result: NominatimResult): RoutePoint | null {
     .filter(Boolean)
     .join(", ");
 
+  const countryCode = result.address?.country_code?.toUpperCase();
+
   return {
     id: `geocode:${result.osm_type}:${result.osm_id}:${result.place_id}`,
     label,
     subtitle: subtitle || result.display_name,
     coords: { lng, lat },
     source: "geocoder",
+    countryCode,
   };
 }
 

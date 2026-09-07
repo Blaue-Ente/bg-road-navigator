@@ -407,3 +407,31 @@ export function getCitiesByRegion(region: EuropeanRegion): EuropeanCity[] {
 export function getCityById(id: string): EuropeanCity | undefined {
   return EUROPEAN_CITIES.find((c) => c.id === id);
 }
+
+export function searchCuratedCities(query: string, limit = 6): EuropeanCity[] {
+  const normalized = query.trim().toLocaleLowerCase("bg-BG");
+  if (!normalized) return [];
+
+  const scored = EUROPEAN_CITIES.map((city) => {
+    const label = city.label.toLocaleLowerCase("bg-BG");
+    const country = city.country.toLocaleLowerCase("bg-BG");
+    const code = city.countryCode.toLowerCase();
+    let score = 0;
+    if (label === normalized || code === normalized) score = 3;
+    else if (label.startsWith(normalized)) score = 2;
+    else if (
+      label.includes(normalized) ||
+      country.startsWith(normalized) ||
+      country.includes(normalized)
+    ) {
+      score = 1;
+    }
+    return { city, score };
+  }).filter((entry) => entry.score > 0);
+
+  scored.sort(
+    (a, b) =>
+      b.score - a.score || a.city.label.localeCompare(b.city.label, "bg")
+  );
+  return scored.slice(0, limit).map((entry) => entry.city);
+}

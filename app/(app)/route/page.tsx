@@ -49,6 +49,7 @@ function toRoutePoint(cityId: string): RoutePoint | null {
     subtitle: city.country,
     coords: city.coords,
     source: "curated",
+    countryCode: city.countryCode,
   };
 }
 
