@@ -18,6 +18,11 @@ export interface BorderStatus {
   nakordoni_ppid?: string;
   data_source?: "nakordoni" | "estimate";
   region?: string;
+  accepted_documents?: string[];
+  notes_bg?: string;
+  vehicle_types_allowed?: string[];
+  /** Truck/bus waits are derived when Nakordoni does not publish them. */
+  derived_heavy_wait?: boolean;
 }
 
 export interface BorderWebcamFeed {

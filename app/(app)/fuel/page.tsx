@@ -9,7 +9,9 @@ import { FuelStationCard } from "@/components/fuel/FuelStationCard";
 import { EVChargerCard } from "@/components/fuel/EVChargerCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { PageSkeleton, ErrorState } from "@/components/ui/PageSkeleton";
 import { sampleRouteCoordinates } from "@/lib/utils/route-fuel-sample";
+import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
@@ -19,14 +21,17 @@ function FuelPageContent() {
   const activeRoute = useRouteStore((s) => s.activeRoute);
 
   const routePolyline = useMemo(() => {
-    if (!wantRoute || !activeRoute?.geometry?.coordinates?.length) return undefined;
+    if (!wantRoute || !activeRoute?.geometry?.coordinates?.length)
+      return undefined;
     // Downsample for the query string
     const samples = sampleRouteCoordinates(
       activeRoute.geometry.coordinates as [number, number][],
       100,
       10
     );
-    return samples.map((p) => `${p.lng.toFixed(4)},${p.lat.toFixed(4)}`).join(";");
+    return samples
+      .map((p) => `${p.lng.toFixed(4)},${p.lat.toFixed(4)}`)
+      .join(";");
   }, [wantRoute, activeRoute]);
 
   const bbox = routePolyline ? undefined : DEFAULT_BBOX;
@@ -35,18 +40,12 @@ function FuelPageContent() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center text-[var(--waze-accent)]">
-        Зареждане...
-      </div>
-    );
+    return <PageSkeleton label="Зареждане на гориво" />;
   }
 
   if (isError || !data) {
     return (
-      <div className="waze-page text-center text-red-400">
-        Не може да се заредят данните за гориво и зарядка.
-      </div>
+      <ErrorState message="Не може да се заредят данните за гориво и зарядка." />
     );
   }
 
@@ -83,6 +82,12 @@ function FuelPageContent() {
               </a>
             </p>
           </WazeCard>
+        )}
+
+        {activeRoute && (
+          <div className="mb-4">
+            <FuelEstimateCard distanceKm={activeRoute.distance_km} />
+          </div>
         )}
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

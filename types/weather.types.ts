@@ -8,6 +8,9 @@ export interface WeatherPoint {
   precipitation_mm: number;
   visibility_km: number;
   icon: string;
+  label?: string;
+  distance_from_origin_km?: number;
+  eta_min?: number;
 }
 
 export interface WeatherAlert {

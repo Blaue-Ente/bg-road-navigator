@@ -23,17 +23,18 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     country_bg: "България",
     flag: "🇧🇬",
     police: "166",
-    ambulance: "166",
-    fire: "167",
-    roadside_assistance: "1661",
-    roadside_assistance_name: "Авиорент",
+    ambulance: "150",
+    fire: "160",
+    roadside_assistance: "112",
+    roadside_assistance_name: "Пътна помощ / застраховател",
     eu_emergency: "112",
-    towing_service: "1661",
-    notes_bg: "Всички европейски пътници имат право на спешна помощ чрез 112"
+    towing_service: "112",
+    notes_bg:
+      "112 е единният номер. Полиция 166, линейка 150, пожарна 160. Винетка: bgtoll.bg",
   },
   {
     country: "Greece",
-    country_bg: "Гръзия",
+    country_bg: "Гърция",
     flag: "🇬🇷",
     police: "100",
     ambulance: "166",
@@ -42,7 +43,8 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Ελληνική Ασφάλεια",
     eu_emergency: "112",
     towing_service: "179",
-    notes_bg: "В Гъргия виньетката е задължителна за всички автомобили"
+    notes_bg:
+      "Няма национална винетка за леки коли — платени магистрали (toll). 112 работи.",
   },
   {
     country: "Turkey",
@@ -55,7 +57,8 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "TİHSİS",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Турска виньетка не е необходима за български граждани"
+    notes_bg:
+      "Електронна тол система (HGS/OGS), не класическа винетка. Паспорт за границата.",
   },
   {
     country: "Serbia",
@@ -68,7 +71,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Putnička zaštita",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Сръбска виньетка е задължителна"
+    notes_bg: "Сръбска виньетка е задължителна",
   },
   {
     country: "North Macedonia",
@@ -81,11 +84,11 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Macedonian Red Cross",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Виньетка не е необходима за ЕС граждани"
+    notes_bg: "Виньетка не е необходима за ЕС граждани",
   },
   {
     country: "Romania",
-    country_bg: "Румыния",
+    country_bg: "Румъния",
     flag: "🇷🇴",
     police: "112",
     ambulance: "112",
@@ -94,7 +97,8 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Poliția de Stat",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Румънска виньетка е задължителна"
+    notes_bg:
+      "Rovinieta е задължителна. Купете само от официален портал (виж Винетки).",
   },
   {
     country: "Hungary",
@@ -107,7 +111,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Magyar Anil",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Унгарска виньетка е задължителна за всички"
+    notes_bg: "Унгарска виньетка е задължителна за всички",
   },
   {
     country: "Austria",
@@ -120,7 +124,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "ÖAMTC",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Австрийска виньетка е задължителна"
+    notes_bg: "Австрийска виньетка е задължителна",
   },
   {
     country: "Germany",
@@ -133,7 +137,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "ADAC",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Германска виньетка е задължителна"
+    notes_bg: "Няма винетка за леки коли. Камионите плащат LKW-Maut.",
   },
   {
     country: "Italy",
@@ -146,7 +150,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Autostrade per l'Italia",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Италианска виньетка е задължителна"
+    notes_bg: "Няма винетка — платени автостради (pedaggio).",
   },
   {
     country: "France",
@@ -159,7 +163,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "ACLE",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Френска виньетка е задължителна"
+    notes_bg: "Няма винетка — péage на магистралите.",
   },
   {
     country: "Spain",
@@ -172,7 +176,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "DGT",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Испанска виньетка е задължителна"
+    notes_bg: "Няма национална винетка; някои пътища са платени.",
   },
   {
     country: "Portugal",
@@ -185,7 +189,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "ANSR",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Португалска виньетка е задължителна"
+    notes_bg: "Електронни тол такси / Via Verde — не класическа винетка.",
   },
   {
     country: "Slovenia",
@@ -198,7 +202,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "HVOC",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Словенска виньетка е задължителна"
+    notes_bg: "Словенска виньетка е задължителна",
   },
   {
     country: "Croatia",
@@ -211,11 +215,11 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Hrvatska vatrogasna služba",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Хърватска виньетка е задължителна"
+    notes_bg: "Магистрални тол такси (ENC), не винетка.",
   },
   {
     country: "Bosnia and Herzegovina",
-    country_bg: "Босния и Хървогориция",
+    country_bg: "Босна и Херцеговина",
     flag: "🇧🇦",
     police: "112",
     ambulance: "112",
@@ -224,7 +228,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Interventna jednota",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Виньетка не е необходима"
+    notes_bg: "Виньетка не е необходима",
   },
   {
     country: "Montenegro",
@@ -237,7 +241,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Crnogorska vatrogasna služba",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Черногорска виньетка е задължителна"
+    notes_bg: "Няма винетка; някои пътища са платени.",
   },
   {
     country: "Albania",
@@ -250,7 +254,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Policia RRTS",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Албанска виньетка е задължителна"
+    notes_bg: "Няма винетка; някои пътища са платени.",
   },
   {
     country: "Switzerland",
@@ -263,7 +267,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "ASLOCA",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Швейцарска виньетка е задължителна"
+    notes_bg: "Швейцарска виньетка е задължителна",
   },
   {
     country: "Netherlands",
@@ -276,7 +280,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "ANWB",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Нидерландска виньетка е задължителна"
+    notes_bg: "Няма винетка за леки коли.",
   },
   {
     country: "Belgium",
@@ -289,7 +293,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Touring Club Belgium",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Белгийска виньетка е задължителна"
+    notes_bg: "Няма винетка за леки коли.",
   },
   {
     country: "Luxembourg",
@@ -302,7 +306,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Touring Club Luxemburg",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Люксембурска виньетка е задължителна"
+    notes_bg: "Няма винетка за леки коли.",
   },
   {
     country: "Czech Republic",
@@ -315,7 +319,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Česká red Cross",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Чешка виньетка е задължителна"
+    notes_bg: "Чешка виньетка е задължителна",
   },
   {
     country: "Slovakia",
@@ -328,7 +332,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Slovenský Červený Krst",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Словакска виньетка е задължителна"
+    notes_bg: "Словакска виньетка е задължителна",
   },
   {
     country: "Poland",
@@ -341,7 +345,8 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Pogotowie Ratunkowe",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Полска виньетка е задължителна"
+    notes_bg:
+      "e-TOLL на избрани пътища; няма класическа винетка за всички магистрали.",
   },
   {
     country: "Ukraine",
@@ -354,7 +359,7 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "State Emergency Service",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Екстрена помощ в Украйна работи през 112"
+    notes_bg: "Екстрена помощ в Украйна работи през 112",
   },
   {
     country: "Moldova",
@@ -367,6 +372,6 @@ export const EMERGENCY_DATA: EmergencyData[] = [
     roadside_assistance_name: "Serviciul de Urgență",
     eu_emergency: "112",
     towing_service: "112",
-    notes_bg: "Молдовска виньетка е задължителна"
-  }
+    notes_bg: "Молдовска виньетка е задължителна",
+  },
 ];

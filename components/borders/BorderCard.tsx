@@ -68,7 +68,21 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
 
       <div className="mb-3 text-xs text-[var(--waze-text-muted)]">
         Работи: {border.working_hours}
+        {border.derived_heavy_wait && (
+          <span> · камиони/автобуси са оценка</span>
+        )}
       </div>
+
+      {border.accepted_documents && border.accepted_documents.length > 0 && (
+        <p className="mb-2 text-xs text-[var(--waze-text-secondary)]">
+          Документи: {border.accepted_documents.join(", ")}
+        </p>
+      )}
+      {border.notes_bg && (
+        <p className="mb-3 text-xs text-[var(--waze-text-muted)]">
+          {border.notes_bg}
+        </p>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         {border.coords && (
