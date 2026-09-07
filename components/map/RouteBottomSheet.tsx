@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BedDouble, ChevronUp, CloudSun, Fuel, Landmark } from "lucide-react";
 import type { Route } from "@/types/route.types";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -58,14 +59,13 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             </p>
           </div>
 
-          <span
-            className={`shrink-0 text-[var(--waze-text-muted)] transition-transform ${
+          <ChevronUp
+            className={`h-5 w-5 shrink-0 text-[var(--waze-text-muted)] transition-transform ${
               expanded ? "rotate-180" : ""
             }`}
+            strokeWidth={2}
             aria-hidden
-          >
-            ▲
-          </span>
+          />
         </button>
 
         {expanded && (
@@ -87,28 +87,28 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
                 href="/fuel"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
-                <span className="text-lg">⛽</span>
+                <Fuel className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Гориво
               </Link>
               <Link
                 href="/weather"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
-                <span className="text-lg">🌤</span>
+                <CloudSun className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Време
               </Link>
               <Link
                 href="/borders"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
-                <span className="text-lg">🛃</span>
+                <Landmark className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Граници
               </Link>
               <Link
                 href="/hotels"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
               >
-                <span className="text-lg">🏨</span>
+                <BedDouble className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Почивка
               </Link>
             </div>

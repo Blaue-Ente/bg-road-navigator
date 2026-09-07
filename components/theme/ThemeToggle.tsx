@@ -1,5 +1,6 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useThemeStore } from "@/lib/stores/theme.store";
 
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
@@ -21,7 +22,11 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
       }
       aria-pressed={!isDark}
     >
-      <span aria-hidden>{isDark ? "🌙" : "☀️"}</span>
+      {isDark ? (
+        <Moon className="h-5 w-5" strokeWidth={2} aria-hidden />
+      ) : (
+        <Sun className="h-5 w-5" strokeWidth={2} aria-hidden />
+      )}
       {!compact && (
         <span className="font-medium">
           {isDark ? "Тъмна тема (нощно шофиране)" : "Светла тема"}

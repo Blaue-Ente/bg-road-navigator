@@ -7,6 +7,7 @@ import type {
   SavedPlaceCategory,
   SavedPlacePayload,
 } from "@/types/place.types";
+import { Check, Heart } from "lucide-react";
 
 interface FavoritePlaceButtonProps {
   label: string;
@@ -37,7 +38,10 @@ export function FavoritePlaceButton({
         }
         onClick={(e) => e.stopPropagation()}
       >
-        ♡ Любимо
+        <span className="inline-flex items-center gap-1">
+          <Heart className="h-3.5 w-3.5" strokeWidth={2} />
+          Любимо
+        </span>
       </Link>
     );
   }
@@ -60,7 +64,7 @@ export function FavoritePlaceButton({
       }
       if (response.status === 503) {
         setStatus("error");
-        setMessage("Нужен е Supabase");
+        setMessage("Записът изисква вход");
         return;
       }
       if (!response.ok) throw new Error("save failed");
@@ -82,13 +86,21 @@ export function FavoritePlaceButton({
       }
       title={message ?? undefined}
     >
-      {status === "saved"
-        ? "✓ Запазено"
-        : status === "saving"
-          ? "…"
-          : status === "error"
-            ? (message ?? "Грешка")
-            : "♡ Любимо"}
+      {status === "saved" ? (
+        <span className="inline-flex items-center gap-1">
+          <Check className="h-3.5 w-3.5" strokeWidth={2} />
+          Запазено
+        </span>
+      ) : status === "saving" ? (
+        "Запис…"
+      ) : status === "error" ? (
+        (message ?? "Грешка")
+      ) : (
+        <span className="inline-flex items-center gap-1">
+          <Heart className="h-3.5 w-3.5" strokeWidth={2} />
+          Любимо
+        </span>
+      )}
     </button>
   );
 }

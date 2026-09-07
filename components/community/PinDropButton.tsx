@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
+import { LoaderCircle, Plus, X } from "lucide-react";
 
 const FALLBACK_COORDS = { lng: 23.3219, lat: 42.6977 };
 
@@ -46,7 +47,7 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
         aria-label="Вход за сигнал"
         title="Влезте, за да пуснете сигнал"
       >
-        +
+        <Plus className="h-6 w-6" strokeWidth={2} />
       </Link>
     );
   }
@@ -88,7 +89,13 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
           : "Сигнал на текущата позиция"
       }
     >
-      {isDropMode ? "✕" : locating ? "…" : "+"}
+      {isDropMode ? (
+        <X className="h-6 w-6" strokeWidth={2} />
+      ) : locating ? (
+        <LoaderCircle className="h-6 w-6 animate-spin" strokeWidth={2} />
+      ) : (
+        <Plus className="h-6 w-6" strokeWidth={2} />
+      )}
     </button>
   );
 }

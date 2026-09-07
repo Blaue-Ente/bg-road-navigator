@@ -7,16 +7,17 @@ import type { Route } from "@/types/route.types";
 import type { TripPlan, TripPlannerPreferences } from "@/types/trip.types";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { Coffee, Fuel, Moon, Plug } from "lucide-react";
 
 interface TripPlanCardProps {
   route: Route;
 }
 
 const STOP_ICON = {
-  fuel: "⛽",
-  ev_charge: "🔌",
-  rest: "☕",
-  overnight: "🌙",
+  fuel: Fuel,
+  ev_charge: Plug,
+  rest: Coffee,
+  overnight: Moon,
 } as const;
 
 const STOP_LABEL = {
@@ -113,46 +114,51 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
                 За този маршрут не е нужна планирана спирка.
               </p>
             ) : (
-              plan.stops.map((stop) => (
-                <div
-                  key={stop.id}
-                  className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
-                >
-                  <span className="mt-0.5 text-lg" aria-hidden>
-                    {STOP_ICON[stop.type]}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <p className="font-medium text-[var(--waze-text)]">
-                        {stop.title}
+              plan.stops.map((stop) => {
+                const StopIcon = STOP_ICON[stop.type];
+                return (
+                  <div
+                    key={stop.id}
+                    className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
+                  >
+                    <StopIcon
+                      className="mt-0.5 h-5 w-5 shrink-0 text-[var(--waze-accent)]"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <p className="font-medium text-[var(--waze-text)]">
+                          {stop.title}
+                        </p>
+                        <span className="text-xs text-[var(--waze-accent)]">
+                          {STOP_LABEL[stop.type]} ·{" "}
+                          {stop.distance_from_start_km} км
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-xs text-[var(--waze-text-secondary)]">
+                        Около {formatDuration(stop.estimated_arrival_min)} ·{" "}
+                        {stop.description}
                       </p>
-                      <span className="text-xs text-[var(--waze-accent)]">
-                        {STOP_LABEL[stop.type]} · {stop.distance_from_start_km}{" "}
-                        км
-                      </span>
+                      {stop.requires_confirmation && (
+                        <p className="mt-1 text-[11px] text-amber-300">
+                          Потвърдете обекта и наличността преди пътуването.
+                        </p>
+                      )}
                     </div>
-                    <p className="mt-0.5 text-xs text-[var(--waze-text-secondary)]">
-                      Около {formatDuration(stop.estimated_arrival_min)} ·{" "}
-                      {stop.description}
-                    </p>
-                    {stop.requires_confirmation && (
-                      <p className="mt-1 text-[11px] text-amber-300">
-                        Потвърдете обекта и наличността преди пътуването.
-                      </p>
+                    {stop.type === "overnight" && stop.booking_url && (
+                      <a
+                        href={stop.booking_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="waze-btn-secondary shrink-0 px-2.5 py-1.5 text-xs"
+                      >
+                        Търси
+                      </a>
                     )}
                   </div>
-                  {stop.type === "overnight" && stop.booking_url && (
-                    <a
-                      href={stop.booking_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="waze-btn-secondary shrink-0 px-2.5 py-1.5 text-xs"
-                    >
-                      Търси
-                    </a>
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 

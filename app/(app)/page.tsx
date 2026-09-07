@@ -22,6 +22,7 @@ import { CommunityPins } from "@/components/map/CommunityPins";
 import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
 import { SearchIcon } from "@/components/icons/NavIcons";
+import { Megaphone, TriangleAlert } from "lucide-react";
 import { fitMapToRoute } from "@/lib/map/apply-waze-style";
 import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
@@ -175,8 +176,9 @@ export default function MapPage() {
           ))}
           {incidentCount > 0 && (
             <div className="waze-panel shrink-0 border-orange-500/30 bg-orange-500/10 px-3 py-2">
-              <p className="text-xs font-medium text-orange-300">
-                ⚠ {incidentCount} инцидента
+              <p className="flex items-center gap-1.5 text-xs font-medium text-orange-300">
+                <TriangleAlert className="h-3.5 w-3.5" strokeWidth={2} />
+                {incidentCount} инцидента
               </p>
             </div>
           )}
@@ -185,8 +187,9 @@ export default function MapPage() {
               href="/community"
               className="waze-panel shrink-0 px-3 py-2 transition hover:scale-[1.02]"
             >
-              <p className="text-xs font-medium text-[var(--waze-accent)]">
-                📣 {communityPins.length} сигнала
+              <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--waze-accent)]">
+                <Megaphone className="h-3.5 w-3.5" strokeWidth={2} />
+                {communityPins.length} сигнала
               </p>
             </Link>
           )}

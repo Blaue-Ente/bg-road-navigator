@@ -80,7 +80,7 @@ export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
       className={className ?? "waze-btn-secondary px-4 py-2 text-sm"}
     >
       {status === "saved"
-        ? "✓ Запазен"
+        ? "Запазен"
         : status === "saving"
           ? "Запазване…"
           : status === "error"
