@@ -1,20 +1,24 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { RestAreaCard } from "@/components/hotels/RestAreaCard";
 import {
   EUROPEAN_REST_AREAS,
   getRestAreasForCorridor,
 } from "@/lib/constants/rest-areas";
-import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { haversineKm } from "@/lib/geo/haversine";
 import { useMapStore } from "@/lib/stores/map.store";
 
 export default function HotelsPage() {
   return (
-    <Suspense fallback={<div className="p-4 text-gray-400">Зареждане...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-4 text-[var(--waze-text-muted)]">Зареждане…</div>
+      }
+    >
       <HotelsPageContent />
     </Suspense>
   );
@@ -23,47 +27,33 @@ export default function HotelsPage() {
 function HotelsPageContent() {
   const searchParams = useSearchParams();
   const corridorFromUrl = searchParams.get("corridor");
-  const [selectedCorridor, setSelectedCorridor] = useState<string | null>(
-    corridorFromUrl
-  );
-
   const userLocation = useMapStore((s) => s.userLocation);
-  const areas = selectedCorridor
-    ? getRestAreasForCorridor(selectedCorridor)
+  const areas = corridorFromUrl
+    ? getRestAreasForCorridor(corridorFromUrl)
     : EUROPEAN_REST_AREAS;
+  const isFiltered = Boolean(corridorFromUrl);
 
   return (
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
         <PageHeader
           title="Почивки и нощувки"
-          subtitle="Зони за почивка по европейските коридори"
+          subtitle="Зони за почивка по магистралите — паркинг, душ, храна и заряд"
         />
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedCorridor(null)}
-            className={`waze-chip ${!selectedCorridor ? "waze-chip-active" : ""}`}
-          >
-            Всички
-          </button>
-          {TRAVEL_CORRIDORS.map((corridor) => (
-            <button
-              key={corridor.id}
-              onClick={() => setSelectedCorridor(corridor.id)}
-              className={`waze-chip ${
-                selectedCorridor === corridor.id ? "waze-chip-active" : ""
-              }`}
-            >
-              {corridor.label}
-            </button>
-          ))}
-        </div>
+        {isFiltered && (
+          <p className="mb-4 text-sm text-[var(--waze-text-secondary)]">
+            Показани са зони по избрания маршрут.{" "}
+            <Link href="/hotels" className="text-[var(--waze-accent)]">
+              Виж всички
+            </Link>
+          </p>
+        )}
 
         <div className="space-y-4">
           {areas.length === 0 ? (
-            <p className="text-center text-gray-500">
-              Няма записани почивни зони за този коридор.
+            <p className="text-center text-[var(--waze-text-muted)]">
+              Няма записани зони за почивка за този маршрут.
             </p>
           ) : (
             areas.map((area) => (
@@ -78,7 +68,7 @@ function HotelsPageContent() {
                   coords={area.coords}
                 />
                 {area.notes && (
-                  <p className="mt-1 px-1 text-xs text-gray-500">
+                  <p className="mt-1 px-1 text-xs text-[var(--waze-text-muted)]">
                     {area.notes}
                   </p>
                 )}
@@ -87,9 +77,8 @@ function HotelsPageContent() {
           )}
         </div>
 
-        <p className="mt-8 text-center text-xs text-gray-500">
-          При пътувания над 24 часа резервирайте хотели предварително по
-          маршрута.
+        <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
+          При пътувания над едно денонощие резервирайте нощувка предварително.
         </p>
       </div>
     </div>
