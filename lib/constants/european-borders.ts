@@ -17,7 +17,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "western",
     coords: { lng: 1.8587, lat: 50.9513 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 8 && h <= 20 ? 45 : 20)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 8 && h <= 20 ? 45 : 20
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Паспорт", "Виза (ако е нужна)"],
     vehicle_types_allowed: ["Автомобил", "Камион", "Автобус"],
@@ -59,7 +61,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "central",
     coords: { lng: 12.17, lat: 47.633 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 14 && h <= 20 ? 25 : 12)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 14 && h <= 20 ? 25 : 12
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -73,7 +77,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "central",
     coords: { lng: 17.068, lat: 47.542 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 14 && h <= 22 ? 35 : 15)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 14 && h <= 22 ? 35 : 15
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта"],
     vehicle_types_allowed: ["Автомобил", "Камион", "Автобус"],
@@ -115,7 +121,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 19.071, lat: 45.045 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 10 && h <= 18 ? 40 : 20)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 10 && h <= 18 ? 40 : 20
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта", "Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -129,7 +137,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 19.228, lat: 45.044 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 11 && h <= 19 ? 35 : 18)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 11 && h <= 19 ? 35 : 18
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта", "Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -157,7 +167,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 16.678, lat: 46.295 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 12 && h <= 20 ? 30 : 15)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 12 && h <= 20 ? 30 : 15
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -171,7 +183,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 19.978, lat: 46.183 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 12 && h <= 20 ? 50 : 25)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 12 && h <= 20 ? 50 : 25
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта", "Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -185,7 +199,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 21.712, lat: 42.252 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 10 && h <= 18 ? 40 : 20)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 10 && h <= 18 ? 40 : 20
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта", "Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -199,7 +215,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 22.934, lat: 43.991 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 9 && h <= 17 ? 35 : 20)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 9 && h <= 17 ? 35 : 20
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта", "Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -213,7 +231,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "eastern",
     coords: { lng: 23.015, lat: 49.958 },
     nakordoni_ppid: "id_13",
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 8 && h <= 20 ? 90 : 45)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 8 && h <= 20 ? 90 : 45
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Паспорт", "Виза"],
     vehicle_types_allowed: ["Автомобил", "Камион", "Автобус"],
@@ -227,7 +247,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "eastern",
     coords: { lng: 23.615, lat: 52.075 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 8 && h <= 20 ? 60 : 30)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 8 && h <= 20 ? 60 : 30
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Паспорт", "Виза"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -255,7 +277,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "southern",
     coords: { lng: 9.031, lat: 45.833 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 16 && h <= 20 ? 25 : 10)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 16 && h <= 20 ? 25 : 10
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта", "Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -269,7 +293,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "southern",
     coords: { lng: 6.912, lat: 45.923 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 10 && h <= 18 ? 30 : 15)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 10 && h <= 18 ? 30 : 15
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Лична карта"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -283,7 +309,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "balkans",
     coords: { lng: 26.298, lat: 41.065 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 10 && h <= 18 ? 55 : 30)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 10 && h <= 18 ? 55 : 30
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Камион"],
@@ -297,7 +325,9 @@ export const EUROPEAN_BORDER_CROSSINGS: BorderCrossing[] = [
     region: "western",
     coords: { lng: -3.987, lat: 48.727 },
     nakordoni_ppid: null,
-    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) => (h >= 7 && h <= 19 ? 40 : 20)),
+    typical_wait_minutes: DEFAULT_HOURLY.map((_, h) =>
+      h >= 7 && h <= 19 ? 40 : 20
+    ),
     working_hours: "00:00 - 24:00",
     accepted_documents: ["Паспорт"],
     vehicle_types_allowed: ["Автомобил", "Автобус"],
@@ -322,16 +352,21 @@ export function getAllEuropeanCrossings(): BorderCrossing[] {
   ];
 }
 
-export function getCrossingsByRegion(region: EuropeanBorderRegion): BorderCrossing[] {
+export function getCrossingsByRegion(
+  region: EuropeanBorderRegion
+): BorderCrossing[] {
   const all = getAllEuropeanCrossings();
   if (region === "all") return all;
-  if (region === "bulgaria") return all.filter((c) => (c.region ?? "bulgaria") === "bulgaria");
+  if (region === "bulgaria")
+    return all.filter((c) => (c.region ?? "bulgaria") === "bulgaria");
   if (region === "route") return all;
   return all.filter((c) => c.region === region);
 }
 
 export function getNonBulgarianCrossings(): BorderCrossing[] {
-  return getAllEuropeanCrossings().filter((c) => (c.region ?? "bulgaria") !== "bulgaria");
+  return getAllEuropeanCrossings().filter(
+    (c) => (c.region ?? "bulgaria") !== "bulgaria"
+  );
 }
 
 export function getCrossingsForCorridor(corridorId: string): BorderCrossing[] {

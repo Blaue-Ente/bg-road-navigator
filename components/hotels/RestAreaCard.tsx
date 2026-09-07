@@ -28,7 +28,9 @@ export function RestAreaCard({
       <div className="mb-2 flex items-start justify-between gap-2">
         <div>
           <h3 className="font-semibold text-[var(--waze-text)]">{name}</h3>
-          <p className="text-sm text-[var(--waze-text-secondary)]">{location}</p>
+          <p className="text-sm text-[var(--waze-text-secondary)]">
+            {location}
+          </p>
         </div>
         <span className="shrink-0 rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-1 text-xs font-medium text-[var(--waze-accent)]">
           {distanceKm > 0 ? `${distanceKm.toFixed(1)} км` : "по маршрута"}

@@ -144,6 +144,7 @@ export const SUPABASE_MIGRATION_FILES = [
   "006_community_safety.sql",
   "007_profile_trigger_and_places.sql",
   "008_community_categories_comments.sql",
+  "009_community_pin_checks.sql",
 ] as const;
 
 export interface ConfigStatusResponse {
@@ -188,6 +189,8 @@ export function buildConfigStatus(): ConfigStatusResponse {
       "border_estimates",
       "vignette_links",
       "heuristic_trip_plan",
+      "fx_frankfurter",
+      "emergency_overpass",
       "tips_hotels_emergency",
     ],
     services,

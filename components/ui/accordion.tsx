@@ -30,7 +30,10 @@ interface AccordionTriggerProps {
   className?: string;
 }
 
-export function AccordionTrigger({ children, className }: AccordionTriggerProps) {
+export function AccordionTrigger({
+  children,
+  className,
+}: AccordionTriggerProps) {
   return (
     <summary
       className={`cursor-pointer list-none px-4 py-3 text-sm font-medium text-[var(--waze-text)] hover:text-[var(--waze-accent)] ${className || ""}`}
@@ -45,7 +48,10 @@ interface AccordionContentProps {
   className?: string;
 }
 
-export function AccordionContent({ children, className }: AccordionContentProps) {
+export function AccordionContent({
+  children,
+  className,
+}: AccordionContentProps) {
   return (
     <div
       className={`border-t border-[var(--waze-border)] px-4 py-3 text-sm text-[var(--waze-text-secondary)] ${className || ""}`}

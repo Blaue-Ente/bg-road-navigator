@@ -84,7 +84,7 @@ export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
         : status === "saving"
           ? "Запазване…"
           : status === "error"
-            ? error ?? "Грешка"
+            ? (error ?? "Грешка")
             : "Запази маршрут"}
     </button>
   );

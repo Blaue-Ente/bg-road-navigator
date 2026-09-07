@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/stores/user.store";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -14,10 +15,12 @@ import { signOut } from "@/lib/auth/sign-out";
 export default function ProfilePage() {
   const session = useUserStore((s) => s.session);
   const profile = useUserStore((s) => s.profile);
+  const router = useRouter();
 
   const handleLogout = async () => {
     await signOut();
-    window.location.href = "/";
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -55,7 +58,10 @@ export default function ProfilePage() {
           <SavedPlacesPanel />
 
           <p className="pb-6 text-center text-xs text-[var(--waze-text-muted)]">
-            <Link href="/route" className="text-[var(--waze-accent)] hover:underline">
+            <Link
+              href="/route"
+              className="text-[var(--waze-accent)] hover:underline"
+            >
               Планирай нов маршрут
             </Link>
           </p>

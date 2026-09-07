@@ -12,8 +12,7 @@ export function BorderWaitBadge({
   const getStyles = (wait: number) => {
     if (wait < 30)
       return "bg-emerald-500/20 text-emerald-300 ring-emerald-500/30";
-    if (wait < 60)
-      return "bg-yellow-500/20 text-yellow-200 ring-yellow-500/30";
+    if (wait < 60) return "bg-yellow-500/20 text-yellow-200 ring-yellow-500/30";
     if (wait < 120)
       return "bg-orange-500/20 text-orange-200 ring-orange-500/30";
     return "bg-red-500/20 text-red-300 ring-red-500/30";

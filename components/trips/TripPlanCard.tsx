@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  useUserStore,
-  type Profile,
-} from "@/lib/stores/user.store";
+import { useUserStore, type Profile } from "@/lib/stores/user.store";
 import type { Route } from "@/types/route.types";
 import type { TripPlan, TripPlannerPreferences } from "@/types/trip.types";
 import { formatDuration } from "@/lib/utils/route-planner";
@@ -29,9 +26,7 @@ const STOP_LABEL = {
   overnight: "Нощувка",
 } as const;
 
-function defaultPreferences(
-  profile: Profile | null
-): TripPlannerPreferences {
+function defaultPreferences(profile: Profile | null): TripPlannerPreferences {
   return {
     vehicle_type: profile?.vehicle_type ?? "car",
     fuel_range_km:
@@ -41,7 +36,7 @@ function defaultPreferences(
           ? Math.round(profile.tank_capacity_liters * 12)
           : 550,
     ev_range_km:
-      profile?.vehicle_type === "ev" ? profile.ev_range_km ?? 260 : undefined,
+      profile?.vehicle_type === "ev" ? (profile.ev_range_km ?? 260) : undefined,
   };
 }
 
@@ -133,7 +128,8 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
                         {stop.title}
                       </p>
                       <span className="text-xs text-[var(--waze-accent)]">
-                        {STOP_LABEL[stop.type]} · {stop.distance_from_start_km} км
+                        {STOP_LABEL[stop.type]} · {stop.distance_from_start_km}{" "}
+                        км
                       </span>
                     </div>
                     <p className="mt-0.5 text-xs text-[var(--waze-text-secondary)]">
@@ -172,13 +168,22 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
           )}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/fuel?route=1" className="waze-btn-secondary px-3 py-2 text-sm">
+            <Link
+              href="/fuel?route=1"
+              className="waze-btn-secondary px-3 py-2 text-sm"
+            >
               Избери гориво / EV
             </Link>
-            <Link href="/vignettes" className="waze-btn-secondary px-3 py-2 text-sm">
+            <Link
+              href="/vignettes"
+              className="waze-btn-secondary px-3 py-2 text-sm"
+            >
               Винетки
             </Link>
-            <Link href="/hotels" className="waze-btn-secondary px-3 py-2 text-sm">
+            <Link
+              href="/hotels"
+              className="waze-btn-secondary px-3 py-2 text-sm"
+            >
               Виж почивки
             </Link>
           </div>

@@ -15,7 +15,9 @@ interface ServicesStatusPanelProps {
   compact?: boolean;
 }
 
-export function ServicesStatusPanel({ compact = false }: ServicesStatusPanelProps) {
+export function ServicesStatusPanel({
+  compact = false,
+}: ServicesStatusPanelProps) {
   const { data, isLoading, isError, refetch } = useServiceStatus();
 
   if (isLoading) {
@@ -106,7 +108,9 @@ export function ServicesStatusPanel({ compact = false }: ServicesStatusPanelProp
       {data.supabase.configured && (
         <p className="mt-2 text-xs text-amber-200/90">
           След ключовете за Supabase приложете SQL от{" "}
-          <code className="text-[var(--waze-accent)]">supabase/apply_all.sql</code>{" "}
+          <code className="text-[var(--waze-accent)]">
+            supabase/apply_all.sql
+          </code>{" "}
           в SQL Editor (веднъж).
         </p>
       )}

@@ -23,8 +23,7 @@ export function rankBorderAlternatives(
   return allBorders
     .filter((b) => altIds.has(b.crossing_id))
     .map((crossing) => {
-      const wait_delta_min =
-        current.wait_time_cars - crossing.wait_time_cars;
+      const wait_delta_min = current.wait_time_cars - crossing.wait_time_cars;
       return {
         crossing,
         wait_delta_min,

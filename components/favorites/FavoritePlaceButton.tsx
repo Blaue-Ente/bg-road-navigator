@@ -3,7 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
-import type { SavedPlaceCategory, SavedPlacePayload } from "@/types/place.types";
+import type {
+  SavedPlaceCategory,
+  SavedPlacePayload,
+} from "@/types/place.types";
 
 interface FavoritePlaceButtonProps {
   label: string;
@@ -84,7 +87,7 @@ export function FavoritePlaceButton({
         : status === "saving"
           ? "…"
           : status === "error"
-            ? message ?? "Грешка"
+            ? (message ?? "Грешка")
             : "♡ Любимо"}
     </button>
   );

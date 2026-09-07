@@ -47,7 +47,9 @@ export function CommentThread({ pinId }: { pinId: string }) {
       }
       if (!response.ok) throw new Error("post failed");
       setBody("");
-      await queryClient.invalidateQueries({ queryKey: ["pin-comments", pinId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["pin-comments", pinId],
+      });
     } catch {
       setError("Коментарът не беше записан.");
     } finally {
@@ -73,7 +75,9 @@ export function CommentThread({ pinId }: { pinId: string }) {
         <p className="text-sm text-[var(--waze-text-muted)]">Зареждане…</p>
       )}
       {isError && (
-        <p className="text-sm text-red-400">Коментарите не могат да се заредят.</p>
+        <p className="text-sm text-red-400">
+          Коментарите не могат да се заредят.
+        </p>
       )}
 
       {(data?.comments ?? []).length === 0 && !isLoading ? (
@@ -118,7 +122,10 @@ export function CommentThread({ pinId }: { pinId: string }) {
         </div>
       ) : (
         <p className="text-sm text-[var(--waze-text-muted)]">
-          <Link href="/login" className="text-[var(--waze-accent)] hover:underline">
+          <Link
+            href="/login"
+            className="text-[var(--waze-accent)] hover:underline"
+          >
             Влезте
           </Link>
           , за да коментирате.

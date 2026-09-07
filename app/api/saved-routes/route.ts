@@ -55,7 +55,10 @@ export async function GET() {
   if (error) {
     console.error("Saved routes list error:", error);
     return NextResponse.json(
-      { error: "Unable to load saved routes", code: "SAVED_ROUTES_LOAD_FAILED" },
+      {
+        error: "Unable to load saved routes",
+        code: "SAVED_ROUTES_LOAD_FAILED",
+      },
       { status: 500 }
     );
   }

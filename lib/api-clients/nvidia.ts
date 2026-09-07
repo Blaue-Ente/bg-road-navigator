@@ -15,8 +15,7 @@ import type {
 const NVIDIA_CHAT_URL =
   process.env.NVIDIA_API_URL ??
   "https://integrate.api.nvidia.com/v1/chat/completions";
-const NVIDIA_MODEL =
-  process.env.NVIDIA_MODEL ?? "meta/llama-3.1-8b-instruct";
+const NVIDIA_MODEL = process.env.NVIDIA_MODEL ?? "meta/llama-3.1-8b-instruct";
 const REQUEST_TIMEOUT_MS = 12_000;
 
 const AiStopSchema = z.object({
@@ -36,7 +35,10 @@ function isNvidiaConfigured(): boolean {
   return Boolean(process.env.NVIDIA_API_KEY?.trim());
 }
 
-function pointAtKm(route: Route, targetKm: number): { lng: number; lat: number } {
+function pointAtKm(
+  route: Route,
+  targetKm: number
+): { lng: number; lat: number } {
   const coordinates = route.geometry.coordinates;
   if (!coordinates.length) return route.destination.coords;
 
@@ -74,7 +76,10 @@ function pointAtKm(route: Route, targetKm: number): { lng: number; lat: number }
   return route.destination.coords;
 }
 
-function buildPrompt(route: Route, preferences: TripPlannerPreferences): string {
+function buildPrompt(
+  route: Route,
+  preferences: TripPlannerPreferences
+): string {
   return [
     "You are a European road-trip planner for Bulgarian drivers.",
     "Return ONLY valid JSON matching:",
@@ -128,9 +133,7 @@ function toTripPlan(
           ? undefined
           : preferences.fuel_range_km,
       ev_range_km:
-        preferences.vehicle_type === "ev"
-          ? preferences.ev_range_km
-          : undefined,
+        preferences.vehicle_type === "ev" ? preferences.ev_range_km : undefined,
     },
     stops: stops.sort(
       (a, b) => a.distance_from_start_km - b.distance_from_start_km
@@ -172,8 +175,7 @@ export async function fetchNvidiaTripPlan(
         messages: [
           {
             role: "system",
-            content:
-              "You output strict JSON only. No markdown. No commentary.",
+            content: "You output strict JSON only. No markdown. No commentary.",
           },
           { role: "user", content: buildPrompt(route, preferences) },
         ],

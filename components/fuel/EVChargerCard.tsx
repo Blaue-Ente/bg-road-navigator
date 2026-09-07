@@ -14,7 +14,10 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
       ? { label: "Свободен", style: "bg-emerald-500/20 text-emerald-300" }
       : station.availability === "unavailable"
         ? { label: "Недостъпен", style: "bg-red-500/20 text-red-300" }
-        : { label: "Проверете в оператора", style: "bg-slate-500/20 text-slate-300" };
+        : {
+            label: "Проверете в оператора",
+            style: "bg-slate-500/20 text-slate-300",
+          };
 
   return (
     <div
@@ -23,8 +26,12 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
     >
       <div className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-semibold text-[var(--waze-text)]">{station.name}</h3>
-          <p className="text-sm text-[var(--waze-text-secondary)]">{station.operator}</p>
+          <h3 className="font-semibold text-[var(--waze-text)]">
+            {station.name}
+          </h3>
+          <p className="text-sm text-[var(--waze-text-secondary)]">
+            {station.operator}
+          </p>
         </div>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${availability.style}`}
@@ -33,7 +40,9 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
         </span>
       </div>
 
-      <p className="mb-3 text-sm text-[var(--waze-text-secondary)]">{station.address}</p>
+      <p className="mb-3 text-sm text-[var(--waze-text-secondary)]">
+        {station.address}
+      </p>
 
       <div className="mb-3 flex flex-wrap gap-1.5">
         {station.connector_types.map((type) => (
@@ -53,7 +62,9 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
         </div>
         {station.price_kwh && (
           <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
-            <span className="text-xs text-[var(--waze-text-muted)]">лв/kWh</span>
+            <span className="text-xs text-[var(--waze-text-muted)]">
+              лв/kWh
+            </span>
             <div className="font-semibold">{station.price_kwh.toFixed(2)}</div>
           </div>
         )}

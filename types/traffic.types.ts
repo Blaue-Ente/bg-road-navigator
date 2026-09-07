@@ -10,7 +10,13 @@ export interface TrafficFlow {
 
 export interface TrafficIncident {
   id: string;
-  type: "accident" | "road_closure" | "construction" | "congestion" | "weather" | "other";
+  type:
+    | "accident"
+    | "road_closure"
+    | "construction"
+    | "congestion"
+    | "weather"
+    | "other";
   title: string;
   description: string;
   coords: GeoPoint;

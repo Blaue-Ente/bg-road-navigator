@@ -40,6 +40,7 @@ const RouteSchema = z.object({
   alternatives: z.array(z.unknown()),
   routing_source: z.enum(["osrm", "estimate"]).optional(),
   corridor_id: z.string().optional(),
+  maneuvers: z.array(z.unknown()).optional(),
 });
 
 const PlanRequestSchema = z.object({

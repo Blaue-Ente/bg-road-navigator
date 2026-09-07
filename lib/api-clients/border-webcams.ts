@@ -39,7 +39,8 @@ export async function getBorderWebcam(
       nakordoniUrl,
       windyUrl: windy.detailUrl,
       source: "windy",
-      attribution: 'Камера: <a href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com</a>',
+      attribution:
+        'Камера: <a href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com</a>',
     };
   }
 

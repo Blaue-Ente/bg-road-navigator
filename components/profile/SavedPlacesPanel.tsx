@@ -25,7 +25,8 @@ async function fetchSavedPlaces(): Promise<{
   if (response.status === 401) {
     throw new Error("Сесията е изтекла.");
   }
-  if (!response.ok) throw new Error("Любимите места не могат да бъдат заредени.");
+  if (!response.ok)
+    throw new Error("Любимите места не могат да бъдат заредени.");
   return response.json();
 }
 
@@ -36,7 +37,9 @@ export function SavedPlacesPanel() {
   });
 
   const remove = async (id: string) => {
-    const response = await fetch(`/api/saved-places/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/saved-places/${id}`, {
+      method: "DELETE",
+    });
     if (!response.ok) return;
     await refetch();
   };

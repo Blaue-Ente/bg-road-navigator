@@ -4,7 +4,8 @@
 
 export interface TravelTip {
   id: string;
-  category: "safety" | "borders" | "fuel" | "rest" | "weather" | "documents" | "ev";
+  category:
+    "safety" | "borders" | "fuel" | "rest" | "weather" | "documents" | "ev";
   title: string;
   body: string;
   priority: "high" | "medium" | "low";
@@ -111,6 +112,8 @@ export function getTipsForLongHaul(): TravelTip[] {
   return LONG_HAUL_TIPS.filter((t) => t.priority === "high");
 }
 
-export function getTipsByCategory(category: TravelTip["category"]): TravelTip[] {
+export function getTipsByCategory(
+  category: TravelTip["category"]
+): TravelTip[] {
   return LONG_HAUL_TIPS.filter((t) => t.category === category);
 }

@@ -38,7 +38,9 @@ export function communityPinColor(category: string): string {
 }
 
 /** Human-readable remaining time until pin expiry. */
-export function formatPinExpiry(expiresAt: string | null | undefined): string | null {
+export function formatPinExpiry(
+  expiresAt: string | null | undefined
+): string | null {
   if (!expiresAt) return null;
   const ms = new Date(expiresAt).getTime() - Date.now();
   if (Number.isNaN(ms)) return null;
