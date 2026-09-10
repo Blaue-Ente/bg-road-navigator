@@ -1,16 +1,12 @@
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createClient } from "@/lib/supabase/client";
+import { authClient } from "@/lib/auth-client";
 import { useUserStore } from "@/lib/stores/user.store";
 
-/** Sign out of Supabase (when configured) and clear local session state. */
+/** Sign out through Better Auth and clear the client session cache. */
 export async function signOut(): Promise<void> {
-  if (isSupabaseConfigured()) {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Supabase signOut failed:", error);
-    }
+  try {
+    await authClient.signOut();
+  } catch (error) {
+    console.error("Better Auth signOut failed:", error);
   }
 
   useUserStore.getState().clearUser();

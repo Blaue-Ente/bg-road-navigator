@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUserStore } from "@/lib/stores/user.store";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { authClient } from "@/lib/auth-client";
 import { PRODUCT_NAME } from "@/lib/constants/brand";
 
 export default function LoginPage() {
@@ -13,8 +12,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const setSession = useUserStore((s) => s.setSession);
-  const setProfile = useUserStore((s) => s.setProfile);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,40 +19,18 @@ export default function LoginPage() {
     setError("");
 
     try {
-      if (isSupabaseConfigured()) {
-        const { createClient } = await import("@/lib/supabase/client");
-        const supabase = createClient();
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (authError) {
-          setError("Неправилен имейл или парола");
-          return;
-        }
-        router.push("/");
+      const { error: authError } = await authClient.signIn.email({
+        email,
+        password,
+      });
+      if (authError) {
+        setError("Неправилен имейл или парола");
         return;
       }
+      router.push("/");
+      router.refresh();
+      return;
 
-      if (email && password) {
-        setSession({
-          user: { id: "demo-user", email },
-          expires_at: Date.now() + 3600000,
-          is_demo: true,
-        });
-        setProfile({
-          id: "demo-user",
-          username: email.split("@")[0] || "demo",
-          avatar_url: null,
-          vehicle_type: "car",
-          fuel_type: "diesel",
-          tank_capacity_liters: 55,
-          ev_range_km: null,
-        });
-        router.push("/");
-      } else {
-        setError("Моля, попълнете имейл и парола");
-      }
     } catch {
       setError("Грешка при влизане");
     } finally {

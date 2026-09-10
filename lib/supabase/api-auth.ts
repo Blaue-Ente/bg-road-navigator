@@ -1,4 +1,6 @@
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { User } from "@supabase/supabase-js";
@@ -34,14 +36,16 @@ export async function requireAuthedSupabase(): Promise<
     return { ok: false, response: supabaseUnavailableResponse() };
   }
 
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
     return { ok: false, response: authRequiredResponse() };
   }
+
+  const supabase = await createServerSupabaseClient();
+  const user = {
+    id: session.user.id,
+    email: session.user.email,
+  } as User;
 
   return { ok: true, supabase, user };
 }
