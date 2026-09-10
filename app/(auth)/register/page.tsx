@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useUserStore } from "@/lib/stores/user.store";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { authClient } from "@/lib/auth-client";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -13,8 +12,6 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const setSession = useUserStore((s) => s.setSession);
-  const setProfile = useUserStore((s) => s.setProfile);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,42 +19,19 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      if (isSupabaseConfigured()) {
-        const { createClient } = await import("@/lib/supabase/client");
-        const supabase = createClient();
-        const { error: authError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { username } },
-        });
-        if (authError) {
-          setError(authError.message);
-          return;
-        }
-        router.push("/");
+      const { error: authError } = await authClient.signUp.email({
+        email,
+        password,
+        name: username,
+      });
+      if (authError) {
+        setError("Регистрацията не бе успешна. Проверете данните и опитайте отново.");
         return;
       }
+      router.push("/");
+      router.refresh();
+      return;
 
-      if (email && password && username) {
-        const id = `user-${Date.now()}`;
-        setSession({
-          user: { id, email },
-          expires_at: Date.now() + 3600000,
-          is_demo: true,
-        });
-        setProfile({
-          id,
-          username,
-          avatar_url: null,
-          vehicle_type: "car",
-          fuel_type: "diesel",
-          tank_capacity_liters: null,
-          ev_range_km: null,
-        });
-        router.push("/");
-      } else {
-        setError("Моля, попълнете всички полета");
-      }
     } catch {
       setError("Грешка при регистрация");
     } finally {
