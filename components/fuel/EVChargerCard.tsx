@@ -11,9 +11,9 @@ interface EVChargerCardProps {
 export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
   const availability =
     station.availability === "available"
-      ? { label: "Свободен", style: "bg-emerald-500/20 text-emerald-300" }
+      ? { label: "Свободен", style: "bg-emerald-500/20 text-[var(--waze-ok)]" }
       : station.availability === "unavailable"
-        ? { label: "Недостъпен", style: "bg-red-500/20 text-red-300" }
+        ? { label: "Недостъпен", style: "bg-red-500/20 text-[var(--waze-danger)]" }
         : {
             label: "Проверете в оператора",
             style: "bg-slate-500/20 text-slate-300",
@@ -48,7 +48,7 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
         {station.connector_types.map((type) => (
           <span
             key={type}
-            className="rounded-full bg-[var(--waze-accent-muted)] px-2 py-0.5 text-xs text-[var(--waze-accent)]"
+            className="rounded-full bg-[var(--waze-accent-muted)] px-2 py-0.5 text-xs text-[var(--waze-accent-text)]"
           >
             {type}
           </span>

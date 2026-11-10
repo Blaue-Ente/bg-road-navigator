@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthedSupabase } from "@/lib/supabase/api-auth";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
+import { requireUser } from "@/lib/auth/require-user";
+import { isDatabaseConfigured } from "@/lib/db";
+import { ensureProfile } from "@/lib/db/profiles";
+import { insertSavedRoute, listSavedRoutes } from "@/lib/db/saved";
+import { rateLimitedResponse, toDbResponse } from "@/lib/server/db-http";
+import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 const GeoSchema = z.object({
   lng: z.number().finite().min(-25).max(45),
@@ -38,77 +41,66 @@ const SaveRouteSchema = z.object({
 });
 
 export async function GET() {
-  if (!isSupabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return NextResponse.json({ routes: [], configured: false });
   }
-
-  const auth = await requireAuthedSupabase();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
-
-  const { data, error } = await auth.supabase
-    .from("saved_routes")
-    .select("*")
-    .eq("user_id", auth.user.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (error) {
-    console.error("Saved routes list error:", error);
-    return NextResponse.json(
-      {
-        error: "Unable to load saved routes",
-        code: "SAVED_ROUTES_LOAD_FAILED",
-      },
-      { status: 500 }
-    );
+  try {
+    const routes = await listSavedRoutes(auth.user.id);
+    return NextResponse.json({ routes, configured: true });
+  } catch (error) {
+    const response = toDbResponse(error);
+    if (response.status === 503) {
+      return NextResponse.json({ routes: [], configured: false });
+    }
+    return response;
   }
-
-  return NextResponse.json({ routes: data ?? [], configured: true });
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAuthedSupabase();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
+  const limit = rateLimit(
+    `route-save:${auth.user.id}:${clientIpFromHeaders(request.headers)}`,
+    15,
+    60_000
+  );
+  if (!limit.ok) return rateLimitedResponse();
 
   const parsed = SaveRouteSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Invalid saved route", code: "INVALID_SAVED_ROUTE" },
+      { error: "Невалиден маршрут", code: "INVALID_SAVED_ROUTE" },
       { status: 400 }
     );
   }
 
-  await ensureProfileRow(auth.supabase, auth.user.id, auth.user.email);
-
-  const name =
-    parsed.data.name?.trim() ||
-    `${parsed.data.origin_label} → ${parsed.data.destination_label}`;
-
-  const { data, error } = await auth.supabase
-    .from("saved_routes")
-    .insert({
-      user_id: auth.user.id,
-      name,
-      origin_label: parsed.data.origin_label,
-      origin_coords: parsed.data.origin_coords,
-      destination_label: parsed.data.destination_label,
-      destination_coords: parsed.data.destination_coords,
+  try {
+    await ensureProfile({
+      userId: auth.user.id,
+      displayName: auth.user.name,
+      email: auth.user.email,
+    });
+    const route = await insertSavedRoute({
+      userId: auth.user.id,
+      name:
+        parsed.data.name?.trim() ||
+        `${parsed.data.origin_label} → ${parsed.data.destination_label}`,
+      originLabel: parsed.data.origin_label,
+      originCoords: parsed.data.origin_coords,
+      destinationLabel: parsed.data.destination_label,
+      destinationCoords: parsed.data.destination_coords,
       waypoints: parsed.data.waypoints,
-      route_geojson: parsed.data.route_geojson ?? null,
-      distance_km: parsed.data.distance_km ?? null,
-      duration_min: parsed.data.duration_min ?? null,
-      vehicle_type: parsed.data.vehicle_type,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Saved route create error:", error);
-    return NextResponse.json(
-      { error: "Unable to save route", code: "SAVED_ROUTE_CREATE_FAILED" },
-      { status: 500 }
-    );
+      routeGeojson: parsed.data.route_geojson ?? null,
+      distanceKm: parsed.data.distance_km ?? null,
+      durationMin: parsed.data.duration_min
+        ? Math.round(parsed.data.duration_min)
+        : null,
+      vehicleType: parsed.data.vehicle_type,
+    });
+    return NextResponse.json({ route }, { status: 201 });
+  } catch (error) {
+    return toDbResponse(error);
   }
-
-  return NextResponse.json({ route: data }, { status: 201 });
 }

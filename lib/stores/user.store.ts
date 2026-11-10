@@ -12,7 +12,6 @@ export interface Session {
   /** Never persisted. Real auth uses HttpOnly cookies. */
   access_token?: string;
   expires_at: number;
-  is_demo?: boolean;
 }
 
 interface UserState {
@@ -43,7 +42,6 @@ export const useUserStore = create<UserState>()(
           ? {
               user: state.session.user,
               expires_at: state.session.expires_at,
-              is_demo: state.session.is_demo ?? false,
             }
           : null,
         profile: state.profile,

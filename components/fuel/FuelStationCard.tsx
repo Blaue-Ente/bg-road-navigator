@@ -11,9 +11,9 @@ interface FuelStationCardProps {
 export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
   const stationStatus =
     station.open === true
-      ? { label: "Отворен", style: "bg-emerald-500/20 text-emerald-300" }
+      ? { label: "Отворен", style: "bg-emerald-500/20 text-[var(--waze-ok)]" }
       : station.open === false
-        ? { label: "Затворен", style: "bg-red-500/20 text-red-300" }
+        ? { label: "Затворен", style: "bg-red-500/20 text-[var(--waze-danger)]" }
         : {
             label: "Статус неизвестен",
             style: "bg-slate-500/20 text-slate-300",

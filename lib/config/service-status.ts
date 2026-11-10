@@ -2,15 +2,17 @@
  * Server-side service readiness flags (booleans only — never leak secrets).
  */
 
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { isDatabaseConfigured } from "@/lib/db";
 
 export type ServiceId =
-  | "supabase"
+  | "postgres"
   | "nakordoni"
   | "windy"
   | "tomtom"
   | "opencharge"
   | "nvidia"
+  | "google"
+  | "apple"
   | "map_style_custom"
   | "osrm_custom"
   | "geocoding_custom"
@@ -38,14 +40,19 @@ function hasEnv(name: string): boolean {
 export function getServiceStatusCatalog(): ServiceStatusItem[] {
   return [
     {
-      id: "supabase",
-      label: "Supabase (auth + DB)",
-      unlocks: "Вход, профил, любими, запазени маршрути, общност (писене)",
-      configured: isSupabaseConfigured(),
+      id: "postgres",
+      label: "Neon Postgres + Better Auth",
+      unlocks: "Вход, профил, любими, запазени маршрути и общност",
+      configured: isDatabaseConfigured(),
       cost: "freemium",
       priority: "required_for_auth",
-      signup_url: "https://supabase.com/dashboard",
-      env_vars: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+      signup_url: "https://neon.tech",
+      env_vars: [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "NEXT_PUBLIC_APP_URL",
+      ],
     },
     {
       id: "nakordoni",
@@ -98,9 +105,33 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       env_vars: ["NVIDIA_API_KEY"],
     },
     {
+      id: "google",
+      label: "Google вход",
+      unlocks: "Бутон „Продължи с Google“, когато и двата ключа са зададени",
+      configured: hasEnv("GOOGLE_CLIENT_ID") && hasEnv("GOOGLE_CLIENT_SECRET"),
+      cost: "free",
+      priority: "optional",
+      signup_url: "https://console.cloud.google.com/apis/credentials",
+      env_vars: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+    },
+    {
+      id: "apple",
+      label: "Apple вход",
+      unlocks: "Бутон „Продължи с Apple“, когато id и тайна са зададени",
+      configured: hasEnv("APPLE_CLIENT_ID") && hasEnv("APPLE_CLIENT_SECRET"),
+      cost: "paid",
+      priority: "optional",
+      signup_url: "https://developer.apple.com/account/resources/identifiers/list/serviceId",
+      env_vars: [
+        "APPLE_CLIENT_ID",
+        "APPLE_CLIENT_SECRET",
+        "APPLE_APP_BUNDLE_IDENTIFIER",
+      ],
+    },
+    {
       id: "app_url",
       label: "Публичен URL",
-      unlocks: "Supabase Auth redirect URLs / Railway docs",
+      unlocks: "Адрес на приложението за Better Auth и връзките за карти",
       configured: hasEnv("NEXT_PUBLIC_APP_URL"),
       cost: "public",
       priority: "recommended",
@@ -136,16 +167,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
   ];
 }
 
-export const SUPABASE_MIGRATION_FILES = [
-  "001_initial_schema.sql",
-  "002_community_pins.sql",
-  "004_rls_policies.sql",
-  "005_trip_planning.sql",
-  "006_community_safety.sql",
-  "007_profile_trigger_and_places.sql",
-  "008_community_categories_comments.sql",
-  "009_community_pin_checks.sql",
-] as const;
+export const ACCOUNT_MIGRATION_FILE =
+  "drizzle/0001_better_auth_and_community.sql" as const;
 
 export interface ConfigStatusResponse {
   ok: true;
@@ -153,11 +176,9 @@ export interface ConfigStatusResponse {
   /** Always-on without keys. */
   works_without_keys: string[];
   services: ServiceStatusItem[];
-  supabase: {
+  database: {
     configured: boolean;
-    /** Operator must apply these SQL files once (order matters). */
-    migrations_to_apply: readonly string[];
-    one_shot_sql: "supabase/apply_all.sql";
+    migration: typeof ACCOUNT_MIGRATION_FILE;
   };
   summary: {
     configured_count: number;
@@ -194,10 +215,9 @@ export function buildConfigStatus(): ConfigStatusResponse {
       "tips_hotels_emergency",
     ],
     services,
-    supabase: {
-      configured: isSupabaseConfigured(),
-      migrations_to_apply: SUPABASE_MIGRATION_FILES,
-      one_shot_sql: "supabase/apply_all.sql",
+    database: {
+      configured: isDatabaseConfigured(),
+      migration: ACCOUNT_MIGRATION_FILE,
     },
     summary: {
       configured_count,

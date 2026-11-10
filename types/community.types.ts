@@ -3,18 +3,15 @@
  */
 
 export type CommunityPinCategory =
-  | "police"
-  | "camera"
-  | "accident"
-  | "hazard"
-  | "road_works"
   | "traffic_jam"
-  | "fuel_issue"
-  | "border_info"
-  | "rest_area"
-  | "overnight"
-  | "food"
-  | "point_of_interest"
+  | "accident"
+  | "border_queue"
+  | "rest_stop"
+  | "shortcut"
+  | "hotel"
+  | "place_to_visit"
+  | "police"
+  | "road_works"
   | "other";
 
 export interface CommunityPin {
@@ -23,9 +20,12 @@ export interface CommunityPin {
   category: CommunityPinCategory;
   title: string;
   description: string | null;
+  text?: string | null;
   coords: { lng: number; lat: number };
+  photo_url?: string | null;
   is_verified: boolean;
   upvotes: number;
+  gone_count?: number;
   expires_at: string | null;
   created_at: string;
 }

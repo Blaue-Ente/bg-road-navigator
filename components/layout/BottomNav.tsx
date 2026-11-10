@@ -6,37 +6,39 @@ import {
   MapIcon,
   RouteIcon,
   BorderIcon,
-  FuelIcon,
-  EmergencyIcon,
-  CommunityIcon,
-  RestIcon,
-  VignetteIcon,
+  MoreIcon,
 } from "@/components/icons/NavIcons";
+import { useMenu } from "@/components/layout/MenuContext";
 
 const NAV_ITEMS = [
   { href: "/", label: "Карта", Icon: MapIcon },
   { href: "/route", label: "Маршрут", Icon: RouteIcon },
   { href: "/borders", label: "Граници", Icon: BorderIcon },
-  { href: "/community", label: "Общност", Icon: CommunityIcon },
-  { href: "/hotels", label: "Почивки", Icon: RestIcon },
-  { href: "/vignettes", label: "Винетки", Icon: VignetteIcon },
-  { href: "/fuel", label: "Гориво", Icon: FuelIcon },
-  { href: "/emergency", label: "Спешно", Icon: EmergencyIcon },
 ];
+
+const MORE_HREFS = new Set([
+  "/fuel",
+  "/vignettes",
+  "/emergency",
+  "/community",
+  "/weather",
+  "/hotels",
+  "/tips",
+  "/profile",
+  "/setup",
+]);
 
 export function BottomNav() {
   const pathname = usePathname();
-  const isMap = pathname === "/";
+  const { open, openMenu } = useMenu();
+  const moreActive = open || MORE_HREFS.has(pathname);
 
   return (
     <nav
-      className={`fixed z-30 ${
-        isMap ? "bottom-4 left-3 right-3" : "bottom-3 left-3 right-3"
-      }`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--waze-border)] bg-[var(--waze-surface)] pb-[env(safe-area-inset-bottom,0px)] md:hidden"
       aria-label="Основна навигация"
     >
-      <div className="no-scrollbar waze-panel mx-auto flex max-w-lg items-stretch overflow-x-auto px-1 py-1.5">
+      <div className="flex items-stretch">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
 
@@ -44,21 +46,36 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex min-h-[48px] min-w-[3.4rem] flex-1 flex-col items-center justify-center rounded-xl px-1.5 py-1 transition-all ${
+              className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 ${
                 isActive
-                  ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)]"
-                  : "text-[var(--waze-text-muted)] hover:text-[var(--waze-text-secondary)]"
+                  ? "text-[var(--waze-accent-text)]"
+                  : "text-[var(--waze-text-secondary)]"
               }`}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
-              <item.Icon className="h-5 w-5" />
-              <span className="mt-0.5 text-[10px] font-medium leading-none">
+              <item.Icon size={20} />
+              <span className="text-xs font-medium leading-none">
                 {item.label}
               </span>
             </Link>
           );
         })}
+        <button
+          type="button"
+          onClick={openMenu}
+          className={`flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 ${
+            moreActive
+              ? "text-[var(--waze-accent-text)]"
+              : "text-[var(--waze-text-secondary)]"
+          }`}
+          aria-label="Още"
+          aria-expanded={open}
+          aria-controls="app-menu"
+        >
+          <MoreIcon size={20} />
+          <span className="text-xs font-medium leading-none">Още</span>
+        </button>
       </div>
     </nav>
   );

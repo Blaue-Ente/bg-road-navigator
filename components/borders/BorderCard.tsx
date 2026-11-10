@@ -33,12 +33,12 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
         <span
           className={`rounded-full px-2 py-1 text-xs font-medium ${
             border.status === "green"
-              ? "text-green-400"
+              ? "text-[var(--waze-ok)]"
               : border.status === "yellow"
-                ? "text-yellow-400"
+                ? "text-[var(--waze-warning)]"
                 : border.status === "orange"
-                  ? "text-orange-400"
-                  : "text-red-400"
+                  ? "text-[var(--waze-warning)]"
+                  : "text-[var(--waze-danger)]"
           }`}
         >
           {border.status === "green"
@@ -100,7 +100,7 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
           <button
             type="button"
             onClick={onComment}
-            className="rounded-full bg-[var(--waze-accent-muted)] px-3 py-1.5 text-sm text-[var(--waze-accent)]"
+            className="rounded-full bg-[var(--waze-accent-muted)] px-3 py-1.5 text-sm text-[var(--waze-accent-text)]"
           >
             Коментар
           </button>

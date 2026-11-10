@@ -44,7 +44,7 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
     name_en: "Kulata",
     country_pair: "BG - GR",
     region: "bulgaria",
-    coords: { lng: 23.7781, lat: 41.3972 },
+    coords: { lng: 23.358, lat: 41.39 },
     nakordoni_ppid: "id_484",
     typical_wait_minutes: [
       20, 20, 20, 20, 20, 20, 25, 30, 35, 40, 45, 40, 35, 30, 25, 25, 25, 30,

@@ -28,14 +28,13 @@ export default function CommunityPage() {
       <div className="mx-auto max-w-2xl">
         <PageHeader
           title="Общност"
-          subtitle="Камери, храна, нощувки и пътни сигнали от шофьори"
+          subtitle="Задръствания, катастрофи, граници, хотели и места от шофьори"
         />
 
-        {!session && (
+        {!session && serviceAvailable && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-secondary)]">
-              Четенето е свободно. За да пуснете сигнал (камера, катастрофа,
-              храна, нощувка…), влезте в профила си.
+              Четенето е свободно. За да пуснете сигнал, влезте в профила си.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
@@ -56,9 +55,9 @@ export default function CommunityPage() {
 
         {!serviceAvailable && (
           <WazeCard className="mb-4">
-            <p className="text-sm text-[var(--waze-text-muted)]">
-              Общността изисква свързан акаунт. Влезте, за да четете и пускате
-              сигнали.
+            <p className="text-sm text-[var(--waze-text-secondary)]">
+              Записите не са включени. Сигналите ще се пазят, когато общността
+              е свързана.
             </p>
           </WazeCard>
         )}
@@ -77,7 +76,7 @@ export default function CommunityPage() {
             <button
               type="button"
               onClick={() => void refetch()}
-              className="mt-2 text-sm text-[var(--waze-accent)] underline"
+              className="mt-2 text-sm text-[var(--waze-accent-text)] underline"
             >
               Опитай пак
             </button>

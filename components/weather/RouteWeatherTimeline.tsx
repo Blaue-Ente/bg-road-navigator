@@ -20,7 +20,7 @@ export function RouteWeatherTimeline({
 
   return (
     <div className="space-y-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
         Точки по маршрута
       </h2>
 

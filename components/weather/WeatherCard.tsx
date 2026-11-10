@@ -18,7 +18,7 @@ export function WeatherCard({ weather, distance }: WeatherCardProps) {
         )}
         <WeatherGlyphIcon
           name={weather.icon as WeatherGlyph}
-          className="h-8 w-8 text-[var(--waze-accent)]"
+          className="h-8 w-8 text-[var(--waze-accent-text)]"
         />
         <div>
           <div className="text-2xl font-bold text-[var(--waze-text)]">

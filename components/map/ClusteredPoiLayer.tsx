@@ -13,6 +13,7 @@ export interface ClusterPoi {
   title: string;
   color?: string;
   subtitle?: string;
+  glyph?: string;
 }
 
 interface ClusteredPoiLayerProps {
@@ -29,6 +30,7 @@ function cleanup(map: Map, sourceId: string) {
     `${sourceId}-clusters`,
     `${sourceId}-count`,
     `${sourceId}-points`,
+    `${sourceId}-glyph`,
   ]) {
     if (map.getLayer(id)) map.removeLayer(id);
   }
@@ -65,6 +67,7 @@ export function ClusteredPoiLayer({
             title: point.title,
             subtitle: point.subtitle ?? "",
             color: point.color ?? color,
+            glyph: point.glyph ?? "",
           },
         })),
       },
@@ -103,10 +106,23 @@ export function ClusteredPoiLayer({
       filter: ["!", ["has", "point_count"]],
       paint: {
         "circle-color": ["coalesce", ["get", "color"], color],
-        "circle-radius": 7,
+        "circle-radius": 11,
         "circle-stroke-width": 2,
         "circle-stroke-color": "#0b0f14",
       },
+    });
+
+    map.addLayer({
+      id: `${sourceId}-glyph`,
+      type: "symbol",
+      source: sourceId,
+      filter: ["!", ["has", "point_count"]],
+      layout: {
+        "text-field": ["get", "glyph"],
+        "text-size": 11,
+        "text-font": ["Noto Sans Bold"],
+      },
+      paint: { "text-color": "#ffffff" },
     });
 
     const onClusterClick = (event: MapLayerMouseEvent) => {

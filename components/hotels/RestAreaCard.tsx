@@ -43,7 +43,7 @@ export function RestAreaCard({
             {location}
           </p>
         </div>
-        <span className="shrink-0 rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-1 text-xs font-medium text-[var(--waze-accent)]">
+        <span className="shrink-0 rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-1 text-xs font-medium text-[var(--waze-accent-text)]">
           {distanceKm > 0 ? `${distanceKm.toFixed(1)} км` : "по маршрута"}
         </span>
       </div>

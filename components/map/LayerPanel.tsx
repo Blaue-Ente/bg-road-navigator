@@ -12,7 +12,7 @@ export function LayerPanel() {
       className="waze-panel max-h-64 overflow-y-auto p-2"
       aria-label="Слоеве на картата"
     >
-      <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
+      <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-secondary)]">
         Слоеве
       </p>
       <ul className="space-y-0.5">

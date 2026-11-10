@@ -5,6 +5,7 @@ import type { Map } from "maplibre-gl";
 import type { Route } from "@/types/route.types";
 import { theme } from "@/lib/constants/theme";
 import { isMapReady } from "@/lib/map/is-map-ready";
+import { useThemeStore } from "@/lib/stores/theme.store";
 
 export interface RouteLayerProps {
   map: Map | null;
@@ -27,6 +28,10 @@ function removeRouteLayers(map: Map, alternativeCount: number) {
 }
 
 export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
+  const scheme = useThemeStore((s) => s.scheme);
+  const line = scheme === "dark" ? theme.routeLineDark : theme.routeLine;
+  const casing = scheme === "dark" ? theme.routeCasingDark : theme.routeCasing;
+
   useEffect(() => {
     if (!isMapReady(map) || !route) return;
 
@@ -42,7 +47,7 @@ export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
       source: "route-main",
       paint: {
         "line-width": 9,
-        "line-color": theme.routeCasing,
+        "line-color": casing,
         "line-opacity": 0.85,
       },
     });
@@ -53,7 +58,7 @@ export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
       source: "route-main",
       paint: {
         "line-width": 6,
-        "line-color": theme.routeLine,
+        "line-color": line,
       },
     });
 
@@ -78,7 +83,7 @@ export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
     return () => {
       removeRouteLayers(map, alternatives.length);
     };
-  }, [map, route, alternatives]);
+  }, [map, route, alternatives, line, casing]);
 
   return null;
 }

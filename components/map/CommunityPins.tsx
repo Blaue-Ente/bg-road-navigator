@@ -2,7 +2,7 @@
 
 import type { Map } from "maplibre-gl";
 import type { CommunityPin } from "@/types/community.types";
-import { communityPinColor } from "@/lib/constants/community-pins";
+import { communityPinColor, communityPinGlyph, communityPinLabel, formatPinAge } from "@/lib/constants/community-pins";
 import { ClusteredPoiLayer } from "@/components/map/ClusteredPoiLayer";
 import { useMapStore } from "@/lib/stores/map.store";
 
@@ -18,8 +18,9 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
     lng: pin.coords.lng,
     lat: pin.coords.lat,
     title: pin.title,
-    subtitle: pin.category,
+    subtitle: `${communityPinLabel(pin.category)} · ${formatPinAge(pin.created_at)}`,
     color: communityPinColor(pin.category),
+    glyph: communityPinGlyph(pin.category),
   }));
 
   return (
@@ -27,7 +28,7 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
       map={map}
       sourceId="community-pins"
       points={points}
-      color="#33ccff"
+      color="#1e40af"
       enabled={enabled}
     />
   );

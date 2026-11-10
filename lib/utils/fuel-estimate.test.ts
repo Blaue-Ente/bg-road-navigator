@@ -5,6 +5,10 @@ import type { Profile } from "@/types/profile.types";
 const dieselCar: Profile = {
   id: "u1",
   username: "test",
+  display_name: "test",
+  home_city: null,
+  usual_country: null,
+  car: null,
   avatar_url: null,
   vehicle_type: "car",
   fuel_type: "diesel",

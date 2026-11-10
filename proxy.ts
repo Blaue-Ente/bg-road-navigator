@@ -1,4 +1,3 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   clientIpFromHeaders,
@@ -32,6 +31,7 @@ function rateLimitResponse(
   return withCommonHeaders(response, request);
 }
 
+/** Rate limits API calls and attaches security headers. Auth is Better Auth. */
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
@@ -56,34 +56,7 @@ export async function proxy(request: NextRequest) {
     return withCommonHeaders(response, request);
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return withCommonHeaders(NextResponse.next({ request }), request);
-  }
-
-  let response = NextResponse.next({ request });
-
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value)
-        );
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options)
-        );
-      },
-    },
-  });
-
-  await supabase.auth.getUser();
-  return withCommonHeaders(response, request);
+  return withCommonHeaders(NextResponse.next({ request }), request);
 }
 
 export const config = {

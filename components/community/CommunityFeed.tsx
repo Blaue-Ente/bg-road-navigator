@@ -7,6 +7,7 @@ import { useUserStore } from "@/lib/stores/user.store";
 import { WazeCard } from "@/components/ui/WazeCard";
 import {
   communityPinLabel,
+  formatPinAge,
   formatPinExpiry,
 } from "@/lib/constants/community-pins";
 import { Check, ThumbsUp, X } from "lucide-react";
@@ -22,26 +23,33 @@ export function CommunityFeed({
   const authenticated = !!useUserStore((s) => s.session);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const confirmPin = async (pinId: string) => {
+  const confirmPin = async (pinId: string, kind: "still_there" | "gone") => {
     if (!authenticated) {
-      setActionError("Влезте в профила си, за да потвърдите сигнал.");
+      setActionError("Влезте в профила си, за да кажете дали сигналът още важи.");
       return;
     }
 
     const response = await fetch(`/api/community/pins/${pinId}/vote`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind }),
     });
     if (!response.ok) {
       const message =
         response.status === 409
-          ? "Вече сте потвърдили този сигнал."
-          : "Потвърждението не беше записано.";
+          ? "Вече сте отговорили така."
+          : response.status === 401
+            ? "Влезте в профила си, за да гласувате."
+            : "Отговорът не беше записан.";
       setActionError(message);
       return;
     }
 
-    const { upvotes } = (await response.json()) as { upvotes: number };
-    setPinUpvotes(pinId, upvotes);
+    const payload = (await response.json()) as {
+      upvotes: number;
+      gone_count?: number;
+    };
+    setPinUpvotes(pinId, payload.upvotes);
     setActionError(null);
   };
 
@@ -64,7 +72,7 @@ export function CommunityFeed({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
           Активни маркери
         </h2>
         <span className="text-xs text-[var(--waze-text-muted)]">
@@ -85,23 +93,37 @@ export function CommunityFeed({
                 <h3 className="font-semibold text-[var(--waze-text)]">
                   {pin.title}
                 </h3>
-                <p className="text-xs text-[var(--waze-accent)]">
-                  {communityPinLabel(pin.category)}
+                <p className="text-xs text-[var(--waze-accent-text)]">
+                  {communityPinLabel(pin.category)} · {formatPinAge(pin.created_at)}
                   {expiry ? ` · ${expiry}` : ""}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  void confirmPin(pin.id);
-                }}
-                className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-sm text-[var(--waze-text-secondary)]"
-                aria-label="Потвърди че още важи"
-              >
-                <ThumbsUp className="h-3.5 w-3.5" strokeWidth={2} />
-                {pin.upvotes}
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void confirmPin(pin.id, "still_there");
+                  }}
+                  className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-xs text-[var(--waze-text)]"
+                  aria-label="Още е там"
+                >
+                  <ThumbsUp className="h-3.5 w-3.5" strokeWidth={2} />
+                  Още е там {pin.upvotes}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void confirmPin(pin.id, "gone");
+                  }}
+                  className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-xs text-[var(--waze-text-secondary)]"
+                  aria-label="Вече го няма"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2} />
+                  Вече го няма
+                </button>
+              </div>
             </div>
 
             {pin.description && (
@@ -111,7 +133,7 @@ export function CommunityFeed({
             )}
 
             {pin.is_verified && (
-              <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
+              <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-[var(--waze-ok)]">
                 <Check className="h-3 w-3" strokeWidth={2} />
                 Потвърдено
               </span>
@@ -124,7 +146,7 @@ export function CommunityFeed({
         <>
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/50"
             onClick={() => setSelectedPin(null)}
             aria-label="Затвори"
           />
@@ -144,7 +166,7 @@ export function CommunityFeed({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-0.5 text-xs text-[var(--waze-accent)]">
+              <span className="rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-0.5 text-xs text-[var(--waze-accent-text)]">
                 {communityPinLabel(selectedPin.category)}
               </span>
               {formatPinExpiry(selectedPin.expires_at) && (
@@ -162,10 +184,17 @@ export function CommunityFeed({
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
-                onClick={() => void confirmPin(selectedPin.id)}
+                onClick={() => void confirmPin(selectedPin.id, "still_there")}
                 className="waze-btn-primary flex-1 py-2.5 text-sm"
               >
-                Още важи ({selectedPin.upvotes})
+                Още е там ({selectedPin.upvotes})
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmPin(selectedPin.id, "gone")}
+                className="waze-btn-secondary flex-1 py-2.5 text-sm"
+              >
+                Вече го няма
               </button>
               {authenticated && (
                 <button

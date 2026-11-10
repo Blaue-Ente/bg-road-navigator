@@ -42,7 +42,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
         return;
       }
       if (response.status === 503) {
-        setError("Коментарите изискват Supabase.");
+        setError("Коментарите изискват включена база.");
         return;
       }
       if (!response.ok) throw new Error("post failed");
@@ -60,14 +60,14 @@ export function CommentThread({ pinId }: { pinId: string }) {
   if (data && data.configured === false) {
     return (
       <div className="mt-4 waze-panel p-3 text-sm text-[var(--waze-text-muted)]">
-        Коментарите ще бъдат активни след конфигуриране на Supabase.
+        Записите не са включени.
       </div>
     );
   }
 
   return (
     <div className="mt-5 space-y-3">
-      <h3 className="text-sm font-semibold text-[var(--waze-accent)]">
+      <h3 className="text-sm font-semibold text-[var(--waze-accent-text)]">
         Коментари
       </h3>
 
@@ -75,7 +75,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
         <p className="text-sm text-[var(--waze-text-muted)]">Зареждане…</p>
       )}
       {isError && (
-        <p className="text-sm text-red-400">
+        <p className="text-sm text-[var(--waze-danger)]">
           Коментарите не могат да се заредят.
         </p>
       )}
@@ -110,7 +110,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
             rows={2}
             maxLength={500}
           />
-          {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
+          {error && <p className="mt-1 text-sm text-[var(--waze-danger)]">{error}</p>}
           <button
             type="button"
             onClick={() => void post()}
@@ -124,7 +124,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
         <p className="text-sm text-[var(--waze-text-muted)]">
           <Link
             href="/login"
-            className="text-[var(--waze-accent)] hover:underline"
+            className="text-[var(--waze-accent-text)] hover:underline"
           >
             Влезте
           </Link>

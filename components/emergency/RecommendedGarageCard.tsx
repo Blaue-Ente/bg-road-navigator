@@ -21,7 +21,7 @@ export function RecommendedGarageCard({
           <p className="text-sm text-[var(--waze-text-secondary)]">{address}</p>
         </div>
         {speaksBulgarian && (
-          <span className="shrink-0 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300">
+          <span className="shrink-0 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-[var(--waze-ok)]">
             BG
           </span>
         )}

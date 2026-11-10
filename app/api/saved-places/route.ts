@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthedSupabase } from "@/lib/supabase/api-auth";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
+import { requireUser } from "@/lib/auth/require-user";
+import { isDatabaseConfigured } from "@/lib/db";
+import { ensureProfile } from "@/lib/db/profiles";
+import { insertSavedPlace, listSavedPlaces } from "@/lib/db/saved";
+import { rateLimitedResponse, toDbResponse } from "@/lib/server/db-http";
+import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 const PlacePayloadSchema = z.object({
   coords: z.object({
@@ -34,73 +37,58 @@ const SavePlaceSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  if (!isSupabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return NextResponse.json({ places: [], configured: false });
   }
-
-  const auth = await requireAuthedSupabase();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
-
-  const category = request.nextUrl.searchParams.get("category");
-  let query = auth.supabase
-    .from("saved_places")
-    .select("*")
-    .eq("user_id", auth.user.id)
-    .order("created_at", { ascending: false })
-    .limit(100);
-
-  if (category) {
-    query = query.eq("category", category);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Saved places list error:", error);
-    return NextResponse.json(
-      {
-        error: "Unable to load saved places",
-        code: "SAVED_PLACES_LOAD_FAILED",
-      },
-      { status: 500 }
+  try {
+    const places = await listSavedPlaces(
+      auth.user.id,
+      request.nextUrl.searchParams.get("category") ?? undefined
     );
+    return NextResponse.json({ places, configured: true });
+  } catch (error) {
+    const response = toDbResponse(error);
+    if (response.status === 503) {
+      return NextResponse.json({ places: [], configured: false });
+    }
+    return response;
   }
-
-  return NextResponse.json({ places: data ?? [], configured: true });
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAuthedSupabase();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
+  const limit = rateLimit(
+    `place:${auth.user.id}:${clientIpFromHeaders(request.headers)}`,
+    20,
+    60_000
+  );
+  if (!limit.ok) return rateLimitedResponse();
 
   const parsed = SavePlaceSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Invalid saved place", code: "INVALID_SAVED_PLACE" },
+      { error: "Невалидно място", code: "INVALID_SAVED_PLACE" },
       { status: 400 }
     );
   }
 
-  await ensureProfileRow(auth.supabase, auth.user.id, auth.user.email);
-
-  const { data, error } = await auth.supabase
-    .from("saved_places")
-    .insert({
-      user_id: auth.user.id,
+  try {
+    await ensureProfile({
+      userId: auth.user.id,
+      displayName: auth.user.name,
+      email: auth.user.email,
+    });
+    const place = await insertSavedPlace({
+      userId: auth.user.id,
       label: parsed.data.label,
       category: parsed.data.category,
       place: parsed.data.place,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Saved place create error:", error);
-    return NextResponse.json(
-      { error: "Unable to save place", code: "SAVED_PLACE_CREATE_FAILED" },
-      { status: 500 }
-    );
+    });
+    return NextResponse.json({ place }, { status: 201 });
+  } catch (error) {
+    return toDbResponse(error);
   }
-
-  return NextResponse.json({ place: data }, { status: 201 });
 }

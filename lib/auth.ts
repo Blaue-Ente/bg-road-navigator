@@ -1,31 +1,40 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import {
+  accountLinking,
+  buildSocialProviders,
+  resolveAuthBaseUrl,
+  resolveTrustedOrigins,
+} from "@/lib/auth/config";
+import { ensureProfile } from "@/lib/db/profiles";
 
-const baseUrl = process.env.BETTER_AUTH_URL
-  ? process.env.BETTER_AUTH_URL
-  : process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.V0_RUNTIME_URL;
-
-const exactOrigins = [
-  "http://localhost:3000",
-  process.env.V0_RUNTIME_URL,
-  process.env.V0_DEV_APP_URL,
-  process.env.V0_BUILD_URL,
-  process.env.V0_SANDBOX_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
-  process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : undefined,
-].filter((origin): origin is string => Boolean(origin));
+const socialProviders = buildSocialProviders();
 
 export const auth = betterAuth({
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
-  baseURL: baseUrl,
-  trustedOrigins: exactOrigins,
-  emailAndPassword: { enabled: true },
+  baseURL: resolveAuthBaseUrl(),
+  trustedOrigins: resolveTrustedOrigins(),
+  emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  account: { accountLinking },
+  ...(Object.keys(socialProviders).length > 0 ? { socialProviders } : {}),
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (created) => {
+          try {
+            await ensureProfile({
+              userId: created.id,
+              displayName: created.name,
+              email: created.email,
+              avatarUrl: created.image,
+            });
+          } catch (error) {
+            console.error("Profile seed failed:", error);
+          }
+        },
+      },
+    },
+  },
   ...(process.env.NODE_ENV === "development"
     ? {
         advanced: {

@@ -1,37 +1,47 @@
 @import "tailwindcss";
 
 :root,
+html[data-theme="light"] {
+  --waze-bg: #f3f5f8;
+  --waze-surface: #ffffff;
+  --waze-surface-elevated: #f7f8fa;
+  --waze-surface-overlay: #ffffff;
+  --waze-accent: #1e40af;
+  --waze-accent-dark: #1e3a8a;
+  --waze-accent-text: #1e40af;
+  --waze-accent-muted: rgba(30, 64, 175, 0.12);
+  --waze-border: rgba(15, 23, 42, 0.12);
+  --waze-text: #0f172a;
+  --waze-text-secondary: #334155;
+  --waze-text-muted: #3e4c5e;
+  --waze-danger: #b91c1c;
+  --waze-warning: #92400e;
+  --waze-ok: #166534;
+  --waze-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --waze-radius: 16px;
+  --waze-radius-pill: 9999px;
+  --map-canvas: #e7eef2;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
 html[data-theme="dark"] {
   --waze-bg: #0b0f14;
   --waze-surface: #161b22;
   --waze-surface-elevated: #1e2530;
-  --waze-surface-overlay: rgba(22, 27, 34, 0.92);
-  --waze-accent: #33ccff;
-  --waze-accent-dark: #1a9fd4;
-  --waze-accent-muted: rgba(51, 204, 255, 0.15);
-  --waze-border: rgba(255, 255, 255, 0.08);
+  --waze-surface-overlay: #161b22;
+  --waze-accent: #1e40af;
+  --waze-accent-dark: #1e3a8a;
+  --waze-accent-text: #93c5fd;
+  --waze-accent-muted: rgba(30, 64, 175, 0.22);
+  --waze-border: rgba(255, 255, 255, 0.1);
   --waze-text: #f4f4f5;
   --waze-text-secondary: #a1a1aa;
-  --waze-text-muted: #71717a;
-  --waze-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  --waze-radius: 16px;
-  --waze-radius-pill: 9999px;
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-}
-
-html[data-theme="light"] {
-  --waze-bg: #eef2f6;
-  --waze-surface: #ffffff;
-  --waze-surface-elevated: #f7f9fc;
-  --waze-surface-overlay: rgba(255, 255, 255, 0.94);
-  --waze-accent: #0077b6;
-  --waze-accent-dark: #023e8a;
-  --waze-accent-muted: rgba(0, 119, 182, 0.12);
-  --waze-border: rgba(15, 23, 42, 0.12);
-  --waze-text: #0b1220;
-  --waze-text-secondary: #334155;
-  --waze-text-muted: #64748b;
-  --waze-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+  --waze-text-muted: #a1a1aa;
+  --waze-danger: #fca5a5;
+  --waze-warning: #fcd34d;
+  --waze-ok: #6ee7b7;
+  --waze-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --map-canvas: #1a1f27;
 }
 
 @theme inline {
@@ -55,14 +65,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Waze-style floating panel */
 .waze-panel {
-  background: var(--waze-surface-overlay);
+  background: var(--waze-surface);
   border: 1px solid var(--waze-border);
   border-radius: var(--waze-radius);
   box-shadow: var(--waze-shadow);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 
 .waze-panel-elevated {
@@ -72,20 +79,34 @@ body {
   box-shadow: var(--waze-shadow);
 }
 
-/* Primary CTA — Waze cyan pill */
+.signin-google {
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+}
+
+.signin-apple {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+}
+
+html[data-theme="dark"] .signin-apple {
+  background: #fff;
+  color: #000;
+  border: 1px solid #fff;
+}
+
 .waze-btn-primary {
-  background: linear-gradient(180deg, #4dd4ff 0%, #33ccff 50%, #1a9fd4 100%);
-  color: #0b0f14;
+  background: var(--waze-accent);
+  color: #ffffff;
   font-weight: 600;
   border-radius: var(--waze-radius-pill);
-  box-shadow: 0 4px 14px rgba(51, 204, 255, 0.35);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .waze-btn-primary:hover {
-  box-shadow: 0 6px 20px rgba(51, 204, 255, 0.45);
+  background: var(--waze-accent-dark);
 }
 
 .waze-btn-primary:active {
@@ -102,11 +123,9 @@ body {
 }
 
 .waze-btn-secondary:hover {
-  background: var(--waze-surface-elevated);
-  filter: brightness(1.08);
+  background: var(--waze-surface);
 }
 
-/* Chip / filter pills */
 .waze-chip {
   border-radius: var(--waze-radius-pill);
   border: 1px solid var(--waze-border);
@@ -114,27 +133,27 @@ body {
   color: var(--waze-text-secondary);
   font-size: 0.75rem;
   padding: 0.375rem 0.875rem;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .waze-chip-active {
   border-color: var(--waze-accent);
   background: var(--waze-accent-muted);
-  color: var(--waze-accent);
+  color: var(--waze-accent-text);
 }
 
-/* Page scroll area below chrome */
 .waze-page {
-  height: 100%;
-  overflow-y: auto;
-  padding: 1rem 1rem 6.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--waze-surface-elevated) transparent;
+  padding: 1rem 1rem 1.5rem;
 }
 
-/* Bottom nav safe area */
 .waze-bottom-safe {
-  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .waze-bottom-safe {
+    padding-bottom: 1.5rem;
+  }
 }
 
 .no-scrollbar {
@@ -144,4 +163,25 @@ body {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.maplibregl-ctrl-bottom-left {
+  bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.maplibregl-ctrl-attrib-inner {
+  max-width: 7rem;
+  max-height: 12px;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+  .maplibregl-ctrl-bottom-left {
+    left: 392px;
+    bottom: 0;
+  }
 }

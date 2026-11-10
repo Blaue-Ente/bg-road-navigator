@@ -19,7 +19,7 @@ export function UserLocationMarker({ map }: { map: Map | null }) {
     if (!markerRef.current) {
       const el = document.createElement("div");
       el.className = "h-4 w-4 rounded-full border-2 border-white shadow-md";
-      el.style.background = "#33ccff";
+      el.style.background = "#1e40af";
       el.setAttribute("aria-hidden", "true");
       markerRef.current = new maplibregl.Marker({ element: el })
         .setLngLat([location.lng, location.lat])

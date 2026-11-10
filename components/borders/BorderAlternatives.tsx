@@ -19,7 +19,7 @@ export function BorderAlternatives({
 
   return (
     <div className="mt-3 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] p-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
         Алтернативни пролази
       </p>
       <ul className="space-y-2">
@@ -32,7 +32,7 @@ export function BorderAlternatives({
               <p className="truncate font-medium text-[var(--waze-text)]">
                 {crossing.name_bg}
                 {recommended && (
-                  <span className="ml-2 text-[10px] font-semibold uppercase text-emerald-400">
+                  <span className="ml-2 text-[10px] font-semibold uppercase text-[var(--waze-ok)]">
                     по-бързо
                   </span>
                 )}
@@ -49,7 +49,7 @@ export function BorderAlternatives({
       </ul>
       <Link
         href="/borders"
-        className="mt-2 inline-block text-xs text-[var(--waze-accent)] hover:underline"
+        className="mt-2 inline-block text-xs text-[var(--waze-accent-text)] hover:underline"
       >
         Виж всички граници
       </Link>

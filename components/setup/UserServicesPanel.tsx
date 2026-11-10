@@ -13,10 +13,10 @@ interface UserServiceCopy {
 
 const USER_SERVICES: UserServiceCopy[] = [
   {
-    id: "supabase",
+    id: "postgres",
     title: "Профил и запазени данни",
-    whenOn: "Вход, любими и запазени маршрути се пазят в облака",
-    whenOff: "Можете да разглеждате свободно; записите не се пазят след изход",
+    whenOn: "Вход, любими, маршрути и сигнали се пазят в Neon",
+    whenOff: "Можете да разглеждате свободно; записите чакат базата",
   },
   {
     id: "nakordoni",
@@ -66,7 +66,7 @@ export function UserServicesPanel() {
         <button
           type="button"
           onClick={() => void refetch()}
-          className="mt-2 text-sm text-[var(--waze-accent)] underline"
+          className="mt-2 text-sm text-[var(--waze-accent-text)] underline"
         >
           Опитай пак
         </button>
@@ -104,7 +104,7 @@ export function UserServicesPanel() {
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                   configured
-                    ? "bg-emerald-500/15 text-emerald-300"
+                    ? "bg-emerald-500/15 text-[var(--waze-ok)]"
                     : "bg-[var(--waze-surface)] text-[var(--waze-text-muted)]"
                 }`}
               >

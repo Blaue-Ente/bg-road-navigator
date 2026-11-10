@@ -104,16 +104,17 @@ export default function EmergencyPage() {
             </p>
           )}
           {nearbyError && (
-            <p className="mt-2 text-sm text-red-400">{nearbyError}</p>
+            <p className="mt-2 text-sm text-[var(--waze-danger)]">{nearbyError}</p>
           )}
           {places && places.length === 0 && (
             <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
-              Няма намерени обекти в радиус 15 км.
+              Няма намерен обект наблизо. Ако заявката не отговори, номерата
+              по-долу пак работят.
             </p>
           )}
           {hospitals.length > 0 && (
             <div className="mt-4 space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
                 Болници / клиники
               </h3>
               {hospitals.slice(0, 5).map((place) => (
@@ -123,7 +124,7 @@ export default function EmergencyPage() {
           )}
           {garages.length > 0 && (
             <div className="mt-4 space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
                 Автосервизи
               </h3>
               {garages.slice(0, 5).map((place) => (
@@ -134,10 +135,10 @@ export default function EmergencyPage() {
         </WazeCard>
 
         <section className="mb-8">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
             Спешни телефони
           </h2>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3">
             {EMERGENCY_DATA.map((country) => (
               <CountryEmergencyCard key={country.country} country={country} />
             ))}

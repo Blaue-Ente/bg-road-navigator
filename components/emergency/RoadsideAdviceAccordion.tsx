@@ -16,7 +16,7 @@ export function RoadsideAdviceAccordion({
 }: RoadsideAdviceAccordionProps) {
   return (
     <div className="waze-panel p-4">
-      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
         Съвети при инцидент
       </h2>
       <Accordion>

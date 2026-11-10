@@ -25,7 +25,7 @@ export function VignetteLinks({
       <h2
         className={
           compact
-            ? "mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]"
+            ? "mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]"
             : "mb-3 text-sm font-semibold text-[var(--waze-text)]"
         }
       >
@@ -57,7 +57,7 @@ export function VignetteLinks({
                   </p>
                 )}
               </div>
-              <span className="shrink-0 text-xs text-[var(--waze-accent)]">
+              <span className="shrink-0 text-xs text-[var(--waze-accent-text)]">
                 Отвори
               </span>
             </a>

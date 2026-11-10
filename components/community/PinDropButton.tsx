@@ -42,8 +42,11 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
     return (
       <Link
         href="/login"
-        className="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-lg font-bold text-[var(--waze-accent)] shadow-lg ring-1 ring-[var(--waze-border)]"
-        style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+        className={`fixed right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] text-[var(--waze-accent-text)] shadow-sm md:bottom-6 ${
+          mode === "map"
+            ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
+            : "bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
+        }`}
         aria-label="Вход за сигнал"
         title="Влезте, за да пуснете сигнал"
       >
@@ -78,8 +81,11 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
       type="button"
       onClick={() => void onClick()}
       disabled={locating}
-      className="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-[#4dd4ff] to-[#1a9fd4] text-xl font-bold text-[#0b0f14] shadow-lg transition active:scale-95 disabled:opacity-60"
-      style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className={`fixed right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--waze-accent)] text-white shadow-sm transition active:scale-95 disabled:opacity-60 md:bottom-6 ${
+        mode === "map"
+          ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
+          : "bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
+      }`}
       aria-label={
         mode === "map" ? "Постави сигнал на картата" : "Добави маркер"
       }

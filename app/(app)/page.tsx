@@ -1,9 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import type { Map } from "maplibre-gl";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
@@ -14,170 +11,100 @@ import {
 } from "@/lib/hooks/useCommunityPins";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
-import { MapControls } from "@/components/map/MapControls";
-import { RouteLayer } from "@/components/map/RouteLayer";
 import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
-import { TrafficLayer } from "@/components/map/TrafficLayer";
-import { CommunityPins } from "@/components/map/CommunityPins";
 import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
-import { SearchIcon } from "@/components/icons/NavIcons";
-import { Megaphone, TriangleAlert } from "lucide-react";
-import { fitMapToRoute } from "@/lib/map/apply-waze-style";
-import { MapPoiLayers } from "@/components/map/MapPoiLayers";
-import { UserLocationMarker } from "@/components/map/UserLocationMarker";
-import { useThemeStore } from "@/lib/stores/theme.store";
-
-const MapCanvas = dynamic(
-  () => import("@/components/map/MapCanvas").then((m) => m.MapCanvas),
-  { ssr: false, loading: () => <MapFallback /> }
-);
+import {
+  CommunityIcon,
+  EmergencyIcon,
+  MenuIcon,
+  SearchIcon,
+} from "@/components/icons/NavIcons";
+import { useMenu } from "@/components/layout/MenuContext";
 
 const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
-function MapFallback() {
-  return (
-    <div className="flex h-full items-center justify-center bg-[var(--waze-bg)] text-[var(--waze-text-muted)]">
-      Зареждане на картата...
-    </div>
-  );
-}
-
 export default function MapPage() {
   const activeRoute = useRouteStore((s) => s.activeRoute);
-  const alternativeRoutes = useRouteStore((s) => s.alternativeRoutes);
   const localPins = useCommunityStore((s) => s.pins);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
   const dropCoords = useCommunityStore((s) => s.dropCoords);
-  const setDropCoords = useCommunityStore((s) => s.setDropCoords);
+  const { open, openMenu } = useMenu();
   const { data: borders } = useBorderStatus({ region: "bulgaria" });
   const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
   const { data: communityData } = useCommunityPins({
     bbox: DEFAULT_COMMUNITY_BBOX,
   });
-  const [mapInstance, setMapInstance] = useState<Map | null>(null);
-  const scheme = useThemeStore((s) => s.scheme);
 
   const communityPins = communityData?.pins ?? localPins;
-
-  const handleMapLoad = useCallback((map: Map) => {
-    setMapInstance(map);
-  }, []);
-
-  const handleMapUnload = useCallback(() => {
-    setMapInstance(null);
-  }, []);
-
-  const handleMapClick = useCallback(
-    (coords: { lng: number; lat: number }) => {
-      if (!isDropMode) return;
-      // Accept tap while waiting for a location, or when user asked to retap.
-      if (!dropCoords) {
-        setDropCoords(coords);
-      }
-    },
-    [isDropMode, dropCoords, setDropCoords]
-  );
-
-  useEffect(() => {
-    if (!mapInstance || !activeRoute?.geometry?.coordinates?.length) return;
-    fitMapToRoute(
-      mapInstance,
-      activeRoute.geometry.coordinates as [number, number][]
-    );
-  }, [mapInstance, activeRoute]);
-
   const topBorders = borders?.slice(0, 4) ?? [];
   const incidentCount = traffic?.incidents?.length ?? 0;
-  const borderBottom = activeRoute
-    ? "calc(11.5rem + env(safe-area-inset-bottom, 0px))"
-    : "calc(5.75rem + env(safe-area-inset-bottom, 0px))";
 
   return (
-    <div className="relative h-full">
-      <MapCanvas
-        key={scheme}
-        onMapLoad={handleMapLoad}
-        onMapUnload={handleMapUnload}
-        onMapClick={handleMapClick}
-        dropMode={isDropMode && !dropCoords}
-        className="h-full"
-      />
-      <MapControls map={mapInstance} />
-      <RouteLayer
-        map={mapInstance}
-        route={activeRoute}
-        alternatives={alternativeRoutes}
-      />
-      <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
-      <CommunityPins map={mapInstance} pins={communityPins} />
-      <MapPoiLayers map={mapInstance} />
-      <UserLocationMarker map={mapInstance} />
-
+    <>
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 px-3 pt-3 pr-[4.25rem]"
+        className="pointer-events-none absolute top-0 left-0 z-10 w-full px-3 md:w-[380px]"
         style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
       >
-        <Link
-          href="/route"
-          className="pointer-events-auto mx-auto flex max-w-lg items-center gap-3 rounded-full waze-panel px-4 py-3 transition hover:scale-[1.01] active:scale-[0.99]"
-        >
-          <SearchIcon className="shrink-0 text-[var(--waze-accent)]" />
-          <div className="min-w-0 flex-1">
-            {activeRoute ? (
-              <>
-                <p className="truncate text-sm font-semibold text-[var(--waze-text)]">
-                  {activeRoute.origin.label} → {activeRoute.destination.label}
-                </p>
-                <p className="truncate text-xs text-[var(--waze-text-muted)]">
-                  {activeRoute.distance_km} км ·{" "}
-                  {formatDuration(activeRoute.duration_min)}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-sm font-semibold text-[var(--waze-text)]">
-                  Къде отивате?
-                </p>
-                <p className="text-xs text-[var(--waze-text-muted)]">
-                  Планирайте маршрут в Европа
-                </p>
-              </>
-            )}
-          </div>
-          <span className="waze-btn-primary shrink-0 px-4 py-2 text-xs">
-            {activeRoute ? "Промени" : "Тръгни"}
-          </span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={openMenu}
+            className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] text-[var(--waze-text)] shadow-sm"
+            aria-label="Отвори меню"
+            aria-expanded={open}
+            aria-controls="app-menu"
+          >
+            <MenuIcon size={20} />
+          </button>
+
+          <Link
+            href="/route"
+            className="pointer-events-auto relative block h-12 min-w-0 flex-1 rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] shadow-sm"
+          >
+            <SearchIcon className="absolute top-3.5 left-3 text-[var(--waze-accent-text)]" />
+            <p className="m-0 h-12 truncate pr-24 pl-11 text-base font-medium leading-[48px] text-[var(--waze-text)]">
+              {activeRoute
+                ? `${activeRoute.origin.label} → ${activeRoute.destination.label}`
+                : "Къде отивате?"}
+            </p>
+            <span className="waze-btn-primary absolute top-1.5 right-1 inline-flex h-9 items-center px-3.5 text-sm">
+              {activeRoute ? "Промени" : "Тръгни"}
+            </span>
+          </Link>
+        </div>
+
+        {activeRoute && (
+          <p className="pointer-events-none mt-2 ml-14 w-fit max-w-[calc(100%-3.5rem)] truncate rounded-full bg-[var(--waze-surface)] px-3 py-1 text-xs text-[var(--waze-text-secondary)] shadow-sm">
+            {activeRoute.distance_km} км · {formatDuration(activeRoute.duration_min)}
+          </p>
+        )}
 
         {isDropMode && !dropCoords && (
-          <div className="pointer-events-none mx-auto mt-3 max-w-lg rounded-full bg-[var(--waze-accent)] px-4 py-2 text-center text-sm font-semibold text-[#0b0f14] shadow-lg">
+          <div className="pointer-events-none mt-3 rounded-full bg-[var(--waze-accent)] px-4 py-2 text-center text-sm font-semibold text-white shadow-sm">
             Докоснете картата за позиция на сигнала
           </div>
         )}
       </div>
 
-      <div
-        className="absolute inset-x-0 z-10 px-3 transition-all duration-300"
-        style={{ bottom: borderBottom }}
-      >
-        <div className="mx-auto flex max-w-lg gap-2 overflow-x-auto pb-1">
+      <div className="pointer-events-none absolute left-0 z-10 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]">
+        <div className="flex gap-2 overflow-x-auto pb-1 pr-16 md:pr-1">
           {topBorders.map((border) => (
             <Link
               key={border.crossing_id}
               href="/borders"
-              className="waze-panel shrink-0 px-3 py-2 transition hover:scale-[1.02]"
+              className="pointer-events-auto waze-panel shrink-0 px-3 py-2"
             >
-              <p className="mb-1 max-w-[120px] truncate text-[11px] font-medium text-[var(--waze-text-secondary)]">
+              <p className="mb-1 max-w-[140px] truncate text-xs font-medium text-[var(--waze-text-secondary)]">
                 {border.name_bg}
               </p>
               <BorderWaitBadge waitMinutes={border.wait_time_cars} compact />
             </Link>
           ))}
           {incidentCount > 0 && (
-            <div className="waze-panel shrink-0 border-orange-500/30 bg-orange-500/10 px-3 py-2">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-orange-300">
-                <TriangleAlert className="h-3.5 w-3.5" strokeWidth={2} />
+            <div className="waze-panel shrink-0 px-3 py-2">
+              <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--waze-warning)]">
+                <EmergencyIcon size={16} />
                 {incidentCount} инцидента
               </p>
             </div>
@@ -185,10 +112,10 @@ export default function MapPage() {
           {communityPins.length > 0 && (
             <Link
               href="/community"
-              className="waze-panel shrink-0 px-3 py-2 transition hover:scale-[1.02]"
+              className="pointer-events-auto waze-panel shrink-0 px-3 py-2"
             >
-              <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--waze-accent)]">
-                <Megaphone className="h-3.5 w-3.5" strokeWidth={2} />
+              <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--waze-accent-text)]">
+                <CommunityIcon size={16} />
                 {communityPins.length} сигнала
               </p>
             </Link>
@@ -199,6 +126,6 @@ export default function MapPage() {
       {activeRoute && <RouteBottomSheet route={activeRoute} />}
       <PinDropButton mode="map" />
       <PinComposer requireMapTap />
-    </div>
+    </>
   );
 }

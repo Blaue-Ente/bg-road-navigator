@@ -36,7 +36,7 @@ export function AccordionTrigger({
 }: AccordionTriggerProps) {
   return (
     <summary
-      className={`cursor-pointer list-none px-4 py-3 text-sm font-medium text-[var(--waze-text)] hover:text-[var(--waze-accent)] ${className || ""}`}
+      className={`cursor-pointer list-none px-4 py-3 text-sm font-medium text-[var(--waze-text)] hover:text-[var(--waze-accent-text)] ${className || ""}`}
     >
       {children}
     </summary>

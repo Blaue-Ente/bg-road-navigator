@@ -32,7 +32,7 @@ export function ServicesStatusPanel() {
         <button
           type="button"
           onClick={() => void refetch()}
-          className="mt-2 text-sm text-[var(--waze-accent)] underline"
+          className="mt-2 text-sm text-[var(--waze-accent-text)] underline"
         >
           Опитай пак
         </button>
@@ -50,7 +50,7 @@ export function ServicesStatusPanel() {
         </h2>
         <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
           {data.summary.configured_count}/{data.summary.total_count} свързани
-          {data.supabase.configured ? "" : " · липсва база за акаунти"}
+          {data.database.configured ? "" : " · липсва база за акаунти"}
         </p>
       </div>
 
@@ -71,8 +71,8 @@ export function ServicesStatusPanel() {
             <span
               className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                 service.configured
-                  ? "bg-emerald-500/15 text-emerald-300"
-                  : "bg-amber-500/15 text-amber-200"
+                  ? "bg-emerald-500/15 text-[var(--waze-ok)]"
+                  : "bg-amber-500/15 text-[var(--waze-warning)]"
               }`}
             >
               {service.configured ? "OK" : "липсва"}
@@ -87,10 +87,10 @@ export function ServicesStatusPanel() {
         </p>
       )}
 
-      {data.supabase.configured && (
-        <p className="mt-2 text-xs text-amber-200/90">
-          След ключовете за Supabase изпълнете еднократно SQL скрипта от
-          документацията в SQL Editor.
+      {!data.database.configured && (
+        <p className="mt-2 text-xs text-[var(--waze-warning)]">
+          За акаунти задайте DATABASE_URL и приложете {data.database.migration}{" "}
+          веднъж в Neon. Стъпките са в docs/SETUP.md.
         </p>
       )}
     </WazeCard>

@@ -55,11 +55,12 @@ export function SavedPlacesPanel() {
   if (data && !data.configured) {
     return (
       <WazeCard>
-        <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent)]">
+        <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent-text)]">
           Любими места
         </h2>
-        <p className="text-sm text-[var(--waze-text-muted)]">
-          Любимите граници, бензиностанции и места изискват Supabase.
+        <p className="text-sm text-[var(--waze-text-secondary)]">
+          Записите не са включени. Любимите места ще се пазят, когато акаунтът
+          е свързан.
         </p>
       </WazeCard>
     );
@@ -69,11 +70,11 @@ export function SavedPlacesPanel() {
 
   return (
     <WazeCard>
-      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent)]">
+      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">
         Любими места
       </h2>
       {isError && (
-        <p className="mb-2 text-sm text-red-400">
+        <p className="mb-2 text-sm text-[var(--waze-danger)]">
           {error instanceof Error ? error.message : "Грешка при зареждане"}
         </p>
       )}
@@ -100,7 +101,7 @@ export function SavedPlacesPanel() {
               <button
                 type="button"
                 onClick={() => void remove(place.id)}
-                className="shrink-0 text-xs text-red-400"
+                className="shrink-0 text-xs text-[var(--waze-danger)]"
               >
                 Изтрий
               </button>

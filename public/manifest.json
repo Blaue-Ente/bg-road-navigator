@@ -4,8 +4,8 @@
   "description": "Пътен помощник за българи в Европа — маршрути, граници, гориво и почивки",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0B0F14",
-  "theme_color": "#0B0F14",
+  "background_color": "#F3F5F8",
+  "theme_color": "#F3F5F8",
   "orientation": "portrait",
   "icons": [
     {

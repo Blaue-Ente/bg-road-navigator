@@ -33,32 +33,30 @@ export function TopBar({ user }: TopBarProps) {
   const title = PAGE_TITLES[pathname] ?? PRODUCT_NAME;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-3">
+    <header className="sticky top-0 z-20 border-b border-[var(--waze-border)] bg-[var(--waze-surface)]">
       <div
-        className="waze-panel mx-auto flex min-h-14 max-w-lg items-center gap-0 px-2 py-2"
+        className="flex min-h-14 items-center gap-1 px-2"
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <button
           type="button"
           onClick={openMenu}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[var(--waze-text)] transition hover:bg-[var(--waze-surface-elevated)]"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--waze-text)]"
           aria-label="Отвори меню"
           aria-expanded={open}
           aria-controls="app-menu"
         >
-          <MenuIcon className="h-5 w-5" />
+          <MenuIcon size={20} />
         </button>
 
-        <div className="flex min-w-0 flex-1 items-center py-1 pl-3 pr-2">
-          <h1 className="w-full text-base font-semibold leading-snug break-words text-[var(--waze-text)]">
-            {title}
-          </h1>
-        </div>
+        <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--waze-text)]">
+          {title}
+        </h1>
 
         {user ? (
           <Link
             href="/profile"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-[#4dd4ff] to-[#1a9fd4] text-sm font-bold text-[#0b0f14]"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--waze-accent)] text-sm font-bold text-white"
             aria-label="Профил"
           >
             {user.email.charAt(0).toUpperCase()}
@@ -66,7 +64,7 @@ export function TopBar({ user }: TopBarProps) {
         ) : (
           <Link
             href="/login"
-            className="shrink-0 px-2 text-sm font-medium text-[var(--waze-accent)]"
+            className="shrink-0 px-2 text-sm font-medium text-[var(--waze-accent-text)]"
           >
             Влез
           </Link>
