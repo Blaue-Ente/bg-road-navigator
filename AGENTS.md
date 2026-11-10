@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Killer features for first public release: live borders, vignettes (official deep links only), community, places/favorites.
 - Operators paste env vars themselves; never commit secrets. Checklist: `/setup`, `.env.example`, `GET /api/config/status`.
 
-### Phase 1 APIs (auth + Supabase required for writes)
+### Phase 1 APIs (Better Auth + Neon Postgres required for writes)
 
 - `GET/PATCH /api/profile`
 - `GET/POST /api/saved-routes`, `DELETE /api/saved-routes/[id]`
@@ -32,8 +32,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Map `+` → tap map → compose pin; list page uses geolocation.
 - `GET /api/community/pins?west&south&east&north` (bbox filter)
 - `GET/POST /api/community/pins/[id]/comments`
-- Categories include camera / food / overnight (`008_community_categories_comments.sql`)
-- Apply Supabase migrations through `009` before enabling community writes in production.
+- Categories: traffic jam, accident, border queue, rest stop, shortcut, hotel, place, police, road works, other.
 
 ### Phase 3 — borders / vignettes / fuel / AI
 
@@ -45,11 +44,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ### Keys-only readiness
 
-- Code is ready for operators to paste env vars only (+ one-shot Supabase SQL).
+- Code is ready for operators to paste env vars only (+ one-shot Neon SQL).
 - `GET /api/config/status` — booleans/labels, never secret values
-- `GET /api/health` — liveness
+- `GET /api/health` — liveness, `database_configured`, `database_reachable`, `auth_tables_ready`
 - UI: `/setup`, profile “Услуги и ключове”, sidebar → Настройка
-- Apply DB once: `supabase/apply_all.sql` (see `supabase/README.md`)
+- Apply DB once: `drizzle/0001_better_auth_and_community.sql` (see `docs/SETUP.md`)
 - Template: `.env.example`
 
 ### Dev commands
@@ -60,5 +59,6 @@ See `README.md` / `package.json`: `npm run dev`, `npm run lint`, `npm test`, `np
 
 - Do not copy `.env.example` blindly into `.env.local` for production builds of map style — empty `NEXT_PUBLIC_*` values are treated as unset by helpers, but prefer omitting blank vars.
 - `AuthGuard` is a no-op shell; gate writes with `RequireAuth` / session checks.
-- Supabase RLS lives in `supabase/migrations/`; `004` was rewritten for valid Postgres policies; apply `007` for profile-on-signup trigger (included in `apply_all.sql`).
-- Without Supabase keys, login creates a **demo** session — writes return 503 until real Supabase + migrations.
+- One account system: Better Auth on Neon (`DATABASE_URL`). Without it, writes return 503.
+- On Vercel preview, leave `BETTER_AUTH_URL` unset so auth uses `https://$VERCEL_URL`.
+- Google and Apple buttons appear only when both keys for that provider are set.

@@ -20,7 +20,7 @@
 - Next.js 16 (App Router, TypeScript)
 - Tailwind CSS v4
 - MapLibre GL JS ([open-source](https://github.com/maplibre))
-- Supabase (auth, по избор)
+- Better Auth + Neon Postgres
 - Zustand + TanStack React Query
 
 ## Стартиране
@@ -34,25 +34,27 @@ npm run dev
 Отворете [http://localhost:3000](http://localhost:3000) или [http://localhost:3000/setup](http://localhost:3000/setup).
 
 Приложението работи и **без API ключове** (карта, маршрут, оценки за граници, винетки, евристичен план).  
-Кодът е в режим **keys-only**: остава да попълните `.env.local` и веднъж Supabase SQL.
+Акаунтите искат `DATABASE_URL` и еднократно `drizzle/0001_better_auth_and_community.sql`. Вижте `docs/SETUP.md`.
 
 ### Keys-only checklist
 
 1. `cp .env.example .env.local` и попълнете ключовете (виж таблицата по-долу)
-2. Supabase проект → URL + anon key
-3. В SQL Editor: съдържанието на `supabase/apply_all.sql` (веднъж)
-4. Supabase Auth → Redirect URLs: `http://localhost:3000` и публичният URL
-5. Рестарт на `npm run dev` → проверка: [`/api/config/status`](http://localhost:3000/api/config/status)
+2. Neon проект във Frankfurt → `DATABASE_URL`
+3. В SQL Editor: `drizzle/0001_better_auth_and_community.sql` (веднъж)
+4. `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` и `NEXT_PUBLIC_APP_URL`
+5. Рестарт на `npm run dev` → проверка: [`/api/config/status`](http://localhost:3000/api/config/status) и [`/api/health`](http://localhost:3000/api/health)
 
 | Променлива                                                   | Услуга                                                                    | Приоритет                             |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------- | ------------------------------------- |
-| `NEXT_PUBLIC_APP_URL`                                        | Публичен URL / Auth redirects                                             | **Must** при публичен сайт            |
-| `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Акаунти, любими, общност                                                  | **Must** за вход и запис              |
+| `DATABASE_URL`                                               | Neon Postgres за Better Auth                                              | **Must** за вход и запис              |
+| `BETTER_AUTH_SECRET` + `BETTER_AUTH_URL` + `NEXT_PUBLIC_APP_URL` | Акаунти                                                              | **Must** при публичен сайт            |
 | `NAKORDONI_API_KEY`                                          | Live гранични опашки ([nakordoni.eu](https://nakordoni.eu/en/developers)) | **Must** за публичен сайт (безплатно) |
 | `TOMTOM_API_KEY`                                             | Трафик + бензиностанции                                                   | Should                                |
 | `OPENCHARGE_API_KEY`                                         | EV зарядни                                                                | Should                                |
 | `WINDY_WEBCAMS_API_KEY`                                      | Webcam изображения ([Windy](https://api.windy.com/webcams))               | Should                                |
 | `NVIDIA_API_KEY`                                             | AI план (иначе евристика)                                                 | Optional                              |
+| `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`                  | Вход с Google                                                             | Optional                              |
+| `APPLE_CLIENT_ID` + `APPLE_CLIENT_SECRET`                    | Вход с Apple (платен Apple Developer)                                     | Optional                              |
 | `NEXT_PUBLIC_MAP_STYLE_URL`                                  | Custom MapLibre style                                                     | Optional                              |
 | `OSRM_API_URL`                                               | Собствен OSRM                                                             | Optional                              |
 | `GEOCODING_API_URL`                                          | Собствен geocoder                                                         | Optional                              |
@@ -92,24 +94,24 @@ npm run format  # Prettier check
 
 | Променлива                      | Задължителна   | Описание                                                                        |
 | ------------------------------- | -------------- | ------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_APP_URL`           | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app` (Auth redirects)    |
-| `NEXT_PUBLIC_SUPABASE_URL`      | За акаунти     | Supabase project URL                                                            |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | За акаунти     | Supabase anon key                                                               |
+| `DATABASE_URL`                  | За акаунти     | Neon Postgres connection string                                             |
+| `BETTER_AUTH_SECRET`            | За акаунти     | Тайна поне 32 знака                                                         |
+| `BETTER_AUTH_URL`               | За акаунти     | Публичният адрес. На preview го оставете празно                             |
+| `NEXT_PUBLIC_APP_URL`           | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app`                 |
 | `NAKORDONI_API_KEY`             | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) |
 | `WINDY_WEBCAMS_API_KEY`         | Не             | Windy webcams                                                                   |
 | `TOMTOM_API_KEY`                | Не             | Трафик + гориво                                                                 |
 | `OPENCHARGE_API_KEY`            | Не             | EV станции                                                                      |
 | `NVIDIA_API_KEY`                | Не             | AI trip planner                                                                 |
 
-След Supabase ключовете приложете `supabase/apply_all.sql` веднъж в SQL Editor.
+След ключовете за акаунти приложете `drizzle/0001_better_auth_and_community.sql` веднъж. Стъпките са в `docs/SETUP.md`.
 
 Railway задава `PORT` автоматично — не го променяй.
 
 ### 3. Публичен домейн
 
 1. **Settings → Networking → Generate Domain**
-2. Обнови `NEXT_PUBLIC_APP_URL` с новия Railway URL
-3. Ако ползваш Supabase auth, добави същия URL в **Supabase → Authentication → Redirect URLs**
+2. Обновете `NEXT_PUBLIC_APP_URL` и `BETTER_AUTH_URL` с новия адрес
 
 ### 4. Локален тест на production build
 

@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { isDatabaseConfigured } from "@/lib/db";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { probeDatabase } from "@/lib/db/health";
 
-/** Lightweight liveness for Railway / uptime checks. */
+/** Process liveness plus a short database probe. Never returns secret values. */
 export async function GET() {
+  const database_configured = isDatabaseConfigured();
+  const probe = database_configured
+    ? await probeDatabase(process.env.DATABASE_URL!.trim())
+    : { reachable: false, authTablesReady: false };
+
   return NextResponse.json({
     ok: true,
     service: "bg-road-navigator",
-    database_configured: isDatabaseConfigured(),
-    supabase_configured: isSupabaseConfigured(),
+    database_configured,
+    database_reachable: probe.reachable,
+    auth_tables_ready: probe.authTablesReady,
     ts: new Date().toISOString(),
   });
 }

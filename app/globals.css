@@ -79,6 +79,24 @@ body {
   box-shadow: var(--waze-shadow);
 }
 
+.signin-google {
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+}
+
+.signin-apple {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+}
+
+html[data-theme="dark"] .signin-apple {
+  background: #fff;
+  color: #000;
+  border: 1px solid #fff;
+}
+
 .waze-btn-primary {
   background: var(--waze-accent);
   color: #ffffff;
