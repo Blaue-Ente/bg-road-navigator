@@ -11,6 +11,8 @@ export type ServiceId =
   | "tomtom"
   | "opencharge"
   | "nvidia"
+  | "google"
+  | "apple"
   | "map_style_custom"
   | "osrm_custom"
   | "geocoding_custom"
@@ -101,6 +103,30 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       priority: "optional",
       signup_url: "https://build.nvidia.com/",
       env_vars: ["NVIDIA_API_KEY"],
+    },
+    {
+      id: "google",
+      label: "Google вход",
+      unlocks: "Бутон „Продължи с Google“, когато и двата ключа са зададени",
+      configured: hasEnv("GOOGLE_CLIENT_ID") && hasEnv("GOOGLE_CLIENT_SECRET"),
+      cost: "free",
+      priority: "optional",
+      signup_url: "https://console.cloud.google.com/apis/credentials",
+      env_vars: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"],
+    },
+    {
+      id: "apple",
+      label: "Apple вход",
+      unlocks: "Бутон „Продължи с Apple“, когато id и тайна са зададени",
+      configured: hasEnv("APPLE_CLIENT_ID") && hasEnv("APPLE_CLIENT_SECRET"),
+      cost: "paid",
+      priority: "optional",
+      signup_url: "https://developer.apple.com/account/resources/identifiers/list/serviceId",
+      env_vars: [
+        "APPLE_CLIENT_ID",
+        "APPLE_CLIENT_SECRET",
+        "APPLE_APP_BUNDLE_IDENTIFIER",
+      ],
     },
     {
       id: "app_url",

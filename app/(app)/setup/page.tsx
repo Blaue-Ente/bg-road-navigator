@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     title: "2. Акаунти и общност",
-    body: "Задайте DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL и NEXT_PUBLIC_APP_URL.",
+    body: "Задайте DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL и NEXT_PUBLIC_APP_URL. Google и Apple са по избор.",
   },
   {
     title: "3. Приложете SQL веднъж",
@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     title: "4. Адрес за вход",
-    body: "В настройките за вход добавете локалния адрес и публичния адрес на сайта.",
+    body: "За Google и Apple сложете адресите за обратно повикване от docs/SETUP.md. Имейл и парола работят и без тях.",
   },
   {
     title: "5. Препоръчани безплатни услуги",

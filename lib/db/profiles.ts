@@ -23,6 +23,7 @@ export async function ensureProfile(input: {
   userId: string;
   displayName?: string | null;
   email?: string | null;
+  avatarUrl?: string | null;
 }): Promise<Profile> {
   const db = getDb();
   const existing = await db
@@ -41,6 +42,7 @@ export async function ensureProfile(input: {
     .values({
       userId: input.userId,
       displayName: displayName.slice(0, 40),
+      avatarUrl: input.avatarUrl?.trim() || null,
     })
     .onConflictDoNothing()
     .returning();

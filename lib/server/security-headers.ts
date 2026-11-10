@@ -12,8 +12,6 @@ const CSP = [
   "child-src blob:",
   [
     "connect-src 'self'",
-    "https://*.supabase.co",
-    "wss://*.supabase.co",
     "https://basemaps.cartocdn.com",
     "https://*.basemaps.cartocdn.com",
     "https://*.cartocdn.com",

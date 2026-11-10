@@ -80,7 +80,7 @@ export function ProfileEditForm() {
       });
 
       if (response.status === 503) {
-        // Demo / no Supabase — update local store only.
+        // Database is not ready — keep the edit in the local session only.
         setProfile({
           ...profile,
           username: body.display_name || profile.username,
