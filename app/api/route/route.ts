@@ -6,6 +6,7 @@ import {
   buildEstimatedRoute,
   resolveRoutePointsFromCityIds,
 } from "@/lib/utils/route-builder";
+import { nearestBgBorder } from "@/lib/geo/border-on-route";
 import type { RoutePoint } from "@/types/route.types";
 
 const EuropePointSchema = z.object({
@@ -95,11 +96,21 @@ export async function POST(request: NextRequest) {
         })),
         maneuvers: osrm.maneuvers,
       });
-      return NextResponse.json(route);
+      return NextResponse.json({
+        ...route,
+        border_crossing: nearestBgBorder(
+          route.geometry.coordinates as [number, number][]
+        ),
+      });
     }
 
     const route = buildEstimatedRoute(input, { routing_source: "estimate" });
-    return NextResponse.json(route);
+    return NextResponse.json({
+      ...route,
+      border_crossing: nearestBgBorder(
+        route.geometry.coordinates as [number, number][]
+      ),
+    });
   } catch (error) {
     console.error("Route API error:", error);
     return NextResponse.json(

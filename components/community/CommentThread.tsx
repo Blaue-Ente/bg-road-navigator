@@ -42,7 +42,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
         return;
       }
       if (response.status === 503) {
-        setError("Коментарите изискват Supabase.");
+        setError("Коментарите изискват включена база.");
         return;
       }
       if (!response.ok) throw new Error("post failed");

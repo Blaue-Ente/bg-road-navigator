@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import { ensureProfile } from "@/lib/db/profiles";
 
 const baseUrl = process.env.BETTER_AUTH_URL
   ? process.env.BETTER_AUTH_URL
@@ -25,7 +26,24 @@ export const auth = betterAuth({
   database: new Pool({ connectionString: process.env.DATABASE_URL }),
   baseURL: baseUrl,
   trustedOrigins: exactOrigins,
-  emailAndPassword: { enabled: true },
+  emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (created) => {
+          try {
+            await ensureProfile({
+              userId: created.id,
+              displayName: created.name,
+              email: created.email,
+            });
+          } catch (error) {
+            console.error("Profile seed failed:", error);
+          }
+        },
+      },
+    },
+  },
   ...(process.env.NODE_ENV === "development"
     ? {
         advanced: {

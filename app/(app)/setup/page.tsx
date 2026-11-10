@@ -14,11 +14,11 @@ const STEPS = [
   },
   {
     title: "2. Акаунти и общност",
-    body: "Създайте проект в Supabase и поставете публичния адрес и анонимния ключ.",
+    body: "Задайте DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL и NEXT_PUBLIC_APP_URL.",
   },
   {
     title: "3. Приложете SQL веднъж",
-    body: "В SQL редактора поставете еднократния скрипт от папката supabase. Нужно е за профили, любими и общност.",
+    body: "В Neon SQL Editor изпълнете веднъж drizzle/0001_better_auth_and_community.sql. Стъпките са в docs/SETUP.md.",
   },
   {
     title: "4. Адрес за вход",
@@ -83,7 +83,7 @@ export default function SetupPage() {
               <strong className="text-[var(--waze-text)]">
                 За публичен сайт:
               </strong>{" "}
-              публичен адрес, Supabase и ключ за живи гранични опашки.
+              публичен адрес, Neon и ключ за живи гранични опашки.
             </li>
             <li>
               <strong className="text-[var(--waze-text)]">Препоръчани:</strong>{" "}

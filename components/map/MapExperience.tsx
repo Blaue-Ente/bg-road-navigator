@@ -31,7 +31,7 @@ export function MapExperience() {
   const localPins = useCommunityStore((s) => s.pins);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
   const dropCoords = useCommunityStore((s) => s.dropCoords);
-  const setDropCoords = useCommunityStore((s) => s.setDropCoords);
+  const beginDrop = useCommunityStore((s) => s.beginDrop);
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
   const onHome = pathname === "/";
 
@@ -52,9 +52,16 @@ export function MapExperience() {
   const handleMapClick = useCallback(
     (coords: { lng: number; lat: number }) => {
       if (!isDropMode || dropCoords) return;
-      setDropCoords(coords);
+      beginDrop(coords);
     },
-    [isDropMode, dropCoords, setDropCoords]
+    [isDropMode, dropCoords, beginDrop]
+  );
+
+  const handleMapLongPress = useCallback(
+    (coords: { lng: number; lat: number }) => {
+      beginDrop(coords);
+    },
+    [beginDrop]
   );
 
   useEffect(() => {
@@ -76,6 +83,7 @@ export function MapExperience() {
         onMapLoad={handleMapLoad}
         onMapUnload={handleMapUnload}
         onMapClick={handleMapClick}
+        onMapLongPress={handleMapLongPress}
         dropMode={isDropMode && !dropCoords}
         className="h-[100dvh]"
       />

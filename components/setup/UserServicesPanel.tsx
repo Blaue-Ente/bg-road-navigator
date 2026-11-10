@@ -13,10 +13,10 @@ interface UserServiceCopy {
 
 const USER_SERVICES: UserServiceCopy[] = [
   {
-    id: "supabase",
+    id: "postgres",
     title: "Профил и запазени данни",
-    whenOn: "Вход, любими и запазени маршрути се пазят в облака",
-    whenOff: "Можете да разглеждате свободно; записите не се пазят след изход",
+    whenOn: "Вход, любими, маршрути и сигнали се пазят в Neon",
+    whenOff: "Можете да разглеждате свободно; записите чакат базата",
   },
   {
     id: "nakordoni",

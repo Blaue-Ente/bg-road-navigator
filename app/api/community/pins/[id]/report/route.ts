@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/require-user";
+import { reportPin } from "@/lib/db/community";
+import { ensureProfile } from "@/lib/db/profiles";
+import { rateLimitedResponse, toDbResponse } from "@/lib/server/db-http";
+import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 const BodySchema = z.object({
@@ -12,15 +15,15 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json(
-      {
-        error: "Community service is not configured",
-        code: "COMMUNITY_UNAVAILABLE",
-      },
-      { status: 503 }
-    );
-  }
+  const auth = await requireUser();
+  if (!auth.ok) return auth.response;
+
+  const limit = rateLimit(
+    `report:${auth.user.id}:${clientIpFromHeaders(request.headers)}`,
+    15,
+    60_000
+  );
+  if (!limit.ok) return rateLimitedResponse();
 
   const [parsedParams, parsedBody] = await Promise.all([
     Promise.resolve(ParamsSchema.safeParse(await context.params)),
@@ -29,41 +32,36 @@ export async function POST(
 
   if (!parsedParams.success || !parsedBody.success) {
     return NextResponse.json(
-      { error: "Invalid report request", code: "INVALID_REPORT" },
+      { error: "Невалиден доклад", code: "INVALID_REPORT" },
       { status: 400 }
     );
   }
 
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: "Authentication required", code: "AUTH_REQUIRED" },
-      { status: 401 }
-    );
-  }
-
-  const { error } = await supabase.from("community_pin_reports").insert({
-    pin_id: parsedParams.data.id,
-    reporter_id: user.id,
-    reason: parsedBody.data.reason,
-  });
-
-  if (error) {
-    if (error.code === "23505") {
+  try {
+    await ensureProfile({
+      userId: auth.user.id,
+      displayName: auth.user.name,
+      email: auth.user.email,
+    });
+    const result = await reportPin({
+      pinId: parsedParams.data.id,
+      userId: auth.user.id,
+      reason: parsedBody.data.reason,
+    });
+    if (result === "missing") {
       return NextResponse.json(
-        { error: "Already reported", code: "ALREADY_REPORTED" },
+        { error: "Сигналът липсва", code: "PIN_NOT_FOUND" },
+        { status: 404 }
+      );
+    }
+    if (result === "duplicate") {
+      return NextResponse.json(
+        { error: "Вече сте докладвали този сигнал", code: "ALREADY_REPORTED" },
         { status: 409 }
       );
     }
-    console.error("Community report error:", error);
-    return NextResponse.json(
-      { error: "Unable to submit report", code: "REPORT_FAILED" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: true }, { status: 201 });
+  } catch (error) {
+    return toDbResponse(error);
   }
-
-  return NextResponse.json({ ok: true }, { status: 201 });
 }
