@@ -64,7 +64,7 @@ export function CommunityFeed({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
           Активни маркери
         </h2>
         <span className="text-xs text-[var(--waze-text-muted)]">
@@ -85,7 +85,7 @@ export function CommunityFeed({
                 <h3 className="font-semibold text-[var(--waze-text)]">
                   {pin.title}
                 </h3>
-                <p className="text-xs text-[var(--waze-accent)]">
+                <p className="text-xs text-[var(--waze-accent-text)]">
                   {communityPinLabel(pin.category)}
                   {expiry ? ` · ${expiry}` : ""}
                 </p>
@@ -111,7 +111,7 @@ export function CommunityFeed({
             )}
 
             {pin.is_verified && (
-              <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
+              <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-[var(--waze-ok)]">
                 <Check className="h-3 w-3" strokeWidth={2} />
                 Потвърдено
               </span>
@@ -124,7 +124,7 @@ export function CommunityFeed({
         <>
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/50"
             onClick={() => setSelectedPin(null)}
             aria-label="Затвори"
           />
@@ -144,7 +144,7 @@ export function CommunityFeed({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-0.5 text-xs text-[var(--waze-accent)]">
+              <span className="rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-0.5 text-xs text-[var(--waze-accent-text)]">
                 {communityPinLabel(selectedPin.category)}
               </span>
               {formatPinExpiry(selectedPin.expires_at) && (

@@ -74,8 +74,8 @@ function FuelPageContent() {
 
         {data.degraded && (
           <WazeCard className="mb-4">
-            <p className="text-sm text-[var(--waze-text-muted)]">
-              Списъкът със станции е ограничен в момента. Оценката на разхода
+            <p className="text-sm text-[var(--waze-text-secondary)]">
+              Списъкът със станции не отговори напълно. Оценката на разхода
               по-долу остава налична.
             </p>
           </WazeCard>
@@ -87,9 +87,9 @@ function FuelPageContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8">
           <section>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
               Бензиностанции
               <span className="ml-2 text-[var(--waze-text-muted)]">
                 ({data.fuelStations.length})
@@ -97,9 +97,9 @@ function FuelPageContent() {
             </h2>
             <div className="space-y-3">
               {data.fuelStations.length === 0 ? (
-                <p className="text-sm text-[var(--waze-text-muted)]">
-                  Няма потвърдени данни за бензиностанции в този район в
-                  момента.
+                <p className="text-sm text-[var(--waze-text-secondary)]">
+                  Списъкът със станции не отговори. Опитайте отново след малко
+                  или изчислете разхода от маршрута.
                 </p>
               ) : (
                 data.fuelStations.map((station) => (
@@ -110,7 +110,7 @@ function FuelPageContent() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent)]">
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
               EV зарядни
               <span className="ml-2 text-[var(--waze-text-muted)]">
                 ({data.evStations.length})
@@ -118,8 +118,8 @@ function FuelPageContent() {
             </h2>
             <div className="space-y-3">
               {data.evStations.length === 0 ? (
-                <p className="text-[var(--waze-text-muted)]">
-                  Няма потвърдени EV станции в този район в момента.
+                <p className="text-sm text-[var(--waze-text-secondary)]">
+                  Списъкът със зарядни не отговори за този район.
                 </p>
               ) : (
                 data.evStations.map((station) => (
@@ -138,7 +138,7 @@ export default function FuelPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex h-full items-center justify-center text-[var(--waze-accent)]">
+        <div className="flex h-full items-center justify-center text-[var(--waze-accent-text)]">
           Зареждане...
         </div>
       }

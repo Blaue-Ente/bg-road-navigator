@@ -26,10 +26,9 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
 
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 z-20 px-3"
-      style={{ bottom: "calc(5.5rem + env(safe-area-inset-bottom, 0px))" }}
+      className="pointer-events-none absolute left-0 z-20 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]"
     >
-      <div className="pointer-events-auto mx-auto max-w-lg overflow-hidden rounded-2xl waze-panel shadow-2xl transition-all">
+      <div className="pointer-events-auto overflow-hidden rounded-2xl waze-panel transition-all">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
@@ -37,10 +36,10 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
           aria-expanded={expanded}
         >
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--waze-accent-muted)]">
-            <span className="text-lg font-bold leading-none text-[var(--waze-accent)]">
+            <span className="text-lg font-bold leading-none text-[var(--waze-accent-text)]">
               {hours > 0 ? hours : mins}
             </span>
-            <span className="text-[10px] font-medium text-[var(--waze-accent)]">
+            <span className="text-xs font-medium text-[var(--waze-accent-text)]">
               {hours > 0 ? "часа" : "мин"}
             </span>
           </div>
@@ -52,7 +51,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             <p className="text-sm text-[var(--waze-text-secondary)]">
               {etaDisplay} · {route.distance_km} км
               {route.routing_source === "osrm" && (
-                <span className="ml-1 text-[var(--waze-accent)]">
+                <span className="ml-1 text-[var(--waze-accent-text)]">
                   · по пътищата
                 </span>
               )}
@@ -85,28 +84,28 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             <div className="mt-4 grid grid-cols-4 gap-2">
               <Link
                 href="/fuel"
-                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
+                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
                 <Fuel className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Гориво
               </Link>
               <Link
                 href="/weather"
-                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
+                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
                 <CloudSun className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Време
               </Link>
               <Link
                 href="/borders"
-                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
+                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
                 <Landmark className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Граници
               </Link>
               <Link
                 href="/hotels"
-                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent)]"
+                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
                 <BedDouble className="h-5 w-5" strokeWidth={2} aria-hidden />
                 Почивка
@@ -122,7 +121,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
               </Link>
               <button
                 onClick={clearRoute}
-                className="waze-btn-secondary flex-1 py-2.5 text-sm text-red-400"
+                className="waze-btn-secondary flex-1 py-2.5 text-sm text-[var(--waze-danger)]"
               >
                 Изчисти
               </button>

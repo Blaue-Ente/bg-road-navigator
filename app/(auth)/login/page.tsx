@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--waze-bg)] p-4">
       <div className="waze-panel w-full max-w-md p-6 text-[var(--waze-text)]">
-        <h1 className="mb-2 text-center text-2xl font-bold text-[var(--waze-accent)]">
+        <h1 className="mb-2 text-center text-2xl font-bold text-[var(--waze-accent-text)]">
           Вход
         </h1>
         <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">
@@ -78,7 +78,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-[var(--waze-danger)]">{error}</p>}
           <button
             type="submit"
             disabled={loading}
@@ -91,7 +91,7 @@ export default function LoginPage() {
           Нямате акаунт?{" "}
           <Link
             href="/register"
-            className="text-[var(--waze-accent)] hover:underline"
+            className="text-[var(--waze-accent-text)] hover:underline"
           >
             Регистрация
           </Link>

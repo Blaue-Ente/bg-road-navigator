@@ -44,7 +44,7 @@ export default function TipsPage() {
           </p>
           <Link
             href="/vignettes"
-            className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent)] hover:underline"
+            className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent-text)] hover:underline"
           >
             Към официалните винетки
           </Link>
@@ -79,7 +79,7 @@ export default function TipsPage() {
                   {CATEGORY_LABELS[tip.category]}
                 </span>
                 {tip.priority === "high" && (
-                  <span className="text-[10px] font-semibold uppercase text-red-400">
+                  <span className="text-[10px] font-semibold uppercase text-[var(--waze-danger)]">
                     важно
                   </span>
                 )}

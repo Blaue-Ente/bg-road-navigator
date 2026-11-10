@@ -27,7 +27,7 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
       map={map}
       sourceId="community-pins"
       points={points}
-      color="#33ccff"
+      color="#1e40af"
       enabled={enabled}
     />
   );

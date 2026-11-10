@@ -33,10 +33,10 @@ function ControlButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition active:scale-95 ${
+      className={`flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition active:scale-95 ${
         accent
-          ? "bg-gradient-to-b from-[#4dd4ff] to-[#1a9fd4] text-[#0b0f14]"
-          : "waze-panel text-[var(--waze-text)]"
+          ? "border-transparent bg-[var(--waze-accent)] text-white"
+          : "border-[var(--waze-border)] bg-[var(--waze-surface)] text-[var(--waze-text)]"
       }`}
       aria-label={label}
       aria-busy={busy || undefined}
@@ -75,13 +75,13 @@ export function MapControls({ map }: MapControlsProps) {
   return (
     <div
       className="absolute right-3 z-20 flex flex-col items-end gap-2"
-      style={{ top: "calc(4.5rem + env(safe-area-inset-top, 0px))" }}
+      style={{ top: "calc(5.25rem + env(safe-area-inset-top, 0px))" }}
     >
       <ControlButton onClick={zoomIn} label="Приближи">
-        <PlusIcon />
+        <PlusIcon size={20} />
       </ControlButton>
       <ControlButton onClick={zoomOut} label="Отдалечи">
-        <MinusIcon />
+        <MinusIcon size={20} />
       </ControlButton>
       <ControlButton
         onClick={locate}
@@ -89,7 +89,7 @@ export function MapControls({ map }: MapControlsProps) {
         accent
         busy={locateStatus === "locating"}
       >
-        <LocateIcon />
+        <LocateIcon size={20} />
       </ControlButton>
       <ControlButton
         onClick={() => setLayersOpen((open) => !open)}
@@ -103,7 +103,7 @@ export function MapControls({ map }: MapControlsProps) {
       {layersOpen && <LayerPanel />}
       {message && (
         <p
-          className="mt-1 max-w-[11rem] rounded-xl bg-[var(--waze-surface)] px-2 py-1 text-[11px] leading-snug text-[var(--waze-text-secondary)]"
+          className="mt-1 max-w-[11rem] rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 py-1 text-xs leading-snug text-[var(--waze-text-secondary)]"
           role="status"
           aria-live="polite"
         >

@@ -78,7 +78,16 @@ export function applyWazeMapTheme(map: Map): void {
   }
 }
 
-export function fitMapToRoute(map: Map, coordinates: [number, number][]): void {
+export function fitMapToRoute(
+  map: Map,
+  coordinates: [number, number][],
+  padding: { top: number; bottom: number; left: number; right: number } = {
+    top: 120,
+    bottom: 200,
+    left: 48,
+    right: 48,
+  }
+): void {
   if (!isMapReady(map) || coordinates.length < 2) return;
 
   let minLng = Infinity;
@@ -98,6 +107,6 @@ export function fitMapToRoute(map: Map, coordinates: [number, number][]): void {
       [minLng, minLat],
       [maxLng, maxLat],
     ],
-    { padding: { top: 120, bottom: 200, left: 48, right: 48 }, duration: 1200 }
+    { padding, duration: 1200 }
   );
 }

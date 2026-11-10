@@ -87,7 +87,7 @@ export default function WeatherPage() {
 
         <RouteWeatherTimeline weatherPoints={merged} />
 
-        <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-3">
           {merged.map((point, idx) => (
             <WeatherCard
               key={`${point.coords.lng}-${point.coords.lat}-${idx}`}
@@ -103,7 +103,7 @@ export default function WeatherPage() {
             href="https://open-meteo.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[var(--waze-accent)]"
+            className="text-[var(--waze-accent-text)]"
           >
             Open-Meteo
           </a>{" "}

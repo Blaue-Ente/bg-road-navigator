@@ -34,7 +34,7 @@ export function FavoritePlaceButton({
         href="/login"
         className={
           className ??
-          "text-xs font-medium text-[var(--waze-accent)] hover:underline"
+          "text-xs font-medium text-[var(--waze-accent-text)] hover:underline"
         }
         onClick={(e) => e.stopPropagation()}
       >
@@ -82,7 +82,7 @@ export function FavoritePlaceButton({
       disabled={status === "saving" || status === "saved"}
       className={
         className ??
-        "text-xs font-medium text-[var(--waze-accent)] disabled:opacity-60"
+        "text-xs font-medium text-[var(--waze-accent-text)] disabled:opacity-60"
       }
       title={message ?? undefined}
     >

@@ -31,7 +31,7 @@ export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
             <span className="block text-xs text-[var(--waze-text-muted)]">
               {n.label}
             </span>
-            <span className="font-bold text-[var(--waze-accent)]">
+            <span className="font-bold text-[var(--waze-accent-text)]">
               {n.value}
             </span>
           </a>

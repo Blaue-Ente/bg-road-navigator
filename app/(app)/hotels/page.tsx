@@ -44,7 +44,7 @@ function HotelsPageContent() {
         {isFiltered && (
           <p className="mb-4 text-sm text-[var(--waze-text-secondary)]">
             Показани са зони по избрания маршрут.{" "}
-            <Link href="/hotels" className="text-[var(--waze-accent)]">
+            <Link href="/hotels" className="text-[var(--waze-accent-text)]">
               Виж всички
             </Link>
           </p>

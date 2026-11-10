@@ -74,7 +74,7 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
     <>
       <button
         type="button"
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px]"
+        className="fixed inset-0 z-40 bg-black/50"
         onClick={() => cancelDrop()}
         aria-label="Затвори"
       />
@@ -111,12 +111,12 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
           <button
             type="button"
             onClick={() => setDropCoords(null)}
-            className="mb-3 text-xs text-[var(--waze-accent)]"
+            className="mb-3 text-xs text-[var(--waze-accent-text)]"
           >
             Избери друга точка на картата
           </button>
         )}
-        {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mb-3 text-sm text-[var(--waze-danger)]">{error}</p>}
         <div className="flex gap-2">
           <button
             type="button"

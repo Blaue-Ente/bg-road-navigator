@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getMapStyleUrl } from "@/lib/constants/map-style";
-import { applyWazeMapTheme } from "@/lib/map/apply-waze-style";
+import { isFatalMapError } from "@/lib/map/map-error";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useMapStore } from "@/lib/stores/map.store";
 
@@ -17,7 +17,6 @@ export interface MapCanvasProps {
   className?: string;
   center?: [number, number];
   zoom?: number;
-  wazeTheme?: boolean;
   dropMode?: boolean;
   onMapUnload?: () => void;
 }
@@ -28,7 +27,6 @@ export function MapCanvas({
   className,
   center,
   zoom,
-  wazeTheme,
   dropMode = false,
   onMapUnload,
 }: MapCanvasProps) {
@@ -40,14 +38,12 @@ export function MapCanvas({
 
   const resolvedCenter = center ?? view.center ?? DEFAULT_CENTER;
   const resolvedZoom = zoom ?? view.zoom ?? DEFAULT_ZOOM;
-  const applyTheme = wazeTheme ?? scheme === "dark";
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<maplibregl.Map | null>(null);
   const onMapLoadRef = useRef(onMapLoad);
   const onMapUnloadRef = useRef(onMapUnload);
   const onMapClickRef = useRef(onMapClick);
-  const wazeThemeRef = useRef(applyTheme);
   const initialCenterRef = useRef(resolvedCenter);
   const initialZoomRef = useRef(resolvedZoom);
 
@@ -64,16 +60,13 @@ export function MapCanvas({
   }, [onMapClick]);
 
   useEffect(() => {
-    wazeThemeRef.current = applyTheme;
-  }, [applyTheme]);
-
-  useEffect(() => {
     if (!mapContainer.current || mapInstance.current) return;
 
+    const container = mapContainer.current;
     let map: maplibregl.Map;
     try {
       map = new maplibregl.Map({
-        container: mapContainer.current,
+        container,
         style: getMapStyleUrl(scheme),
         center: initialCenterRef.current,
         zoom: initialZoomRef.current,
@@ -81,7 +74,7 @@ export function MapCanvas({
       });
     } catch {
       setMapError(
-        "Картата не можа да се зареди на това устройство. Опитайте друг браузър или презаредете."
+        "Картата не се зареди."
       );
       return;
     }
@@ -94,26 +87,33 @@ export function MapCanvas({
       "bottom-left"
     );
 
+    const resize = () => {
+      map.resize();
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+    resize();
+
     const loadTimer = window.setTimeout(() => {
-      if (!map.loaded()) {
+      if (!map.isStyleLoaded()) {
         setMapError(
-          "Картата се зарежда бавно или не успя. Проверете връзката."
+          "Стилът не се зареди."
         );
       }
     }, 12_000);
 
-    const onLoad = () => {
+    const onStyleLoad = () => {
       window.clearTimeout(loadTimer);
       setMapError(null);
-      if (wazeThemeRef.current) {
-        applyWazeMapTheme(map);
-      }
+      resize();
       onMapLoadRef.current?.(map);
     };
 
-    map.on("load", onLoad);
-    map.on("error", () => {
-      setMapError("Картата не можа да се зареди. Опитайте отново.");
+    map.on("style.load", onStyleLoad);
+    map.on("error", (event) => {
+      if (map.isStyleLoaded()) return;
+      if (!isFatalMapError(event)) return;
+      setMapError("Стилът не се зареди.");
     });
     map.on("moveend", () => {
       const c = map.getCenter();
@@ -129,6 +129,7 @@ export function MapCanvas({
 
     return () => {
       window.clearTimeout(loadTimer);
+      observer.disconnect();
       onMapUnloadRef.current?.();
       map.remove();
       mapInstance.current = null;
@@ -162,16 +163,16 @@ export function MapCanvas({
   }, [dropMode]);
 
   return (
-    <div className={`relative h-full w-full ${className ?? ""}`}>
+    <div className={`relative h-[100dvh] w-full ${className ?? ""}`}>
       <div
         ref={mapContainer}
-        className="absolute inset-0"
+        className="absolute inset-0 h-full w-full"
         role="application"
         aria-label="Карта"
       />
       {mapError && (
-        <div className="absolute inset-x-4 top-1/3 z-20 mx-auto max-w-sm rounded-2xl waze-panel p-4 text-center">
-          <p className="text-sm text-[var(--waze-text)]">{mapError}</p>
+        <div className="absolute top-1/3 left-1/2 z-20 w-40 -translate-x-1/2 rounded-2xl waze-panel p-3 text-center">
+          <p className="truncate text-xs leading-4 text-[var(--waze-text)]">{mapError}</p>
           <button
             type="button"
             className="waze-btn-primary mt-3 px-4 py-2 text-sm"

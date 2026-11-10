@@ -234,7 +234,7 @@ export default function RoutePage() {
             Поддържат се адреси, градове, хотели и пътни обекти в Европа.
           </p>
 
-          {routeError && <p className="text-sm text-red-400">{routeError}</p>}
+          {routeError && <p className="text-sm text-[var(--waze-danger)]">{routeError}</p>}
 
           <button
             onClick={() => runCalculation(selectedCorridor)}
@@ -252,7 +252,7 @@ export default function RoutePage() {
         {activeRoute && (
           <div className="mt-6 space-y-4">
             <WazeCard className="border-[var(--waze-accent)]/20 bg-[var(--waze-accent-muted)]">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--waze-accent)]">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--waze-accent-text)]">
                 Активен маршрут
               </h2>
               <p className="text-lg font-semibold text-[var(--waze-text)]">
@@ -276,7 +276,7 @@ export default function RoutePage() {
                     : "приблизителна оценка"}
                 </span>
                 {longHaul && (
-                  <span className="rounded-full bg-amber-500/15 px-3 py-1 text-amber-200">
+                  <span className="rounded-full bg-amber-500/15 px-3 py-1 text-[var(--waze-warning)]">
                     {restStops + 1} почивки препоръчани
                   </span>
                 )}
@@ -324,14 +324,14 @@ export default function RoutePage() {
                 {longHaul && (
                   <Link
                     href="/tips"
-                    className="waze-btn-secondary border-amber-500/30 px-4 py-2 text-sm text-amber-200"
+                    className="waze-btn-secondary border-amber-500/30 px-4 py-2 text-sm text-[var(--waze-warning)]"
                   >
                     Съвети
                   </Link>
                 )}
                 <button
                   onClick={clearRoute}
-                  className="waze-btn-secondary px-4 py-2 text-sm text-red-400"
+                  className="waze-btn-secondary px-4 py-2 text-sm text-[var(--waze-danger)]"
                 >
                   Изчисти
                 </button>
@@ -385,7 +385,7 @@ export default function RoutePage() {
               </p>
               <Link
                 href="/vignettes"
-                className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent)] hover:underline"
+                className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent-text)] hover:underline"
               >
                 Отвори пълния списък
               </Link>

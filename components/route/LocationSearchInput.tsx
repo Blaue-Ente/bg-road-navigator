@@ -164,7 +164,7 @@ export function LocationSearchInput({
         />
       </div>
       {isSearching && (
-        <span className="absolute right-3 top-9 text-xs text-[var(--waze-accent)]">
+        <span className="absolute right-3 top-9 text-xs text-[var(--waze-accent-text)]">
           Търсене…
         </span>
       )}

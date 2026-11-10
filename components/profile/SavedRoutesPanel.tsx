@@ -71,12 +71,12 @@ export function SavedRoutesPanel() {
   if (data && !data.configured) {
     return (
       <WazeCard>
-        <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent)]">
+        <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent-text)]">
           Запазени маршрути
         </h2>
-        <p className="text-sm text-[var(--waze-text-muted)]">
-          Запазването изисква конфигуриран Supabase. Дотогава планирайте
-          свободно от екрана „Маршрут“.
+        <p className="text-sm text-[var(--waze-text-secondary)]">
+          Записите не са включени. Дотогава планирайте свободно от екрана
+          „Маршрут“.
         </p>
       </WazeCard>
     );
@@ -86,11 +86,11 @@ export function SavedRoutesPanel() {
 
   return (
     <WazeCard>
-      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent)]">
+      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">
         Запазени маршрути
       </h2>
       {isError && (
-        <p className="mb-2 text-sm text-red-400">
+        <p className="mb-2 text-sm text-[var(--waze-danger)]">
           {error instanceof Error ? error.message : "Грешка при зареждане"}
         </p>
       )}
@@ -126,7 +126,7 @@ export function SavedRoutesPanel() {
                 <button
                   type="button"
                   onClick={() => void remove(route.id)}
-                  className="waze-btn-secondary px-3 py-1.5 text-xs text-red-400"
+                  className="waze-btn-secondary px-3 py-1.5 text-xs text-[var(--waze-danger)]"
                 >
                   Изтрий
                 </button>

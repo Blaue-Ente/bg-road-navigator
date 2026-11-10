@@ -25,7 +25,7 @@ export function ErrorState({
 }) {
   return (
     <div className="waze-page text-center">
-      <p className="text-sm text-red-400">{message}</p>
+      <p className="text-sm text-[var(--waze-danger)]">{message}</p>
       {onRetry && (
         <button
           type="button"

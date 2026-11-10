@@ -108,12 +108,12 @@ export function BorderWebcam({
           Виж на живо
         </a>
       ) : (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-[var(--waze-text-secondary)]">
           Няма налична камера за този пункт
         </p>
       )}
       {feed?.attribution && (
-        <p className="text-[10px] text-gray-500">
+        <p className="text-[10px] text-[var(--waze-text-secondary)]">
           {stripHtml(feed.attribution)}
         </p>
       )}

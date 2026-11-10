@@ -7,7 +7,7 @@ const CSP = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
-  "font-src 'self' data: https://*.basemaps.cartocdn.com https://fonts.basemaps.cartocdn.com",
+  "font-src 'self' data: https://*.basemaps.cartocdn.com https://fonts.basemaps.cartocdn.com https://tiles.openfreemap.org",
   "worker-src 'self' blob:",
   "child-src blob:",
   [
@@ -18,6 +18,7 @@ const CSP = [
     "https://*.basemaps.cartocdn.com",
     "https://*.cartocdn.com",
     "https://demotiles.maplibre.org",
+    "https://tiles.openfreemap.org",
     "https://*.windy.com",
     "https://nominatim.openstreetmap.org",
   ].join(" "),

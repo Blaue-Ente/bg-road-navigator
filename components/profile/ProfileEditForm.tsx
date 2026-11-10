@@ -103,7 +103,7 @@ export function ProfileEditForm() {
 
   return (
     <WazeCard>
-      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent)]">
+      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">
         Настройки на превозното средство
       </h2>
       <div className="space-y-3">
@@ -181,7 +181,7 @@ export function ProfileEditForm() {
             />
           </label>
         </div>
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-[var(--waze-danger)]">{error}</p>}
         <button
           type="button"
           onClick={() => void save()}

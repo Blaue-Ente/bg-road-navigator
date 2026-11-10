@@ -56,7 +56,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => void handleLogout()}
-                className="text-sm text-[var(--waze-text-muted)] hover:text-red-400"
+                className="text-sm text-[var(--waze-text-muted)] hover:text-[var(--waze-danger)]"
               >
                 Изход
               </button>
@@ -71,7 +71,7 @@ export default function ProfilePage() {
           <p className="pb-2 text-center text-xs text-[var(--waze-text-muted)]">
             <Link
               href="/route"
-              className="text-[var(--waze-accent)] hover:underline"
+              className="text-[var(--waze-accent-text)] hover:underline"
             >
               Планирай нов маршрут
             </Link>

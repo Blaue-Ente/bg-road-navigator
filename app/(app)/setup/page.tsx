@@ -129,21 +129,21 @@ export default function SetupPage() {
             <li>
               <Link
                 href="/vignettes"
-                className="text-[var(--waze-accent)] hover:underline"
+                className="text-[var(--waze-accent-text)] hover:underline"
               >
                 Винетки
               </Link>
               {" · "}
               <Link
                 href="/borders"
-                className="text-[var(--waze-accent)] hover:underline"
+                className="text-[var(--waze-accent-text)] hover:underline"
               >
                 Граници
               </Link>
               {" · "}
               <Link
                 href="/profile"
-                className="text-[var(--waze-accent)] hover:underline"
+                className="text-[var(--waze-accent-text)] hover:underline"
               >
                 Профил
               </Link>

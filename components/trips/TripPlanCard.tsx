@@ -90,7 +90,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
         </button>
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-3 text-sm text-[var(--waze-danger)]">{error}</p>}
 
       {plan && (
         <>
@@ -98,7 +98,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
             <span
               className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
                 plan.planner_source === "nvidia"
-                  ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent)]"
+                  ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent-text)]"
                   : "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-muted)]"
               }`}
             >
@@ -122,7 +122,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
                     className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
                   >
                     <StopIcon
-                      className="mt-0.5 h-5 w-5 shrink-0 text-[var(--waze-accent)]"
+                      className="mt-0.5 h-5 w-5 shrink-0 text-[var(--waze-accent-text)]"
                       strokeWidth={2}
                       aria-hidden
                     />
@@ -131,7 +131,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
                         <p className="font-medium text-[var(--waze-text)]">
                           {stop.title}
                         </p>
-                        <span className="text-xs text-[var(--waze-accent)]">
+                        <span className="text-xs text-[var(--waze-accent-text)]">
                           {STOP_LABEL[stop.type]} ·{" "}
                           {stop.distance_from_start_km} км
                         </span>
@@ -141,7 +141,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
                         {stop.description}
                       </p>
                       {stop.requires_confirmation && (
-                        <p className="mt-1 text-[11px] text-amber-300">
+                        <p className="mt-1 text-[11px] text-[var(--waze-warning)]">
                           Потвърдете обекта и наличността преди пътуването.
                         </p>
                       )}
@@ -165,7 +165,7 @@ export function TripPlanCard({ route }: TripPlanCardProps) {
           {plan.warnings.length > 0 && (
             <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3">
               {plan.warnings.map((warning) => (
-                <p key={warning} className="text-xs text-amber-200">
+                <p key={warning} className="text-xs text-[var(--waze-warning)]">
                   {warning}
                 </p>
               ))}

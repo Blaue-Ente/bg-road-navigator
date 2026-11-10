@@ -1,26 +1,30 @@
 /**
  * MapLibre GL style URLs — open-source, no API key required.
- * @see https://github.com/maplibre
+ * Day style is the default so roads stay readable.
+ * `NEXT_PUBLIC_MAP_STYLE_URL` still replaces both schemes when set.
+ * @see https://openfreemap.org
  */
 
-export const DEFAULT_MAP_STYLE =
-  "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+export const LIGHT_MAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
 
-export const LIGHT_MAP_STYLE =
-  "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json";
+export const DARK_MAP_STYLE = "https://tiles.openfreemap.org/styles/dark";
 
-/** Waze-tuned variant — same tiles, themed at runtime via applyWazeMapTheme */
-export const WAZE_DARK_STYLE = DEFAULT_MAP_STYLE;
+/** @deprecated Dark basemap kept for callers that still name the old token. */
+export const DEFAULT_MAP_STYLE = DARK_MAP_STYLE;
+
+export const WAZE_DARK_STYLE = DARK_MAP_STYLE;
 
 export const MAP_STYLE_OPTIONS = {
-  dark: DEFAULT_MAP_STYLE,
-  voyager: LIGHT_MAP_STYLE,
-  positron: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  dark: DARK_MAP_STYLE,
+  positron: LIGHT_MAP_STYLE,
+  cartoPositron: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  cartoDark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  voyager: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
   demo: "https://demotiles.maplibre.org/style.json",
 } as const;
 
-export function getMapStyleUrl(scheme: "dark" | "light" = "dark"): string {
+export function getMapStyleUrl(scheme: "dark" | "light" = "light"): string {
   const configured = process.env.NEXT_PUBLIC_MAP_STYLE_URL?.trim();
   if (configured) return configured;
-  return scheme === "light" ? LIGHT_MAP_STYLE : WAZE_DARK_STYLE;
+  return scheme === "dark" ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
 }
