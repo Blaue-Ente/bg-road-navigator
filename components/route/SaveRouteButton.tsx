@@ -61,7 +61,7 @@ export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
       }
       if (response.status === 503) {
         setStatus("error");
-        setError("Нужен е Supabase");
+        setError("Нужна е база за акаунти");
         return;
       }
       if (!response.ok) throw new Error("save failed");

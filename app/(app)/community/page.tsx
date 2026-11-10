@@ -28,7 +28,7 @@ export default function CommunityPage() {
       <div className="mx-auto max-w-2xl">
         <PageHeader
           title="Общност"
-          subtitle="Камери, храна, нощувки и пътни сигнали от шофьори"
+          subtitle="Задръствания, катастрофи, граници, хотели и места от шофьори"
         />
 
         {!session && serviceAvailable && (

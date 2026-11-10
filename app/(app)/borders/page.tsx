@@ -11,6 +11,9 @@ import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
 import { BorderAlternatives } from "@/components/borders/BorderAlternatives";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { useCommunityPins } from "@/lib/hooks/useCommunityPins";
+import { formatPinAge, communityPinLabel } from "@/lib/constants/community-pins";
+import { nearestBgBorderPoint } from "@/lib/geo/border-on-route";
 import type { EuropeanBorderRegion } from "@/lib/constants/european-borders";
 
 type TabId = "bulgaria" | "europe" | "route";
@@ -65,6 +68,13 @@ function BorderPageContent() {
     isLoading,
     error,
   } = useBorderStatus(fetchOptions);
+
+  const queueReports = useCommunityPins({
+    bbox: { west: 22, south: 41, east: 29, north: 44.5 },
+  });
+  const borderQueues = (queueReports.data?.pins ?? []).filter(
+    (pin) => pin.category === "border_queue"
+  );
 
   const displayedBorders = useMemo(() => {
     if (!borderStatus) return [];
@@ -150,6 +160,36 @@ function BorderPageContent() {
           >
             Към пълния списък с винетки
           </Link>
+        </WazeCard>
+
+        <WazeCard className="mb-6">
+          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
+            Опашки от шофьори
+          </h2>
+          {borderQueues.length === 0 ? (
+            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+              Няма пресен сигнал за опашка. Задръжте на картата и изберете
+              „Опашка на граница“.
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {borderQueues.slice(0, 6).map((pin) => {
+                const crossing = nearestBgBorderPoint(pin.coords, 25);
+                return (
+                  <li key={pin.id} className="text-sm text-[var(--waze-text)]">
+                    <span className="font-medium">
+                      {crossing?.name_bg ?? communityPinLabel(pin.category)}
+                    </span>
+                    <span className="text-[var(--waze-text-secondary)]">
+                      {" "}
+                      · {formatPinAge(pin.created_at)}
+                      {pin.description ? ` · ${pin.description}` : ""}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </WazeCard>
 
         <div className="grid gap-4">

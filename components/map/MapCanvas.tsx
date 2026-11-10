@@ -14,6 +14,7 @@ const DEFAULT_ZOOM = 7;
 export interface MapCanvasProps {
   onMapLoad?: (map: maplibregl.Map) => void;
   onMapClick?: (coords: { lng: number; lat: number }) => void;
+  onMapLongPress?: (coords: { lng: number; lat: number }) => void;
   className?: string;
   center?: [number, number];
   zoom?: number;
@@ -24,6 +25,7 @@ export interface MapCanvasProps {
 export function MapCanvas({
   onMapLoad,
   onMapClick,
+  onMapLongPress,
   className,
   center,
   zoom,
@@ -44,6 +46,7 @@ export function MapCanvas({
   const onMapLoadRef = useRef(onMapLoad);
   const onMapUnloadRef = useRef(onMapUnload);
   const onMapClickRef = useRef(onMapClick);
+  const onMapLongPressRef = useRef(onMapLongPress);
   const initialCenterRef = useRef(resolvedCenter);
   const initialZoomRef = useRef(resolvedZoom);
 
@@ -57,7 +60,8 @@ export function MapCanvas({
 
   useEffect(() => {
     onMapClickRef.current = onMapClick;
-  }, [onMapClick]);
+    onMapLongPressRef.current = onMapLongPress;
+  }, [onMapClick, onMapLongPress]);
 
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current) return;
@@ -127,8 +131,50 @@ export function MapCanvas({
       });
     });
 
+    const canvas = map.getCanvas();
+    const blockMenu = (event: Event) => event.preventDefault();
+    canvas.addEventListener("contextmenu", blockMenu);
+    map.on("contextmenu", (event) => {
+      onMapLongPressRef.current?.({
+        lng: event.lngLat.lng,
+        lat: event.lngLat.lat,
+      });
+    });
+
+    let holdTimer = 0;
+    let holdStart: { x: number; y: number } | null = null;
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse") return;
+      holdStart = { x: event.clientX, y: event.clientY };
+      window.clearTimeout(holdTimer);
+      holdTimer = window.setTimeout(() => {
+        const point = map.unproject([event.clientX, event.clientY]);
+        onMapLongPressRef.current?.({ lng: point.lng, lat: point.lat });
+      }, 550);
+    };
+    const cancelHold = () => {
+      window.clearTimeout(holdTimer);
+      holdStart = null;
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (!holdStart) return;
+      const dx = event.clientX - holdStart.x;
+      const dy = event.clientY - holdStart.y;
+      if (dx * dx + dy * dy > 64) cancelHold();
+    };
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", cancelHold);
+    canvas.addEventListener("pointercancel", cancelHold);
+
     return () => {
       window.clearTimeout(loadTimer);
+      window.clearTimeout(holdTimer);
+      canvas.removeEventListener("contextmenu", blockMenu);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerup", cancelHold);
+      canvas.removeEventListener("pointercancel", cancelHold);
       observer.disconnect();
       onMapUnloadRef.current?.();
       map.remove();

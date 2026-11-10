@@ -22,7 +22,12 @@ const FUEL_OPTIONS: Array<[Profile["fuel_type"], string]> = [
 export function ProfileEditForm() {
   const profile = useUserStore((s) => s.profile);
   const setProfile = useUserStore((s) => s.setProfile);
-  const [username, setUsername] = useState(profile?.username ?? "");
+  const [username, setUsername] = useState(
+    profile?.display_name ?? profile?.username ?? ""
+  );
+  const [homeCity, setHomeCity] = useState(profile?.home_city ?? "");
+  const [usualCountry, setUsualCountry] = useState(profile?.usual_country ?? "");
+  const [car, setCar] = useState(profile?.car ?? "");
   const [vehicleType, setVehicleType] = useState<Profile["vehicle_type"]>(
     profile?.vehicle_type ?? "car"
   );
@@ -44,8 +49,8 @@ export function ProfileEditForm() {
     return (
       <WazeCard>
         <p className="text-sm text-[var(--waze-text-muted)]">
-          Профилът още не е зареден. Ако ползвате демо вход без Supabase,
-          настройките се пазят само локално след следващия вход със Supabase.
+          Профилът още не е зареден. Ако базата не е включена, данните не се пазят.
+          След като Neon миграцията е приложена, влезте отново.
         </p>
       </WazeCard>
     );
@@ -56,7 +61,10 @@ export function ProfileEditForm() {
     setError(null);
     try {
       const body = {
-        username: username.trim(),
+        display_name: username.trim(),
+        home_city: homeCity.trim() || null,
+        usual_country: usualCountry.trim() || null,
+        car: car.trim() || null,
         vehicle_type: vehicleType,
         fuel_type: fuelType,
         tank_capacity_liters:
@@ -75,7 +83,11 @@ export function ProfileEditForm() {
         // Demo / no Supabase — update local store only.
         setProfile({
           ...profile,
-          username: body.username || profile.username,
+          username: body.display_name || profile.username,
+          display_name: body.display_name || profile.display_name,
+          home_city: body.home_city,
+          usual_country: body.usual_country,
+          car: body.car,
           vehicle_type: body.vehicle_type,
           fuel_type: body.fuel_type,
           tank_capacity_liters: body.tank_capacity_liters,
@@ -104,7 +116,7 @@ export function ProfileEditForm() {
   return (
     <WazeCard>
       <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">
-        Настройки на превозното средство
+        Профил за пътуванията
       </h2>
       <div className="space-y-3">
         <label className="block text-sm">
@@ -114,6 +126,37 @@ export function ProfileEditForm() {
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block text-[var(--waze-text-muted)]">
+            Град в България
+          </span>
+          <input
+            value={homeCity}
+            onChange={(e) => setHomeCity(e.target.value)}
+            placeholder="София"
+            className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block text-[var(--waze-text-muted)]">
+            Обичайна държава навън
+          </span>
+          <input
+            value={usualCountry}
+            onChange={(e) => setUsualCountry(e.target.value)}
+            placeholder="Германия"
+            className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block text-[var(--waze-text-muted)]">Кола</span>
+          <input
+            value={car}
+            onChange={(e) => setCar(e.target.value)}
+            placeholder="VW Passat, дизел"
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           />
         </label>

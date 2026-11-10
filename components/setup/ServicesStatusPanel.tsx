@@ -50,7 +50,7 @@ export function ServicesStatusPanel() {
         </h2>
         <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
           {data.summary.configured_count}/{data.summary.total_count} свързани
-          {data.supabase.configured ? "" : " · липсва база за акаунти"}
+          {data.database.configured ? "" : " · липсва база за акаунти"}
         </p>
       </div>
 
@@ -87,10 +87,10 @@ export function ServicesStatusPanel() {
         </p>
       )}
 
-      {data.supabase.configured && (
+      {!data.database.configured && (
         <p className="mt-2 text-xs text-[var(--waze-warning)]">
-          След ключовете за Supabase изпълнете еднократно SQL скрипта от
-          документацията в SQL Editor.
+          За акаунти задайте DATABASE_URL и приложете {data.database.migration}{" "}
+          веднъж в Neon. Стъпките са в docs/SETUP.md.
         </p>
       )}
     </WazeCard>

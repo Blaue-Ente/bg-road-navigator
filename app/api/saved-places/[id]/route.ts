@@ -1,39 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthedSupabase } from "@/lib/supabase/api-auth";
+import { requireUser } from "@/lib/auth/require-user";
+import { deleteSavedPlace } from "@/lib/db/saved";
+import { toDbResponse } from "@/lib/server/db-http";
 
-const ParamsSchema = z.object({
-  id: z.string().uuid(),
-});
+const ParamsSchema = z.object({ id: z.string().uuid() });
 
 export async function DELETE(
   _request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuthedSupabase();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
-
   const params = ParamsSchema.safeParse(await context.params);
   if (!params.success) {
     return NextResponse.json(
-      { error: "Invalid place id", code: "INVALID_ID" },
+      { error: "Невалидно място", code: "INVALID_ID" },
       { status: 400 }
     );
   }
-
-  const { error } = await auth.supabase
-    .from("saved_places")
-    .delete()
-    .eq("id", params.data.id)
-    .eq("user_id", auth.user.id);
-
-  if (error) {
-    console.error("Saved place delete error:", error);
-    return NextResponse.json(
-      { error: "Unable to delete place", code: "SAVED_PLACE_DELETE_FAILED" },
-      { status: 500 }
-    );
+  try {
+    await deleteSavedPlace(auth.user.id, params.data.id);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return toDbResponse(error);
   }
-
-  return NextResponse.json({ ok: true });
 }

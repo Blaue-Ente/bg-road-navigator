@@ -1,39 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuthedSupabase } from "@/lib/supabase/api-auth";
+import { requireUser } from "@/lib/auth/require-user";
+import { deleteSavedRoute } from "@/lib/db/saved";
+import { toDbResponse } from "@/lib/server/db-http";
 
-const ParamsSchema = z.object({
-  id: z.string().uuid(),
-});
+const ParamsSchema = z.object({ id: z.string().uuid() });
 
 export async function DELETE(
   _request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireAuthedSupabase();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
-
   const params = ParamsSchema.safeParse(await context.params);
   if (!params.success) {
     return NextResponse.json(
-      { error: "Invalid route id", code: "INVALID_ID" },
+      { error: "Невалиден маршрут", code: "INVALID_ID" },
       { status: 400 }
     );
   }
-
-  const { error } = await auth.supabase
-    .from("saved_routes")
-    .delete()
-    .eq("id", params.data.id)
-    .eq("user_id", auth.user.id);
-
-  if (error) {
-    console.error("Saved route delete error:", error);
-    return NextResponse.json(
-      { error: "Unable to delete route", code: "SAVED_ROUTE_DELETE_FAILED" },
-      { status: 500 }
-    );
+  try {
+    await deleteSavedRoute(auth.user.id, params.data.id);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return toDbResponse(error);
   }
-
-  return NextResponse.json({ ok: true });
 }

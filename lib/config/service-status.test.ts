@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
-  SUPABASE_MIGRATION_FILES,
+  ACCOUNT_MIGRATION_FILE,
   buildConfigStatus,
   getServiceStatusCatalog,
 } from "@/lib/config/service-status";
 
 describe("service status catalog", () => {
-  it("lists expected services and migrations", () => {
+  it("lists expected services and the account migration", () => {
     const catalog = getServiceStatusCatalog();
-    expect(catalog.map((s) => s.id)).toContain("supabase");
+    expect(catalog.map((s) => s.id)).toContain("postgres");
     expect(catalog.map((s) => s.id)).toContain("nvidia");
-    expect(SUPABASE_MIGRATION_FILES[0]).toBe("001_initial_schema.sql");
-    expect(SUPABASE_MIGRATION_FILES).toContain("009_community_pin_checks.sql");
-    expect(SUPABASE_MIGRATION_FILES).not.toContain("003");
+    expect(ACCOUNT_MIGRATION_FILE).toBe(
+      "drizzle/0001_better_auth_and_community.sql"
+    );
   });
 
   it("never includes secret values in the status payload", () => {

@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { COMMUNITY_PIN_CATEGORY_IDS } from "@/lib/constants/community-pins";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { ensureProfileRow } from "@/lib/supabase/ensure-profile";
-import type { CommunityPin } from "@/types/community.types";
+import { requireUser } from "@/lib/auth/require-user";
+import {
+  COMMUNITY_PIN_CATEGORY_IDS,
+  communityPinLabel,
+} from "@/lib/constants/community-pins";
+import { isDatabaseConfigured } from "@/lib/db";
+import { createPin, listPins } from "@/lib/db/community";
+import { ensureProfile } from "@/lib/db/profiles";
+import { rateLimitedResponse, toDbResponse } from "@/lib/server/db-http";
+import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 const PinSchema = z.object({
   category: z.enum(COMMUNITY_PIN_CATEGORY_IDS),
-  title: z.string().trim().min(3).max(160),
+  title: z.string().trim().min(2).max(160).optional(),
+  text: z.string().trim().max(1_000).nullable().optional(),
   description: z.string().trim().max(1_000).nullable().optional(),
+  photo_url: z.string().url().max(500).nullable().optional(),
   coords: z.object({
     lng: z.number().finite().min(-25).max(45),
     lat: z.number().finite().min(34).max(72),
   }),
-  expires_in_hours: z.number().int().min(1).max(168).default(24),
 });
 
 const BboxSchema = z.object({
@@ -24,21 +30,8 @@ const BboxSchema = z.object({
   north: z.coerce.number().finite().min(34).max(72),
 });
 
-function inBbox(
-  pin: CommunityPin,
-  bbox: { west: number; south: number; east: number; north: number }
-) {
-  const { lng, lat } = pin.coords;
-  return (
-    lng >= bbox.west &&
-    lng <= bbox.east &&
-    lat >= bbox.south &&
-    lat <= bbox.north
-  );
-}
-
 export async function GET(request: NextRequest) {
-  if (!isSupabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return NextResponse.json({ pins: [], configured: false });
   }
 
@@ -48,94 +41,68 @@ export async function GET(request: NextRequest) {
     east: request.nextUrl.searchParams.get("east") ?? undefined,
     north: request.nextUrl.searchParams.get("north") ?? undefined,
   });
+  const category = request.nextUrl.searchParams.get("category");
+  const categoryOk = COMMUNITY_PIN_CATEGORY_IDS.includes(
+    category as (typeof COMMUNITY_PIN_CATEGORY_IDS)[number]
+  );
 
-  const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from("community_pins")
-    .select("*")
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-    .order("created_at", { ascending: false })
-    .limit(bboxParsed.success ? 250 : 100);
-
-  if (error) {
-    console.error("Community pin list error:", error);
-    return NextResponse.json(
-      {
-        error: "Unable to load community reports",
-        code: "COMMUNITY_LOAD_FAILED",
-      },
-      { status: 500 }
-    );
+  try {
+    const pins = await listPins({
+      ...(bboxParsed.success ? bboxParsed.data : {}),
+      ...(categoryOk
+        ? { category: category as (typeof COMMUNITY_PIN_CATEGORY_IDS)[number] }
+        : {}),
+    });
+    return NextResponse.json({
+      pins,
+      configured: true,
+      bbox: bboxParsed.success ? bboxParsed.data : null,
+    });
+  } catch (error) {
+    const response = toDbResponse(error);
+    if (response.status === 503) {
+      return NextResponse.json({ pins: [], configured: false });
+    }
+    return response;
   }
-
-  let pins = (data ?? []) as CommunityPin[];
-  if (bboxParsed.success) {
-    pins = pins.filter((pin) => inBbox(pin, bboxParsed.data));
-  }
-
-  return NextResponse.json({
-    pins,
-    configured: true,
-    bbox: bboxParsed.success ? bboxParsed.data : null,
-  });
 }
 
 export async function POST(request: NextRequest) {
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json(
-      {
-        error: "Community service is not configured",
-        code: "COMMUNITY_UNAVAILABLE",
-      },
-      { status: 503 }
-    );
-  }
+  const auth = await requireUser();
+  if (!auth.ok) return auth.response;
+
+  const limit = rateLimit(
+    `pin:${auth.user.id}:${clientIpFromHeaders(request.headers)}`,
+    12,
+    60_000
+  );
+  if (!limit.ok) return rateLimitedResponse();
 
   const parsed = PinSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Invalid community report", code: "INVALID_PIN" },
+      { error: "Невалиден сигнал", code: "INVALID_PIN" },
       { status: 400 }
     );
   }
 
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json(
-      { error: "Authentication required", code: "AUTH_REQUIRED" },
-      { status: 401 }
-    );
-  }
-
-  await ensureProfileRow(supabase, user.id, user.email);
-
-  const expiresAt = new Date(
-    Date.now() + parsed.data.expires_in_hours * 60 * 60 * 1000
-  ).toISOString();
-  const { data, error } = await supabase
-    .from("community_pins")
-    .insert({
-      user_id: user.id,
+  try {
+    await ensureProfile({
+      userId: auth.user.id,
+      displayName: auth.user.name,
+      email: auth.user.email,
+    });
+    const pin = await createPin({
+      userId: auth.user.id,
       category: parsed.data.category,
-      title: parsed.data.title,
-      description: parsed.data.description ?? null,
-      coords: parsed.data.coords,
-      expires_at: expiresAt,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Community pin create error:", error);
-    return NextResponse.json(
-      { error: "Unable to publish report", code: "COMMUNITY_CREATE_FAILED" },
-      { status: 500 }
-    );
+      title: parsed.data.title?.trim() || communityPinLabel(parsed.data.category),
+      text: parsed.data.text ?? parsed.data.description ?? null,
+      lat: parsed.data.coords.lat,
+      lng: parsed.data.coords.lng,
+      photoUrl: parsed.data.photo_url ?? null,
+    });
+    return NextResponse.json({ pin }, { status: 201 });
+  } catch (error) {
+    return toDbResponse(error);
   }
-
-  return NextResponse.json({ pin: data }, { status: 201 });
 }
