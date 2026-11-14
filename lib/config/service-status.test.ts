@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ACCOUNT_MIGRATION_FILE,
   buildConfigStatus,
@@ -25,5 +25,22 @@ describe("service status catalog", () => {
       expect(typeof service.configured).toBe("boolean");
       expect(service.env_vars.length).toBeGreaterThan(0);
     }
+  });
+
+  it("marks OCI geo ready only when both vars are set, and never echoes the key", () => {
+    vi.stubEnv("OCI_GEO_BASE_URL", "https://geo.example");
+    vi.stubEnv("OCI_GEO_API_KEY", "super-secret-key-value");
+    const ready = buildConfigStatus();
+    expect(JSON.stringify(ready)).not.toContain("super-secret-key-value");
+    expect(
+      ready.services.find((service) => service.id === "oci_geo")?.configured
+    ).toBe(true);
+
+    vi.stubEnv("OCI_GEO_API_KEY", "");
+    const partial = buildConfigStatus();
+    expect(
+      partial.services.find((service) => service.id === "oci_geo")?.configured
+    ).toBe(false);
+    vi.unstubAllEnvs();
   });
 });

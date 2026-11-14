@@ -1,25 +1,14 @@
 /**
  * OSRM routing client — real road distances, geometry, and step list.
  * Default: public demo server (no API key).
- * Production: set OSRM_API_URL to your own OSRM instance.
+ * Production can set OSRM_API_URL. fetchDrivingRoute tries Valhalla first
+ * when OCI_GEO_BASE_URL and OCI_GEO_API_KEY are both set.
  */
 
+import type { RoadRoute } from "@/lib/api-clients/road-route";
 import { stepsToManeuvers } from "@/lib/utils/maneuvers";
-import type { RouteManeuver } from "@/types/route.types";
 
-export interface OsrmRouteResult {
-  distance_km: number;
-  duration_min: number;
-  geometry: GeoJSON.LineString;
-  maneuvers: RouteManeuver[];
-  alternatives: Array<{
-    distance_km: number;
-    duration_min: number;
-    geometry: GeoJSON.LineString;
-    weight: number;
-    maneuvers: RouteManeuver[];
-  }>;
-}
+export type OsrmRouteResult = RoadRoute;
 
 interface OsrmStep {
   name?: string;

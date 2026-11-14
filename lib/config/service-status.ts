@@ -2,6 +2,7 @@
  * Server-side service readiness flags (booleans only — never leak secrets).
  */
 
+import { ociGeoEnvState } from "@/lib/api-clients/oci-geo";
 import { isDatabaseConfigured } from "@/lib/db";
 
 export type ServiceId =
@@ -16,6 +17,7 @@ export type ServiceId =
   | "map_style_custom"
   | "osrm_custom"
   | "geocoding_custom"
+  | "oci_geo"
   | "app_url";
 
 export interface ServiceStatusItem {
@@ -121,7 +123,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       configured: hasEnv("APPLE_CLIENT_ID") && hasEnv("APPLE_CLIENT_SECRET"),
       cost: "paid",
       priority: "optional",
-      signup_url: "https://developer.apple.com/account/resources/identifiers/list/serviceId",
+      signup_url:
+        "https://developer.apple.com/account/resources/identifiers/list/serviceId",
       env_vars: [
         "APPLE_CLIENT_ID",
         "APPLE_CLIENT_SECRET",
@@ -163,6 +166,16 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       cost: "self_host",
       priority: "optional",
       env_vars: ["GEOCODING_API_URL"],
+    },
+    {
+      id: "oci_geo",
+      label: "Valhalla и Photon",
+      unlocks:
+        "Маршрути и търсене през собствения сървър; при грешка — публичен OSRM и Nominatim",
+      configured: ociGeoEnvState() === "ready",
+      cost: "self_host",
+      priority: "optional",
+      env_vars: ["OCI_GEO_BASE_URL", "OCI_GEO_API_KEY"],
     },
   ];
 }

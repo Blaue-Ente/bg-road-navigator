@@ -10,6 +10,7 @@ import {
   formatDuration,
   isLongHaul,
 } from "@/lib/utils/route-planner";
+import { isRoadRoute } from "@/lib/utils/route-builder";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
@@ -274,7 +275,7 @@ export default function RoutePage() {
                   {formatDuration(activeRoute.duration_min)}
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
-                  {activeRoute.routing_source === "osrm"
+                  {isRoadRoute(activeRoute.routing_source)
                     ? "по пътищата"
                     : "приблизителна оценка"}
                 </span>

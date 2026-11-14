@@ -38,7 +38,7 @@ const RouteSchema = z.object({
       .max(20_000),
   }),
   alternatives: z.array(z.unknown()),
-  routing_source: z.enum(["osrm", "estimate"]).optional(),
+  routing_source: z.enum(["osrm", "valhalla", "estimate"]).optional(),
   corridor_id: z.string().optional(),
   maneuvers: z.array(z.unknown()).optional(),
 });

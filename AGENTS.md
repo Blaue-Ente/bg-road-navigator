@@ -37,7 +37,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ### Phase 3 — borders / vignettes / fuel / AI
 
 - Border alternatives: `lib/constants/border-alternatives.ts` + `BorderAlternatives` on `/borders`
-- OSRM route alternatives: `fetchOsrmRoute` with `alternatives=true`; picker on `/route`; drawn on home map via `alternativeRoutes`
+- Road routing: `fetchDrivingRoute` tries Valhalla (`OCI_GEO_BASE_URL` + `OCI_GEO_API_KEY`, header `X-API-Key`, server-side only) and falls back to `fetchOsrmRoute` (`OSRM_API_URL` or the public demo). Alternatives on `/route`; drawn on the home map via `alternativeRoutes`
+- Geocoding: Photon when those OCI vars are set (map-view bias + `lang`), else Nominatim. `GEOCODING_API_URL` still overrides the Nominatim host. Unset either OCI var and both paths match the public behaviour
 - Official vignettes only: `lib/constants/vignettes.ts`, `/vignettes`, also on tips/borders/route
 - Route-scoped fuel/EV: `GET /api/fuel?route=lng,lat;...` and `/fuel?route=1` with active route
 - Trip planner: try NVIDIA (`NVIDIA_API_KEY`) then always fall back to heuristic; `planner_source` on response

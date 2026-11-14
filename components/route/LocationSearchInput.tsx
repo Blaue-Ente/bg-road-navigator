@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RoutePoint } from "@/types/route.types";
 import { searchCuratedCities } from "@/lib/constants/european-cities";
+import { useMapStore } from "@/lib/stores/map.store";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 
 interface LocationSearchInputProps {
@@ -60,6 +61,10 @@ export function LocationSearchInput({
   const requestVersion = useRef(0);
 
   const trimmedQuery = query.trim();
+  const mapView = useMapStore((state) => state.view);
+  const biasLat = mapView.center[1];
+  const biasLon = mapView.center[0];
+  const biasZoom = mapView.zoom;
   const showSuggestions =
     trimmedQuery.length >= 1 && trimmedQuery !== value?.label;
 
@@ -89,10 +94,18 @@ export function LocationSearchInput({
       setIsSearching(true);
 
       try {
-        const response = await fetch(
-          `/api/places/search?q=${encodeURIComponent(trimmedQuery)}`,
-          { signal: controller.signal }
-        );
+        const lang = document.documentElement.lang || "bg";
+        // Map center and zoom are Photon's location bias. Nominatim ignores them.
+        const params = new URLSearchParams({
+          q: trimmedQuery,
+          lat: biasLat.toFixed(5),
+          lon: biasLon.toFixed(5),
+          zoom: String(Math.round(biasZoom)),
+          lang,
+        });
+        const response = await fetch(`/api/places/search?${params}`, {
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error("Place search failed");
 
         const data = (await response.json()) as PlacesResponse;
@@ -119,7 +132,14 @@ export function LocationSearchInput({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [showSuggestions, trimmedQuery, curated.length]);
+  }, [
+    showSuggestions,
+    trimmedQuery,
+    curated.length,
+    biasLat,
+    biasLon,
+    biasZoom,
+  ]);
 
   const choosePlace = (place: RoutePoint) => {
     onSelect(place);

@@ -52,9 +52,9 @@ export interface Route {
   duration_min: number;
   geometry: GeoJSON.LineString;
   alternatives: RouteAlternative[];
-  routing_source?: "osrm" | "estimate";
+  routing_source?: "osrm" | "valhalla" | "estimate";
   corridor_id?: string;
-  /** OSRM steps — list preview only; live turn-by-turn is not enabled in v1. */
+  /** Road-engine steps — list preview only; live turn-by-turn is not enabled in v1. */
   maneuvers?: RouteManeuver[];
 }
 
