@@ -82,6 +82,7 @@ export function limitForPath(pathname: string): {
   if (pathname === "/api/places/search" || pathname === "/api/places/reverse") {
     return { limit: 30, windowMs };
   }
+  if (pathname === "/api/cron/warm-geo") return { limit: 12, windowMs };
   if (pathname.startsWith("/api/community")) return { limit: 30, windowMs };
   if (pathname.startsWith("/api/emergency")) return { limit: 20, windowMs };
   return { limit: 60, windowMs };

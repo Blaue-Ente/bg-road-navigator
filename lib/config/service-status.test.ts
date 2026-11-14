@@ -30,8 +30,13 @@ describe("service status catalog", () => {
   it("marks OCI geo ready only when both vars are set, and never echoes the key", () => {
     vi.stubEnv("OCI_GEO_BASE_URL", "https://geo.example");
     vi.stubEnv("OCI_GEO_API_KEY", "super-secret-key-value");
+    vi.stubEnv("CRON_SECRET", "cron-secret-value");
     const ready = buildConfigStatus();
     expect(JSON.stringify(ready)).not.toContain("super-secret-key-value");
+    expect(JSON.stringify(ready)).not.toContain("cron-secret-value");
+    expect(
+      ready.services.find((service) => service.id === "cron_warm")?.configured
+    ).toBe(true);
     expect(
       ready.services.find((service) => service.id === "oci_geo")?.configured
     ).toBe(true);

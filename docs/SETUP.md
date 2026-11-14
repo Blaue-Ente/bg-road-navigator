@@ -24,7 +24,7 @@
 
 На Vercel preview оставете `BETTER_AUTH_URL` празно. Тогава адресът за вход е `https://` плюс `VERCEL_URL` на този preview, а не продукционният домейн.
 
-Останалите ключове от `.env.example` (`NAKORDONI_API_KEY`, `TOMTOM_API_KEY`, `OPENCHARGE_API_KEY`, `WINDY_WEBCAMS_API_KEY`, `NVIDIA_API_KEY`, `OCI_GEO_BASE_URL`, `OCI_GEO_API_KEY`, `OSRM_API_URL`, `GEOCODING_API_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_OPERATOR_MODE`) не са част от акаунта. `OCI_GEO_API_KEY` се праща само от сървъра като `X-API-Key` и не се слага в `NEXT_PUBLIC_*`.
+Останалите ключове от `.env.example` (`NAKORDONI_API_KEY`, `TOMTOM_API_KEY`, `OPENCHARGE_API_KEY`, `WINDY_WEBCAMS_API_KEY`, `NVIDIA_API_KEY`, `OCI_GEO_BASE_URL`, `OCI_GEO_API_KEY`, `CRON_SECRET`, `OSRM_API_URL`, `GEOCODING_API_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_OPERATOR_MODE`) не са част от акаунта. `OCI_GEO_API_KEY` се праща само от сървъра като `X-API-Key` и не се слага в `NEXT_PUBLIC_*`. `CRON_SECRET` пази `GET /api/cron/warm-geo`: Vercel го праща като `Authorization: Bearer`, когато променливата е зададена. Hobby cron в `vercel.json` е веднъж дневно; на Pro графикът може да е `*/10 * * * *`.
 
 Генериране на тайна:
 

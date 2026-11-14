@@ -57,6 +57,7 @@ npm run dev
 | `APPLE_CLIENT_ID` + `APPLE_CLIENT_SECRET`                        | Вход с Apple (платен Apple Developer)                                                                                                               | Optional                              |
 | `NEXT_PUBLIC_MAP_STYLE_URL`                                      | Custom MapLibre style                                                                                                                               | Optional                              |
 | `OCI_GEO_BASE_URL` + `OCI_GEO_API_KEY`                           | Собствени Valhalla (маршрути) и Photon (търсене). И двете са нужни; ключът остава на сървъра (`X-API-Key`). При грешка — публичен OSRM и Nominatim. | Optional                              |
+| `CRON_SECRET`                                                    | Пази `GET /api/cron/warm-geo`. Vercel го праща като `Authorization: Bearer`. Без него маршрутът е отворен, но не връща OCI ключа.                   | Optional                              |
 | `OSRM_API_URL`                                                   | Собствен OSRM (резервен маршрут)                                                                                                                    | Optional                              |
 | `GEOCODING_API_URL`                                              | Собствен Nominatim (резервно търсене)                                                                                                               | Optional                              |
 
@@ -106,8 +107,13 @@ npm run format  # Prettier check
 | `NVIDIA_API_KEY`        | Не             | AI trip planner                                                                 |
 | `OCI_GEO_BASE_URL`      | Не             | Базов адрес на Valhalla и Photon. Изисква и `OCI_GEO_API_KEY`                   |
 | `OCI_GEO_API_KEY`       | Не             | Сървърен ключ (`X-API-Key`). Не го слагайте в `NEXT_PUBLIC_*`                   |
+| `CRON_SECRET`           | Не             | Bearer за `/api/cron/warm-geo`. Vercel го праща сам, ако е зададен              |
 
 След ключовете за акаунти приложете `drizzle/0001_better_auth_and_community.sql` веднъж. Стъпките са в `docs/SETUP.md`.
+
+Търсене с номер (напр. „Витоша 1, София“) вдига резултата, чиято улица и номер съвпадат. Photon се пита с по-широк вътрешен списък и, ако точният номер липсва, с `/photon/structured`. Град без номер („Sofia“, „Plovdiv“) остава на градското подреждане.
+
+Първото търсене след пауза чака до 12 s (после 7 s), за да не пада студен Photon към Nominatim. `vercel.json` вика `/api/cron/warm-geo` веднъж дневно в 08:00 UTC — това е лимитът на Hobby cron. На Pro сменете графика на `*/10 * * * *`, за да държи Oracle процеса топъл през деня. Маршрутът вика само Valhalla `/status` и `q=Sofia&limit=1` и не връща ключа.
 
 Railway задава `PORT` автоматично — не го променяй.
 
