@@ -16,7 +16,12 @@ import type {
 const ROAD_FACTOR = 1.28;
 const AVG_SPEED_KMH = 85;
 
-export type RoutingSource = "osrm" | "estimate";
+export type RoutingSource = "osrm" | "valhalla" | "estimate";
+
+/** Valhalla and OSRM both follow the road network. Estimate is the straight-line fallback. */
+export function isRoadRoute(source: RoutingSource | undefined): boolean {
+  return source === "osrm" || source === "valhalla";
+}
 
 export interface RouteBuildInput {
   points: RoutePoint[];

@@ -79,7 +79,9 @@ export function limitForPath(pathname: string): {
     return { limit: 20, windowMs };
   }
   if (pathname === "/api/route") return { limit: 20, windowMs };
-  if (pathname === "/api/places/search") return { limit: 30, windowMs };
+  if (pathname === "/api/places/search" || pathname === "/api/places/reverse") {
+    return { limit: 30, windowMs };
+  }
   if (pathname.startsWith("/api/community")) return { limit: 30, windowMs };
   if (pathname.startsWith("/api/emergency")) return { limit: 20, windowMs };
   return { limit: 60, windowMs };

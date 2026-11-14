@@ -98,12 +98,16 @@ function queryTokens(value: string): string[] {
     .map((token) => token.replace(/^[.]+|[.]+$/g, ""))
     .filter(
       (token) =>
-        token.length >= 3 && !STREET_PREFIX.test(token) && !/^\d+[a-zа-я]?$/iu.test(token)
+        token.length >= 3 &&
+        !STREET_PREFIX.test(token) &&
+        !/^\d+[a-zа-я]?$/iu.test(token)
     );
 }
 
 /** Drop "ул." / "бул." but keep the house number. Nominatim often misses the prefixed form. */
-export function streetAndCity(query: string): { street: string; city: string } | null {
+export function streetAndCity(
+  query: string
+): { street: string; city: string } | null {
   const parts = query
     .split(",")
     .map((part) => part.trim())
@@ -120,9 +124,10 @@ export function streetAndCity(query: string): { street: string; city: string } |
 }
 
 function roadMatchesQuery(result: NominatimResult, street: string): boolean {
-  const road = `${result.address?.road ?? ""} ${result.name ?? ""}`.toLocaleLowerCase(
-    "bg-BG"
-  );
+  const road =
+    `${result.address?.road ?? ""} ${result.name ?? ""}`.toLocaleLowerCase(
+      "bg-BG"
+    );
   return queryTokens(street).some((token) => road.includes(token));
 }
 
@@ -155,7 +160,11 @@ function scoreResult(result: NominatimResult, query: string): number {
   else if (address?.house_number) score += 2;
   if (result.type === "house" || result.type === "building") score += 3;
   if (result.type === "pedestrian") score += 3;
-  if (result.type === "primary" || result.type === "secondary" || result.type === "tertiary") {
+  if (
+    result.type === "primary" ||
+    result.type === "secondary" ||
+    result.type === "tertiary"
+  ) {
     score += 2;
   }
   return score;
@@ -228,7 +237,8 @@ export async function searchEuropeanPlaces(
   let combined = free;
   const split = streetAndCity(trimmed);
   const freeHitsStreet =
-    split != null && free.some((result) => roadMatchesQuery(result, split.street));
+    split != null &&
+    free.some((result) => roadMatchesQuery(result, split.street));
   if (split && !freeHitsStreet) {
     await new Promise((resolve) => setTimeout(resolve, 1100));
     const structured = await fetchNominatim(
@@ -258,4 +268,41 @@ export async function searchEuropeanPlaces(
     if (oldest) resultCache.delete(oldest);
   }
   return places;
+}
+
+/** Reverse geocode one coordinate. Used when Photon is unset or fails. */
+export async function reverseEuropeanPlace(
+  lat: number,
+  lng: number
+): Promise<RoutePoint | null> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !isInEurope(lat, lng)) {
+    return null;
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);
+  try {
+    const params = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lng),
+      format: "jsonv2",
+      addressdetails: "1",
+      "accept-language": "bg,en",
+    });
+    const response = await fetch(`${getBaseUrl()}/reverse?${params}`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "BG-Road-Navigator/1.0 (travel planning)",
+      },
+      signal: controller.signal,
+      next: { revalidate: 600 },
+    });
+    if (!response.ok) return null;
+    const result = (await response.json()) as NominatimResult;
+    if (!result?.lat || !result?.lon) return null;
+    return toRoutePoint(result);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }

@@ -5,7 +5,7 @@
 ## Функции
 
 - **Карта** — MapLibre GL със слоеве, клъстери и светла/тъмна тема (без API ключ)
-- **Маршрут** — реални пътни разстояния (OSRM), алтернативи, списък с маневри; жива навигация през Google/Apple Maps
+- **Маршрут** — реални пътни разстояния (Valhalla, при нужда OSRM), алтернативи, списък с маневри; жива навигация през Google/Apple Maps
 - **Граници** — България + европейски транзитни пунктове; live опашки (Nakordoni)
 - **Гориво / EV** — бензиностанции, зарядни точки и оценка на разход
 - **Време** — текущи условия по маршрута (Open-Meteo, без ключ)
@@ -44,20 +44,21 @@ npm run dev
 4. `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` и `NEXT_PUBLIC_APP_URL`
 5. Рестарт на `npm run dev` → проверка: [`/api/config/status`](http://localhost:3000/api/config/status) и [`/api/health`](http://localhost:3000/api/health)
 
-| Променлива                                                   | Услуга                                                                    | Приоритет                             |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------- | ------------------------------------- |
-| `DATABASE_URL`                                               | Neon Postgres за Better Auth                                              | **Must** за вход и запис              |
-| `BETTER_AUTH_SECRET` + `BETTER_AUTH_URL` + `NEXT_PUBLIC_APP_URL` | Акаунти                                                              | **Must** при публичен сайт            |
-| `NAKORDONI_API_KEY`                                          | Live гранични опашки ([nakordoni.eu](https://nakordoni.eu/en/developers)) | **Must** за публичен сайт (безплатно) |
-| `TOMTOM_API_KEY`                                             | Трафик + бензиностанции                                                   | Should                                |
-| `OPENCHARGE_API_KEY`                                         | EV зарядни                                                                | Should                                |
-| `WINDY_WEBCAMS_API_KEY`                                      | Webcam изображения ([Windy](https://api.windy.com/webcams))               | Should                                |
-| `NVIDIA_API_KEY`                                             | AI план (иначе евристика)                                                 | Optional                              |
-| `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`                  | Вход с Google                                                             | Optional                              |
-| `APPLE_CLIENT_ID` + `APPLE_CLIENT_SECRET`                    | Вход с Apple (платен Apple Developer)                                     | Optional                              |
-| `NEXT_PUBLIC_MAP_STYLE_URL`                                  | Custom MapLibre style                                                     | Optional                              |
-| `OSRM_API_URL`                                               | Собствен OSRM                                                             | Optional                              |
-| `GEOCODING_API_URL`                                          | Собствен geocoder                                                         | Optional                              |
+| Променлива                                                       | Услуга                                                                                                                                              | Приоритет                             |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| `DATABASE_URL`                                                   | Neon Postgres за Better Auth                                                                                                                        | **Must** за вход и запис              |
+| `BETTER_AUTH_SECRET` + `BETTER_AUTH_URL` + `NEXT_PUBLIC_APP_URL` | Акаунти                                                                                                                                             | **Must** при публичен сайт            |
+| `NAKORDONI_API_KEY`                                              | Live гранични опашки ([nakordoni.eu](https://nakordoni.eu/en/developers))                                                                           | **Must** за публичен сайт (безплатно) |
+| `TOMTOM_API_KEY`                                                 | Трафик + бензиностанции                                                                                                                             | Should                                |
+| `OPENCHARGE_API_KEY`                                             | EV зарядни                                                                                                                                          | Should                                |
+| `WINDY_WEBCAMS_API_KEY`                                          | Webcam изображения ([Windy](https://api.windy.com/webcams))                                                                                         | Should                                |
+| `NVIDIA_API_KEY`                                                 | AI план (иначе евристика)                                                                                                                           | Optional                              |
+| `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`                      | Вход с Google                                                                                                                                       | Optional                              |
+| `APPLE_CLIENT_ID` + `APPLE_CLIENT_SECRET`                        | Вход с Apple (платен Apple Developer)                                                                                                               | Optional                              |
+| `NEXT_PUBLIC_MAP_STYLE_URL`                                      | Custom MapLibre style                                                                                                                               | Optional                              |
+| `OCI_GEO_BASE_URL` + `OCI_GEO_API_KEY`                           | Собствени Valhalla (маршрути) и Photon (търсене). И двете са нужни; ключът остава на сървъра (`X-API-Key`). При грешка — публичен OSRM и Nominatim. | Optional                              |
+| `OSRM_API_URL`                                                   | Собствен OSRM (резервен маршрут)                                                                                                                    | Optional                              |
+| `GEOCODING_API_URL`                                              | Собствен Nominatim (резервно търсене)                                                                                                               | Optional                              |
 
 **Без ключ:** MapLibre/Carto, публичен OSRM, Nominatim, Open-Meteo, Frankfurter FX, Overpass (болници/сервизи).
 
@@ -92,17 +93,19 @@ npm run format  # Prettier check
 
 В **Project → Variables** добави (копирай от `.env.example`):
 
-| Променлива                      | Задължителна   | Описание                                                                        |
-| ------------------------------- | -------------- | ------------------------------------------------------------------------------- |
-| `DATABASE_URL`                  | За акаунти     | Neon Postgres connection string                                             |
-| `BETTER_AUTH_SECRET`            | За акаунти     | Тайна поне 32 знака                                                         |
-| `BETTER_AUTH_URL`               | За акаунти     | Публичният адрес. На preview го оставете празно                             |
-| `NEXT_PUBLIC_APP_URL`           | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app`                 |
-| `NAKORDONI_API_KEY`             | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) |
-| `WINDY_WEBCAMS_API_KEY`         | Не             | Windy webcams                                                                   |
-| `TOMTOM_API_KEY`                | Не             | Трафик + гориво                                                                 |
-| `OPENCHARGE_API_KEY`            | Не             | EV станции                                                                      |
-| `NVIDIA_API_KEY`                | Не             | AI trip planner                                                                 |
+| Променлива              | Задължителна   | Описание                                                                        |
+| ----------------------- | -------------- | ------------------------------------------------------------------------------- |
+| `DATABASE_URL`          | За акаунти     | Neon Postgres connection string                                                 |
+| `BETTER_AUTH_SECRET`    | За акаунти     | Тайна поне 32 знака                                                             |
+| `BETTER_AUTH_URL`       | За акаунти     | Публичният адрес. На preview го оставете празно                                 |
+| `NEXT_PUBLIC_APP_URL`   | Препоръчително | Публичният URL, напр. `https://bg-navigator.up.railway.app`                     |
+| `NAKORDONI_API_KEY`     | Препоръчително | Безплатен ключ от [nakordoni.eu/developers](https://nakordoni.eu/en/developers) |
+| `WINDY_WEBCAMS_API_KEY` | Не             | Windy webcams                                                                   |
+| `TOMTOM_API_KEY`        | Не             | Трафик + гориво                                                                 |
+| `OPENCHARGE_API_KEY`    | Не             | EV станции                                                                      |
+| `NVIDIA_API_KEY`        | Не             | AI trip planner                                                                 |
+| `OCI_GEO_BASE_URL`      | Не             | Базов адрес на Valhalla и Photon. Изисква и `OCI_GEO_API_KEY`                   |
+| `OCI_GEO_API_KEY`       | Не             | Сървърен ключ (`X-API-Key`). Не го слагайте в `NEXT_PUBLIC_*`                   |
 
 След ключовете за акаунти приложете `drizzle/0001_better_auth_and_community.sql` веднъж. Стъпките са в `docs/SETUP.md`.
 

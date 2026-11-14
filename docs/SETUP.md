@@ -8,23 +8,23 @@
 
 Задайте ги в `.env.local` и във Vercel → Settings → Environment Variables. Рестартирайте след промяна.
 
-| Променлива | Задължителна | Пример |
-| --- | --- | --- |
-| `DATABASE_URL` | да | `postgresql://user:pass@host/db?sslmode=require` |
-| `BETTER_AUTH_SECRET` | да, в production | дълъг произволен низ, поне 32 знака |
-| `BETTER_AUTH_URL` | да, в production | `https://bg-road-navigator.vercel.app` |
-| `NEXT_PUBLIC_APP_URL` | да, за публичен сайт | същият публичен адрес |
-| `GOOGLE_CLIENT_ID` | не | от Google Cloud |
-| `GOOGLE_CLIENT_SECRET` | не | от Google Cloud |
-| `APPLE_CLIENT_ID` | не | Services ID |
-| `APPLE_CLIENT_SECRET` | не | JWT, валиден до 6 месеца |
-| `APPLE_APP_BUNDLE_IDENTIFIER` | не | Bundle ID на приложението |
+| Променлива                    | Задължителна         | Пример                                           |
+| ----------------------------- | -------------------- | ------------------------------------------------ |
+| `DATABASE_URL`                | да                   | `postgresql://user:pass@host/db?sslmode=require` |
+| `BETTER_AUTH_SECRET`          | да, в production     | дълъг произволен низ, поне 32 знака              |
+| `BETTER_AUTH_URL`             | да, в production     | `https://bg-road-navigator.vercel.app`           |
+| `NEXT_PUBLIC_APP_URL`         | да, за публичен сайт | същият публичен адрес                            |
+| `GOOGLE_CLIENT_ID`            | не                   | от Google Cloud                                  |
+| `GOOGLE_CLIENT_SECRET`        | не                   | от Google Cloud                                  |
+| `APPLE_CLIENT_ID`             | не                   | Services ID                                      |
+| `APPLE_CLIENT_SECRET`         | не                   | JWT, валиден до 6 месеца                         |
+| `APPLE_APP_BUNDLE_IDENTIFIER` | не                   | Bundle ID на приложението                        |
 
 Локално `BETTER_AUTH_URL` и `NEXT_PUBLIC_APP_URL` могат да са `http://localhost:3000`.
 
 На Vercel preview оставете `BETTER_AUTH_URL` празно. Тогава адресът за вход е `https://` плюс `VERCEL_URL` на този preview, а не продукционният домейн.
 
-Останалите ключове от `.env.example` (`NAKORDONI_API_KEY`, `TOMTOM_API_KEY`, `OPENCHARGE_API_KEY`, `WINDY_WEBCAMS_API_KEY`, `NVIDIA_API_KEY`, `OSRM_API_URL`, `GEOCODING_API_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_OPERATOR_MODE`) не са част от акаунта.
+Останалите ключове от `.env.example` (`NAKORDONI_API_KEY`, `TOMTOM_API_KEY`, `OPENCHARGE_API_KEY`, `WINDY_WEBCAMS_API_KEY`, `NVIDIA_API_KEY`, `OCI_GEO_BASE_URL`, `OCI_GEO_API_KEY`, `OSRM_API_URL`, `GEOCODING_API_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_OPERATOR_MODE`) не са част от акаунта. `OCI_GEO_API_KEY` се праща само от сървъра като `X-API-Key` и не се слага в `NEXT_PUBLIC_*`.
 
 Генериране на тайна:
 

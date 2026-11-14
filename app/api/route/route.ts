@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { fetchOsrmRoute } from "@/lib/api-clients/osrm";
+import { fetchDrivingRoute } from "@/lib/api-clients/routing";
 import { getCorridorById } from "@/lib/utils/route-planner";
 import {
   buildEstimatedRoute,
@@ -73,28 +73,28 @@ export async function POST(request: NextRequest) {
     }
 
     const coords = points.map((point) => point.coords);
-    const osrm = await fetchOsrmRoute(coords);
+    const routed = await fetchDrivingRoute(coords);
 
     const input = {
       points,
       corridorId: parsed.data.corridor_id,
     };
 
-    if (osrm) {
+    if (routed) {
       const route = buildEstimatedRoute(input, {
-        distance_km: osrm.distance_km,
-        duration_min: osrm.duration_min,
-        geometry: osrm.geometry,
-        routing_source: "osrm",
-        alternatives: osrm.alternatives.map((alt, index) => ({
-          id: `osrm-alt-${index}`,
+        distance_km: routed.distance_km,
+        duration_min: routed.duration_min,
+        geometry: routed.geometry,
+        routing_source: routed.provider,
+        alternatives: routed.alternatives.map((alt, index) => ({
+          id: `${routed.provider}-alt-${index}`,
           distance_km: alt.distance_km,
           duration_min: alt.duration_min,
           geometry: alt.geometry,
           weight: alt.weight,
           maneuvers: alt.maneuvers,
         })),
-        maneuvers: osrm.maneuvers,
+        maneuvers: routed.maneuvers,
       });
       return NextResponse.json({
         ...route,

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { BedDouble, ChevronUp, CloudSun, Fuel, Landmark } from "lucide-react";
 import type { Route } from "@/types/route.types";
 import { formatDuration } from "@/lib/utils/route-planner";
+import { isRoadRoute } from "@/lib/utils/route-builder";
 import { useRouteStore } from "@/lib/stores/route.store";
 
 interface RouteBottomSheetProps {
@@ -25,9 +26,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
         : `${hours}ч`;
 
   return (
-    <div
-      className="pointer-events-none absolute left-0 z-20 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]"
-    >
+    <div className="pointer-events-none absolute left-0 z-20 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]">
       <div className="pointer-events-auto overflow-hidden rounded-2xl waze-panel transition-all">
         <button
           type="button"
@@ -50,7 +49,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             </p>
             <p className="text-sm text-[var(--waze-text-secondary)]">
               {etaDisplay} · {route.distance_km} км
-              {route.routing_source === "osrm" && (
+              {isRoadRoute(route.routing_source) && (
                 <span className="ml-1 text-[var(--waze-accent-text)]">
                   · по пътищата
                 </span>
