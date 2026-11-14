@@ -15,6 +15,7 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
+import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
@@ -234,7 +235,9 @@ export default function RoutePage() {
             Поддържат се адреси, градове, хотели и пътни обекти в Европа.
           </p>
 
-          {routeError && <p className="text-sm text-[var(--waze-danger)]">{routeError}</p>}
+          {routeError && (
+            <p className="text-sm text-[var(--waze-danger)]">{routeError}</p>
+          )}
 
           <button
             onClick={() => runCalculation(selectedCorridor)}
@@ -306,12 +309,6 @@ export default function RoutePage() {
                   Гориво по маршрута
                 </Link>
                 <Link
-                  href="/vignettes"
-                  className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Винетки
-                </Link>
-                <Link
                   href={
                     selectedCorridor
                       ? `/hotels?corridor=${selectedCorridor}`
@@ -337,6 +334,8 @@ export default function RoutePage() {
                 </button>
               </div>
             </WazeCard>
+
+            <RouteTollsCard route={activeRoute} />
 
             {activeRoute.alternatives.length > 0 && (
               <WazeCard>
@@ -373,22 +372,6 @@ export default function RoutePage() {
 
             <WazeCard>
               <WinterRulesList />
-            </WazeCard>
-
-            <WazeCard>
-              <h3 className="text-sm font-semibold text-[var(--waze-text)]">
-                Винетки по пътя
-              </h3>
-              <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-                Преди тръгване проверете официалните портали за електронни
-                винетки в държавите по маршрута.
-              </p>
-              <Link
-                href="/vignettes"
-                className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent-text)] hover:underline"
-              >
-                Отвори пълния списък
-              </Link>
             </WazeCard>
 
             {routeBorders.length > 0 && (
