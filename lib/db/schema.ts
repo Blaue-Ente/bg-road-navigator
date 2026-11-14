@@ -180,6 +180,30 @@ export const pinComments = pgTable("pin_comments", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const nakordoniCache = pgTable("nakordoni_cache", {
+  cacheKey: text("cache_key").primaryKey(),
+  kind: text("kind").notNull(),
+  payload: jsonb("payload").notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  observedAt: timestamp("observed_at", { withTimezone: true }),
+});
+
+export const nakordoniBudget = pgTable("nakordoni_budget", {
+  day: text("day").primaryKey(),
+  cheapCalls: integer("cheap_calls").notNull().default(0),
+  heavyCalls: integer("heavy_calls").notNull().default(0),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const osmQueryCache = pgTable("osm_query_cache", {
+  cacheKey: text("cache_key").primaryKey(),
+  kind: text("kind").notNull(),
+  payload: jsonb("payload").notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
 export const pinReports = pgTable(
   "community_pin_reports",
   {

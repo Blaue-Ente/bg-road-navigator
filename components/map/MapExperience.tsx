@@ -11,6 +11,7 @@ import { TrafficLayer } from "@/components/map/TrafficLayer";
 import { CommunityPins } from "@/components/map/CommunityPins";
 import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
+import { PlanMarkers } from "@/components/map/PlanMarkers";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
@@ -103,6 +104,7 @@ export function MapExperience() {
           <MapPoiLayers map={mapInstance} />
         </>
       )}
+      <PlanMarkers map={mapInstance} />
       <UserLocationMarker map={mapInstance} />
     </div>
   );

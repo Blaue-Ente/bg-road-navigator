@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { TripPlannerResult } from "@/lib/planner/types";
 import type { GeoPoint, Route } from "@/types/route.types";
 
 interface RouteState {
@@ -8,6 +9,7 @@ interface RouteState {
   activeRoute: Route | null;
   /** Populated from OSRM alternatives when available. */
   alternativeRoutes: Route[];
+  tripPlan: TripPlannerResult | null;
   routeStatus: "idle" | "loading" | "success" | "error";
   routeError: string | null;
   setOrigin: (point: GeoPoint | null) => void;
@@ -16,6 +18,7 @@ interface RouteState {
   removeWaypoint: (index: number) => void;
   setActiveRoute: (route: Route | null) => void;
   setAlternativeRoutes: (routes: Route[]) => void;
+  setTripPlan: (plan: TripPlannerResult | null) => void;
   clearRoute: () => void;
 }
 
@@ -25,6 +28,7 @@ export const useRouteStore = create<RouteState>((set) => ({
   waypoints: [],
   activeRoute: null,
   alternativeRoutes: [],
+  tripPlan: null,
   routeStatus: "idle",
   routeError: null,
   setOrigin: (point) => set({ origin: point }),
@@ -40,6 +44,7 @@ export const useRouteStore = create<RouteState>((set) => ({
   setActiveRoute: (route) =>
     set({ activeRoute: route, routeStatus: "success", routeError: null }),
   setAlternativeRoutes: (routes) => set({ alternativeRoutes: routes }),
+  setTripPlan: (plan) => set({ tripPlan: plan }),
   clearRoute: () =>
     set({
       origin: null,
@@ -47,6 +52,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       waypoints: [],
       activeRoute: null,
       alternativeRoutes: [],
+      tripPlan: null,
       routeStatus: "idle",
       routeError: null,
     }),

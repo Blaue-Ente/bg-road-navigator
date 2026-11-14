@@ -18,6 +18,7 @@ import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { TripPlanCard } from "@/components/trips/TripPlanCard";
+import { TripPlanPanel } from "@/components/route/TripPlanPanel";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 import { FxRatesCard } from "@/components/route/FxRatesCard";
@@ -56,8 +57,13 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 }
 
 export default function RoutePage() {
-  const { activeRoute, setActiveRoute, setAlternativeRoutes, clearRoute } =
-    useRouteStore();
+  const {
+    activeRoute,
+    setActiveRoute,
+    setAlternativeRoutes,
+    setTripPlan,
+    clearRoute,
+  } = useRouteStore();
   const [origin, setOrigin] = useState<RoutePoint | null>(() =>
     activeRoute
       ? { ...activeRoute.origin, source: "user" }
@@ -95,6 +101,7 @@ export default function RoutePage() {
       maneuvers: alt.maneuvers ?? [],
       alternatives: remaining,
     };
+    setTripPlan(null);
     setActiveRoute(next);
     setAlternativeRoutes(
       remaining.map((a) => ({
@@ -160,6 +167,7 @@ export default function RoutePage() {
     }
 
     if (corridor) setRouteBorders(corridor.borderIds);
+    setTripPlan(null);
     setActiveRoute(route);
     setAlternativeRoutes(
       (route.alternatives ?? []).map((alt) => ({
@@ -358,6 +366,8 @@ export default function RoutePage() {
                 </div>
               </WazeCard>
             )}
+
+            <TripPlanPanel route={activeRoute} />
 
             <TripPlanCard route={activeRoute} />
 

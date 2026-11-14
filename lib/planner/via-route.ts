@@ -1,0 +1,90 @@
+import {
+  failureFromError,
+  failureFromStatus,
+  ociFetch,
+  readOciGeoConfig,
+  VALHALLA_TIMEOUT_MS,
+} from "@/lib/api-clients/oci-geo";
+import { fetchOsrmRoute } from "@/lib/api-clients/osrm";
+import type { ProvidedRoadRoute } from "@/lib/api-clients/road-route";
+import { mapValhallaResponse } from "@/lib/api-clients/valhalla";
+import { fetchDrivingRoute } from "@/lib/api-clients/routing";
+
+export interface ThroughPoint {
+  lng: number;
+  lat: number;
+  role: "break" | "through";
+}
+
+/** Direct driving route: Valhalla when configured, otherwise OSRM. */
+export async function fetchDirectRoute(
+  origin: { lng: number; lat: number },
+  destination: { lng: number; lat: number }
+): Promise<ProvidedRoadRoute | null> {
+  return fetchDrivingRoute([origin, destination]);
+}
+
+/**
+ * Route that must pass a border. Valhalla gets a through-point.
+ * If that body is rejected, the same points are sent as breaks, then OSRM.
+ */
+export async function fetchRouteThrough(
+  points: ThroughPoint[]
+): Promise<ProvidedRoadRoute | null> {
+  if (points.length < 2) return null;
+  const config = readOciGeoConfig();
+  if (config) {
+    const through = await postValhalla(points, config.baseUrl, config.apiKey);
+    if (through) return { provider: "valhalla", ...through };
+    const asBreaks = points.map((point) => ({
+      ...point,
+      role: "break" as const,
+    }));
+    const broken = await postValhalla(asBreaks, config.baseUrl, config.apiKey);
+    if (broken) return { provider: "valhalla", ...broken };
+  }
+  const osrm = await fetchOsrmRoute(
+    points.map((point) => ({ lng: point.lng, lat: point.lat })),
+    { alternatives: false }
+  );
+  if (!osrm) return null;
+  return { provider: "osrm", ...osrm };
+}
+
+async function postValhalla(
+  points: ThroughPoint[],
+  baseUrl: string,
+  apiKey: string
+) {
+  const url = `${baseUrl}/valhalla/route`;
+  try {
+    const response = await ociFetch(
+      url,
+      apiKey,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          locations: points.map((point) => ({
+            lon: point.lng,
+            lat: point.lat,
+            type: point.role,
+          })),
+          costing: "auto",
+          units: "kilometers",
+          language: "bg-BG",
+        }),
+        next: { revalidate: 0 },
+      },
+      VALHALLA_TIMEOUT_MS
+    );
+    if (!response.ok || response.status >= 300) {
+      failureFromStatus(response.status);
+      return null;
+    }
+    return mapValhallaResponse(await response.json());
+  } catch (error) {
+    failureFromError(error);
+    return null;
+  }
+}

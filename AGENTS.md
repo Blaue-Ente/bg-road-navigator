@@ -41,7 +41,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Geocoding: Photon when those OCI vars are set (map-view bias + `lang`), else Nominatim. `GEOCODING_API_URL` still overrides the Nominatim host. Unset either OCI var and both paths match the public behaviour
 - Official vignettes only: `lib/constants/vignettes.ts`, `/vignettes`, also on tips/borders/route
 - Route-scoped fuel/EV: `GET /api/fuel?route=lng,lat;...` and `/fuel?route=1` with active route
-- Trip planner: try NVIDIA (`NVIDIA_API_KEY`) then always fall back to heuristic; `planner_source` on response
+- Trip planner: `POST /api/trips/plan` tries NVIDIA (`NVIDIA_API_KEY`) then the heuristic. `POST /api/plan` is the deterministic planner (borders, fuel, rest) in `lib/planner/*`. It reads the Nakordoni cache only. Stage 3 should wrap those pure functions as tools, not call Nakordoni per user.
 
 ### Keys-only readiness
 
@@ -49,7 +49,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `GET /api/config/status` — booleans/labels, never secret values
 - `GET /api/health` — liveness, `database_configured`, `database_reachable`, `auth_tables_ready`
 - UI: `/setup`, profile “Услуги и ключове”, sidebar → Настройка
-- Apply DB once: `drizzle/0001_better_auth_and_community.sql` (see `docs/SETUP.md`)
+- Apply DB once: `drizzle/0001_better_auth_and_community.sql`, then `drizzle/0002_trip_planner_cache.sql` (see `docs/SETUP.md`). Nakordoni cron is daily on Hobby (`20 5 * * *`); Pro may use `*/15 * * * *`. Set `CRON_SECRET`. `TANKERKOENIG_API_KEY` is optional.
 - Template: `.env.example`
 
 ### Dev commands
