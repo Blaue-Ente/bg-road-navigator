@@ -9,7 +9,7 @@ export default function VignettesPage() {
       <div className="mx-auto max-w-2xl space-y-4">
         <PageHeader
           title="Винетки и тол"
-          subtitle="Официални портали за електронни винетки — без посредници"
+          subtitle="Официални портали — винетки и тол на километър, без посредници"
         />
         <VignetteLinks />
       </div>

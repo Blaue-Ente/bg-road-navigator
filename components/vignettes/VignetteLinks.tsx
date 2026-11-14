@@ -10,12 +10,14 @@ import { CountryFlag } from "@/components/ui/CountryFlag";
 interface VignetteLinksProps {
   links?: VignetteLink[];
   title?: string;
+  intro?: string;
   compact?: boolean;
 }
 
 export function VignetteLinks({
   links = OFFICIAL_VIGNETTE_LINKS,
   title = "Официални винетки и тол",
+  intro = "Само официални портали. Купувайте директно от държавата или концесионера. „Тол на км“ не е винетка — плаща се по изминато разстояние.",
   compact = false,
 }: VignetteLinksProps) {
   if (links.length === 0) return null;
@@ -31,10 +33,7 @@ export function VignetteLinks({
       >
         {title}
       </h2>
-      <p className="mb-3 text-xs text-[var(--waze-text-muted)]">
-        Само официални портали. Купувайте директно от държавата или
-        концесионера.
-      </p>
+      <p className="mb-3 text-xs text-[var(--waze-text-muted)]">{intro}</p>
       <ul className="space-y-2">
         {links.map((link) => (
           <li key={link.country_code}>
@@ -50,6 +49,9 @@ export function VignetteLinks({
                     <CountryFlag code={link.country_code} />
                   </span>
                   {link.name_bg}
+                </p>
+                <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
+                  {link.kind === "distance_toll" ? "Тол на км" : "Винетка"}
                 </p>
                 {link.notes_bg && !compact && (
                   <p className="mt-0.5 text-xs text-[var(--waze-text-muted)]">

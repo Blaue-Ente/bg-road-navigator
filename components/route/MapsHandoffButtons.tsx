@@ -2,42 +2,84 @@
 
 import type { Route } from "@/types/route.types";
 import {
-  appleMapsDirectionsUrl,
-  googleMapsDirectionsUrl,
+  buildMapsHandoff,
+  GOOGLE_MAPS_MAX_WAYPOINTS,
+  GOOGLE_MAPS_MOBILE_MAX_WAYPOINTS,
+  type MapsHandoffPlan,
+  stopsFromRoute,
 } from "@/lib/utils/maps-handoff";
 
 interface MapsHandoffButtonsProps {
   route: Route;
 }
 
-export function MapsHandoffButtons({ route }: MapsHandoffButtonsProps) {
-  const google = googleMapsDirectionsUrl(
-    route.origin.coords,
-    route.destination.coords
-  );
-  const apple = appleMapsDirectionsUrl(
-    route.origin.coords,
-    route.destination.coords
-  );
+function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
+  const severalLegs = plan.legs.length > 1;
+  const directTrip =
+    plan.legs.length === 1 && plan.legs[0]?.waypoints.length === 0;
 
   return (
     <>
-      <a
-        href={google}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="waze-btn-primary px-4 py-2 text-sm"
-      >
-        Google Maps — старт навигация
-      </a>
-      <a
-        href={apple}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="waze-btn-secondary px-4 py-2 text-sm"
-      >
-        Apple Maps
-      </a>
+      {plan.legs.map((leg, index) => (
+        <a
+          key={`google-${index}`}
+          href={leg.googleUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="waze-btn-primary px-4 py-2 text-sm"
+        >
+          {severalLegs
+            ? `Google Maps — част ${index + 1}`
+            : "Google Maps — старт навигация"}
+        </a>
+      ))}
+      {plan.legs.map((leg, index) => (
+        <a
+          key={`apple-${index}`}
+          href={leg.appleUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="waze-btn-secondary px-4 py-2 text-sm"
+        >
+          {severalLegs ? `Apple Maps — част ${index + 1}` : "Apple Maps"}
+        </a>
+      ))}
+      {plan.wazeStops.map((stop, index) => (
+        <a
+          key={`waze-${index}`}
+          href={stop.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="waze-btn-secondary px-4 py-2 text-sm"
+        >
+          {directTrip
+            ? "Waze — навигация"
+            : index === 0
+              ? "Waze — следваща спирка"
+              : `Waze — ${stop.label ?? `спирка ${index + 1}`}`}
+        </a>
+      ))}
+    </>
+  );
+}
+
+export function MapsHandoffButtons({ route }: MapsHandoffButtonsProps) {
+  const stops = stopsFromRoute(route);
+  const desktop = buildMapsHandoff(stops, {
+    maxWaypoints: GOOGLE_MAPS_MAX_WAYPOINTS,
+  });
+  const mobile = buildMapsHandoff(stops, {
+    maxWaypoints: GOOGLE_MAPS_MOBILE_MAX_WAYPOINTS,
+  });
+
+  return (
+    <>
+      <div className="contents max-md:hidden">
+        <HandoffLinks plan={desktop} />
+      </div>
+      <div className="contents md:hidden">
+        <HandoffLinks plan={mobile} />
+      </div>
     </>
   );
 }
