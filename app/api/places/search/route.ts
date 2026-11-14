@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { searchPlaces } from "@/lib/api-clients/geocoding";
 
+/** Cold Photon may use 12s, plus a short structured lookup. */
+export const maxDuration = 20;
+
 const QuerySchema = z.object({
   q: z.string().trim().min(3).max(120),
 });

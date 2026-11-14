@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { reversePlace } from "@/lib/api-clients/geocoding";
 
+/** Matches the search route so a cold Photon reverse can finish. */
+export const maxDuration = 20;
+
 function readCoord(
   raw: string | null,
   min: number,
