@@ -3,6 +3,7 @@ import {
   countryCodeAtPoint,
   countriesAlongRoute,
 } from "@/lib/geo/countries-along-route";
+import { timeZoneForCountry } from "@/lib/geo/country-timezone";
 import { haversineKm } from "@/lib/geo/haversine";
 import { listPins } from "@/lib/db/community";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -75,8 +76,10 @@ import { weatherAlongRoute } from "@/lib/planner/route-weather";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import { expectedWait, type CurrentQueue } from "@/lib/planner/wait";
 import { whyThisRoute } from "@/lib/planner/why-route";
+import { buildRouteOptions } from "@/lib/planner/route-options";
 import { routeThroughPoints } from "@/lib/planner/via-points";
 import { fetchDirectRoute, fetchRouteThrough } from "@/lib/planner/via-route";
+import type { RouteChoice } from "@/lib/planner/types";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import type { CommunityPin } from "@/types/community.types";
 import type { GeoPoint } from "@/types/route.types";
@@ -96,6 +99,7 @@ export interface TripPlanRequest {
   /** Optional user waypoints, at most three. Empty keeps origin → destination. */
   via?: Array<{ label: string; coords: GeoPoint }>;
   now?: Date;
+  routeChoice?: RouteChoice | null;
 }
 
 export async function runTripPlan(input: TripPlanRequest) {
@@ -237,15 +241,60 @@ export async function runTripPlan(input: TripPlanRequest) {
     });
   }
 
+  const preferredBorder =
+    input.routeChoice?.kind === "border"
+      ? input.routeChoice.border_id
+      : prefs.preferred_border;
   let borders: ScoredBorder[] = applyPreferredBorder(
     scoreBorderOptions(scoreInputs),
-    prefs.preferred_border
+    preferredBorder
   );
-  const chosen = borders.find((border) => border.chosen) ?? null;
-  const chosenRoute =
-    chosen && !onPath.has(chosen.borderId) && viaRoutes.get(chosen.borderId)
-      ? viaRoutes.get(chosen.borderId)!
-      : direct;
+  let chosen = borders.find((border) => border.chosen) ?? null;
+  let chosenRoute: ProvidedRoadRoute = direct;
+  if (
+    input.routeChoice?.kind === "valhalla_alternate" &&
+    direct.alternatives[0]
+  ) {
+    const alt = direct.alternatives[0];
+    chosenRoute = {
+      provider: direct.provider,
+      distance_km: alt.distance_km,
+      duration_min: alt.duration_min,
+      geometry: alt.geometry,
+      maneuvers: alt.maneuvers,
+      alternatives: direct.alternatives,
+    };
+    const onAlt = borders
+      .filter(
+        (border) =>
+          distanceToPolylineKm(
+            chosenRoute.geometry.coordinates as Array<[number, number]>,
+            border.coords
+          ).distanceKm <= ON_PATH_KM
+      )
+      .sort((a, b) => a.totalMin - b.totalMin);
+    if (onAlt[0]) {
+      chosen = onAlt[0];
+      borders = borders.map((border) => ({
+        ...border,
+        chosen: border.borderId === onAlt[0]!.borderId,
+        reasonCode:
+          border.borderId === onAlt[0]!.borderId
+            ? ("preferred" as const)
+            : border.reasonCode,
+        reason:
+          border.borderId === onAlt[0]!.borderId
+            ? `Избран е алтернативният път покрай ${border.nameBg}.`
+            : border.reason,
+      }));
+    }
+  } else if (
+    chosen &&
+    !onPath.has(chosen.borderId) &&
+    viaRoutes.get(chosen.borderId)
+  ) {
+    chosenRoute = viaRoutes.get(chosen.borderId)!;
+  }
   const chosenLine = chosenRoute.geometry.coordinates as Array<
     [number, number]
   >;
@@ -319,6 +368,13 @@ export async function runTripPlan(input: TripPlanRequest) {
       const roadAt =
         (drivingMin / Math.max(chosenRoute.duration_min, 1)) * roadKm;
       return roadAt >= borderRoadKm - 1 ? preliminaryWait : 0;
+    },
+    timeZoneAt: (drivingMin) => {
+      const km =
+        (drivingMin / Math.max(chosenRoute.duration_min, 1)) * roadKm;
+      const point = pointAtDistance(chosenLine, km);
+      const country = countryCodeAtPoint(point.lng, point.lat);
+      return timeZoneForCountry(country);
     },
   });
   borders = refreshBorderWaits({
@@ -452,7 +508,7 @@ export async function runTripPlan(input: TripPlanRequest) {
   const attention = hotspotReason(attentionSegments);
   if (attention) why.push(attention);
 
-  return assembleTripPlan({
+  const plan = assembleTripPlan({
     now,
     departAt: input.departAt,
     vehicle: input.vehicle,
@@ -498,6 +554,23 @@ export async function runTripPlan(input: TripPlanRequest) {
     attentionSegments,
     why,
   });
+
+  const route_options = buildRouteOptions({
+    origin: input.origin.coords,
+    destination: input.destination.coords,
+    originCountry,
+    destinationCountry,
+    direct,
+    viaRoutes,
+    onPath,
+    borders,
+    chosenRoute,
+    chosenBorder,
+    preferences: prefs,
+    activeChoice: input.routeChoice,
+  });
+
+  return { ...plan, route_options };
 }
 
 function applyPrice(

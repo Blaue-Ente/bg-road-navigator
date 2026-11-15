@@ -8,7 +8,15 @@ import { presentFuelStop, type KnownAverage } from "@/lib/fuel-prices/present";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import { buildMapsHandoff, type MapStop } from "@/lib/utils/maps-handoff";
 import type { SleepShift, TimedStop } from "@/lib/planner/breaks";
-import { formatWakeLabel, wakeAt, wallClockEta } from "@/lib/planner/breaks";
+import {
+  formatWakeLabel,
+  wakeAt,
+  wallClockEta,
+} from "@/lib/planner/breaks";
+import {
+  timeZoneForCountry,
+  timeZoneLabelBg,
+} from "@/lib/geo/country-timezone";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { lineLengthKm, pointAtDistance } from "@/lib/planner/line";
 import type { CommunityScore } from "@/lib/planner/community";
@@ -270,6 +278,10 @@ function toPlanStop(
     overnight && sleepShift && sleepShift.sleepMin > 0
       ? sleepShift.sleepMin
       : null;
+  const wakeZone =
+    overnight && sleepMin
+      ? timeZoneForCountry(input.countryAt(coords.lng, coords.lat))
+      : null;
   const energy = stop.kinds.includes("charge")
     ? "charge"
     : stop.kinds.includes("fuel")
@@ -286,7 +298,8 @@ function toPlanStop(
       stop.etaMin,
       input.durationMin,
       sleepMin,
-      eta
+      eta,
+      wakeZone
     ),
     coords,
     distance_from_start_km: Math.round(stop.distanceKm),
@@ -310,6 +323,7 @@ function toPlanStop(
       (overnight ? "Оценки на нощувките още не са налични." : null),
     stars: attachment?.stars ?? null,
     sleep_min: sleepMin,
+    wake_time_zone: wakeZone,
   };
 }
 
@@ -429,7 +443,8 @@ function reasonFor(
   drivingMin: number,
   totalDriveMin: number,
   sleepMin: number | null,
-  arrivalIso: string
+  arrivalIso: string,
+  wakeTimeZone: string | null
 ): string {
   const parts: string[] = [];
   if (kinds.includes("fuel") || kinds.includes("charge")) {
@@ -449,11 +464,13 @@ function reasonFor(
     parts.push("Почивка след около 2–2.5 часа шофиране.");
   }
   if (kinds.includes("overnight") && sleepMin != null && sleepMin > 0) {
-    const wake = wakeAt(new Date(arrivalIso));
-    const wakeLabel = formatWakeLabel(wake);
+    const zone = wakeTimeZone ?? "Europe/Sofia";
+    const wake = wakeAt(new Date(arrivalIso), zone);
+    const wakeLabel = formatWakeLabel(wake, zone);
+    const place = timeZoneLabelBg(zone);
     const remaining = Math.max(0, totalDriveMin - drivingMin);
     parts.push(
-      `Спите тук. Тръгване на следващия ден в ${wakeLabel}. Остават ${formatClockDuration(remaining)} шофиране.`
+      `Спите тук. Тръгване на следващия ден в ${wakeLabel} (${place}). Остават ${formatClockDuration(remaining)} шофиране.`
     );
   } else if (kinds.includes("overnight")) {
     parts.push("Тук се спи. На сутринта пътят продължава.");

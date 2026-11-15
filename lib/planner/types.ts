@@ -213,6 +213,8 @@ export interface PlanStop {
   stars: number | null;
   /** Minutes asleep after this stop; set only on the overnight anchor stop. */
   sleep_min?: number | null;
+  /** IANA zone for the 08:00 wake after this overnight stop. */
+  wake_time_zone?: string | null;
 }
 
 export interface CommunityNote {
@@ -222,6 +224,37 @@ export interface CommunityNote {
   penalty_min: number;
   distance_km: number;
   age_label: string;
+}
+
+export type RouteChoice =
+  | { kind: "border"; border_id: string }
+  | { kind: "valhalla_alternate" };
+
+export interface RouteOptionSummary {
+  id: "primary" | "alternative";
+  role: "primary" | "alternative";
+  source: "border" | "valhalla" | "direct";
+  border_id: string | null;
+  label: string;
+  distance_km: number;
+  drive_min: number;
+  wait_min: number;
+  total_min: number;
+  countries: string[];
+  vignette_codes: string[];
+  toll_codes: string[];
+  geometry: GeoJSON.LineString;
+}
+
+export interface RouteOptionsBlock {
+  primary: RouteOptionSummary;
+  alternative: RouteOptionSummary | null;
+  unavailable_reason:
+    | null
+    | "same_country"
+    | "too_short"
+    | "no_divergent_path"
+    | "constraints";
 }
 
 export interface TripPlannerResult {
@@ -282,4 +315,5 @@ export interface TripPlannerResult {
   weather: RouteWeather;
   why_this_route: WhyReason[];
   recommended_fuel: { stop_id: string; advice: FuelAdvice } | null;
+  route_options?: RouteOptionsBlock;
 }

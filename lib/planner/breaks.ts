@@ -178,10 +178,14 @@ export function resolveSleepShifts(input: {
   shifts: SleepShift[];
   extraWaitMin: (drivingMin: number) => number;
   timeZone?: string;
+  timeZoneAt?: (drivingMin: number) => string;
 }): SleepShift[] {
-  const tz = input.timeZone ?? SOFIA_TZ;
   const resolved: SleepShift[] = [];
   for (const anchor of input.shifts) {
+    const tz =
+      input.timeZoneAt?.(anchor.afterDrivingMin) ??
+      input.timeZone ??
+      SOFIA_TZ;
     const sleepSoFar = resolved.reduce((sum, row) => sum + row.sleepMin, 0);
     const wait = input.extraWaitMin(anchor.afterDrivingMin);
     const arrival = new Date(

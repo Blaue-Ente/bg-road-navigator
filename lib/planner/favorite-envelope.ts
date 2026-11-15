@@ -28,7 +28,28 @@ export function buildFavoriteEnvelope(
       depart_at: inputs.depart_at,
       fuel_level: clampFuel(inputs.fuel_level),
     },
-    result: result ?? null,
+    result: stripRouteOptionGeometry(result),
+  };
+}
+
+function stripRouteOptionGeometry(result: unknown): unknown {
+  if (!result || typeof result !== "object") return result ?? null;
+  const record = result as Record<string, unknown>;
+  if (record.planner !== "deterministic") return result;
+  const options = record.route_options;
+  if (!options || typeof options !== "object") return result;
+  const block = options as Record<string, unknown>;
+  const alt = block.alternative;
+  if (!alt || typeof alt !== "object") return result;
+  return {
+    ...record,
+    route_options: {
+      ...block,
+      alternative: {
+        ...(alt as Record<string, unknown>),
+        geometry: { type: "LineString", coordinates: [] },
+      },
+    },
   };
 }
 

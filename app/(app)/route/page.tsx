@@ -31,6 +31,7 @@ import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
 import { messages as m } from "@/lib/i18n";
 import { committedPlace } from "@/lib/route/place-commit";
+import { applyPlanRouteOptions } from "@/components/plan/RouteChoiceCards";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
@@ -260,10 +261,6 @@ export default function RoutePage() {
     if (corridor) setRouteBorders(corridor.borderIds);
     const base = route ?? shellRoute(committedOrigin, committedDestination);
     const next = plan ? routeFromPlan(base, plan, committedVia) : base;
-    const keepAlternatives =
-      Boolean(route) &&
-      !submitted.preferences.avoid_motorways &&
-      !submitted.preferences.avoid_tolls;
     setPlanningVia(
       committedVia
         ? {
@@ -275,18 +272,8 @@ export default function RoutePage() {
     );
     setTripPlan(plan);
     setActiveRoute(next);
-    setAlternativeRoutes(
-      keepAlternatives
-        ? (route?.alternatives ?? []).map((alt) => ({
-            ...next,
-            id: alt.id,
-            distance_km: alt.distance_km,
-            duration_min: alt.duration_min,
-            geometry: alt.geometry,
-            alternatives: [],
-          }))
-        : []
-    );
+    if (plan) applyPlanRouteOptions(plan, next, setAlternativeRoutes);
+    else setAlternativeRoutes([]);
     if (!plan) setRouteError(m.planning.planFailed);
     if (plan) {
       clearStoredDraft();
