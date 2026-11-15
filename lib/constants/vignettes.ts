@@ -11,6 +11,7 @@ export interface VignetteLink {
   name_bg: string;
   name_en: string;
   official_url: string;
+  link_role: "shop" | "info";
   notes_bg?: string;
 }
 
@@ -20,8 +21,10 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     kind: "vignette",
     name_bg: "България — електронна винетка",
     name_en: "Bulgaria e-vignette",
-    official_url: "https://www.bgtoll.bg/",
-    notes_bg: "Официален портал BGTOLL.",
+    official_url: "https://web.bgtoll.bg/",
+    link_role: "shop",
+    notes_bg:
+      "Купувайте на web.bgtoll.bg. Обща информация: https://www.bgtoll.bg/",
   },
   {
     country_code: "AT",
@@ -29,6 +32,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Австрия — ASFINAG винетка",
     name_en: "Austria ASFINAG vignette",
     official_url: "https://shop.asfinag.at/",
+    link_role: "shop",
     notes_bg: "Дигитална или стикер винетка + GO-Box за тежък трафик.",
   },
   {
@@ -37,6 +41,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Унгария — e-matrica / HU-GO",
     name_en: "Hungary e-vignette / HU-GO",
     official_url: "https://ematrica.nemzetiutdij.hu/en/vignette-purchase/",
+    link_role: "shop",
     notes_bg: "Леки автомобили: e-matrica. Камиони: HU-GO.",
   },
   {
@@ -45,7 +50,9 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Швейцария — е-винетка",
     name_en: "Switzerland e-vignette",
     official_url: "https://via.admin.ch/shop",
-    notes_bg: "Годишна е-винетка от официалния магазин Via.",
+    link_role: "shop",
+    notes_bg:
+      "Годишна е-винетка от официалния магазин Via. Ако страницата не се отвори, отворете я в обикновен браузър.",
   },
   {
     country_code: "SI",
@@ -53,6 +60,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Словения — e-vinjeta",
     name_en: "Slovenia e-vignette",
     official_url: "https://evinjeta.dars.si/en",
+    link_role: "shop",
     notes_bg: "Официален магазин на DARS.",
   },
   {
@@ -61,6 +69,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Чехия — електронна винетка",
     name_en: "Czech e-vignette",
     official_url: "https://edalnice.gov.cz/",
+    link_role: "shop",
     notes_bg: "Официален магазин. edalnice.cz пренасочва тук.",
   },
   {
@@ -69,6 +78,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Словакия — eznamka",
     name_en: "Slovakia eznamka",
     official_url: "https://www.eznamka.sk/",
+    link_role: "shop",
     notes_bg: "Електронна винетка за магистрали.",
   },
   {
@@ -76,8 +86,10 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     kind: "vignette",
     name_bg: "Румъния — rovinieta",
     name_en: "Romania rovinieta",
-    official_url: "https://etoll.ro",
-    notes_bg: "Официален портал на CNAIR. Не купувайте от препродавачи.",
+    official_url: "https://portal.etoll.ro/vinieta-ro",
+    link_role: "shop",
+    notes_bg:
+      "Rovinieta се купува през eToll / TollRo. Не купувайте от препродавачи.",
   },
   {
     country_code: "RS",
@@ -86,6 +98,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_en: "Serbia distance toll",
     official_url:
       "https://www.putevi-srbije.rs/index.php/en/etc-elektronic-toll-collection",
+    link_role: "info",
     notes_bg:
       "Няма винетка. Магистралите се плащат по изминато разстояние на бариерите на Пътища Сърбия — в брой, с карта или с ENP таг.",
   },
@@ -95,6 +108,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Хърватия — тол на километър",
     name_en: "Croatia distance toll",
     official_url: "https://www.hac.hr/en/toll/etc",
+    link_role: "info",
     notes_bg:
       "Няма винетка за леки коли. Hrvatske autoceste събира тол по отсечки — на бариера или с ENC устройство.",
   },
@@ -104,6 +118,7 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     name_bg: "Турция — HGS тол",
     name_en: "Turkey HGS toll",
     official_url: "https://hgsmusteri.ptt.gov.tr/",
+    link_role: "shop",
     notes_bg:
       "Няма винетка. Мостове и магистрали се плащат с HGS (PTT) по тарифа на KGM. Чужди номера се регистрират преди пътуване.",
   },

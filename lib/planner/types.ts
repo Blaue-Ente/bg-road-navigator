@@ -54,6 +54,8 @@ export interface ChecklistItem {
   country_code: string | null;
   href: string | null;
   link_label?: string | null;
+  link_role?: "shop" | "info" | null;
+  charge_kind?: "vignette" | "distance_toll";
 }
 
 export interface SafetyNote {

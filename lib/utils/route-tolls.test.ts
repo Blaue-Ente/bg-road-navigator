@@ -82,7 +82,32 @@ describe("getRouteTolls", () => {
       maneuvers: [{ coords: city("sofia") }, { coords: city("bucharest") }],
     });
     expect(tolls.map((toll) => toll.country_code)).toEqual(["BG", "RO"]);
-    expect(tolls[1]?.official_url).toBe("https://etoll.ro");
+    expect(tolls[1]?.official_url).toBe(
+      "https://portal.etoll.ro/vinieta-ro"
+    );
+  });
+
+  it("lists vignettes and distance tolls on a Vienna–Istanbul corridor", () => {
+    const tolls = getRouteTolls(
+      routeThrough([
+        city("vienna"),
+        city("ljubljana"),
+        city("zagreb"),
+        city("belgrade"),
+        city("sofia"),
+        city("istanbul"),
+      ])
+    );
+    expect(tolls.map((toll) => toll.country_code)).toEqual([
+      "AT",
+      "SI",
+      "HR",
+      "RS",
+      "BG",
+      "TR",
+    ]);
+    expect(tolls.find((t) => t.country_code === "RS")?.link_role).toBe("info");
+    expect(tolls.find((t) => t.country_code === "AT")?.link_role).toBe("shop");
   });
 
   it("prefers the road geometry over maneuver points in another country", () => {
