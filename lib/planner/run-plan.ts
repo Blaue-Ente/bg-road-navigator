@@ -22,7 +22,9 @@ import {
 } from "@/lib/planner/borders";
 import { mergeDrivingBreaks, type FuelTimedStop } from "@/lib/planner/breaks";
 import { buildChecklist } from "@/lib/planner/checklist";
+import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
+import { isCrossingLicensed } from "@/lib/nakordoni/markets";
 import { aggregateFlags } from "@/lib/planner/flag-score";
 import { fuelWindows } from "@/lib/planner/fuel-windows";
 import {
@@ -86,7 +88,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     destinationCountry,
   }).filter((candidate) => allowsBorder(candidate.id, prefs));
 
-  const [direct, viaList, pins, waits] = await Promise.all([
+  const [direct, viaList, pins, waits, traffic] = await Promise.all([
     fetchDirectRoute(input.origin.coords, input.destination.coords, costing),
     Promise.all(
       candidates.slice(0, MAX_VIA).map(async (candidate) => {
@@ -111,6 +113,7 @@ export async function runTripPlan(input: TripPlanRequest) {
         .filter((ppid): ppid is string => Boolean(ppid)),
       now
     ),
+    borderTraffic(candidates),
   ]);
   if (!direct || direct.geometry.coordinates.length < 2) return null;
 
@@ -161,6 +164,8 @@ export async function runTripPlan(input: TripPlanRequest) {
         dayStats: cached?.dayStats ?? null,
         current: cached?.current ?? null,
         localTypical: candidate.localTypicalMinutes,
+        licensed: isCrossingLicensed(candidate.id),
+        trafficDelayMin: traffic.get(candidate.id) ?? null,
       }),
       communityPenaltyMin: community.penaltyMin,
     });
@@ -489,6 +494,26 @@ async function safeReports(
   } catch {
     return [];
   }
+}
+
+async function borderTraffic(
+  candidates: Array<{ id: string; coords: GeoPoint }>
+): Promise<Map<string, number | null>> {
+  const apiKey = process.env.TOMTOM_API_KEY?.trim();
+  const targets = candidates.filter(
+    (candidate) => !isCrossingLicensed(candidate.id)
+  );
+  if (!apiKey || targets.length === 0) return new Map();
+  const rows = await Promise.all(
+    targets.map(async (candidate) => {
+      const delay = await trafficDelayNearBorder({
+        coords: candidate.coords,
+        apiKey,
+      });
+      return [candidate.id, delay] as const;
+    })
+  );
+  return new Map(rows);
 }
 
 async function pinsNear(

@@ -42,6 +42,13 @@ export interface ExpectedWaitInput {
   /** 24 local hours from our own crossing table. Not Nakordoni data. */
   localTypical: number[] | null;
   timeZone?: string;
+  /**
+   * False when the crossing's markets are not in NAKORDONI_LICENSED_MARKETS.
+   * Nakordoni cache is ignored and the local table is the wait.
+   */
+  licensed?: boolean;
+  /** Live TomTom delay near the crossing, minutes. */
+  trafficDelayMin?: number | null;
 }
 
 const FORECAST_WINDOW_MS = 75 * 60 * 1000;
@@ -52,6 +59,12 @@ const FORECAST_WINDOW_MS = 75 * 60 * 1000;
  * then the local table. Missing data stays zero and says so.
  */
 export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
+  if (input.licensed === false) {
+    // TODO(hatarinfo-amss): when a Határinfó or AMSS feed exists for an
+    // unlicensed Serbian or Turkish crossing, prefer that queue over the
+    // local typical table and keep TomTom as the traffic delay beside it.
+    return unlicensedWait(input);
+  }
   const forecast = matchForecast(
     input.forecast,
     input.eta,
@@ -138,6 +151,51 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     age_label: "няма данни",
     label_bg: "няма данни за чакане",
     attribution: null,
+  };
+}
+
+function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
+  const hour = zonedHour(input.eta, input.timeZone ?? "Europe/Sofia");
+  const local = input.localTypical?.[hour];
+  const traffic =
+    input.trafficDelayMin != null && input.trafficDelayMin > 0
+      ? Math.round(input.trafficDelayMin)
+      : null;
+  const trafficNote =
+    traffic == null
+      ? ""
+      : ` TomTom отчита около ${traffic} мин задръстване наблизо.`;
+  if (typeof local === "number") {
+    return {
+      source: "local_typical",
+      estimate: true,
+      minutes: Math.round(local),
+      metric: "wait_min",
+      quality: null,
+      queue_now: null,
+      observed_at: null,
+      age_min: null,
+      age_label: "няма наблюдение от nakordoni",
+      label_bg: `Типично чакане от нашата таблица. Пунктът е извън лицензираните пазари на Nakordoni.${trafficNote}`,
+      attribution: null,
+      unlicensed_market: true,
+      traffic_delay_min: traffic,
+    };
+  }
+  return {
+    source: "unavailable",
+    estimate: true,
+    minutes: 0,
+    metric: "none",
+    quality: null,
+    queue_now: null,
+    observed_at: null,
+    age_min: null,
+    age_label: "няма данни",
+    label_bg: `Няма данни за чакане. Пунктът е извън лицензираните пазари на Nakordoni.${trafficNote}`,
+    attribution: null,
+    unlicensed_market: true,
+    traffic_delay_min: traffic,
   };
 }
 

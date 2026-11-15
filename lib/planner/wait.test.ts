@@ -92,4 +92,33 @@ describe("Nakordoni parsers and wait fallback", () => {
     expect(wait.minutes).toBe(33);
     expect(wait.quality).toBe("low");
   });
+
+  it("uses the local typical table for an unlicensed market and keeps the TomTom delay beside it", () => {
+    const wait = expectedWait({
+      eta: new Date("2026-11-15T08:00:00.000Z"),
+      now: new Date("2026-11-15T08:00:00.000Z"),
+      forecast: [
+        { at: "2026-11-15T08:00:00.000Z", hour: 10, waitMin: 3, queue: 1 },
+      ],
+      dayStats: null,
+      current: {
+        waitMin: 40,
+        queueNow: 10,
+        quality: "high",
+        observedAt: null,
+        ageMin: 5,
+      },
+      localTypical: Array(24).fill(18),
+      licensed: false,
+      trafficDelayMin: 11,
+    });
+    expect(wait.source).toBe("local_typical");
+    expect(wait.minutes).toBe(18);
+    expect(wait.unlicensed_market).toBe(true);
+    expect(wait.traffic_delay_min).toBe(11);
+    expect(wait.attribution).toBeNull();
+    expect(wait.label_bg).toContain("Nakordoni");
+    expect(parseDayStats({ ok: false, negative: true, status: 403 })).toBeNull();
+    expect(parseForecast({ ok: false, negative: true, status: 404 })).toEqual([]);
+  });
 });

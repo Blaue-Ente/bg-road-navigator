@@ -105,6 +105,10 @@ export interface WaitEstimate {
   age_label: string;
   label_bg: string;
   attribution: NakordoniAttribution | null;
+  /** True when both markets of this crossing are outside the Nakordoni license. */
+  unlicensed_market?: boolean;
+  /** TomTom delay near the crossing. Present only for an unlicensed market. */
+  traffic_delay_min?: number | null;
 }
 
 export interface BorderChoice {
