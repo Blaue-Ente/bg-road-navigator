@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { readApiError } from "@/lib/client/read-api-error";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { wakeAt, formatWakeLabel } from "@/lib/planner/breaks";
+import { timeZoneLabelBg } from "@/lib/geo/country-timezone";
 import { messages as m } from "@/lib/i18n";
 import {
   PLACE_FLAG_VALUES,
@@ -95,7 +96,14 @@ export function StopTimeline({
                       {stop.sleep_min != null && stop.sleep_min > 0 ? (
                         <p className="text-sm font-medium text-[var(--waze-text)]">
                           {m.sheet.stopWake}{" "}
-                          {formatWakeLabel(wakeAt(new Date(stop.eta)))}
+                          {formatWakeLabel(
+                            wakeAt(
+                              new Date(stop.eta),
+                              stop.wake_time_zone ?? "Europe/Sofia"
+                            ),
+                            stop.wake_time_zone ?? "Europe/Sofia"
+                          )}{" "}
+                          ({timeZoneLabelBg(stop.wake_time_zone ?? "Europe/Sofia")})
                         </p>
                       ) : null}
                       {stop.reason &&

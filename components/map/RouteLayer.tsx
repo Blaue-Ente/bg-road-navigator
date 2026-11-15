@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { Map } from "maplibre-gl";
+import type { Map, MapLayerMouseEvent } from "maplibre-gl";
 import type { Route } from "@/types/route.types";
 import { theme } from "@/lib/constants/theme";
 import { isMapReady } from "@/lib/map/is-map-ready";
@@ -11,6 +11,7 @@ export interface RouteLayerProps {
   map: Map | null;
   route: Route | null;
   alternatives?: Route[];
+  onPickAlternative?: (index: number) => void;
 }
 
 function removeRouteLayers(map: Map, alternativeCount: number) {
@@ -27,7 +28,12 @@ function removeRouteLayers(map: Map, alternativeCount: number) {
   }
 }
 
-export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
+export function RouteLayer({
+  map,
+  route,
+  alternatives = [],
+  onPickAlternative,
+}: RouteLayerProps) {
   const scheme = useThemeStore((s) => s.scheme);
   const line = scheme === "dark" ? theme.routeLineDark : theme.routeLine;
   const casing = scheme === "dark" ? theme.routeCasingDark : theme.routeCasing;
@@ -62,28 +68,49 @@ export function RouteLayer({ map, route, alternatives = [] }: RouteLayerProps) {
       },
     });
 
+    const handlers: Array<{
+      layerId: string;
+      handler: (event: MapLayerMouseEvent) => void;
+    }> = [];
+
     alternatives.forEach((alt, idx) => {
       const color = theme.routeAlt[idx % theme.routeAlt.length];
-      map.addSource(`route-alt-${idx}`, {
+      const layerId = `route-alt-${idx}`;
+      map.addSource(layerId, {
         type: "geojson",
         data: alt.geometry,
       });
       map.addLayer({
-        id: `route-alt-${idx}`,
+        id: layerId,
         type: "line",
-        source: `route-alt-${idx}`,
+        source: layerId,
         paint: {
           "line-width": 4,
           "line-color": color,
           "line-opacity": 0.65,
         },
       });
+      if (onPickAlternative) {
+        map.getCanvas().style.cursor = "";
+        const handler = () => onPickAlternative(idx);
+        map.on("click", layerId, handler);
+        map.on("mouseenter", layerId, () => {
+          map.getCanvas().style.cursor = "pointer";
+        });
+        map.on("mouseleave", layerId, () => {
+          map.getCanvas().style.cursor = "";
+        });
+        handlers.push({ layerId, handler });
+      }
     });
 
     return () => {
+      for (const { layerId, handler } of handlers) {
+        map.off("click", layerId, handler);
+      }
       removeRouteLayers(map, alternatives.length);
     };
-  }, [map, route, alternatives, line, casing]);
+  }, [map, route, alternatives, line, casing, onPickAlternative]);
 
   return null;
 }

@@ -7,6 +7,7 @@ import { serbiaHungaryChoices } from "@/lib/planner/border-wait-view";
 import { FuelPriceLegend } from "@/components/plan/FuelPriceLegend";
 import { PlanChecklist } from "@/components/plan/PlanChecklist";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
+import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import {
@@ -126,6 +127,7 @@ export function PlanDetailSheet() {
     <div className="pointer-events-none fixed inset-0 z-40">
       <div
         ref={dialogRef}
+        id="plan-detail"
         role="dialog"
         aria-modal="true"
         aria-labelledby="plan-sheet-title"
@@ -306,6 +308,8 @@ function DetailBody({
   const chosen = plan.border.chosen;
   return (
     <>
+      <RouteChoiceCards plan={plan} />
+
       <section aria-labelledby="why-route">
         <h3
           id="why-route"

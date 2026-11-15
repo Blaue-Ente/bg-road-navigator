@@ -104,6 +104,30 @@ describe("wakeAt", () => {
     const wake = wakeAt(arrival, tz);
     expect(wake.toISOString()).toBe("2026-11-16T11:00:00.000Z");
   });
+
+  it("uses Budapest local 08:00 for an overnight in Hungary", () => {
+    const arrival = new Date("2026-11-16T16:00:00.000Z");
+    const wakeBudapest = wakeAt(arrival, "Europe/Budapest");
+    expect(wakeBudapest.toISOString()).toBe("2026-11-17T07:00:00.000Z");
+    const wakeSofia = wakeAt(arrival, "Europe/Sofia");
+    expect(wakeSofia.toISOString()).toBe("2026-11-17T06:00:00.000Z");
+    expect(
+      new Intl.DateTimeFormat("bg-BG", {
+        timeZone: "Europe/Sofia",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).format(wakeBudapest)
+    ).toBe("09:00");
+    expect(
+      new Intl.DateTimeFormat("bg-BG", {
+        timeZone: "Europe/Budapest",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).format(wakeBudapest)
+    ).toBe("08:00");
+  });
 });
 
 describe("sleepShifts", () => {

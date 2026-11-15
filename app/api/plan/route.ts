@@ -10,6 +10,7 @@ import {
   TripPreferencePatchSchema,
 } from "@/lib/planner/preferences";
 import { runTripPlan } from "@/lib/planner/run-plan";
+import type { RouteChoice } from "@/lib/planner/types";
 import { resolveVehicle } from "@/lib/planner/vehicle";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 import type { Profile } from "@/types/profile.types";
@@ -38,6 +39,15 @@ const PlanSchema = z.object({
    */
   via: z.array(PointSchema).max(3).optional(),
   preferences: TripPreferencePatchSchema.optional(),
+  route_choice: z
+    .union([
+      z.object({
+        kind: z.literal("border"),
+        border_id: z.string().min(1).max(64),
+      }),
+      z.object({ kind: z.literal("valhalla_alternate") }),
+    ])
+    .optional(),
   vehicle: z
     .object({
       vehicle_type: z.enum(["car", "ev", "truck", "motorcycle"]).optional(),
@@ -120,6 +130,7 @@ export async function POST(request: NextRequest) {
         label: point.label,
         coords: { lng: point.lng, lat: point.lat },
       })),
+      routeChoice: body.route_choice as RouteChoice | undefined,
     });
     if (!plan) {
       return NextResponse.json(
