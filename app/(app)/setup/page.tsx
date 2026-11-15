@@ -18,7 +18,7 @@ const STEPS = [
   },
   {
     title: "3. Приложете SQL веднъж",
-    body: "В Neon SQL Editor изпълнете веднъж drizzle/0001_better_auth_and_community.sql. Стъпките са в docs/SETUP.md.",
+    body: "В Neon SQL Editor изпълнете веднъж drizzle/0001_better_auth_and_community.sql и след него drizzle/0002_trip_planner_cache.sql. Стъпките са в docs/SETUP.md.",
   },
   {
     title: "4. Адрес за вход",

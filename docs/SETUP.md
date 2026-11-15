@@ -24,7 +24,7 @@
 
 На Vercel preview оставете `BETTER_AUTH_URL` празно. Тогава адресът за вход е `https://` плюс `VERCEL_URL` на този preview, а не продукционният домейн.
 
-Останалите ключове от `.env.example` (`NAKORDONI_API_KEY`, `TOMTOM_API_KEY`, `OPENCHARGE_API_KEY`, `WINDY_WEBCAMS_API_KEY`, `NVIDIA_API_KEY`, `OCI_GEO_BASE_URL`, `OCI_GEO_API_KEY`, `CRON_SECRET`, `OSRM_API_URL`, `GEOCODING_API_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_OPERATOR_MODE`) не са част от акаунта. `OCI_GEO_API_KEY` се праща само от сървъра като `X-API-Key` и не се слага в `NEXT_PUBLIC_*`. `CRON_SECRET` пази `GET /api/cron/warm-geo`: Vercel го праща като `Authorization: Bearer`, когато променливата е зададена. Hobby cron в `vercel.json` е веднъж дневно; на Pro графикът може да е `*/10 * * * *`.
+Останалите ключове от `.env.example` (`NAKORDONI_API_KEY`, `TOMTOM_API_KEY`, `OPENCHARGE_API_KEY`, `WINDY_WEBCAMS_API_KEY`, `NVIDIA_API_KEY`, `OCI_GEO_BASE_URL`, `OCI_GEO_API_KEY`, `CRON_SECRET`, `OSRM_API_URL`, `GEOCODING_API_URL`, `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_OPERATOR_MODE`) не са част от акаунта. `OCI_GEO_API_KEY` се праща само от сървъра като `X-API-Key` и не се слага в `NEXT_PUBLIC_*`. Един `CRON_SECRET` пази и двата Hobby крона в `vercel.json`: `GET /api/cron/warm-geo` в 08:00 UTC (на Pro може `*/10 * * * *`; без тайна маршрутът е отворен и не връща OCI ключа) и `GET /api/cron/nakordoni` в 05:20 UTC (на Pro може `*/15 * * * *`; в продукция без тайна отговаря с 401). Vercel праща `Authorization: Bearer`.
 
 Генериране на тайна:
 
@@ -37,14 +37,26 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 1. Отворете Neon → SQL Editor за проекта, чийто connection string е `DATABASE_URL`.
 2. Поставете целия файл `drizzle/0001_better_auth_and_community.sql`.
 3. Изпълнете го веднъж.
+4. След него изпълнете и `drizzle/0002_trip_planner_cache.sql`. Той пази споделения кеш на Nakordoni и заявките към Overpass за плана на пътуването.
 
 Същото през `psql`, без да записвате паролата в git:
 
 ```bash
 psql "$DATABASE_URL" -f drizzle/0001_better_auth_and_community.sql
+psql "$DATABASE_URL" -f drizzle/0002_trip_planner_cache.sql
 ```
 
-Файлът създава таблиците на Better Auth (`user`, `session`, `account`, `verification`) и `profiles`, `saved_places`, `saved_routes`, `community_pins`, `pin_comments`, `community_pin_votes`, `community_pin_reports`.
+Първият файл създава таблиците на Better Auth (`user`, `session`, `account`, `verification`) и `profiles`, `saved_places`, `saved_routes`, `community_pins`, `pin_comments`, `community_pin_votes`, `community_pin_reports`. Вторият създава `nakordoni_cache`, `nakordoni_budget` и `osm_query_cache`.
+
+## План на пътуването и Nakordoni
+
+`POST /api/plan` чете само кеша. Не вика Nakordoni за всеки потребител.
+
+Кронът е `GET /api/cron/nakordoni` в `vercel.json`, разписание `20 5 * * *` (веднъж дневно, 05:20 UTC). Това е таванът на Hobby: по-чест израз като `*/15 * * * *` спира деплоя с грешка, че акаунтът е ограничен до един път на ден. На Pro сменете израза на `*/15 * * * *`. Самият job не пълни квотата на всеки тик: опашките се подновяват най-много на 6 часа, прогнозата и border v4 на 12 часа, day-stats на 20 часа, директорията на 25 дни. Мекият таван на крона е 80 тежки и 400 евтини заявки на ден, под лимита 200 / 1000. При 2 заявки в секунда има пауза от 600 ms.
+
+В продукция задайте същия `CRON_SECRET`. Проверката е общата `authorizeCron` (Bearer или `x-cron-secret`). Без тайната продукционният адрес отговаря с 401 и не харчи квота. `GET /api/cron/warm-geo` ползва същата тайна, но остава отворен, ако тя липсва, защото само подгрява Valhalla и Photon.
+
+Цени: Австрия е E-Control (без ключ). Германия е Tankerkönig и иска `TANKERKOENIG_API_KEY`; без него цената остава неизвестна. BG, RS, HU, RO и TR нямат доставчик и връщат `price unknown`. EV станциите идват от Open Charge Map, когато `OPENCHARGE_API_KEY` е зададен, но цената на кВтч не се измисля.
 
 ## Google
 

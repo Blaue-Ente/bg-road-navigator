@@ -11,6 +11,7 @@ export type ServiceId =
   | "windy"
   | "tomtom"
   | "opencharge"
+  | "tankerkoenig"
   | "nvidia"
   | "google"
   | "apple"
@@ -96,6 +97,16 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       priority: "optional",
       signup_url: "https://openchargemap.org/site/develop",
       env_vars: ["OPENCHARGE_API_KEY"],
+    },
+    {
+      id: "tankerkoenig",
+      label: "Tankerkönig",
+      unlocks: "Цени на гориво в Германия по плана на пътуването",
+      configured: hasEnv("TANKERKOENIG_API_KEY"),
+      cost: "free",
+      priority: "optional",
+      signup_url: "https://creativecommons.tankerkoenig.de/",
+      env_vars: ["TANKERKOENIG_API_KEY"],
     },
     {
       id: "nvidia",
@@ -193,6 +204,9 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
 export const ACCOUNT_MIGRATION_FILE =
   "drizzle/0001_better_auth_and_community.sql" as const;
 
+export const PLANNER_MIGRATION_FILE =
+  "drizzle/0002_trip_planner_cache.sql" as const;
+
 export interface ConfigStatusResponse {
   ok: true;
   generated_at: string;
@@ -202,6 +216,7 @@ export interface ConfigStatusResponse {
   database: {
     configured: boolean;
     migration: typeof ACCOUNT_MIGRATION_FILE;
+    planner_migration: typeof PLANNER_MIGRATION_FILE;
   };
   summary: {
     configured_count: number;
@@ -233,6 +248,8 @@ export function buildConfigStatus(): ConfigStatusResponse {
       "border_estimates",
       "vignette_links",
       "heuristic_trip_plan",
+      "deterministic_trip_plan",
+      "econtrol_fuel_prices",
       "fx_frankfurter",
       "emergency_overpass",
       "tips_hotels_emergency",
@@ -241,6 +258,7 @@ export function buildConfigStatus(): ConfigStatusResponse {
     database: {
       configured: isDatabaseConfigured(),
       migration: ACCOUNT_MIGRATION_FILE,
+      planner_migration: PLANNER_MIGRATION_FILE,
     },
     summary: {
       configured_count,

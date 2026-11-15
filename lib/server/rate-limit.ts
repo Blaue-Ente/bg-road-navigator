@@ -74,7 +74,10 @@ export function limitForPath(pathname: string): {
   if (pathname === "/api/health" || pathname === "/api/config/status") {
     return { limit: 120, windowMs };
   }
-  if (pathname === "/api/trips/plan") return { limit: 8, windowMs };
+  if (pathname === "/api/trips/plan" || pathname === "/api/plan") {
+    return { limit: 8, windowMs };
+  }
+  if (pathname === "/api/cron/nakordoni") return { limit: 6, windowMs };
   if (pathname === "/api/fuel" || pathname === "/api/traffic") {
     return { limit: 20, windowMs };
   }
