@@ -1,3 +1,17 @@
+import {
+  isCheckpointLicensed,
+  isLicensedMarket,
+  isLicensedMarketPair,
+  licensedMarketIds,
+} from "@/lib/nakordoni/markets";
+
+export {
+  isLicensedMarket,
+  isLicensedMarketPair,
+  licensedMarketIds,
+  LICENSED_ORIGIN_COUNTRY_IDS,
+} from "@/lib/nakordoni/markets";
+
 /**
  * Nakordoni Explorer: 1,000 cheap calls/day and 200 heavy calls/day, reset 00:00 UTC.
  * Multi, border v4 and forecast are heavy. Checkpoints and day-stats are cheap.
@@ -50,14 +64,54 @@ export const REFRESH_INTERVAL_MS = {
   border: 12 * 60 * 60 * 1000,
 } as const;
 
-/** BG, RO, MK, GR. Serbian, Hungarian and Turkish origins are not called. */
-export const LICENSED_ORIGIN_COUNTRY_IDS = [12, 5, 15, 19] as const;
+/**
+ * A failed 401/403/404 is remembered this long so the next cron tick skips it.
+ * Longer than the shortest success interval (queue is 6 h).
+ */
+export const NAKORDONI_NEGATIVE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export function isLicensedCheckpointOrigin(
-  origin: number | null | undefined
+  origin: number | null | undefined,
+  markets: readonly number[] = licensedMarketIds()
 ): boolean {
-  if (origin == null) return false;
-  return (LICENSED_ORIGIN_COUNTRY_IDS as readonly number[]).includes(origin);
+  return isLicensedMarket(origin, markets);
+}
+
+export function isBackoffStatus(status: number): boolean {
+  return status === 401 || status === 403 || status === 404;
+}
+
+export function negativeCachePayload(status: number): {
+  ok: false;
+  negative: true;
+  status: number;
+} {
+  return { ok: false, negative: true, status };
+}
+
+export function isNegativeCachePayload(payload: unknown): boolean {
+  return (
+    Boolean(payload) &&
+    typeof payload === "object" &&
+    (payload as { negative?: unknown }).negative === true
+  );
+}
+
+/** A fresh negative row raises the interval to 24 h so the job is not due. */
+export function applyCacheAge(
+  job: RefreshJob,
+  row: { fetchedAt: Date; payload: unknown } | undefined,
+  now: Date
+): RefreshJob {
+  if (!row) return { ...job, ageMs: null };
+  const ageMs = Math.max(0, now.getTime() - row.fetchedAt.getTime());
+  if (
+    isNegativeCachePayload(row.payload) &&
+    ageMs < NAKORDONI_NEGATIVE_TTL_MS
+  ) {
+    return { ...job, ageMs, minIntervalMs: NAKORDONI_NEGATIVE_TTL_MS };
+  }
+  return { ...job, ageMs };
 }
 
 /** Multi bills ceil((ppids × sub-products) / 2), and only the first 5 ppids count. */
@@ -69,7 +123,7 @@ export function multiCallUnits(ppidCount: number, subproducts = 2): number {
 
 export interface CorridorRefreshInputs {
   ppids: string[];
-  /** origin/destination/crossing_type, origin already licensed. */
+  /** origin/destination/crossing_type. Both sides must be licensed. */
   borderPairs: Array<{
     origin: number;
     destination: number;
@@ -83,7 +137,10 @@ export function buildCorridorRefreshJobs(
   input: CorridorRefreshInputs
 ): RefreshJob[] {
   const jobs: RefreshJob[] = [];
-  const ppids = input.ppids.filter((ppid) => ppid.startsWith("id_"));
+  const markets = licensedMarketIds();
+  const ppids = input.ppids.filter(
+    (ppid) => ppid.startsWith("id_") && isCheckpointLicensed(ppid, markets)
+  );
 
   for (let i = 0; i < ppids.length; i += 5) {
     const batch = ppids.slice(i, i + 5);
@@ -123,7 +180,7 @@ export function buildCorridorRefreshJobs(
   }
 
   for (const pair of input.borderPairs) {
-    if (!isLicensedCheckpointOrigin(pair.origin)) continue;
+    if (!isLicensedMarketPair(pair.origin, pair.destination, markets)) continue;
     jobs.push({
       key: `border:${pair.origin}:${pair.destination}:${pair.crossingType}`,
       kind: "border",
@@ -136,7 +193,7 @@ export function buildCorridorRefreshJobs(
   }
 
   for (const country of input.directoryCountries) {
-    if (!isLicensedCheckpointOrigin(country)) continue;
+    if (!isLicensedMarket(country, markets)) continue;
     jobs.push({
       key: `directory:${country}`,
       kind: "directory",

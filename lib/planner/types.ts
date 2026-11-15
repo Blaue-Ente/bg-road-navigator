@@ -1,13 +1,89 @@
 import type { VignetteLink } from "@/lib/constants/vignettes";
+import type { TripPreferences } from "@/lib/planner/preferences";
 import type { GeoPoint } from "@/types/route.types";
 
 /** Stable codes Stage 3 can branch on. Bulgarian copy lives in the *_bg fields. */
 export type WaitSource =
   "forecast" | "day_stats" | "current" | "local_typical" | "unavailable";
 
-export type StopKind = "fuel" | "charge" | "rest" | "overnight";
+export type StopKind = "fuel" | "charge" | "rest" | "overnight" | "sight";
 
-export type PlanPriceSource = "e-control" | "tankerkoenig";
+export type PlanPriceSource = "e-control" | "tankerkoenig" | "community";
+
+export interface FuelAdvice {
+  cheaper_than_avg_per_l: number;
+  est_savings_eur: number;
+  basis: "official" | "community";
+  liters: number;
+  national_avg_per_l: number;
+  station_per_l: number;
+}
+
+export interface PlaceFlagSummary {
+  flag: string;
+  weight: number;
+}
+
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  detail: string;
+  country_code: string | null;
+  href: string | null;
+}
+
+export interface PlanChecklist {
+  vignettes: ChecklistItem[];
+  toll_sections: ChecklistItem[];
+  documents: ChecklistItem[];
+  winter: ChecklistItem[];
+  kit: ChecklistItem[];
+}
+
+export interface RouteWeatherSegment {
+  eta: string;
+  lat: number;
+  lng: number;
+  distance_from_start_km: number;
+  temperature_c: number | null;
+  weather_code: number | null;
+  wind_kmh: number | null;
+  precipitation_mm: number | null;
+  summary_bg: string;
+}
+
+export interface RouteWeatherWarning {
+  source: "meteoalarm" | "open-meteo";
+  severity: "minor" | "moderate" | "severe";
+  title: string;
+  detail: string;
+  country_code: string | null;
+}
+
+export interface RouteWeather {
+  segments: RouteWeatherSegment[];
+  warnings: RouteWeatherWarning[];
+  attribution: string;
+}
+
+export interface WhyReason {
+  code:
+    | "border_wait"
+    | "time_delta"
+    | "distance_delta"
+    | "incident"
+    | "preference";
+  title: string;
+  detail: string;
+  delta_min: number | null;
+  delta_km: number | null;
+}
+
+export interface OsmAttribution {
+  text: "© OpenStreetMap contributors";
+  license: "ODbL";
+  href: "https://www.openstreetmap.org/copyright";
+}
 
 export interface NakordoniAttribution {
   text: "Data by nakordoni.eu";
@@ -29,6 +105,10 @@ export interface WaitEstimate {
   age_label: string;
   label_bg: string;
   attribution: NakordoniAttribution | null;
+  /** True when both markets of this crossing are outside the Nakordoni license. */
+  unlicensed_market?: boolean;
+  /** TomTom delay near the crossing. Present only for an unlicensed market. */
+  traffic_delay_min?: number | null;
 }
 
 export interface BorderChoice {
@@ -42,7 +122,7 @@ export interface BorderChoice {
   community_penalty_min: number;
   total_min: number;
   chosen: boolean;
-  reason_code: "lowest_total" | "slower_than_best";
+  reason_code: "lowest_total" | "slower_than_best" | "preferred";
   reason: string;
   wait: WaitEstimate;
 }
@@ -69,13 +149,20 @@ export interface PlanStop {
   brand: string | null;
   place_name: string | null;
   on_motorway_service: boolean;
-  place_source: "openstreetmap" | "openchargemap" | "calculated";
+  place_id: string | null;
+  place_source: "osm" | "openstreetmap" | "openchargemap" | "calculated";
   price: PlanPrice | null;
+  advice: FuelAdvice | null;
+  flags: PlaceFlagSummary[];
+  /** Scenic sights are optional and can be skipped. */
+  optional: boolean;
   /** "price unknown" when `price` is null. Never a guessed amount. */
   price_note: "price unknown" | null;
   /** False on overnight stops. Hotel ratings are not wired up. */
   ratings_available: false | null;
   lodging_note: string | null;
+  /** OSM star class, 1–5, when the place tag says so. Null when unknown. */
+  stars: number | null;
 }
 
 export interface CommunityNote {
@@ -129,4 +216,10 @@ export interface TripPlannerResult {
     leg_count: number;
   };
   warnings: string[];
+  preferences: TripPreferences;
+  attribution: OsmAttribution;
+  checklist: PlanChecklist;
+  weather: RouteWeather;
+  why_this_route: WhyReason[];
+  recommended_fuel: { stop_id: string; advice: FuelAdvice } | null;
 }

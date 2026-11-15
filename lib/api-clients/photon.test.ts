@@ -138,6 +138,35 @@ describe("house numbers", () => {
     expect(parseAddressQuery("Wien Hauptbahnhof")).toBeNull();
   });
 
+  it("ranks Витоша ahead of another house number 1", () => {
+    const features: PhotonFeature[] = [
+      addressFeature({
+        name: "Димитър Манчев 1",
+        street: "ул. Димитър Манчев",
+        housenumber: "1",
+        city: "София",
+        countrycode: "BG",
+        coordinates: [23.33, 42.69],
+        osm_key: "building",
+        osm_value: "house",
+      }),
+      addressFeature({
+        name: "бул. Витоша 1",
+        street: "bul. Vitosha",
+        housenumber: "1",
+        city: "София",
+        countrycode: "BG",
+        coordinates: [23.3215, 42.697],
+        osm_key: "building",
+        osm_value: "house",
+      }),
+    ];
+    features[0]!.properties!.importance = 1;
+    features[1]!.properties!.importance = 0.05;
+    expect(firstLabel("Витоша 1, София", features)).toBe("bul. Vitosha 1");
+    expect(firstLabel("Vitosha 1, Sofia", features)).toBe("bul. Vitosha 1");
+  });
+
   it("ranks the exact street and house number ahead of Photon's order", () => {
     expect(firstLabel("Витоша 1, София", vitoshaFeatures())).toBe(
       "булевард Витоша 1"

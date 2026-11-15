@@ -78,6 +78,7 @@ export function limitForPath(pathname: string): {
     return { limit: 8, windowMs };
   }
   if (pathname === "/api/cron/nakordoni") return { limit: 6, windowMs };
+  if (pathname === "/api/cron/fuel-bulletin") return { limit: 6, windowMs };
   if (pathname === "/api/fuel" || pathname === "/api/traffic") {
     return { limit: 20, windowMs };
   }
@@ -87,6 +88,9 @@ export function limitForPath(pathname: string): {
   }
   if (pathname === "/api/cron/warm-geo") return { limit: 12, windowMs };
   if (pathname.startsWith("/api/community")) return { limit: 30, windowMs };
+  if (pathname.startsWith("/api/places/flags")) return { limit: 20, windowMs };
+  if (pathname.startsWith("/api/fuel/reports")) return { limit: 10, windowMs };
+  if (pathname.startsWith("/api/favorites")) return { limit: 15, windowMs };
   if (pathname.startsWith("/api/emergency")) return { limit: 20, windowMs };
   return { limit: 60, windowMs };
 }

@@ -28,6 +28,7 @@ export function MapExperience() {
   const pathname = usePathname();
   const scheme = useThemeStore((s) => s.scheme);
   const activeRoute = useRouteStore((s) => s.activeRoute);
+  const planOpen = useRouteStore((s) => s.planDetailOpen);
   const alternativeRoutes = useRouteStore((s) => s.alternativeRoutes);
   const localPins = useCommunityStore((s) => s.pins);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
@@ -72,10 +73,15 @@ export function MapExperience() {
       mapInstance,
       activeRoute.geometry.coordinates as [number, number][],
       desktop
-        ? { top: 88, bottom: 48, left: onHome ? 40 : 420, right: 56 }
-        : { top: 96, bottom: 210, left: 28, right: 28 }
+        ? {
+            top: 88,
+            bottom: 48,
+            left: onHome ? 40 : 420,
+            right: planOpen ? Math.min(720, window.innerWidth - 384) : 56,
+          }
+        : { top: 96, bottom: planOpen ? 96 : 210, left: 28, right: 28 }
     );
-  }, [mapInstance, activeRoute, onHome]);
+  }, [mapInstance, activeRoute, onHome, planOpen]);
 
   return (
     <div className="relative h-[100dvh] w-full">

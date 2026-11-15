@@ -14,6 +14,7 @@ const dieselCar: Profile = {
   fuel_type: "diesel",
   tank_capacity_liters: 55,
   ev_range_km: null,
+  trip_preferences: null,
 };
 
 describe("estimateRouteFuel", () => {

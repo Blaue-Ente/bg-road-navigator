@@ -39,7 +39,9 @@ export function normalizeDbError(error: unknown): Error {
     typeof error === "object" && error && "code" in error
       ? String((error as { code?: string }).code)
       : "";
-  if (code === "42P01" || code === "42704") return new MigrationRequiredError();
+  if (code === "42P01" || code === "42703" || code === "42704") {
+    return new MigrationRequiredError();
+  }
   if (code === "ECONNREFUSED" || code === "ENOTFOUND") {
     return new DatabaseUnavailableError("Database connection failed");
   }

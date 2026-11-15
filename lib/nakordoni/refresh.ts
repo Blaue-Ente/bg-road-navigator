@@ -9,7 +9,11 @@ import {
   readNakordoniCache,
   writeNakordoniCache,
 } from "@/lib/nakordoni/cache-store";
-import { nakordoniGet, nakordoniPath } from "@/lib/nakordoni/client";
+import {
+  nakordoniGet,
+  nakordoniPath,
+  type NakordoniCallResult,
+} from "@/lib/nakordoni/client";
 import {
   BORDER_V4_PAIRS,
   corridorCheckpoints,
@@ -22,13 +26,16 @@ import {
   parseMultiQueues,
 } from "@/lib/nakordoni/parse";
 import {
+  applyCacheAge,
   buildCorridorRefreshJobs,
+  isBackoffStatus,
   NAKORDONI_HARD_CAP,
+  NAKORDONI_NEGATIVE_TTL_MS,
   NAKORDONI_SOFT_CAP,
   NAKORDONI_TICK_CAP,
+  negativeCachePayload,
   planNakordoniRefresh,
   type PlannedRefresh,
-  type RefreshJob,
 } from "@/lib/planner/nakordoni-budget";
 
 const CACHE_TTL_MS = {
@@ -51,35 +58,66 @@ export interface RefreshReport {
   heavy_units: number;
   cheap_units: number;
   stopped_early: boolean;
+  /** HTTP status → how many calls failed with it. Absent statuses were not seen. */
+  errors_by_status: Record<string, number>;
+}
+
+export interface NakordoniRefreshDeps {
+  apiKey?: string | null;
+  databaseConfigured?: boolean;
+  paceMs?: number;
+  get?: (path: string) => Promise<NakordoniCallResult>;
+  readCache?: (
+    keys: string[]
+  ) => Promise<Array<{ key: string; payload: unknown; fetchedAt: Date }>>;
+  writeCache?: (input: {
+    key: string;
+    kind: string;
+    payload: unknown;
+    fetchedAt: Date;
+    expiresAt: Date;
+    observedAt: Date | null;
+  }) => Promise<void>;
+  readBudget?: (day: string) => Promise<{ cheap: number; heavy: number }>;
+  addBudget?: (day: string, cheap: number, heavy: number) => Promise<void>;
 }
 
 export async function refreshNakordoniCache(
-  now = new Date()
+  now = new Date(),
+  deps: NakordoniRefreshDeps = {}
 ): Promise<RefreshReport> {
-  if (!process.env.NAKORDONI_API_KEY?.trim()) {
-    return emptyReport("no_api_key");
-  }
-  if (!isDatabaseConfigured()) return emptyReport("no_database");
+  const apiKey =
+    deps.apiKey === undefined
+      ? process.env.NAKORDONI_API_KEY?.trim()
+      : deps.apiKey?.trim();
+  if (!apiKey) return emptyReport("no_api_key");
+  const databaseReady =
+    deps.databaseConfigured ?? isDatabaseConfigured();
+  if (!databaseReady) return emptyReport("no_database");
+  const readCache = deps.readCache ?? readNakordoniCache;
+  const writeCache = deps.writeCache ?? writeNakordoniCache;
+  const readBudget = deps.readBudget ?? readNakordoniBudget;
+  const addBudget = deps.addBudget ?? addNakordoniBudget;
+  const get = deps.get ?? ((path: string) => nakordoniGet(path));
+  const paceMs = deps.paceMs ?? PACE_MS;
 
   try {
     const day = now.toISOString().slice(0, 10);
-    const ppids = await licensedPpids();
-    const jobs = withAges(
-      buildCorridorRefreshJobs({
-        ppids,
-        borderPairs: [...BORDER_V4_PAIRS],
-        directoryCountries: [...DIRECTORY_COUNTRIES],
-      }),
-      await readNakordoniCache(
-        buildCorridorRefreshJobs({
-          ppids,
-          borderPairs: [...BORDER_V4_PAIRS],
-          directoryCountries: [...DIRECTORY_COUNTRIES],
-        }).map((job) => job.key)
-      ),
-      now
+    const ppids = await licensedPpids(readCache);
+    const shopping = buildCorridorRefreshJobs({
+      ppids,
+      borderPairs: [...BORDER_V4_PAIRS],
+      directoryCountries: [...DIRECTORY_COUNTRIES],
+    });
+    const cached = await readCache(shopping.map((job) => job.key));
+    const jobs = shopping.map((job) =>
+      applyCacheAge(
+        job,
+        cached.find((row) => row.key === job.key),
+        now
+      )
     );
-    const budget = await readNakordoniBudget(day);
+    const budget = await readBudget(day);
     const planned = planNakordoniRefresh({
       jobs,
       budget: {
@@ -97,30 +135,32 @@ export async function refreshNakordoniCache(
     let cheap = 0;
     let stopped = false;
     let first = true;
+    const errorsByStatus: Record<string, number> = {};
 
     for (const call of planned) {
       if (Date.now() - started > RUN_BUDGET_MS) {
         stopped = true;
         break;
       }
-      if (!first) await sleep(PACE_MS);
+      if (!first) await sleep(paceMs);
       first = false;
-      const outcome = await fetchOne(call, now);
-      if (outcome === "ok") {
+      const outcome = await fetchOne(call, now, get, writeCache);
+      if (outcome.kind === "ok") {
         fetched += 1;
         if (call.quota === "heavy") heavy += call.units;
         else cheap += call.units;
-        await addNakordoniBudget(
+        await addBudget(
           day,
           call.quota === "cheap" ? call.units : 0,
           call.quota === "heavy" ? call.units : 0
         );
-      } else if (outcome === "quota") {
-        failed += 1;
-        stopped = true;
-        break;
       } else {
         failed += 1;
+        noteStatus(errorsByStatus, outcome.status);
+        if (outcome.kind === "quota") {
+          stopped = true;
+          break;
+        }
       }
     }
 
@@ -132,6 +172,7 @@ export async function refreshNakordoniCache(
       heavy_units: heavy,
       cheap_units: cheap,
       stopped_early: stopped,
+      errors_by_status: errorsByStatus,
     };
   } catch (error) {
     const normalized = normalizeDbError(error);
@@ -142,9 +183,11 @@ export async function refreshNakordoniCache(
   }
 }
 
-async function licensedPpids(): Promise<string[]> {
+async function licensedPpids(
+  readCache: NakordoniRefreshDeps["readCache"]
+): Promise<string[]> {
   const base = corridorCheckpoints().map((row) => row.ppid);
-  const directories = await readNakordoniCache(
+  const directories = await (readCache ?? readNakordoniCache)(
     DIRECTORY_COUNTRIES.map((country) => `directory:${country}`)
   );
   const origins = directories.flatMap((row) =>
@@ -153,33 +196,33 @@ async function licensedPpids(): Promise<string[]> {
   return filterLicensedPpids(base, origins);
 }
 
-function withAges(
-  jobs: RefreshJob[],
-  rows: Array<{ key: string; fetchedAt: Date }>,
-  now: Date
-): RefreshJob[] {
-  const ages = new Map(
-    rows.map((row) => [row.key, now.getTime() - row.fetchedAt.getTime()])
-  );
-  return jobs.map((job) => ({
-    ...job,
-    ageMs: ages.has(job.key) ? ages.get(job.key)! : null,
-  }));
-}
-
 async function fetchOne(
   call: PlannedRefresh,
-  now: Date
-): Promise<"ok" | "fail" | "quota"> {
+  now: Date,
+  get: (path: string) => Promise<NakordoniCallResult>,
+  writeCache: NonNullable<NakordoniRefreshDeps["writeCache"]>
+): Promise<{ kind: "ok" | "fail" | "quota"; status: number }> {
   const path = nakordoniPath(call.kind, call.key);
-  if (!path) return "fail";
-  const result = await nakordoniGet(path);
-  if (result.status === 429) return "quota";
-  if (!result.ok) return "fail";
+  if (!path) return { kind: "fail", status: 0 };
+  const result = await get(path);
+  if (result.status === 429) return { kind: "quota", status: 429 };
+  if (!result.ok) {
+    if (isBackoffStatus(result.status)) {
+      await writeCache({
+        key: call.key,
+        kind: call.kind,
+        payload: negativeCachePayload(result.status),
+        fetchedAt: now,
+        expiresAt: new Date(now.getTime() + NAKORDONI_NEGATIVE_TTL_MS),
+        observedAt: null,
+      });
+    }
+    return { kind: "fail", status: result.status };
+  }
   const ttl =
     CACHE_TTL_MS[call.kind as keyof typeof CACHE_TTL_MS] ?? CACHE_TTL_MS.queue;
   const expiresAt = new Date(now.getTime() + ttl);
-  await writeNakordoniCache({
+  await writeCache({
     key: call.key,
     kind: call.kind,
     payload: result.json,
@@ -189,7 +232,7 @@ async function fetchOne(
   });
   if (call.kind === "queue") {
     for (const row of parseMultiQueues(result.json)) {
-      await writeNakordoniCache({
+      await writeCache({
         key: `live:${row.ppid}`,
         kind: "live",
         payload: row,
@@ -201,7 +244,7 @@ async function fetchOne(
   }
   if (call.kind === "border") {
     for (const row of parseBorderQueues(result.json)) {
-      await writeNakordoniCache({
+      await writeCache({
         key: `border-live:${row.ppid}`,
         kind: "border-live",
         payload: row,
@@ -211,7 +254,12 @@ async function fetchOne(
       });
     }
   }
-  return "ok";
+  return { kind: "ok", status: result.status };
+}
+
+function noteStatus(counts: Record<string, number>, status: number) {
+  const key = String(status);
+  counts[key] = (counts[key] ?? 0) + 1;
 }
 
 function spreadCaps() {
@@ -233,6 +281,7 @@ function emptyReport(skipped: string): RefreshReport {
     heavy_units: 0,
     cheap_units: 0,
     stopped_early: false,
+    errors_by_status: {},
   };
 }
 

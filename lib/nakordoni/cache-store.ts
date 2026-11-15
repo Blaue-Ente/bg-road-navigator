@@ -108,6 +108,10 @@ export async function addNakordoniBudget(
 
 const memoryOsm = new Map<string, { payload: unknown; expiresAt: number }>();
 
+export function clearOsmMemoryCacheForTests() {
+  memoryOsm.clear();
+}
+
 export async function readOsmCache(
   key: string,
   now = Date.now()

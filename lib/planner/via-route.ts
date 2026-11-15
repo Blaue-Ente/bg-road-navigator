@@ -7,7 +7,11 @@ import {
 } from "@/lib/api-clients/oci-geo";
 import { fetchOsrmRoute } from "@/lib/api-clients/osrm";
 import type { ProvidedRoadRoute } from "@/lib/api-clients/road-route";
-import { mapValhallaResponse } from "@/lib/api-clients/valhalla";
+import {
+  buildValhallaRouteBody,
+  mapValhallaResponse,
+  type ValhallaCosting,
+} from "@/lib/api-clients/valhalla";
 import { fetchDrivingRoute } from "@/lib/api-clients/routing";
 
 export interface ThroughPoint {
@@ -19,9 +23,10 @@ export interface ThroughPoint {
 /** Direct driving route: Valhalla when configured, otherwise OSRM. */
 export async function fetchDirectRoute(
   origin: { lng: number; lat: number },
-  destination: { lng: number; lat: number }
+  destination: { lng: number; lat: number },
+  costing?: ValhallaCosting
 ): Promise<ProvidedRoadRoute | null> {
-  return fetchDrivingRoute([origin, destination]);
+  return fetchDrivingRoute([origin, destination], costing);
 }
 
 /**
@@ -29,18 +34,29 @@ export async function fetchDirectRoute(
  * If that body is rejected, the same points are sent as breaks, then OSRM.
  */
 export async function fetchRouteThrough(
-  points: ThroughPoint[]
+  points: ThroughPoint[],
+  costing?: ValhallaCosting
 ): Promise<ProvidedRoadRoute | null> {
   if (points.length < 2) return null;
   const config = readOciGeoConfig();
   if (config) {
-    const through = await postValhalla(points, config.baseUrl, config.apiKey);
+    const through = await postValhalla(
+      points,
+      config.baseUrl,
+      config.apiKey,
+      costing
+    );
     if (through) return { provider: "valhalla", ...through };
     const asBreaks = points.map((point) => ({
       ...point,
       role: "break" as const,
     }));
-    const broken = await postValhalla(asBreaks, config.baseUrl, config.apiKey);
+    const broken = await postValhalla(
+      asBreaks,
+      config.baseUrl,
+      config.apiKey,
+      costing
+    );
     if (broken) return { provider: "valhalla", ...broken };
   }
   const osrm = await fetchOsrmRoute(
@@ -54,7 +70,8 @@ export async function fetchRouteThrough(
 async function postValhalla(
   points: ThroughPoint[],
   baseUrl: string,
-  apiKey: string
+  apiKey: string,
+  costing?: ValhallaCosting
 ) {
   const url = `${baseUrl}/valhalla/route`;
   try {
@@ -64,16 +81,16 @@ async function postValhalla(
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          locations: points.map((point) => ({
-            lon: point.lng,
-            lat: point.lat,
-            type: point.role,
-          })),
-          costing: "auto",
-          units: "kilometers",
-          language: "bg-BG",
-        }),
+        body: JSON.stringify(
+          buildValhallaRouteBody(
+            points.map((point) => ({
+              lng: point.lng,
+              lat: point.lat,
+              type: point.role,
+            })),
+            costing
+          )
+        ),
         next: { revalidate: 0 },
       },
       VALHALLA_TIMEOUT_MS

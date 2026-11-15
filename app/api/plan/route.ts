@@ -4,6 +4,11 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { isDatabaseConfigured } from "@/lib/db";
 import { getProfile } from "@/lib/db/profiles";
+import {
+  resolveDeparture,
+  resolveTripPreferences,
+  TripPreferencePatchSchema,
+} from "@/lib/planner/preferences";
 import { runTripPlan } from "@/lib/planner/run-plan";
 import { resolveVehicle } from "@/lib/planner/vehicle";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
@@ -25,7 +30,14 @@ const PlanSchema = z.object({
   depart_at: z.string().datetime().optional(),
   fuel_level: z.number().finite().min(0.05).max(1).optional(),
   reserve_margin: z.number().finite().min(0.05).max(0.4).optional(),
-  break_every_min: z.number().int().min(120).max(150).optional(),
+  break_every_min: z.number().int().min(45).max(240).optional(),
+  /**
+   * Optional intermediate points, at most three. Omitted or empty keeps the
+   * previous origin–destination contract. Points are ordered along the chord
+   * together with a chosen border.
+   */
+  via: z.array(PointSchema).max(3).optional(),
+  preferences: TripPreferencePatchSchema.optional(),
   vehicle: z
     .object({
       vehicle_type: z.enum(["car", "ev", "truck", "motorcycle"]).optional(),
@@ -65,15 +77,18 @@ export async function POST(request: NextRequest) {
   }
 
   const body = parsed.data;
-  const departAt = body.depart_at ? new Date(body.depart_at) : new Date();
-  if (Number.isNaN(departAt.getTime())) {
-    return NextResponse.json(
-      { error: "Невалиден час на тръгване", code: "INVALID_DEPARTURE" },
-      { status: 400 }
-    );
-  }
-
   const profile = await signedInProfile();
+  const preferences = resolveTripPreferences(
+    {
+      ...body.preferences,
+      ...(body.preferences?.break_every_min == null &&
+      body.break_every_min != null
+        ? { break_every_min: body.break_every_min }
+        : {}),
+    },
+    profile?.trip_preferences
+  );
+  const departAt = resolveDeparture(preferences, body.depart_at, new Date());
   const vehicle = resolveVehicle({
     vehicle_type: profile?.vehicle_type ?? body.vehicle?.vehicle_type,
     fuel_type: profile?.fuel_type ?? body.vehicle?.fuel_type,
@@ -100,7 +115,11 @@ export async function POST(request: NextRequest) {
       departAt,
       vehicle,
       fromProfile: Boolean(profile),
-      breakEveryMin: body.break_every_min ?? 135,
+      preferences,
+      via: body.via?.map((point) => ({
+        label: point.label,
+        coords: { lng: point.lng, lat: point.lat },
+      })),
     });
     if (!plan) {
       return NextResponse.json(

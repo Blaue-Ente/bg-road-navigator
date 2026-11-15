@@ -99,6 +99,49 @@ describe("rankNominatimResults", () => {
   });
 });
 
+describe("rankNominatimResults street names", () => {
+  it("ranks бул. Витоша above a different street that only shares the house number", () => {
+    const ranked = rankNominatimResults(
+      [
+        {
+          place_id: 1,
+          osm_type: "node",
+          osm_id: 1,
+          display_name: "1, улица Димитър Манчев, София",
+          lat: "42.69",
+          lon: "23.33",
+          type: "house",
+          importance: 0.9,
+          name: "Димитър Манчев 1",
+          address: {
+            road: "ул. Димитър Манчев",
+            house_number: "1",
+            city: "София",
+          },
+        },
+        {
+          place_id: 2,
+          osm_type: "node",
+          osm_id: 2,
+          display_name: "1, бул. Витоша, София",
+          lat: "42.697",
+          lon: "23.321",
+          type: "house",
+          importance: 0.1,
+          name: "бул. Витоша 1",
+          address: {
+            road: "bul. Vitosha",
+            house_number: "1",
+            city: "София",
+          },
+        },
+      ],
+      "Витоша 1, София"
+    );
+    expect(ranked[0]?.place_id).toBe(2);
+  });
+});
+
 describe("streetAndCity", () => {
   it("keeps the house number and drops the street prefix", () => {
     expect(streetAndCity("ул. Александровска 1, Бургас")).toEqual({

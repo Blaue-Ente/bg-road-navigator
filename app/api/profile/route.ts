@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
 import { ensureProfile, getProfile, updateProfile } from "@/lib/db/profiles";
+import { resolveTripPreferences, TripPreferencePatchSchema } from "@/lib/planner/preferences";
 import { toDbResponse } from "@/lib/server/db-http";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
@@ -17,6 +18,7 @@ const ProfileUpdateSchema = z.object({
   tank_capacity_liters: z.number().finite().min(10).max(500).nullable().optional(),
   ev_range_km: z.number().int().min(50).max(2000).nullable().optional(),
   avatar_url: z.string().url().max(500).nullable().optional(),
+  trip_preferences: TripPreferencePatchSchema.nullable().optional(),
 });
 
 export async function GET() {
@@ -62,7 +64,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const displayName = parsed.data.display_name ?? parsed.data.username;
-  const patch = {
+  const patch: Parameters<typeof updateProfile>[1] = {
     ...(displayName ? { displayName } : {}),
     ...(parsed.data.home_city !== undefined
       ? { homeCity: parsed.data.home_city }
@@ -86,19 +88,27 @@ export async function PATCH(request: NextRequest) {
       : {}),
   };
 
-  if (Object.keys(patch).length === 0) {
-    return NextResponse.json(
-      { error: "Няма полета за запис", code: "EMPTY_UPDATE" },
-      { status: 400 }
-    );
-  }
-
   try {
     await ensureProfile({
       userId: auth.user.id,
       displayName: auth.user.name,
       email: auth.user.email,
     });
+    if (parsed.data.trip_preferences !== undefined) {
+      const current = await getProfile(auth.user.id);
+      patch.tripPreferences = parsed.data.trip_preferences
+        ? resolveTripPreferences(
+            parsed.data.trip_preferences,
+            current?.trip_preferences
+          )
+        : null;
+    }
+    if (Object.keys(patch).length === 0) {
+      return NextResponse.json(
+        { error: "Няма полета за запис", code: "EMPTY_UPDATE" },
+        { status: 400 }
+      );
+    }
     const profile = await updateProfile(auth.user.id, patch);
     if (!profile) {
       const current = await getProfile(auth.user.id);

@@ -21,3 +21,15 @@ export {
 } from "@/lib/planner/nakordoni-budget";
 export { resolveVehicle } from "@/lib/planner/vehicle";
 export { assembleTripPlan } from "@/lib/planner/assemble";
+export {
+  DEFAULT_TRIP_PREFERENCES,
+  resolveTripPreferences,
+  detourLimitKm,
+  effectiveBreakEveryMin,
+  drivingDayLimits,
+  costingFromPreferences,
+} from "@/lib/planner/preferences";
+export { flagBias, aggregateFlags } from "@/lib/planner/flag-score";
+export { buildChecklist } from "@/lib/planner/checklist";
+export { whyThisRoute } from "@/lib/planner/why-route";
+export { buildFuelAdvice } from "@/lib/fuel-prices/advice";

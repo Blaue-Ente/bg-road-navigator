@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/warm-geo",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/fuel-bulletin",
+      "schedule": "30 6 * * *"
     }
   ]
 }

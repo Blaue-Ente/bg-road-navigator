@@ -185,3 +185,30 @@ html[data-theme="dark"] .signin-apple {
     bottom: 0;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .plan-sheet,
+  .plan-sheet * {
+    visibility: visible;
+  }
+
+  .plan-sheet {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  .plan-no-print {
+    display: none !important;
+  }
+}

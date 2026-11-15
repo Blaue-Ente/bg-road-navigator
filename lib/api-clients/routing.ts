@@ -11,16 +11,20 @@ import {
 } from "@/lib/api-clients/oci-geo";
 import { fetchOsrmRoute } from "@/lib/api-clients/osrm";
 import type { ProvidedRoadRoute } from "@/lib/api-clients/road-route";
-import { fetchValhallaRoute } from "@/lib/api-clients/valhalla";
+import {
+  fetchValhallaRoute,
+  type ValhallaCosting,
+} from "@/lib/api-clients/valhalla";
 
 export async function fetchDrivingRoute(
-  coords: Array<{ lng: number; lat: number }>
+  coords: Array<{ lng: number; lat: number }>,
+  costing?: ValhallaCosting
 ): Promise<ProvidedRoadRoute | null> {
   const state = ociGeoEnvState();
   if (state === "ready") {
     const config = readOciGeoConfig();
     if (config) {
-      const valhalla = await fetchValhallaRoute(coords, config);
+      const valhalla = await fetchValhallaRoute(coords, config, costing);
       if (valhalla.ok) {
         logGeo("routing", { provider: "valhalla", outcome: "ok" });
         return { provider: "valhalla", ...valhalla.route };

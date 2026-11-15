@@ -6,6 +6,7 @@ import { BedDouble, ChevronUp, CloudSun, Fuel, Landmark } from "lucide-react";
 import type { Route } from "@/types/route.types";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { isRoadRoute } from "@/lib/utils/route-builder";
+import { messages as m } from "@/lib/i18n";
 import { useRouteStore } from "@/lib/stores/route.store";
 
 interface RouteBottomSheetProps {
@@ -15,6 +16,8 @@ interface RouteBottomSheetProps {
 export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   const [expanded, setExpanded] = useState(false);
   const clearRoute = useRouteStore((s) => s.clearRoute);
+  const tripPlan = useRouteStore((s) => s.tripPlan);
+  const setPlanDetailOpen = useRouteStore((s) => s.setPlanDetailOpen);
 
   const hours = Math.floor(route.duration_min / 60);
   const mins = route.duration_min % 60;
@@ -112,6 +115,15 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             </div>
 
             <div className="mt-3 flex gap-2">
+              {tripPlan && (
+                <button
+                  type="button"
+                  onClick={() => setPlanDetailOpen(true)}
+                  className="waze-btn-secondary flex-1 py-2.5 text-sm"
+                >
+                  {m.planning.seePlan}
+                </button>
+              )}
               <Link
                 href="/route"
                 className="waze-btn-primary flex-1 py-2.5 text-center text-sm"

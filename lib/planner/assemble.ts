@@ -5,10 +5,17 @@ import { lineLengthKm, pointAtDistance } from "@/lib/planner/line";
 import type { CommunityScore } from "@/lib/planner/community";
 import type { ScoredBorder } from "@/lib/planner/borders";
 import type {
+  FuelAdvice,
+  PlanChecklist,
   PlanPrice,
   PlanStop,
+  PlaceFlagSummary,
+  RouteWeather,
   TripPlannerResult,
+  WhyReason,
 } from "@/lib/planner/types";
+import type { TripPreferences } from "@/lib/planner/preferences";
+import { OSM_ATTRIBUTION } from "@/lib/planner/osm-attribution";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import type { GeoPoint } from "@/types/route.types";
 
@@ -20,8 +27,15 @@ export interface StopAttachment {
   detourKm: number | null;
   motorwayService: boolean;
   source: PlanStop["place_source"];
+  placeId: string | null;
   price: PlanPrice | null;
+  advice: FuelAdvice | null;
+  flags: PlaceFlagSummary[];
   lodgingNote: string | null;
+  stars: number | null;
+  optional?: boolean;
+  kinds?: PlanStop["kinds"];
+  distanceKm?: number;
 }
 
 export interface AssembleInput {
@@ -41,14 +55,25 @@ export interface AssembleInput {
   attachments: StopAttachment[];
   community: CommunityScore;
   warnings: string[];
+  preferences: TripPreferences;
+  checklist: PlanChecklist;
+  weather: RouteWeather;
+  why: WhyReason[];
+  sights?: StopAttachment[];
 }
 
 export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
   const chosen = input.borders.find((border) => border.chosen) ?? null;
   const waitMin = chosen?.wait.minutes ?? 0;
-  const stops = input.merged.map((stop, index) =>
-    toPlanStop(stop, index, input, waitMin)
-  );
+  const stops = [
+    ...input.merged.map((stop, index) =>
+      toPlanStop(stop, index, input, waitMin)
+    ),
+    ...(input.sights ?? []).map((sight, index) =>
+      sightStop(sight, input.merged.length + index, input)
+    ),
+  ];
+  const recommended = bestFuelAdvice(stops);
   const handoff = buildMapsHandoff(exportStops(input, stops));
   const firstLeg = handoff.legs[0];
   const totalMin =
@@ -126,6 +151,12 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       leg_count: handoff.legs.length,
     },
     warnings,
+    preferences: input.preferences,
+    attribution: OSM_ATTRIBUTION,
+    checklist: input.checklist,
+    weather: input.weather,
+    why_this_route: input.why,
+    recommended_fuel: recommended,
   };
 }
 
@@ -202,14 +233,69 @@ function toPlanStop(
     brand: attachment?.brand ?? null,
     place_name: attachment?.name ?? null,
     on_motorway_service: attachment?.motorwayService ?? false,
+    place_id: attachment?.placeId ?? null,
     place_source: attachment?.source ?? "calculated",
     price: attachment?.price ?? null,
+    advice: attachment?.advice ?? null,
+    flags: attachment?.flags ?? [],
+    optional: false,
     price_note: energy && !attachment?.price ? "price unknown" : null,
     ratings_available: overnight ? false : null,
     lodging_note:
       attachment?.lodgingNote ??
       (overnight ? "Оценки на нощувките още не са налични." : null),
+    stars: attachment?.stars ?? null,
   };
+}
+
+function sightStop(
+  sight: StopAttachment,
+  index: number,
+  input: AssembleInput
+): PlanStop {
+  const eta = new Date(
+    input.departAt.getTime() + sight.etaMin * 60_000
+  ).toISOString();
+  return {
+    id: `stop-${index + 1}`,
+    kinds: ["sight"],
+    title: sight.name ?? "Забележителност",
+    reason: "По избор: гледка или забележителност близо до пътя.",
+    coords: sight.coords ?? input.origin.coords,
+    distance_from_start_km: Math.round(sight.distanceKm ?? 0),
+    driving_min: Math.round(sight.etaMin),
+    eta,
+    detour_km: sight.detourKm,
+    brand: sight.brand,
+    place_name: sight.name,
+    on_motorway_service: false,
+    place_id: sight.placeId,
+    place_source: sight.source,
+    price: null,
+    advice: null,
+    flags: sight.flags,
+    optional: true,
+    price_note: null,
+    ratings_available: null,
+    lodging_note: null,
+    stars: sight.stars,
+  };
+}
+
+function bestFuelAdvice(
+  stops: PlanStop[]
+): TripPlannerResult["recommended_fuel"] {
+  let best: TripPlannerResult["recommended_fuel"] = null;
+  for (const stop of stops) {
+    if (!stop.advice) continue;
+    if (
+      !best ||
+      stop.advice.est_savings_eur > best.advice.est_savings_eur
+    ) {
+      best = { stop_id: stop.id, advice: stop.advice };
+    }
+  }
+  return best;
 }
 
 function titleFor(kinds: TimedStop["kinds"], name: string | null): string {

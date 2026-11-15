@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getCityById } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -13,12 +14,12 @@ import {
 import { isRoadRoute } from "@/lib/utils/route-builder";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
-import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
-import { TripPlanCard } from "@/components/trips/TripPlanCard";
-import { TripPlanPanel } from "@/components/route/TripPlanPanel";
+import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
+import { messages as m } from "@/lib/i18n";
+import type { TripPlannerResult } from "@/lib/planner/types";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 import { FxRatesCard } from "@/components/route/FxRatesCard";
@@ -57,12 +58,17 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 }
 
 export default function RoutePage() {
+  const router = useRouter();
   const {
     activeRoute,
+    tripPlan,
     setActiveRoute,
     setAlternativeRoutes,
     setTripPlan,
+    setPlanDetailOpen,
+    setPlanningVia,
     clearRoute,
+    replanDraft,
   } = useRouteStore();
   const [origin, setOrigin] = useState<RoutePoint | null>(() =>
     activeRoute
@@ -76,8 +82,19 @@ export default function RoutePage() {
   );
   const [selectedCorridor, setSelectedCorridor] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
+  const [via, setVia] = useState<RoutePoint | null>(null);
   const [routeBorders, setRouteBorders] = useState<string[]>([]);
   const [routeError, setRouteError] = useState<string | null>(null);
+  const appliedReplan = useRef(0);
+
+  useEffect(() => {
+    if (!replanDraft || appliedReplan.current === replanDraft.token) return;
+    appliedReplan.current = replanDraft.token;
+    setOrigin(replanDraft.origin);
+    setDestination(replanDraft.destination);
+    setVia(replanDraft.via);
+    setSelectedCorridor(null);
+  }, [replanDraft]);
 
   const promoteAlternative = (alt: RouteAlternative) => {
     if (!activeRoute) return;
@@ -127,21 +144,18 @@ export default function RoutePage() {
     setRouteBorders(corridor.borderIds);
   };
 
-  const runCalculation = async (corridorId?: string | null) => {
+  const runCalculation = async (corridorId: string | null, draft: PlanningSubmit) => {
     setCalculating(true);
     setRouteError(null);
 
-    if (!corridorId && (!origin || !destination)) {
+    if (!origin || !destination || origin.id === destination.id) {
       setCalculating(false);
-      setRouteError("Изберете начална и крайна точка от резултатите.");
+      setRouteError(
+        !origin || !destination ? m.planning.missingEnds : m.planning.sameEnds
+      );
       return;
     }
-
-    if (!corridorId && origin?.id === destination?.id) {
-      setCalculating(false);
-      setRouteError("Началната и крайната точка трябва да са различни.");
-      return;
-    }
+    setPlanDetailOpen(false);
 
     const corridor = corridorId
       ? TRAVEL_CORRIDORS.find((c) => c.id === corridorId)
@@ -155,30 +169,55 @@ export default function RoutePage() {
       setRouteBorders([]);
     }
 
+    const points = corridorId
+      ? undefined
+      : via
+        ? [origin!, via, destination!]
+        : [origin!, destination!];
+    const planPromise = postPlan(origin!, destination!, via, draft);
     const route = await fetchRoute({
       corridorId: corridorId ?? undefined,
-      points: corridorId ? undefined : [origin!, destination!],
+      points,
     });
+    const plan = await planPromise;
 
-    if (!route) {
-      setRouteError("Неуспешно изчисление. Опитайте отново.");
+    if (!route && !plan) {
+      setRouteError(m.planning.routeFailed);
       setCalculating(false);
       return;
     }
 
     if (corridor) setRouteBorders(corridor.borderIds);
-    setTripPlan(null);
-    setActiveRoute(route);
-    setAlternativeRoutes(
-      (route.alternatives ?? []).map((alt) => ({
-        ...route,
-        id: alt.id,
-        distance_km: alt.distance_km,
-        duration_min: alt.duration_min,
-        geometry: alt.geometry,
-        alternatives: [],
-      }))
+    const base = route ?? shellRoute(origin!, destination!);
+    const next = plan ? routeFromPlan(base, plan, via) : base;
+    const keepAlternatives =
+      Boolean(route) &&
+      !draft.preferences.avoid_motorways &&
+      !draft.preferences.avoid_tolls;
+    setPlanningVia(
+      via
+        ? { label: via.label, lng: via.coords.lng, lat: via.coords.lat }
+        : null
     );
+    setTripPlan(plan);
+    setActiveRoute(next);
+    setAlternativeRoutes(
+      keepAlternatives
+        ? (route?.alternatives ?? []).map((alt) => ({
+            ...next,
+            id: alt.id,
+            distance_km: alt.distance_km,
+            duration_min: alt.duration_min,
+            geometry: alt.geometry,
+            alternatives: [],
+          }))
+        : []
+    );
+    if (!plan) setRouteError(m.planning.planFailed);
+    if (plan) {
+      setPlanDetailOpen(true);
+      router.push("/");
+    }
     setCalculating(false);
   };
 
@@ -190,14 +229,11 @@ export default function RoutePage() {
   return (
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
-        <PageHeader
-          title="Планиране на маршрут"
-          subtitle="Въведете град, адрес, хотел или друга точка в Европа"
-        />
+        <PageHeader title={m.planning.title} subtitle={m.planning.subtitle} />
 
         <section className="mb-6">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]">
-            Коридори ({TRAVEL_CORRIDORS.length})
+            {m.planning.corridors} ({TRAVEL_CORRIDORS.length})
           </h2>
           <div className="flex flex-wrap gap-2">
             {TRAVEL_CORRIDORS.map((corridor) => (
@@ -208,58 +244,30 @@ export default function RoutePage() {
                   selectedCorridor === corridor.id ? "waze-chip-active" : ""
                 }`}
               >
-                {corridor.label} · ~{corridor.estimatedHours}ч
+                {corridor.label} · ~{corridor.estimatedHours}
+                {m.planning.hoursShort}
               </button>
             ))}
           </div>
         </section>
 
-        <WazeCard className="space-y-4">
-          <LocationSearchInput
-            key={origin?.id ?? "origin-empty"}
-            id="origin"
-            label="Откъде"
-            value={origin}
-            placeholder="Град, адрес или обект — напр. Мюнхен"
-            onSelect={(place) => {
-              setOrigin(place);
-              setSelectedCorridor(null);
-            }}
-          />
-
-          <LocationSearchInput
-            key={destination?.id ?? "destination-empty"}
-            id="destination"
-            label="Накъде"
-            value={destination}
-            placeholder="Къде пътувате — напр. София"
-            onSelect={(place) => {
-              setDestination(place);
-              setSelectedCorridor(null);
-            }}
-          />
-
-          <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
-            Изберете резултат от търсенето, за да използвате точни координати.
-            Поддържат се адреси, градове, хотели и пътни обекти в Европа.
-          </p>
-
-          {routeError && (
-            <p className="text-sm text-[var(--waze-danger)]">{routeError}</p>
-          )}
-
-          <button
-            onClick={() => runCalculation(selectedCorridor)}
-            disabled={
-              calculating ||
-              (!selectedCorridor &&
-                (!origin || !destination || origin.id === destination.id))
-            }
-            className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
-          >
-            {calculating ? "Изчисляване по пътища..." : "Изчисли маршрут"}
-          </button>
-        </WazeCard>
+        <PlanningForm
+          origin={origin}
+          destination={destination}
+          via={via}
+          onOrigin={(place) => {
+            setOrigin(place);
+            setSelectedCorridor(null);
+          }}
+          onDestination={(place) => {
+            setDestination(place);
+            setSelectedCorridor(null);
+          }}
+          onVia={setVia}
+          calculating={calculating}
+          error={routeError}
+          onSubmit={(draft) => void runCalculation(selectedCorridor, draft)}
+        />
 
         {activeRoute && (
           <div className="mt-6 space-y-4">
@@ -296,6 +304,18 @@ export default function RoutePage() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <MapsHandoffButtons route={activeRoute} />
                 <SaveRouteButton route={activeRoute} />
+                {tripPlan && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPlanDetailOpen(true);
+                      router.push("/");
+                    }}
+                    className="waze-btn-secondary px-4 py-2 text-sm"
+                  >
+                    {m.planning.seePlan}
+                  </button>
+                )}
                 <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">
                   Картата
                 </Link>
@@ -367,10 +387,6 @@ export default function RoutePage() {
               </WazeCard>
             )}
 
-            <TripPlanPanel route={activeRoute} />
-
-            <TripPlanCard route={activeRoute} />
-
             <FuelEstimateCard distanceKm={activeRoute.distance_km} />
 
             <WazeCard>
@@ -401,4 +417,82 @@ export default function RoutePage() {
       </div>
     </div>
   );
+}
+
+function postPlan(
+  origin: RoutePoint,
+  destination: RoutePoint,
+  via: RoutePoint | null,
+  draft: PlanningSubmit
+): Promise<TripPlannerResult | null> {
+  return fetch("/api/plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      origin: planPoint(origin),
+      destination: planPoint(destination),
+      ...(via ? { via: [planPoint(via)] } : {}),
+      ...(draft.departAt ? { depart_at: draft.departAt } : {}),
+      fuel_level: draft.fuelLevel,
+      preferences: draft.preferences,
+    }),
+  })
+    .then(async (response) => {
+      if (!response.ok) return null;
+      return (await response.json()) as TripPlannerResult;
+    })
+    .catch(() => null);
+}
+
+function planPoint(place: RoutePoint) {
+  return {
+    label: place.label,
+    lng: place.coords.lng,
+    lat: place.coords.lat,
+    ...(place.countryCode && place.countryCode.length === 2
+      ? { country_code: place.countryCode }
+      : {}),
+  };
+}
+
+function shellRoute(origin: RoutePoint, destination: RoutePoint): Route {
+  return {
+    id: `plan-${origin.id}-${destination.id}`,
+    origin: { id: origin.id, label: origin.label, coords: origin.coords },
+    destination: {
+      id: destination.id,
+      label: destination.label,
+      coords: destination.coords,
+    },
+    waypoints: [],
+    distance_km: 0,
+    duration_min: 0,
+    geometry: { type: "LineString", coordinates: [] },
+    alternatives: [],
+  };
+}
+
+function routeFromPlan(route: Route, plan: TripPlannerResult, via: RoutePoint | null): Route {
+  const border = plan.route.border_waypoint;
+  return {
+    ...route,
+    distance_km: plan.route.distance_km,
+    duration_min: plan.route.duration_min,
+    geometry: plan.route.geometry,
+    routing_source: plan.route.routing_source,
+    waypoints: [
+      ...(via
+        ? [{ id: via.id, label: via.label, coords: via.coords }]
+        : []),
+      ...(border
+        ? [
+            {
+              id: plan.border.chosen?.border_id ?? "border",
+              label: border.label,
+              coords: { lng: border.lng, lat: border.lat },
+            },
+          ]
+        : []),
+    ],
+  };
 }

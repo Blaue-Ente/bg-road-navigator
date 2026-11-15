@@ -15,6 +15,7 @@ import {
   type OciGeoConfig,
   type UpstreamFailure,
 } from "@/lib/api-clients/oci-geo";
+import { bestStreetTier, foldStreetName } from "@/lib/geo/street-match";
 import type { RoutePoint } from "@/types/route.types";
 
 const EUROPE_BOUNDS = {
@@ -30,7 +31,6 @@ const STRUCTURED_TIMEOUT_MS = 4_000;
 const CACHE_TTL_MS = 10 * 60 * 1000;
 /** This isolate treats Photon as cold again after eight quiet minutes. */
 const PHOTON_COLD_AFTER_MS = 8 * 60 * 1000;
-const EXACT_ADDRESS_BOOST = 120;
 const PHOTON_LANGS = new Set(["de", "bg", "el", "en", "ro", "tr", "sr"]);
 const DEFAULT_BIAS = { lat: 42.6977, lon: 23.3219, zoom: 7 };
 
@@ -62,24 +62,7 @@ const STATION_TOKENS = new Set([
   "гара",
 ]);
 const STREET_PREFIX =
-  /^(?:булевард|бул|улица|ул|ulitsa|ulica|ul|boulevard|bulevard|blvd|площад|пл|piazza|platz|via)\.?\s+/iu;
-const PREFIX_TOKENS = new Set([
-  "булевард",
-  "бул",
-  "улица",
-  "ул",
-  "ulitsa",
-  "ulica",
-  "ul",
-  "boulevard",
-  "bulevard",
-  "blvd",
-  "площад",
-  "пл",
-  "piazza",
-  "platz",
-  "via",
-]);
+  /^(?:булевард|бул|улица|ул|ulitsa|ulica|ul|boulevard|bulevard|blvd|bul|площад|пл|piazza|platz|via)\.?\s+/iu;
 
 export interface PhotonProperties {
   osm_id?: number;
@@ -460,7 +443,7 @@ function extractStreetAndNumber(
   }
   if (!housenumber || !street) return null;
   street = stripRawPrefixes(street);
-  if (streetKey(street).length < 3) return null;
+  if (foldStreetName(street).length < 3) return null;
   return {
     housenumber: housenumber.toLocaleLowerCase("bg-BG"),
     street,
@@ -491,32 +474,7 @@ function exactAddress(
 }
 
 function streetsMatch(wanted: string, props: PhotonProperties): boolean {
-  const want = streetKey(wanted);
-  if (want.length < 3) return false;
-  const candidates = [props.street, props.name]
-    .filter((value): value is string => Boolean(value?.trim()))
-    .map(streetKey);
-  return candidates.some((candidate) => {
-    if (!candidate) return false;
-    if (candidate === want || candidate.includes(want)) return true;
-    return want.includes(candidate) && candidate.length >= 4;
-  });
-}
-
-function streetKey(value: string): string {
-  const text = expandStreetAbbrev(normalize(value))
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  const tokens = text.split(" ").filter(Boolean);
-  while (tokens.length > 1 && PREFIX_TOKENS.has(tokens[0] ?? "")) {
-    tokens.shift();
-  }
-  return tokens.join(" ");
-}
-
-function expandStreetAbbrev(value: string): string {
-  return value.replace(/\bstr\./g, "strasse").replace(/\bstr\b/g, "strasse");
+  return bestStreetTier(wanted, [props.street, props.name]) !== "none";
 }
 
 function featureHouseNumber(props: PhotonProperties): string | undefined {
@@ -571,8 +529,18 @@ function scoreFeature(
   ) {
     score += 12;
   }
-  if (flags.address && exactAddress(feature, flags.address)) {
-    score += EXACT_ADDRESS_BOOST;
+  if (flags.address) {
+    const tier = bestStreetTier(flags.address.street, [
+      props.street,
+      props.name,
+    ]);
+    const house = housenumbersEqual(
+      featureHouseNumber(props),
+      flags.address.housenumber
+    );
+    if (tier !== "none" && house) score += 220;
+    else if (tier !== "none") score += 100;
+    else if (house) score += 18;
   }
   return score;
 }

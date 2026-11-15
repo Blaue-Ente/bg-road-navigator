@@ -1,6 +1,23 @@
 import { create } from "zustand";
-import type { TripPlannerResult } from "@/lib/planner/types";
-import type { GeoPoint, Route } from "@/types/route.types";
+import type { TripPreferences } from "@/lib/planner/preferences";
+import type { PlaceFlagSummary, TripPlannerResult } from "@/lib/planner/types";
+import type { GeoPoint, Route, RoutePoint } from "@/types/route.types";
+
+export interface ReplanDraft {
+  token: number;
+  origin: RoutePoint;
+  destination: RoutePoint;
+  via: RoutePoint | null;
+  preferences: TripPreferences;
+  departAt: string | null;
+  fuelLevel: number;
+}
+
+export interface PlanningVia {
+  label: string;
+  lng: number;
+  lat: number;
+}
 
 interface RouteState {
   origin: GeoPoint | null;
@@ -12,6 +29,10 @@ interface RouteState {
   tripPlan: TripPlannerResult | null;
   routeStatus: "idle" | "loading" | "success" | "error";
   routeError: string | null;
+  planDetailOpen: boolean;
+  focusedStopId: string | null;
+  planningVia: PlanningVia | null;
+  replanDraft: ReplanDraft | null;
   setOrigin: (point: GeoPoint | null) => void;
   setDestination: (point: GeoPoint | null) => void;
   addWaypoint: (point: GeoPoint) => void;
@@ -19,6 +40,11 @@ interface RouteState {
   setActiveRoute: (route: Route | null) => void;
   setAlternativeRoutes: (routes: Route[]) => void;
   setTripPlan: (plan: TripPlannerResult | null) => void;
+  setPlanDetailOpen: (open: boolean) => void;
+  setFocusedStopId: (id: string | null) => void;
+  setPlanningVia: (via: PlanningVia | null) => void;
+  setReplanDraft: (draft: ReplanDraft | null) => void;
+  addLocalFlag: (stopId: string, flag: PlaceFlagSummary) => void;
   clearRoute: () => void;
 }
 
@@ -31,6 +57,10 @@ export const useRouteStore = create<RouteState>((set) => ({
   tripPlan: null,
   routeStatus: "idle",
   routeError: null,
+  planDetailOpen: false,
+  focusedStopId: null,
+  planningVia: null,
+  replanDraft: null,
   setOrigin: (point) => set({ origin: point }),
   setDestination: (point) => set({ destination: point }),
   addWaypoint: (point) =>
@@ -44,7 +74,34 @@ export const useRouteStore = create<RouteState>((set) => ({
   setActiveRoute: (route) =>
     set({ activeRoute: route, routeStatus: "success", routeError: null }),
   setAlternativeRoutes: (routes) => set({ alternativeRoutes: routes }),
-  setTripPlan: (plan) => set({ tripPlan: plan }),
+  setTripPlan: (plan) =>
+    set({
+      tripPlan: plan,
+      focusedStopId: null,
+      ...(plan ? {} : { planDetailOpen: false }),
+    }),
+  setPlanDetailOpen: (open) => set({ planDetailOpen: open }),
+  setFocusedStopId: (id) =>
+    set((state) => ({
+      focusedStopId: id,
+      planDetailOpen: id ? true : state.planDetailOpen,
+    })),
+  setPlanningVia: (via) => set({ planningVia: via }),
+  setReplanDraft: (draft) => set({ replanDraft: draft }),
+  addLocalFlag: (stopId, flag) =>
+    set((state) => {
+      if (!state.tripPlan) return {};
+      return {
+        tripPlan: {
+          ...state.tripPlan,
+          stops: state.tripPlan.stops.map((stop) => {
+            if (stop.id !== stopId) return stop;
+            if (stop.flags.some((item) => item.flag === flag.flag)) return stop;
+            return { ...stop, flags: [...stop.flags, flag] };
+          }),
+        },
+      };
+    }),
   clearRoute: () =>
     set({
       origin: null,
@@ -55,5 +112,8 @@ export const useRouteStore = create<RouteState>((set) => ({
       tripPlan: null,
       routeStatus: "idle",
       routeError: null,
+      planDetailOpen: false,
+      focusedStopId: null,
+      planningVia: null,
     }),
 }));
