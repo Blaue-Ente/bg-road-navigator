@@ -379,7 +379,10 @@ def bulgaria(lines):
     notes.append(
         "Bulgaria: Cherna Pista MVR_database.zip (CC BY 4.0, MVR 2021 to 14 Apr 2025). "
         "died=да is fatal, injured=да is slight. Property-only rows were dropped. "
-        "Refresh: npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts"
+        "The official MVR map snapshot in lib/hotspots/data/mvr is merged by refresh-cherna.ts, "
+        "which drops a point on the same date within 100 m of a Cherna point. "
+        "Refresh: node scripts/hotspots/fetch-mvr.mjs && "
+        "npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts"
     )
 
 

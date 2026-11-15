@@ -3,8 +3,16 @@ import type { AccidentKind, AccidentPoint } from "@/lib/hotspots/types";
 /** Cherna Pista publishes the MVR extract under this credit. */
 export const CHERNA_SOURCE_ID = "bg-cherna";
 
+export interface ChernaPlace {
+  date: string;
+  lng: number;
+  lat: number;
+}
+
 export interface ChernaParse {
   points: AccidentPoint[];
+  /** Injury and fatal points that have a calendar date, used to skip MVR duplicates. */
+  places: ChernaPlace[];
   rows: number;
   withCoordinates: number;
   datedFrom: string | null;
@@ -30,6 +38,7 @@ export function parseChernaCsv(csv: string): ChernaParse {
     died: header.indexOf("died"),
   };
   const points: AccidentPoint[] = [];
+  const places: ChernaPlace[] = [];
   let rows = 0;
   let withCoordinates = 0;
   let datedFrom: string | null = null;
@@ -64,9 +73,10 @@ export function parseChernaCsv(csv: string): ChernaParse {
       country: "BG",
       source_id: CHERNA_SOURCE_ID,
     });
+    if (iso) places.push({ date: iso, lng, lat });
   }
 
-  return { points, rows, withCoordinates, datedFrom, datedTo };
+  return { points, places, rows, withCoordinates, datedFrom, datedTo };
 }
 
 export function chernaKind(injured: string, died: string): AccidentKind | null {

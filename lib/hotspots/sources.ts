@@ -1,4 +1,5 @@
 import { CHERNA_PISTA_ATTRIBUTION } from "@/lib/hazards/cherna-pista";
+import { MVR_ATTRIBUTION } from "@/lib/hotspots/mvr";
 
 export interface HotspotSource {
   id: string;
@@ -57,6 +58,13 @@ export const HOTSPOT_SOURCES: HotspotSource[] = [
     country: "BG",
     label_bg: "Черна писта",
     attribution: CHERNA_PISTA_ATTRIBUTION,
+    pending: false,
+  },
+  {
+    id: "bg-mvr",
+    country: "BG",
+    label_bg: "МВР",
+    attribution: MVR_ATTRIBUTION,
     pending: false,
   },
 ];

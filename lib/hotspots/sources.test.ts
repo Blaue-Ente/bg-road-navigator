@@ -22,5 +22,6 @@ describe("hotspot attribution", () => {
     expect(text).toContain(
       "Данни: Черна писта, chernapista.com, CC BY 4.0, по данни на МВР; данните са обработени"
     );
+    expect(text).toContain("Данни: МВР — Интерактивна карта на ПТП (mvr.bg)");
   });
 });

@@ -11,7 +11,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { clusterAccidents } from "@/lib/hotspots/cluster";
 import {
   CORRIDOR_BUFFER_KM,
@@ -19,10 +19,18 @@ import {
   withinCorridor,
 } from "@/lib/hotspots/corridor";
 import { CHERNA_SOURCE_ID, parseChernaCsv } from "@/lib/hotspots/cherna";
-import type { HotspotFile } from "@/lib/hotspots/types";
+import {
+  dedupeMvrRows,
+  MVR_SOURCE_ID,
+  mvrPoint,
+  type MvrRow,
+} from "@/lib/hotspots/mvr";
+import type { AccidentPoint, HotspotFile } from "@/lib/hotspots/types";
 
 const SNAPSHOT = "lib/hotspots/data/cherna/MVR_database.zip";
 const MANIFEST = "lib/hotspots/data/cherna/snapshot.json";
+const MVR_JSONL = "lib/hotspots/data/mvr/accidents.jsonl";
+const MVR_FETCH = "lib/hotspots/data/mvr/fetch.json";
 const HOTSPOTS = "lib/hotspots/data/hotspots.json";
 
 const incoming = process.argv[2];
@@ -56,12 +64,16 @@ const points = parsed.points.filter((point) => {
   return true;
 });
 const bgHotspots = clusterAccidents(points);
+const mvr = mvrHotspots(parsed.places, lines);
+const bgAll = [...bgHotspots, ...mvr.hotspots];
 
 const file = JSON.parse(readFileSync(HOTSPOTS, "utf8")) as HotspotFile;
 const kept = file.hotspots.filter(
-  (hotspot) => hotspot.source_id !== CHERNA_SOURCE_ID
+  (hotspot) =>
+    hotspot.source_id !== CHERNA_SOURCE_ID &&
+    hotspot.source_id !== MVR_SOURCE_ID
 );
-file.hotspots = [...kept, ...bgHotspots];
+file.hotspots = [...kept, ...bgAll];
 const counts: Record<string, number> = {};
 for (const hotspot of file.hotspots) {
   counts[hotspot.country] = (counts[hotspot.country] ?? 0) + 1;
@@ -73,7 +85,8 @@ const note =
   `CSV dates ${parsed.datedFrom ?? "unknown"} to ${parsed.datedTo ?? "unknown"} ` +
   `(publisher period 2021 to 14 Apr 2025). y/x are WGS84 with a comma decimal. ` +
   `died=да is fatal, injured=да is slight. Property-only rows and rows without coordinates were dropped. ` +
-  `Refresh: npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts`;
+  mvr.note +
+  ` Refresh: node scripts/hotspots/fetch-mvr.mjs && npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts`;
 const notes = file.notes.filter((line) => !line.startsWith("Bulgaria:"));
 const romania = notes.findIndex((line) => line.startsWith("Romania"));
 if (romania === -1) notes.push(note);
@@ -116,9 +129,71 @@ console.log(
     rows: parsed.rows,
     injuryWithCoordinates: parsed.withCoordinates,
     corridorPoints: points.length,
-    bgHotspots: bgHotspots.length,
+    chernaHotspots: bgHotspots.length,
+    mvr: mvr.summary,
     counts,
     datedFrom: parsed.datedFrom,
     datedTo: parsed.datedTo,
   })
 );
+
+function mvrHotspots(
+  places: Array<{ date: string; lng: number; lat: number }>,
+  lines: ReturnType<typeof corridorPolylines>
+): {
+  hotspots: ReturnType<typeof clusterAccidents>;
+  note: string;
+  summary: Record<string, number>;
+} {
+  if (!existsSync(MVR_JSONL)) {
+    return {
+      hotspots: [],
+      note: "MVR interactive map snapshot is not in lib/hotspots/data/mvr yet.",
+      summary: {},
+    };
+  }
+  const rows = readFileSync(MVR_JSONL, "utf8")
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => JSON.parse(line) as MvrRow);
+  const fresh = dedupeMvrRows(rows, places);
+  const seen = new Set<string>();
+  const points: AccidentPoint[] = [];
+  for (const row of fresh) {
+    const point = mvrPoint(row);
+    if (!point) continue;
+    if (!withinCorridor(point.lng, point.lat, lines, CORRIDOR_BUFFER_KM)) {
+      continue;
+    }
+    const key = [point.year, point.kind, point.lng.toFixed(5), point.lat.toFixed(5)].join(
+      "|"
+    );
+    if (seen.has(key)) continue;
+    seen.add(key);
+    points.push(point);
+  }
+  const hotspots = clusterAccidents(points);
+  let fetched = "";
+  if (existsSync(MVR_FETCH)) {
+    const meta = JSON.parse(readFileSync(MVR_FETCH, "utf8")) as {
+      retrieved_on?: string;
+      layer_from?: string;
+      layer_to?: string;
+      layer_count?: number;
+    };
+    fetched = ` Snapshot ${meta.retrieved_on ?? "unknown"}, layer dates ${meta.layer_from ?? "?"} to ${meta.layer_to ?? "?"}, layer count ${meta.layer_count ?? "?"}.`;
+  }
+  return {
+    hotspots,
+    summary: {
+      rows: rows.length,
+      afterDedupe: fresh.length,
+      corridorPoints: points.length,
+      hotspots: hotspots.length,
+    },
+    note:
+      `Official MVR map layer GISMVR_RSP_RoadAccident/MapServer/0 fills dates after the Cherna file and gaps inside it. ` +
+      `A point on the same Sofia date within 100 m of a Cherna point is dropped. ` +
+      `${fresh.length} injury or fatal rows remain from ${rows.length}.${fetched}`,
+  };
+}

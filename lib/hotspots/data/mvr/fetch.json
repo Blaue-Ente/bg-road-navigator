@@ -1,0 +1,30 @@
+{
+  "retrieved_on": "2026-11-15",
+  "layer_url": "https://www.mvr.bg/map/rest/services/GISMVR_M_PUBLIC/GISMVR_RSP_RoadAccident/MapServer/0",
+  "query_url": "https://www.mvr.bg/map/rest/services/GISMVR_M_PUBLIC/GISMVR_RSP_RoadAccident/MapServer/0/query",
+  "web_map_item": "9423f152c40340f4b40e548b21a5ae23",
+  "dashboard_item": "0b7065b1f1d34d7d8ad530c51434a9f0",
+  "out_sr": 4326,
+  "page_size": 2000,
+  "pause_ms": 2500,
+  "layer_count": 101684,
+  "layer_from": "2024-01-01",
+  "layer_to": "2026-11-15",
+  "injury_or_fatal_count": 19828,
+  "injury_or_fatal_from": "2024-01-01",
+  "injury_or_fatal_to": "2026-11-15",
+  "snapshot_rows": 19722,
+  "snapshot_from": "2024-01-01",
+  "snapshot_to": "2026-11-15",
+  "fields": [
+    "objectid",
+    "crashdate",
+    "year",
+    "diedcount",
+    "injuredcount",
+    "latitude",
+    "longitude"
+  ],
+  "attribution": "Данни: МВР — Интерактивна карта на ПТП (mvr.bg)",
+  "refresh": "node scripts/hotspots/fetch-mvr.mjs && npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts"
+}
