@@ -1,3 +1,7 @@
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 interface RecommendedGarageCardProps {
   name: string;
   address: string;
@@ -13,6 +17,7 @@ export function RecommendedGarageCard({
   mapsLink,
   speaksBulgarian,
 }: RecommendedGarageCardProps) {
+  const m = useMessages();
   return (
     <div className="waze-panel p-4">
       <div className="flex items-start justify-between gap-2">
@@ -32,7 +37,7 @@ export function RecommendedGarageCard({
           href={`tel:${phone.replace(/\s/g, "")}`}
           className="waze-btn-primary flex-1 py-2.5 text-center text-sm"
         >
-          Обади се
+          {m.emergency.msg10a9ab563a}
         </a>
         <a
           href={mapsLink}
@@ -40,7 +45,7 @@ export function RecommendedGarageCard({
           rel="noopener noreferrer"
           className="waze-btn-secondary flex-1 py-2.5 text-center text-sm"
         >
-          Карта
+          {m.emergency.msg5736d0caff}
         </a>
       </div>
     </div>

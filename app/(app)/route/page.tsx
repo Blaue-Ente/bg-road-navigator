@@ -30,6 +30,7 @@ import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { committedPlace } from "@/lib/route/place-commit";
 import { applyPlanRouteOptions } from "@/components/plan/RouteChoiceCards";
 import type { TripPlannerResult } from "@/lib/planner/types";
@@ -333,9 +334,7 @@ export default function RoutePage() {
         {activeRoute && (
           <div className="mt-6 space-y-4">
             <WazeCard className="border-[var(--waze-accent)]/20 bg-[var(--waze-accent-muted)]">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--waze-accent-text)]">
-                Активен маршрут
-              </h2>
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--waze-accent-text)]">{m.routePage.msgff9002efe3}</h2>
               <p className="text-lg font-semibold text-[var(--waze-text)]">
                 {activeRoute.origin.label} → {activeRoute.destination.label}
               </p>
@@ -353,8 +352,8 @@ export default function RoutePage() {
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
                   {isRoadRoute(activeRoute.routing_source)
-                    ? "по пътищата"
-                    : "приблизителна оценка"}
+                    ? m.routePage.msg9cdf228300
+                    : m.routePage.msga2f81ebcc5}
                 </span>
                 {longHaul && (
                   <span className="rounded-full bg-amber-500/15 px-3 py-1 text-[var(--waze-warning)]">
@@ -377,27 +376,23 @@ export default function RoutePage() {
                     {m.planning.seePlan}
                   </button>
                 )}
-                <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">
-                  Картата
-                </Link>
+                <Link href="/" className="waze-btn-secondary px-4 py-2 text-sm">{m.routePage.msg36cce9dd24}</Link>
                 <Link
                   href={`/borders?route=1${routeBorders.length ? `&border_ids=${routeBorders.join(",")}` : ""}`}
                   className="waze-btn-secondary px-4 py-2 text-sm"
                 >
-                  Граници ({routeBorders.length || "всички"})
+                  {formatTemplate(m.routePage.bordersNav, {
+                    count: routeBorders.length || m.routePage.msg5957d3869f,
+                  })}
                 </Link>
                 <Link
                   href="/weather"
                   className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Прогноза
-                </Link>
+                >{m.routePage.msga4bfab2fea}</Link>
                 <Link
                   href="/fuel?route=1"
                   className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Гориво по маршрута
-                </Link>
+                >{m.routePage.msgfe32ebb56c}</Link>
                 <Link
                   href={
                     selectedCorridor
@@ -405,23 +400,17 @@ export default function RoutePage() {
                       : "/hotels"
                   }
                   className="waze-btn-secondary px-4 py-2 text-sm"
-                >
-                  Почивки
-                </Link>
+                >{m.nav.hotels}</Link>
                 {longHaul && (
                   <Link
                     href="/tips"
                     className="waze-btn-secondary border-amber-500/30 px-4 py-2 text-sm text-[var(--waze-warning)]"
-                  >
-                    Съвети
-                  </Link>
+                  >{m.nav.tips}</Link>
                 )}
                 <button
                   onClick={clearRoute}
                   className="waze-btn-secondary px-4 py-2 text-sm text-[var(--waze-danger)]"
-                >
-                  Изчисти
-                </button>
+                >{m.routePage.msg72cdd825c4}</button>
               </div>
             </WazeCard>
 
@@ -430,7 +419,9 @@ export default function RoutePage() {
             {activeRoute.alternatives.length > 0 && (
               <WazeCard>
                 <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
-                  Алтернативни маршрути ({activeRoute.alternatives.length})
+                  {formatTemplate(m.routePage.alternativesTitle, {
+                    count: activeRoute.alternatives.length,
+                  })}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {activeRoute.alternatives.map((alt, index) => (
@@ -440,8 +431,11 @@ export default function RoutePage() {
                       onClick={() => promoteAlternative(alt)}
                       className="waze-chip"
                     >
-                      Вариант {index + 1}: {alt.distance_km} км ·{" "}
-                      {formatClockDuration(alt.duration_min)}
+                      {formatTemplate(m.routePage.alternativeVariant, {
+                        index: index + 1,
+                        distance: alt.distance_km,
+                        duration: formatClockDuration(alt.duration_min),
+                      })}
                     </button>
                   ))}
                 </div>
@@ -465,11 +459,12 @@ export default function RoutePage() {
             {routeBorders.length > 0 && (
               <WazeCard>
                 <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">
-                  Граници по маршрута ({routeBorders.length})
+                  {formatTemplate(m.routePage.bordersAlongRouteTitle, {
+                    count: routeBorders.length,
+                  })}
                 </h3>
                 <p className="text-xs text-[var(--waze-text-muted)]">
-                  Проверете опашките и алтернативните пролази преди тръгване —
-                  особено при пътувания над 24 часа.
+                  {m.routePage.msgd4607302de}
                 </p>
               </WazeCard>
             )}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import type { EVStation } from "@/types/fuel.types";
 import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
 
@@ -9,13 +11,14 @@ interface EVChargerCardProps {
 }
 
 export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
+  const m = useMessages();
   const availability =
     station.availability === "available"
-      ? { label: "Свободен", style: "bg-emerald-500/20 text-[var(--waze-ok)]" }
+      ? { label: m.fuel.msgb3d02f15df, style: "bg-emerald-500/20 text-[var(--waze-ok)]" }
       : station.availability === "unavailable"
-        ? { label: "Недостъпен", style: "bg-red-500/20 text-[var(--waze-danger)]" }
+        ? { label: m.fuel.msg7697c0759a, style: "bg-red-500/20 text-[var(--waze-danger)]" }
         : {
-            label: "Проверете в оператора",
+            label: m.fuel.msg4a057ee51b,
             style: "bg-slate-500/20 text-slate-300",
           };
 
@@ -62,14 +65,12 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
         </div>
         {station.price_kwh && (
           <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
-            <span className="text-xs text-[var(--waze-text-muted)]">
-              лв/kWh
-            </span>
+            <span className="text-xs text-[var(--waze-text-muted)]">{m.fuel.kwhec63}</span>
             <div className="font-semibold">{station.price_kwh.toFixed(2)}</div>
           </div>
         )}
         <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
-          <span className="text-xs text-[var(--waze-text-muted)]">км</span>
+          <span className="text-xs text-[var(--waze-text-muted)]">{m.fuel.msg3ced3a0e89}</span>
           <div className="font-semibold">{station.distance_km.toFixed(1)}</div>
         </div>
       </div>

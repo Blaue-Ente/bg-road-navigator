@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -13,10 +15,11 @@ import { haversineKm } from "@/lib/geo/haversine";
 import { useMapStore } from "@/lib/stores/map.store";
 
 export default function HotelsPage() {
+  const m = useMessages();
   return (
     <Suspense
       fallback={
-        <div className="p-4 text-[var(--waze-text-muted)]">Зареждане…</div>
+        <div className="p-4 text-[var(--waze-text-muted)]">{m.fuelPage.msg0a434f910d}</div>
       }
     >
       <HotelsPageContent />
@@ -25,6 +28,7 @@ export default function HotelsPage() {
 }
 
 function HotelsPageContent() {
+  const m = useMessages();
   const searchParams = useSearchParams();
   const corridorFromUrl = searchParams.get("corridor");
   const userLocation = useMapStore((s) => s.userLocation);
@@ -37,24 +41,20 @@ function HotelsPageContent() {
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
         <PageHeader
-          title="Почивки и нощувки"
-          subtitle="Зони за почивка по магистралите — паркинг, душ, храна и заряд"
+          title={m.hotelsPage.msg06e21a5dc4}
+          subtitle={m.hotelsPage.msgc83074c070}
         />
 
         {isFiltered && (
           <p className="mb-4 text-sm text-[var(--waze-text-secondary)]">
-            Показани са зони по избрания маршрут.{" "}
-            <Link href="/hotels" className="text-[var(--waze-accent-text)]">
-              Виж всички
-            </Link>
+            {m.hotelsPage.filteredCorridorPrefix}{" "}
+            <Link href="/hotels" className="text-[var(--waze-accent-text)]">{m.hotelsPage.msg3634fd6854}</Link>
           </p>
         )}
 
         <div className="space-y-4">
           {areas.length === 0 ? (
-            <p className="text-center text-[var(--waze-text-muted)]">
-              Няма записани зони за почивка за този маршрут.
-            </p>
+            <p className="text-center text-[var(--waze-text-muted)]">{m.hotelsPage.msgf7be326529}</p>
           ) : (
             areas.map((area) => (
               <div key={area.id}>
@@ -77,9 +77,7 @@ function HotelsPageContent() {
           )}
         </div>
 
-        <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
-          При пътувания над едно денонощие резервирайте нощувка предварително.
-        </p>
+        <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">{m.hotelsPage.msg86de128e73}</p>
       </div>
     </div>
   );

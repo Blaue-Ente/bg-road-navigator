@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import type { RouteManeuver } from "@/types/route.types";
 
 export function ManeuverList({ maneuvers }: { maneuvers: RouteManeuver[] }) {

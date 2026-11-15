@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useState } from "react";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { CommentThread } from "@/components/community/CommentThread";
@@ -17,6 +19,7 @@ export function CommunityFeed({
 }: {
   pins?: import("@/types/community.types").CommunityPin[];
 }) {
+  const m = useMessages();
   const storePins = useCommunityStore((s) => s.pins);
   const pins = pinsProp ?? storePins;
   const { setSelectedPin, selectedPin, setPinUpvotes } = useCommunityStore();
@@ -25,7 +28,7 @@ export function CommunityFeed({
 
   const confirmPin = async (pinId: string, kind: "still_there" | "gone") => {
     if (!authenticated) {
-      setActionError("Влезте в профила си, за да кажете дали сигналът още важи.");
+      setActionError(m.community.msgad1bc1e110);
       return;
     }
 
@@ -37,10 +40,10 @@ export function CommunityFeed({
     if (!response.ok) {
       const message =
         response.status === 409
-          ? "Вече сте отговорили така."
+          ? m.community.msg2b6c205e59
           : response.status === 401
-            ? "Влезте в профила си, за да гласувате."
-            : "Отговорът не беше записан.";
+            ? m.community.msg4b42c2bda5
+            : m.community.msg9ed05586e9;
       setActionError(message);
       return;
     }
@@ -57,24 +60,22 @@ export function CommunityFeed({
     const response = await fetch(`/api/community/pins/${pinId}/report`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: "Неточен или неактуален сигнал" }),
+      body: JSON.stringify({ reason: m.community.msg91c5e1a750 }),
     });
 
     setActionError(
       response.ok
-        ? "Сигналът е изпратен за преглед."
+        ? m.community.msga0353392e6
         : response.status === 409
-          ? "Вече сте докладвали този сигнал."
-          : "Докладът не беше изпратен."
+          ? m.community.msge347c023a4
+          : m.community.msg73bc09ce43
     );
   };
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-          Активни маркери
-        </h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.community.msgef67ba22e9}</h2>
         <span className="text-xs text-[var(--waze-text-muted)]">
           {pins.length}
         </span>
@@ -106,7 +107,7 @@ export function CommunityFeed({
                     void confirmPin(pin.id, "still_there");
                   }}
                   className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-xs text-[var(--waze-text)]"
-                  aria-label="Още е там"
+                  aria-label={m.community.msg6bfaef0a25}
                 >
                   <ThumbsUp className="h-3.5 w-3.5" strokeWidth={2} />
                   Още е там {pin.upvotes}
@@ -118,11 +119,9 @@ export function CommunityFeed({
                     void confirmPin(pin.id, "gone");
                   }}
                   className="flex items-center gap-1 rounded-full bg-[var(--waze-surface-elevated)] px-2 py-1 text-xs text-[var(--waze-text-secondary)]"
-                  aria-label="Вече го няма"
+                  aria-label={m.community.msg6101a7d118}
                 >
-                  <X className="h-3.5 w-3.5" strokeWidth={2} />
-                  Вече го няма
-                </button>
+                  <X className="h-3.5 w-3.5" strokeWidth={2} />{m.community.msg6101a7d118}</button>
               </div>
             </div>
 
@@ -134,9 +133,7 @@ export function CommunityFeed({
 
             {pin.is_verified && (
               <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-medium text-[var(--waze-ok)]">
-                <Check className="h-3 w-3" strokeWidth={2} />
-                Потвърдено
-              </span>
+                <Check className="h-3 w-3" strokeWidth={2} />{m.community.msg627b93069d}</span>
             )}
           </WazeCard>
         );
@@ -148,7 +145,7 @@ export function CommunityFeed({
             type="button"
             className="fixed inset-0 z-40 bg-black/50"
             onClick={() => setSelectedPin(null)}
-            aria-label="Затвори"
+            aria-label={m.nav.close}
           />
           <div className="fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-[var(--waze-border)] bg-[var(--waze-surface)] p-5 pb-8">
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[var(--waze-text-muted)]/40" />
@@ -193,17 +190,13 @@ export function CommunityFeed({
                 type="button"
                 onClick={() => void confirmPin(selectedPin.id, "gone")}
                 className="waze-btn-secondary flex-1 py-2.5 text-sm"
-              >
-                Вече го няма
-              </button>
+              >{m.community.msg6101a7d118}</button>
               {authenticated && (
                 <button
                   type="button"
                   onClick={() => void reportPin(selectedPin.id)}
                   className="waze-btn-secondary flex-1 py-2.5 text-sm"
-                >
-                  Доклади
-                </button>
+                >{m.community.msg8e2d584d7c}</button>
               )}
             </div>
 

@@ -76,6 +76,7 @@ import { weatherAlongRoute } from "@/lib/planner/route-weather";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import { expectedWait, type CurrentQueue } from "@/lib/planner/wait";
 import { whyThisRoute } from "@/lib/planner/why-route";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import { buildRouteOptions } from "@/lib/planner/route-options";
 import { routeThroughPoints } from "@/lib/planner/via-points";
 import { fetchDirectRoute, fetchRouteThrough } from "@/lib/planner/via-route";
@@ -100,9 +101,12 @@ export interface TripPlanRequest {
   via?: Array<{ label: string; coords: GeoPoint }>;
   now?: Date;
   routeChoice?: RouteChoice | null;
+  locale?: Locale;
 }
 
 export async function runTripPlan(input: TripPlanRequest) {
+  const locale = input.locale ?? "bg";
+  const plannerCopy = catalog(locale).planner;
   const now = input.now ?? new Date();
   const prefs = input.preferences;
   const costing = costingFromPreferences(prefs);
@@ -404,6 +408,7 @@ export async function runTripPlan(input: TripPlanRequest) {
         extraTypes: [...scenicTypes(prefs), ...childAmenityTypes(prefs)],
       }),
       weatherAlongRoute({
+        locale,
         line: chosenLine,
         departAt: input.departAt,
         durationMin: chosenRoute.duration_min,
@@ -459,20 +464,16 @@ export async function runTripPlan(input: TripPlanRequest) {
 
   const warnings: string[] = [];
   if (!corridor.ok) {
-    warnings.push(
-      "Част от станциите и хотелите не се заредиха. Липсващите спирки са ориентири по пътя."
-    );
+    warnings.push(plannerCopy.warnings.poiPartial);
   }
   if (
     chosenRoute.provider === "osrm" &&
     (prefs.avoid_motorways || prefs.avoid_tolls)
   ) {
-    warnings.push(
-      "Избягването на магистрали или тол важи при Valhalla. Този маршрут е от публичния OSRM."
-    );
+    warnings.push(plannerCopy.warnings.osrmRouting);
   }
   if (prefs.pace === "scenic" && sights.length === 0) {
-    warnings.push("Няма забележителности по трасето за по-спокойния ход.");
+    warnings.push(plannerCopy.warnings.scenicEmpty);
   }
   warnings.push(...hazardWarnings(roadHazards));
   warnings.push(...hotspotWarnings(attentionSegments));
@@ -483,6 +484,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     destination: { coords: input.destination.coords },
   });
   const why = whyThisRoute({
+    locale,
     borders: borders
       .filter((border) => border.reasonCode !== "serbia_hungary")
       .map((border) => ({
@@ -509,6 +511,7 @@ export async function runTripPlan(input: TripPlanRequest) {
   if (attention) why.push(attention);
 
   const plan = assembleTripPlan({
+    locale,
     now,
     departAt: input.departAt,
     vehicle: input.vehicle,
@@ -532,6 +535,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     warnings,
     preferences: prefs,
     checklist: buildChecklist({
+      locale,
       countries,
       departAt: input.departAt,
       withPet: prefs.with_pet,

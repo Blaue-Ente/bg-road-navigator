@@ -1,12 +1,13 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import type {
   ChecklistItem,
   PlanChecklist as Checklist,
 } from "@/lib/planner/types";
 import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
-import { messages as m } from "@/lib/i18n";
-
+import { catalog } from "@/lib/i18n/locale";
 export function PlanChecklist({
   checklist,
   warnings,
@@ -18,6 +19,7 @@ export function PlanChecklist({
   checks: Record<string, boolean>;
   onToggle: (id: string, checked: boolean) => void;
 }) {
+  const m = useMessages();
   const routeCharges: ChecklistItem[] = [
     ...checklist.vignettes,
     ...checklist.toll_sections,
@@ -80,8 +82,8 @@ export function PlanChecklist({
                       {item.charge_kind && (
                         <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
                           {item.charge_kind === "distance_toll"
-                            ? "Тол на км"
-                            : "Винетка"}
+                            ? m.planner.checklist.distanceToll
+                            : m.planner.checklist.vignette}
                         </span>
                       )}
                       <span className="mt-0.5 block text-[var(--waze-text-secondary)]">
@@ -192,10 +194,11 @@ export function PlanSafetyBlock({
 }
 
 function checklistOfficialLinkLabel(item: ChecklistItem): string {
+  const labels = catalog("bg").planner.checklist;
   if (item.link_label) return item.link_label;
-  if (item.link_role === "info") return m.checklist.officialInfo;
-  if (item.link_role === "shop") return m.checklist.officialShop;
-  return m.checklist.officialShop;
+  if (item.link_role === "info") return labels.officialInfo;
+  if (item.link_role === "shop") return labels.officialShop;
+  return labels.officialShop;
 }
 
 function SafetyGroup({

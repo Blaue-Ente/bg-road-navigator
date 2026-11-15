@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
+import { useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderId } from "@/lib/auth/config";
 
 function GoogleMark() {
+  const m = useMessages();
   return (
     <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
       <path
@@ -35,16 +38,19 @@ function AppleMark() {
   );
 }
 
-const LABELS: Record<SocialProviderId, string> = {
-  google: "Продължи с Google",
-  apple: "Продължи с Apple",
-};
-
 export function SocialSignIn({
   providers,
 }: {
   providers: SocialProviderId[];
 }) {
+  const m = useMessages();
+  const labels = useMemo(
+    (): Record<SocialProviderId, string> => ({
+      google: m.auth.google1c04,
+      apple: m.auth.apple1262,
+    }),
+    [m]
+  );
   const [pending, setPending] = useState<SocialProviderId | null>(null);
   const [error, setError] = useState("");
 
@@ -59,11 +65,11 @@ export function SocialSignIn({
         callbackURL: "/",
       });
       if (result.error) {
-        setError("Входът с този акаунт не успя. Опитайте отново.");
+        setError(m.auth.msg7e257de54d);
         setPending(null);
       }
     } catch {
-      setError("Входът с този акаунт не успя. Опитайте отново.");
+      setError(m.auth.msg7e257de54d);
       setPending(null);
     }
   };
@@ -83,14 +89,12 @@ export function SocialSignIn({
           }
         >
           {provider === "google" ? <GoogleMark /> : <AppleMark />}
-          {pending === provider ? "Пренасочване..." : LABELS[provider]}
+          {pending === provider ? m.auth.msgc62eee5fb0 : labels[provider]}
         </button>
       ))}
       {error && <p className="text-sm text-[var(--waze-danger)]">{error}</p>}
       <div className="flex items-center gap-3 pt-1 text-xs text-[var(--waze-text-muted)]">
-        <span className="h-px flex-1 bg-[var(--waze-border)]" />
-        или с имейл
-        <span className="h-px flex-1 bg-[var(--waze-border)]" />
+        <span className="h-px flex-1 bg-[var(--waze-border)]" />{m.auth.msgee37057594}<span className="h-px flex-1 bg-[var(--waze-border)]" />
       </div>
     </div>
   );

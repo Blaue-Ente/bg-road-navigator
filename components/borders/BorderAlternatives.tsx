@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import Link from "next/link";
 import type { BorderStatus } from "@/types/border.types";
 import { rankBorderAlternatives } from "@/lib/utils/border-alternatives";
@@ -14,14 +16,13 @@ export function BorderAlternatives({
   border,
   allBorders,
 }: BorderAlternativesProps) {
+  const m = useMessages();
   const alternatives = rankBorderAlternatives(border, allBorders);
   if (alternatives.length === 0) return null;
 
   return (
     <div className="mt-3 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] p-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-        Алтернативни пролази
-      </p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.borders.msga5da45f9cd}</p>
       <ul className="space-y-2">
         {alternatives.map(({ crossing, wait_delta_min, recommended }) => (
           <li
@@ -32,9 +33,7 @@ export function BorderAlternatives({
               <p className="truncate font-medium text-[var(--waze-text)]">
                 {crossing.name_bg}
                 {recommended && (
-                  <span className="ml-2 text-[10px] font-semibold uppercase text-[var(--waze-ok)]">
-                    по-бързо
-                  </span>
+                  <span className="ml-2 text-[10px] font-semibold uppercase text-[var(--waze-ok)]">{m.borders.msg48e3fbe2b0}</span>
                 )}
               </p>
               {wait_delta_min > 0 && (
@@ -50,9 +49,7 @@ export function BorderAlternatives({
       <Link
         href="/borders"
         className="mt-2 inline-block text-xs text-[var(--waze-accent-text)] hover:underline"
-      >
-        Виж всички граници
-      </Link>
+      >{m.borders.msga4518455ef}</Link>
     </div>
   );
 }

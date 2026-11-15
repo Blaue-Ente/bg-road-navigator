@@ -5,28 +5,41 @@
 
 export type RoadChargeKind = "vignette" | "distance_toll";
 
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
+
 export interface VignetteLink {
   country_code: string;
   kind: RoadChargeKind;
   name_bg: string;
   name_en: string;
+  name_i18n?: Partial<Record<Locale, string>>;
   official_url: string;
   link_role: "shop" | "info";
   notes_bg?: string;
+  notes_i18n?: Partial<Record<Locale, string>>;
+  notes_en?: string;
   /** Product durations copied from the official shop page — never prices. */
   validity_bg?: string;
   /** Day the official page was read (YYYY-MM-DD). */
   checked_on?: string;
 }
 
-export function formatVignetteValidity(link: VignetteLink): string | null {
+export function formatVignetteValidity(
+  link: VignetteLink,
+  locale: Locale = "bg"
+): string | null {
   if (!link.validity_bg?.trim() || !link.checked_on?.trim()) return null;
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(link.checked_on.trim());
   const checked =
     match != null
       ? `${Number(match[3])}.${Number(match[2])}.${match[1]}`
       : link.checked_on.trim();
-  return `Срокове (проверени на ${checked}): ${link.validity_bg.trim()}`;
+  return formatTemplate(catalog(locale).vignetteFormat.validityTemplate, {
+    checked,
+    validity: link.validity_bg.trim(),
+  });
 }
 
 export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [

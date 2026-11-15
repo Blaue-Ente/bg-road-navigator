@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect, useState } from "react";
 import type { BorderWebcamFeed } from "@/types/border.types";
 import { isAllowedHttpsUrl, stripHtml } from "@/lib/geo/escape-html";
@@ -18,6 +20,7 @@ export function BorderWebcam({
   label,
   nakordoniUrl,
 }: BorderWebcamProps) {
+  const m = useMessages();
   const [feed, setFeed] = useState<BorderWebcamFeed | null>(null);
   const [error, setError] = useState(false);
   const [imageKey, setImageKey] = useState(0);
@@ -104,13 +107,9 @@ export function BorderWebcam({
           target="_blank"
           rel="noopener noreferrer"
           className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-        >
-          Виж на живо
-        </a>
+        >{m.borders.msga9c0e3df40}</a>
       ) : (
-        <p className="text-xs text-[var(--waze-text-secondary)]">
-          Няма налична камера за този пункт
-        </p>
+        <p className="text-xs text-[var(--waze-text-secondary)]">{m.borders.msg9989398777}</p>
       )}
       {feed?.attribution && (
         <p className="text-[10px] text-[var(--waze-text-secondary)]">
@@ -130,6 +129,7 @@ function WebcamFooter({
   feed: BorderWebcamFeed | null;
   livePageUrl: string | null;
 }) {
+  const m = useMessages();
   return (
     <div className="flex items-center justify-between gap-2 bg-gray-900/90 px-3 py-2 text-xs">
       <span className="text-gray-300">{label}</span>
@@ -140,9 +140,7 @@ function WebcamFooter({
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300"
-          >
-            Страница на пункта
-          </a>
+          >{m.borders.msg4ad10631ba}</a>
         )}
         {feed?.windy_url && (
           <a
@@ -150,9 +148,7 @@ function WebcamFooter({
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300"
-          >
-            Камера
-          </a>
+          >{m.borders.msga71a775fd9}</a>
         )}
       </div>
     </div>

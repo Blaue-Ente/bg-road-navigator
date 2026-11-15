@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -7,24 +9,23 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { formatDuration } from "@/lib/utils/route-planner";
 import type { Route, SavedRoute } from "@/types/route.types";
 
-async function fetchSavedRoutes(): Promise<{
-  routes: SavedRoute[];
-  configured: boolean;
-}> {
-  const response = await fetch("/api/saved-routes");
-  if (response.status === 401) {
-    throw new Error("Сесията е изтекла.");
-  }
-  if (!response.ok) throw new Error("Маршрутите не могат да бъдат заредени.");
-  return response.json();
-}
-
 export function SavedRoutesPanel() {
+  const m = useMessages();
   const router = useRouter();
   const setActiveRoute = useRouteStore((s) => s.setActiveRoute);
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["saved-routes"],
-    queryFn: fetchSavedRoutes,
+    queryKey: ["saved-routes", m],
+    queryFn: async (): Promise<{
+      routes: SavedRoute[];
+      configured: boolean;
+    }> => {
+      const response = await fetch("/api/saved-routes");
+      if (response.status === 401) {
+        throw new Error(m.profile.msg9e9305573d);
+      }
+      if (!response.ok) throw new Error(m.profile.msgb1270f88cb);
+      return response.json();
+    },
   });
 
   const remove = async (id: string) => {
@@ -63,7 +64,7 @@ export function SavedRoutesPanel() {
   if (isLoading) {
     return (
       <WazeCard>
-        <p className="text-sm text-[var(--waze-text-muted)]">Зареждане…</p>
+        <p className="text-sm text-[var(--waze-text-muted)]">{m.fuelPage.retrying}</p>
       </WazeCard>
     );
   }
@@ -71,12 +72,9 @@ export function SavedRoutesPanel() {
   if (data && !data.configured) {
     return (
       <WazeCard>
-        <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent-text)]">
-          Запазени маршрути
-        </h2>
+        <h2 className="mb-2 text-base font-semibold text-[var(--waze-accent-text)]">{m.profile.msg0b5088b389}</h2>
         <p className="text-sm text-[var(--waze-text-secondary)]">
-          Записите не са включени. Дотогава планирайте свободно от екрана
-          „Маршрут“.
+          {m.profile.msga7eb453f0c}
         </p>
       </WazeCard>
     );
@@ -86,18 +84,15 @@ export function SavedRoutesPanel() {
 
   return (
     <WazeCard>
-      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">
-        Запазени маршрути
-      </h2>
+      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">{m.profile.msg0b5088b389}</h2>
       {isError && (
         <p className="mb-2 text-sm text-[var(--waze-danger)]">
-          {error instanceof Error ? error.message : "Грешка при зареждане"}
+          {error instanceof Error ? error.message : m.profile.msg38ba72b10a}
         </p>
       )}
       {routes.length === 0 ? (
         <p className="text-sm text-[var(--waze-text-muted)]">
-          Няма запазени маршрути. Изчислете маршрут и натиснете „Запази
-          маршрут“.
+          {m.profile.msg9c152126de}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -110,7 +105,8 @@ export function SavedRoutesPanel() {
                 {route.name}
               </p>
               <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
-                {route.distance_km ?? "—"} км ·{" "}
+                {route.distance_km ?? "—"}
+                {m.units.kmPrefix} ·{" "}
                 {route.duration_min != null
                   ? formatDuration(route.duration_min)
                   : "—"}
@@ -121,15 +117,13 @@ export function SavedRoutesPanel() {
                   onClick={() => openRoute(route)}
                   className="waze-btn-primary px-3 py-1.5 text-xs"
                 >
-                  Отвори
+                  {m.profile.openRoute}
                 </button>
                 <button
                   type="button"
                   onClick={() => void remove(route.id)}
                   className="waze-btn-secondary px-3 py-1.5 text-xs text-[var(--waze-danger)]"
-                >
-                  Изтрий
-                </button>
+                >{m.profile.msg7cc236d2ac}</button>
               </div>
             </li>
           ))}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import type { BorderStatus } from "@/types/border.types";
 import { officialLinksForCrossing } from "@/lib/constants/border-official-links";
 import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
@@ -10,6 +12,7 @@ interface BorderCardProps {
 }
 
 export function BorderCard({ border, onComment }: BorderCardProps) {
+  const m = useMessages();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "green":
@@ -43,21 +46,21 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
           }`}
         >
           {border.status === "green"
-            ? "< 30 мин"
+            ? m.borders.msg38f8659f01
             : border.status === "yellow"
-              ? "30-60 мин"
+              ? m.borders.msg27d10f0144
               : border.status === "orange"
-                ? "60-120 мин"
-                : "> 120 мин"}
+                ? m.borders.msg9541950749
+                : m.borders.msgc42c66ea86}
         </span>
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
         {(
           [
-            { label: "Коли", value: border.wait_time_cars },
-            { label: "Камиони", value: border.wait_time_trucks },
-            { label: "Автобуси", value: border.wait_time_buses },
+            { label: m.bordersPage.msg6a2c5dc8ec, value: border.wait_time_cars },
+            { label: m.borders.msgb5cd7f8be7, value: border.wait_time_trucks },
+            { label: m.borders.msgb7479c0cf4, value: border.wait_time_buses },
           ] as const
         ).map((row) => (
           <span
@@ -75,7 +78,7 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
       <div className="mb-3 text-xs text-[var(--waze-text-muted)]">
         Работи: {border.working_hours}
         {border.derived_heavy_wait && (
-          <span> · камиони/автобуси са оценка</span>
+          <span>{m.borders.msg016e5a38cf}</span>
         )}
       </div>
 
@@ -112,9 +115,7 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
             type="button"
             onClick={onComment}
             className="rounded-full bg-[var(--waze-accent-muted)] px-3 py-1.5 text-sm text-[var(--waze-accent-text)]"
-          >
-            Коментар
-          </button>
+          >{m.borders.msg0d6ebd8e6f}</button>
         )}
       </div>
     </div>

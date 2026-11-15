@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
 
@@ -16,9 +18,11 @@ interface RequireAuthProps {
  */
 export function RequireAuth({
   children,
-  reason = "Влезте в профила си, за да ползвате тази функция.",
+  reason,
   className,
 }: RequireAuthProps) {
+  const m = useMessages();
+  const resolvedReason = reason ?? m.auth.msg63ff7dd981;
   const session = useUserStore((s) => s.session);
   const isLoading = useUserStore((s) => s.isLoading);
 
@@ -28,9 +32,7 @@ export function RequireAuth({
         className={
           className ?? "waze-panel p-4 text-sm text-[var(--waze-text-muted)]"
         }
-      >
-        Зареждане...
-      </div>
+      >{m.fuelPage.suspense}</div>
     );
   }
 
@@ -42,17 +44,13 @@ export function RequireAuth({
           "waze-panel flex flex-col items-start gap-3 p-4 text-sm text-[var(--waze-text-secondary)]"
         }
       >
-        <p>{reason}</p>
+        <p>{resolvedReason}</p>
         <div className="flex flex-wrap gap-2">
-          <Link href="/login" className="waze-btn-primary px-4 py-2 text-xs">
-            Вход
-          </Link>
+          <Link href="/login" className="waze-btn-primary px-4 py-2 text-xs">{m.login.title}</Link>
           <Link
             href="/register"
             className="waze-btn-secondary px-4 py-2 text-xs"
-          >
-            Регистрация
-          </Link>
+          >{m.login.register}</Link>
         </div>
       </div>
     );

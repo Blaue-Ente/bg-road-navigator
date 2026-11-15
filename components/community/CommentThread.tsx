@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import Link from "next/link";
@@ -16,6 +18,7 @@ async function fetchComments(pinId: string): Promise<{
 }
 
 export function CommentThread({ pinId }: { pinId: string }) {
+  const m = useMessages();
   const session = useUserStore((s) => s.session);
   const queryClient = useQueryClient();
   const [body, setBody] = useState("");
@@ -38,11 +41,11 @@ export function CommentThread({ pinId }: { pinId: string }) {
         body: JSON.stringify({ body: body.trim() }),
       });
       if (response.status === 401) {
-        setError("Влезте, за да коментирате.");
+        setError(m.community.msgaf2b616dad);
         return;
       }
       if (response.status === 503) {
-        setError("Коментарите изискват включена база.");
+        setError(m.community.msg79cf885e61);
         return;
       }
       if (!response.ok) throw new Error("post failed");
@@ -51,7 +54,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
         queryKey: ["pin-comments", pinId],
       });
     } catch {
-      setError("Коментарът не беше записан.");
+      setError(m.community.msg893fead20f);
     } finally {
       setPosting(false);
     }
@@ -59,31 +62,23 @@ export function CommentThread({ pinId }: { pinId: string }) {
 
   if (data && data.configured === false) {
     return (
-      <div className="mt-4 waze-panel p-3 text-sm text-[var(--waze-text-muted)]">
-        Записите не са включени.
-      </div>
+      <div className="mt-4 waze-panel p-3 text-sm text-[var(--waze-text-muted)]">{m.community.msg2130215ec8}</div>
     );
   }
 
   return (
     <div className="mt-5 space-y-3">
-      <h3 className="text-sm font-semibold text-[var(--waze-accent-text)]">
-        Коментари
-      </h3>
+      <h3 className="text-sm font-semibold text-[var(--waze-accent-text)]">{m.community.msg390ef3797d}</h3>
 
       {isLoading && (
-        <p className="text-sm text-[var(--waze-text-muted)]">Зареждане…</p>
+        <p className="text-sm text-[var(--waze-text-muted)]">{m.fuelPage.msg0a434f910d}</p>
       )}
       {isError && (
-        <p className="text-sm text-[var(--waze-danger)]">
-          Коментарите не могат да се заредят.
-        </p>
+        <p className="text-sm text-[var(--waze-danger)]">{m.community.msgef6cdf3887}</p>
       )}
 
       {(data?.comments ?? []).length === 0 && !isLoading ? (
-        <p className="text-sm text-[var(--waze-text-muted)]">
-          Все още няма коментари.
-        </p>
+        <p className="text-sm text-[var(--waze-text-muted)]">{m.community.msga134b21c65}</p>
       ) : (
         <ul className="space-y-2">
           {(data?.comments ?? []).map((comment) => (
@@ -106,7 +101,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             className="w-full resize-none rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm text-[var(--waze-text)]"
-            placeholder="Добави коментар…"
+            placeholder={m.community.msg72efb4e63e}
             rows={2}
             maxLength={500}
           />
@@ -117,7 +112,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
             disabled={!body.trim() || posting}
             className="mt-2 waze-btn-primary w-full py-2 text-sm disabled:opacity-50"
           >
-            {posting ? "Публикуване…" : "Публикувай"}
+            {posting ? m.community.msgdc759d77e4 : m.community.msg74d5fe4001}
           </button>
         </div>
       ) : (
@@ -125,11 +120,7 @@ export function CommentThread({ pinId }: { pinId: string }) {
           <Link
             href="/login"
             className="text-[var(--waze-accent-text)] hover:underline"
-          >
-            Влезте
-          </Link>
-          , за да коментирате.
-        </p>
+          >{m.community.msge34878c39b}</Link>{m.community.msg3bfabbbcd3}</p>
       )}
     </div>
   );

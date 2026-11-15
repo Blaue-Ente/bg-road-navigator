@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -32,6 +34,7 @@ export function MapCanvas({
   dropMode = false,
   onMapUnload,
 }: MapCanvasProps) {
+  const m = useMessages();
   const scheme = useThemeStore((s) => s.scheme);
   const view = useMapStore((s) => s.view);
   const setView = useMapStore((s) => s.setView);
@@ -78,7 +81,7 @@ export function MapCanvas({
       });
     } catch {
       setMapError(
-        "Картата не се зареди."
+        m.map.msg427353e6f8
       );
       return;
     }
@@ -101,7 +104,7 @@ export function MapCanvas({
     const loadTimer = window.setTimeout(() => {
       if (!map.isStyleLoaded()) {
         setMapError(
-          "Стилът не се зареди."
+          m.map.msgea50450bfc
         );
       }
     }, 12_000);
@@ -117,7 +120,7 @@ export function MapCanvas({
     map.on("error", (event) => {
       if (map.isStyleLoaded()) return;
       if (!isFatalMapError(event)) return;
-      setMapError("Стилът не се зареди.");
+      setMapError(m.map.msgea50450bfc);
     });
     map.on("moveend", () => {
       const c = map.getCenter();
@@ -214,7 +217,7 @@ export function MapCanvas({
         ref={mapContainer}
         className="absolute inset-0 h-full w-full"
         role="application"
-        aria-label="Карта"
+        aria-label={m.map.msg5736d0caff}
       />
       {mapError && (
         <div className="absolute top-1/3 left-1/2 z-20 w-40 -translate-x-1/2 rounded-2xl waze-panel p-3 text-center">
@@ -223,9 +226,7 @@ export function MapCanvas({
             type="button"
             className="waze-btn-primary mt-3 px-4 py-2 text-sm"
             onClick={() => window.location.reload()}
-          >
-            Презареди
-          </button>
+          >{m.map.msg87baf43441}</button>
         </div>
       )}
     </div>

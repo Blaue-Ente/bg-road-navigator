@@ -14,6 +14,12 @@ import type { RouteChoice } from "@/lib/planner/types";
 import { resolveVehicle } from "@/lib/planner/vehicle";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 import type { Profile } from "@/types/profile.types";
+import {
+  LOCALE_COOKIE,
+  catalog,
+  parseLocale,
+  type Locale,
+} from "@/lib/i18n/locale";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -39,6 +45,7 @@ const PlanSchema = z.object({
    */
   via: z.array(PointSchema).max(3).optional(),
   preferences: TripPreferencePatchSchema.optional(),
+  locale: z.enum(["bg", "en", "tr", "ro"]).optional(),
   route_choice: z
     .union([
       z.object({
@@ -66,6 +73,8 @@ const PlanSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const locale = resolvePlanLocale(request);
+  const api = catalog(locale).api;
   const limit = rateLimit(
     `plan:${clientIpFromHeaders(request.headers)}`,
     8,
@@ -73,7 +82,7 @@ export async function POST(request: NextRequest) {
   );
   if (!limit.ok) {
     return NextResponse.json(
-      { error: "Твърде много заявки", code: "RATE_LIMITED" },
+      { error: api.rateLimited, code: "RATE_LIMITED" },
       { status: 429 }
     );
   }
@@ -81,12 +90,13 @@ export async function POST(request: NextRequest) {
   const parsed = PlanSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Невалидна заявка за план", code: "INVALID_PLAN" },
+      { error: api.invalidPlan, code: "INVALID_PLAN" },
       { status: 400 }
     );
   }
 
   const body = parsed.data;
+  const requestLocale = body.locale ? parseLocale(body.locale) : locale;
   const profile = await signedInProfile();
   const preferences = resolveTripPreferences(
     {
@@ -131,11 +141,12 @@ export async function POST(request: NextRequest) {
         coords: { lng: point.lng, lat: point.lat },
       })),
       routeChoice: body.route_choice as RouteChoice | undefined,
+      locale: requestLocale,
     });
     if (!plan) {
       return NextResponse.json(
         {
-          error: "Маршрутът не можа да бъде изчислен",
+          error: api.routeUnavailable,
           code: "ROUTE_UNAVAILABLE",
         },
         { status: 502 }
@@ -145,10 +156,15 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Trip plan failed:", error);
     return NextResponse.json(
-      { error: "Планът не можа да бъде изчислен", code: "PLAN_FAILED" },
+      { error: api.planFailed, code: "PLAN_FAILED" },
       { status: 500 }
     );
   }
+}
+
+function resolvePlanLocale(request: NextRequest): Locale {
+  const fromCookie = request.cookies.get(LOCALE_COOKIE)?.value;
+  return parseLocale(fromCookie);
 }
 
 async function signedInProfile(): Promise<Profile | null> {

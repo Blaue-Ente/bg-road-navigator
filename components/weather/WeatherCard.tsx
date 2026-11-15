@@ -1,3 +1,6 @@
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { WeatherGlyph } from "@/lib/utils/weather-codes";
 import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
 import type { WeatherPoint } from "@/types/weather.types";
@@ -8,12 +11,14 @@ interface WeatherCardProps {
 }
 
 export function WeatherCard({ weather, distance }: WeatherCardProps) {
+  const m = useMessages();
   return (
     <div className="waze-panel p-4">
       <div className="flex items-center gap-3">
         {distance !== undefined && (
           <div className="text-xs font-medium text-[var(--waze-text-muted)]">
-            {distance.toFixed(0)} км
+            {distance.toFixed(0)}
+            {m.units.kmPrefix}
           </div>
         )}
         <WeatherGlyphIcon
@@ -32,21 +37,21 @@ export function WeatherCard({ weather, distance }: WeatherCardProps) {
 
       <div className="mt-3 grid grid-cols-3 gap-3 text-xs text-[var(--waze-text-muted)]">
         <div>
-          <span className="block opacity-70">Вятър</span>
+          <span className="block opacity-70">{m.weatherLabels.wind}</span>
           <span className="font-medium text-[var(--waze-text-secondary)]">
-            {weather.wind_kmh} км/ч
+            {weather.wind_kmh} {m.units.kmSlashH}
           </span>
         </div>
         <div>
-          <span className="block opacity-70">Дъжд</span>
+          <span className="block opacity-70">{m.weatherLabels.rain}</span>
           <span className="font-medium text-[var(--waze-text-secondary)]">
-            {weather.precipitation_mm} мм
+            {weather.precipitation_mm} {m.units.mm}
           </span>
         </div>
         <div>
-          <span className="block opacity-70">Видимост</span>
+          <span className="block opacity-70">{m.weatherLabels.visibility}</span>
           <span className="font-medium text-[var(--waze-text-secondary)]">
-            {weather.visibility_km} км
+            {weather.visibility_km} {m.units.km}
           </span>
         </div>
       </div>

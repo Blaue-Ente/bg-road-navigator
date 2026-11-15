@@ -4,6 +4,7 @@ import { wallClockEta } from "@/lib/planner/breaks";
 import { pointAtDistance, lineLengthKm } from "@/lib/planner/line";
 import type { RouteWeather, RouteWeatherWarning } from "@/lib/planner/types";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const ALARM_URL = "https://api.meteoalarm.org/v1/warnings";
@@ -19,6 +20,7 @@ interface Hourly {
 }
 
 export async function weatherAlongRoute(input: {
+  locale?: Locale;
   line: Array<[number, number]>;
   departAt: Date;
   durationMin: number;
@@ -29,6 +31,7 @@ export async function weatherAlongRoute(input: {
   fetchImpl?: typeof fetch;
 }): Promise<RouteWeather> {
   const fetchImpl = input.fetchImpl ?? fetch;
+  const hourlyEmpty = catalog(input.locale ?? "bg").planner.weather.hourlyEmpty;
   const samples = samplePoints(input);
   const empty: RouteWeather = {
     segments: samples.map((sample) => ({
@@ -58,7 +61,7 @@ export async function weatherAlongRoute(input: {
     const rain = at(block?.hourly.precipitation, hour);
     const summary =
       code == null
-        ? "Няма почасова прогноза за този час."
+        ? hourlyEmpty
         : `${wmoToWeather(code).condition}${
             temperature == null ? "" : `, ${Math.round(temperature)}°C`
           }`;

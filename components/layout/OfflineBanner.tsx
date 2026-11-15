@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -14,6 +16,7 @@ function subscribe(onChange: () => void) {
 }
 
 export function OfflineBanner() {
+  const m = useMessages();
   const pathname = usePathname();
   const isOnline = useSyncExternalStore(
     subscribe,
@@ -34,9 +37,9 @@ export function OfflineBanner() {
           : "calc(0.75rem + env(safe-area-inset-top, 0px))",
       }}
     >
-      Няма интернет. Спешните номера са офлайн.
+      {m.layout.offlineBody}
       <Link href="/emergency" className="ml-2 underline font-semibold">
-        Отвори
+        {m.layout.offlineLink}
       </Link>
     </div>
   );

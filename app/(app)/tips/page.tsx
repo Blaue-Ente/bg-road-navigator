@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -13,6 +15,7 @@ import { WazeCard } from "@/components/ui/WazeCard";
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as TravelTip["category"][];
 
 export default function TipsPage() {
+  const m = useMessages();
   const [filter, setFilter] = useState<TravelTip["category"] | "all">("all");
 
   const tips =
@@ -30,33 +33,26 @@ export default function TipsPage() {
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
         <PageHeader
-          title="Съвети за пътуване"
-          subtitle="Кратки насоки за граници, гориво, почивки и безопасност при дълги курсове"
+          title={m.tipsPage.msgcb7f53d0f7}
+          subtitle={m.tipsPage.msg383b242ccf}
         />
 
         <WazeCard className="mb-6">
-          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
-            Винетки и тол
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--waze-text)]">{m.tipsPage.msg4980c1700f}</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
-            Купувайте електронни винетки само от официалните държавни портали.
-            Пълният списък с връзки е в раздела Винетки.
+            {m.tipsPage.msgc2e32f0568}
           </p>
           <Link
             href="/vignettes"
             className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent-text)] hover:underline"
-          >
-            Към официалните винетки
-          </Link>
+          >{m.tipsPage.msgd390ac428d}</Link>
         </WazeCard>
 
         <div className="mb-6 flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("all")}
             className={`waze-chip ${filter === "all" ? "waze-chip-active" : ""}`}
-          >
-            Всички
-          </button>
+          >{m.tipsPage.msg109b6e8542}</button>
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -79,9 +75,7 @@ export default function TipsPage() {
                   {CATEGORY_LABELS[tip.category]}
                 </span>
                 {tip.priority === "high" && (
-                  <span className="text-[10px] font-semibold uppercase text-[var(--waze-danger)]">
-                    важно
-                  </span>
+                  <span className="text-[10px] font-semibold uppercase text-[var(--waze-danger)]">{m.tipsPage.msg343e2ece52}</span>
                 )}
               </div>
               <h2 className="font-semibold text-[var(--waze-text)]">

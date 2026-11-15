@@ -7,6 +7,9 @@ import {
   formatVignetteValidity,
   type VignetteLink,
 } from "@/lib/constants/vignettes";
+import { catalog, type Locale } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { pickI18nNotes, pickI18nText } from "@/lib/i18n/localized-field";
 import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
 import type {
   ChecklistItem,
@@ -70,6 +73,7 @@ const PET_PASSPORT_URL =
   "https://food.ec.europa.eu/animals/movement-pets_en";
 
 export function buildChecklist(input: {
+  locale?: Locale;
   countries: string[];
   departAt: Date;
   withPet: boolean;
@@ -77,15 +81,27 @@ export function buildChecklist(input: {
   childrenAges: number[];
   tolls: VignetteLink[];
 }): PlanChecklist {
+  const locale = input.locale ?? "bg";
+  const c = catalog(locale).planner.checklist;
   const month = input.departAt.getUTCMonth() + 1;
   const vignettes: ChecklistItem[] = [];
   const tolls: ChecklistItem[] = [];
   for (const link of input.tolls) {
-    const validity = formatVignetteValidity(link);
+    const validity = formatVignetteValidity(link, locale);
+    const name = pickI18nText(locale, {
+      i18n: link.name_i18n,
+      bg: link.name_bg,
+      en: link.name_en,
+    });
+    const notes = pickI18nNotes(locale, {
+      notes_i18n: link.notes_i18n,
+      notes_bg: link.notes_bg,
+      notes_en: link.notes_en,
+    });
     const item: ChecklistItem = {
       id: `${link.kind}-${link.country_code}`,
-      title: link.name_bg,
-      detail: [link.notes_bg ?? link.name_en, validity]
+      title: name,
+      detail: [notes ?? link.name_en, validity]
         .filter(Boolean)
         .join(" "),
       country_code: link.country_code,
@@ -93,9 +109,7 @@ export function buildChecklist(input: {
       link_role: link.link_role,
       charge_kind: link.kind,
       link_label:
-        link.link_role === "info"
-          ? "Официална информация"
-          : "Официален магазин",
+        link.link_role === "info" ? c.officialInfo : c.officialShop,
       validity_bg: link.validity_bg ?? null,
       checked_on: link.checked_on ?? null,
     };
@@ -106,16 +120,15 @@ export function buildChecklist(input: {
   const documents: ChecklistItem[] = [
     {
       id: "id",
-      title: "Лична карта или паспорт",
-      detail: "Валиден документ за самоличност за шофьора и пътниците.",
+      title: c.idTitle,
+      detail: c.idDetail,
       country_code: null,
       href: null,
     },
     {
       id: "licence",
-      title: "Свидетелство за управление",
-      detail:
-        "Националното свидетелство е достатъчно в ЕС. Извън ЕС носете и международно, ако се изисква.",
+      title: c.licenceTitle,
+      detail: c.licenceDetail,
       country_code: null,
       href: null,
     },
@@ -123,18 +136,16 @@ export function buildChecklist(input: {
   if (input.countries.includes("TR")) {
     documents.push({
       id: "tr-documents",
-      title: "Турция: лична карта и зелена карта",
-      detail:
-        "На Капитан Андреево носете паспорт или лична карта и зелена карта (застраховка), валидна за TR.",
+      title: c.turkeyDocsTitle,
+      detail: c.turkeyDocsDetail,
       country_code: "TR",
       href: null,
     });
   } else if (input.countries.some((code) => code !== "BG")) {
     documents.push({
       id: "green-card",
-      title: "Застраховка извън България",
-      detail:
-        "Проверете дали гражданската отговорност покрива държавите по пътя. Зелена карта е нужна там, където полицата не важи.",
+      title: c.insuranceAbroad,
+      detail: c.insuranceAbroadDetail,
       country_code: null,
       href: null,
     });
@@ -142,30 +153,28 @@ export function buildChecklist(input: {
   if (input.countries.some((code) => code !== "BG")) {
     documents.push({
       id: "mfa-advice",
-      title: "Съвети на МВнР за пътуване в чужбина",
-      detail: "Официални консулски указания преди пътуване извън България.",
+      title: c.mfaAdvice,
+      detail: c.mfaAdviceDetail,
       country_code: null,
       href: MFA_TRAVEL_ADVICE_URL,
-      link_label: "Съвети за пътуване",
+      link_label: c.travelAdvice,
     });
   }
   if (input.withPet) {
     documents.push({
       id: "pet-passport",
-      title: "Ветеринарен паспорт на любимеца",
-      detail:
-        "ЕС паспорт на животното, микрочип и валидна ваксина срещу бяс. Важи за пътуване в ЕС и зависи от документите на животното, не от гражданството на водача. За Турция и други страни извън ЕС проверете условията преди тръгване.",
+      title: c.petPassport,
+      detail: c.petPassportDetail,
       country_code: null,
       href: PET_PASSPORT_URL,
-      link_label: "Условия за любимци в ЕС",
+      link_label: c.petEuRules,
     });
   }
   if (needsCitizenshipNote(input.countries)) {
     documents.push({
       id: "citizenship-docs",
-      title: "Документи и винетка според водача и колата",
-      detail:
-        "Паспортът и визата зависят от гражданството. Германско пребиваване не се чете от този план. Винетката следва регистрацията на автомобила.",
+      title: c.citizenshipDocs,
+      detail: c.citizenshipDocsDetail,
       country_code: null,
       href: null,
     });
@@ -175,11 +184,11 @@ export function buildChecklist(input: {
       input.childrenAges.length === 0 ? null : Math.min(...input.childrenAges);
     documents.push({
       id: "child-seat",
-      title: "Детско столче",
+      title: c.childSeat,
       detail:
         youngest != null && youngest < 12
-          ? `Дете на ${youngest} г. пътува в столче или седалка според ръста. В ЕС столче е задължително под 135 см или 12 години.`
-          : "Деца под 135 см или 12 години пътуват в столче. Проверете правилото във всяка държава по пътя.",
+          ? formatTemplate(c.childSeatYoung, { age: String(youngest) })
+          : c.childSeatGeneric,
       country_code: null,
       href: null,
     });
@@ -190,12 +199,23 @@ export function buildChecklist(input: {
     const rule = WINTER_RULES.find((item) => item.country_code === code);
     if (!rule) continue;
     const active = inSeason(code, month);
+    const ruleName = pickI18nText(locale, {
+      i18n: rule.name_i18n,
+      bg: rule.name_bg,
+    });
     winter.push({
       id: `winter-${code}`,
-      title: `${rule.name_bg}: зимно оборудване`,
+      title: formatTemplate(c.winterTitle, { rule: ruleName }),
       detail: active
-        ? `${rule.summary_bg} ${rule.period_bg}. ${rule.chains_bg}`
-        : `Извън обичайния сезон (${rule.period_bg}). ${rule.summary_bg}`,
+        ? formatTemplate(c.winterInSeason, {
+            summary: rule.summary_bg,
+            period: rule.period_bg,
+            chains: rule.chains_bg,
+          })
+        : formatTemplate(c.winterOffSeason, {
+            period: rule.period_bg,
+            summary: rule.summary_bg,
+          }),
       country_code: code,
       href: null,
     });
@@ -203,7 +223,7 @@ export function buildChecklist(input: {
   if (winter.length > 0) {
     winter.push({
       id: "winter-disclaimer",
-      title: "Проверете преди тръгване",
+      title: c.winterDisclaimerTitle,
       detail: WINTER_RULES_DISCLAIMER_BG,
       country_code: null,
       href: null,
@@ -213,15 +233,15 @@ export function buildChecklist(input: {
   const kit: ChecklistItem[] = [
     {
       id: "vest",
-      title: "Светлоотразителна жилетка",
-      detail: "По една за всеки пътник в много държави, включително България.",
+      title: c.vest,
+      detail: c.vestDetail,
       country_code: null,
       href: null,
     },
     {
       id: "triangle",
-      title: "Предупредителен триъгълник",
-      detail: "Задължителен в багажника.",
+      title: c.triangle,
+      detail: c.triangleDetail,
       country_code: null,
       href: null,
     },
@@ -229,9 +249,8 @@ export function buildChecklist(input: {
   if (input.countries.some((code) => FIRST_AID.has(code))) {
     kit.push({
       id: "first-aid",
-      title: "Аптечка",
-      detail:
-        "Аптечка е задължителна или силно очаквана в част от държавите по този път.",
+      title: c.firstAid,
+      detail: c.firstAidDetail,
       country_code: null,
       href: null,
     });
@@ -243,11 +262,11 @@ export function buildChecklist(input: {
     documents,
     winter,
     kit,
-    ...safetyBlock(input.countries),
+    ...safetyBlock(input.countries, locale),
   };
 }
 
-function safetyBlock(countries: string[]): {
+function safetyBlock(countries: string[], locale: Locale): {
   safety: SafetyNote[];
   safety_closing: string | null;
   bg_links: ChecklistItem[];
@@ -262,6 +281,7 @@ function safetyBlock(countries: string[]): {
       kind: "advice" as const,
     })),
   ];
+  void locale;
   return {
     safety,
     safety_closing: BG_ROAD_SAFETY.closing,

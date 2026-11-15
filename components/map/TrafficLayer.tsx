@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";

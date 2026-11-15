@@ -1,5 +1,9 @@
+import { bgRestUi } from "@/lib/i18n/locales/bg-rest-ui";
+import { bgRestPlanner } from "@/lib/i18n/locales/bg-rest-planner";
+import { mergeMessageTrees } from "@/lib/i18n/merge-messages";
+
 /** Bulgarian message catalog (default locale). */
-export const bg = {
+const bgCore = {
   planning: {
     title: "Планиране на маршрут",
     subtitle: "Въведете град, адрес, хотел или друга точка в Европа",
@@ -128,6 +132,7 @@ export const bg = {
     borderSource: "Източник",
     borderAge: "Възраст на данните",
     estimate: "Оценка, не официално време.",
+    arrivalPrefix: " при пристигане ·",
     stops: "Спирки",
     stopsEmpty: "Няма нужда от спирка преди края.",
     include: "Включи в навигацията",
@@ -326,6 +331,12 @@ export const bg = {
     register: "Регистрация",
     continueGuest: "Продължи без вход — картата и маршрутите са свободни",
   },
+  mapControls: {
+    zoomIn: "Приближи",
+    zoomOut: "Отдалечи",
+    myLocation: "Моето място",
+    layers: "Слоеве",
+  },
   map: {
     legend: "Легенда",
     routeChosen: "Избран маршрут",
@@ -371,6 +382,28 @@ export const bg = {
     tollMark: " · тол",
     waitSuffix: "мин изчакване",
   },
+  weatherLabels: {
+    wind: "Вятър",
+    rain: "Дъжд",
+    visibility: "Видимост",
+  },
+  units: {
+    km: "км",
+    kmPrefix: " км",
+    kmSlashH: "км/ч",
+    mm: "мм",
+    lv: "лв",
+    lvPerKwh: "лв/kWh",
+    hoursShort: "ч",
+    minutesShort: "м",
+  },
 } as const;
 
+const mergedCatalog = mergeMessageTrees(
+  bgCore,
+  mergeMessageTrees(bgRestUi, bgRestPlanner)
+);
+export const bg = mergedCatalog as typeof bgCore &
+  typeof bgRestUi &
+  typeof bgRestPlanner;
 export type Messages = typeof bg;

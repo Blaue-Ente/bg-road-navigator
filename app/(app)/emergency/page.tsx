@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useMemo, useState } from "react";
 import { EMERGENCY_DATA } from "@/lib/constants/emergency-numbers";
 import { CountryEmergencyCard } from "@/components/emergency/CountryEmergencyCard";
@@ -13,25 +15,25 @@ import {
 import { useMapStore } from "@/lib/stores/map.store";
 import type { NearbyPlace } from "@/types/emergency.types";
 
-const ROADSIDE_ADVICE = [
-  {
-    title: "Какво да правите при катастрофа",
-    content:
-      "1. Спрете на безопасно място\n2. Включете аварийните светлини\n3. Поставете триъгълника на 30-100м зад колата\n4. Обадете се на 112\n5. Не местете автомобила без полиция, ако има пострадали",
-  },
-  {
-    title: "Какво да правите при повреда",
-    content:
-      "1. Отдръпнете се от пътното платно\n2. Сложете жилетка\n3. Поставете предупредителен триъгълник\n4. Извикайте пътна помощ\n5. Не правете ремонт на активна лента",
-  },
-  {
-    title: "Задължителни документи за пътуване в ЕС",
-    content:
-      "Лична карта/паспорт, шофьорска книжка, регистрационен талон, застраховка Гражданска отговорност / Зелена карта където се изисква, винетка само в държавите с официална винетка.",
-  },
-];
-
 export default function EmergencyPage() {
+  const m = useMessages();
+  const roadsideAdvice = useMemo(
+    () => [
+      {
+        title: m.emergencyPage.msg7592dc7a79,
+        content: m.emergencyPage.accidentAdviceSteps,
+      },
+      {
+        title: m.emergencyPage.msg68e7c3086d,
+        content: m.emergencyPage.breakdownAdviceSteps,
+      },
+      {
+        title: m.emergencyPage.msg98d39a558c,
+        content: m.emergencyPage.msg4fc5786285,
+      },
+    ],
+    [m]
+  );
   const { getCurrentLocation } = useGeolocation();
   const locateStatus = useMapStore((s) => s.locateStatus);
   const [places, setPlaces] = useState<NearbyPlace[] | null>(null);
@@ -45,7 +47,7 @@ export default function EmergencyPage() {
     const position = await getCurrentLocation();
     if (!position) {
       setLoadingNearby(false);
-      setNearbyError("Нужна е локация, за да потърсим болници и сервизи.");
+      setNearbyError(m.emergencyPage.msgeb35f61b99);
       return;
     }
     try {
@@ -59,7 +61,7 @@ export default function EmergencyPage() {
       };
       setPlaces(payload.places);
     } catch {
-      setNearbyError("Не намерихме близки болници и сервизи. Опитайте отново.");
+      setNearbyError(m.emergencyPage.msg1fa67cc21a);
     } finally {
       setLoadingNearby(false);
     }
@@ -78,17 +80,14 @@ export default function EmergencyPage() {
     <div className="waze-page">
       <div className="mx-auto max-w-4xl">
         <PageHeader
-          title="Спешни ситуации"
-          subtitle="Телефони по държави и най-близки болници/сервизи от OpenStreetMap"
+          title={m.emergencyPage.msg4ef1670a33}
+          subtitle={m.emergencyPage.msgc24fe9a6dc}
         />
 
         <WazeCard className="mb-6">
-          <h2 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
-            Близо до вас
-          </h2>
+          <h2 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">{m.emergencyPage.msga6d31c086c}</h2>
           <p className="mb-3 text-xs text-[var(--waze-text-muted)]">
-            Данни от OpenStreetMap — може да не са пълни или в реално време.
-            Няма предварително написани фалшиви сервизи.
+            {m.emergencyPage.openstreetmap2608}
           </p>
           <button
             type="button"
@@ -96,7 +95,7 @@ export default function EmergencyPage() {
             className="waze-btn-primary px-4 py-2 text-sm disabled:opacity-50"
             disabled={loadingNearby}
           >
-            {loadingNearby ? "Търсене…" : "Намери болници и сервизи"}
+            {loadingNearby ? m.emergencyPage.msg463a0f99c5 : m.emergencyPage.msga7fa912ad0}
           </button>
           {locateHint && (
             <p className="mt-2 text-xs text-[var(--waze-text-secondary)]">
@@ -108,15 +107,12 @@ export default function EmergencyPage() {
           )}
           {places && places.length === 0 && (
             <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
-              Няма намерен обект наблизо. Ако заявката не отговори, номерата
-              по-долу пак работят.
+              {m.emergencyPage.msgd369cbeba1}
             </p>
           )}
           {hospitals.length > 0 && (
             <div className="mt-4 space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-                Болници / клиники
-              </h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.emergencyPage.msg6111da6b0f}</h3>
               {hospitals.slice(0, 5).map((place) => (
                 <NearbyPlaceRow key={place.id} place={place} />
               ))}
@@ -124,9 +120,7 @@ export default function EmergencyPage() {
           )}
           {garages.length > 0 && (
             <div className="mt-4 space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-                Автосервизи
-              </h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.emergencyPage.msg4c39860732}</h3>
               {garages.slice(0, 5).map((place) => (
                 <NearbyPlaceRow key={place.id} place={place} />
               ))}
@@ -135,9 +129,7 @@ export default function EmergencyPage() {
         </WazeCard>
 
         <section className="mb-8">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-            Спешни телефони
-          </h2>
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.emergencyPage.msg32e41076b5}</h2>
           <div className="grid grid-cols-1 gap-3">
             {EMERGENCY_DATA.map((country) => (
               <CountryEmergencyCard key={country.country} country={country} />
@@ -146,7 +138,7 @@ export default function EmergencyPage() {
         </section>
 
         <section className="mb-8">
-          <RoadsideAdviceAccordion adviceSections={ROADSIDE_ADVICE} />
+          <RoadsideAdviceAccordion adviceSections={roadsideAdvice} />
         </section>
       </div>
     </div>
@@ -154,6 +146,7 @@ export default function EmergencyPage() {
 }
 
 function NearbyPlaceRow({ place }: { place: NearbyPlace }) {
+  const m = useMessages();
   return (
     <a
       href={place.maps_url}
@@ -163,7 +156,9 @@ function NearbyPlaceRow({ place }: { place: NearbyPlace }) {
     >
       <p className="font-medium text-[var(--waze-text)]">{place.name}</p>
       <p className="text-xs text-[var(--waze-text-muted)]">
-        {place.distance_km != null ? `${place.distance_km} км` : ""}{" "}
+        {place.distance_km != null
+          ? `${place.distance_km}${m.units.kmPrefix}`
+          : ""}{" "}
         {place.address ?? ""}
         {place.phone ? ` · ${place.phone}` : ""}
       </p>

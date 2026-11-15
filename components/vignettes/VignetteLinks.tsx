@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import {
   formatVignetteValidity,
   OFFICIAL_VIGNETTE_LINKS,
@@ -7,8 +9,6 @@ import {
 } from "@/lib/constants/vignettes";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { CountryFlag } from "@/components/ui/CountryFlag";
-import { messages as m } from "@/lib/i18n";
-
 interface VignetteLinksProps {
   links?: VignetteLink[];
   title?: string;
@@ -18,10 +18,13 @@ interface VignetteLinksProps {
 
 export function VignetteLinks({
   links = OFFICIAL_VIGNETTE_LINKS,
-  title = "Официални винетки и тол",
-  intro = "Само официални портали. Купувайте директно от държавата или концесионера. „Тол на км“ не е винетка — плаща се по изминато разстояние.",
+  title,
+  intro,
   compact = false,
 }: VignetteLinksProps) {
+  const m = useMessages();
+  const resolvedTitle = title ?? m.vignettes.msg82c840e11a;
+  const resolvedIntro = intro ?? m.vignettes.msgb601ae0e79;
   if (links.length === 0) return null;
 
   return (
@@ -33,9 +36,9 @@ export function VignetteLinks({
             : "mb-3 text-sm font-semibold text-[var(--waze-text)]"
         }
       >
-        {title}
+        {resolvedTitle}
       </h2>
-      <p className="mb-3 text-xs text-[var(--waze-text-muted)]">{intro}</p>
+      <p className="mb-3 text-xs text-[var(--waze-text-muted)]">{resolvedIntro}</p>
       <ul className="space-y-2">
         {links.map((link) => {
           const validityLine = formatVignetteValidity(link);
@@ -55,7 +58,7 @@ export function VignetteLinks({
                   {link.name_bg}
                 </p>
                 <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
-                  {link.kind === "distance_toll" ? "Тол на км" : "Винетка"}
+                  {link.kind === "distance_toll" ? m.plan.msg725f5ff905 : m.plan.msg6497aa6c4f}
                 </p>
                 {link.notes_bg && !compact && (
                   <p className="mt-0.5 text-xs text-[var(--waze-text-muted)]">

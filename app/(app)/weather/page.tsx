@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useMemo } from "react";
 import Link from "next/link";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -13,6 +15,7 @@ import { PageSkeleton, ErrorState } from "@/components/ui/PageSkeleton";
 import { sampleWeatherPoints } from "@/lib/utils/route-weather-points";
 
 export default function WeatherPage() {
+  const m = useMessages();
   const { activeRoute } = useRouteStore();
   const samples = useMemo(
     () => (activeRoute ? sampleWeatherPoints(activeRoute, 6) : []),
@@ -42,30 +45,26 @@ export default function WeatherPage() {
       <div className="waze-page">
         <div className="mx-auto max-w-2xl text-center">
           <PageHeader
-            title="Време по маршрут"
-            subtitle="Текущи условия в точки по активния маршрут"
+            title={m.weatherPage.msg74a4274aa2}
+            subtitle={m.weatherPage.msgc96f2c4ba8}
           />
           <WazeCard className="py-8">
-            <p className="text-[var(--waze-text-secondary)]">
-              Изберете маршрут, за да видите прогнозата.
-            </p>
+            <p className="text-[var(--waze-text-secondary)]">{m.weatherPage.msg696d34d97f}</p>
             <Link
               href="/route"
               className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm"
-            >
-              Планирай маршрут
-            </Link>
+            >{m.weatherPage.msg20e634be39}</Link>
           </WazeCard>
         </div>
       </div>
     );
   }
 
-  if (isLoading) return <PageSkeleton label="Зареждане на прогнозата" />;
+  if (isLoading) return <PageSkeleton label={m.weatherPage.msg98e1692afb} />;
   if (error) {
     return (
       <ErrorState
-        message="Грешка при зареждане на прогнозата."
+        message={m.weatherPage.msg91ee2475bb}
         onRetry={() => void refetch()}
       />
     );
@@ -75,12 +74,11 @@ export default function WeatherPage() {
     <div className="waze-page">
       <div className="mx-auto max-w-4xl">
         <PageHeader
-          title="Време по маршрут"
+          title={m.weatherPage.msg74a4274aa2}
           subtitle={`${activeRoute.origin.label} → ${activeRoute.destination.label}`}
         />
         <p className="mb-4 text-xs text-[var(--waze-text-muted)]">
-          Текущи условия (Open-Meteo), не почасова прогноза за ETA. Часовете са
-          оценка според разстоянието по маршрута.
+          {m.weatherPage.openMeteo9763}
         </p>
 
         <WeatherAlertBanner alerts={data?.alerts ?? []} />

@@ -3,9 +3,12 @@
  * Always labelled as guidance; check official sources before travel.
  */
 
+import type { Locale } from "@/lib/i18n/locale";
+
 export interface WinterRule {
   country_code: string;
   name_bg: string;
+  name_i18n?: Partial<Record<Locale, string>>;
   summary_bg: string;
   period_bg: string;
   chains_bg: string;

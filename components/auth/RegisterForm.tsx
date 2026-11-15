@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +14,7 @@ export function RegisterForm({
 }: {
   providers: SocialProviderId[];
 }) {
+  const m = useMessages();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -32,7 +35,7 @@ export function RegisterForm({
       });
       if (authError) {
         setError(
-          "Регистрацията не бе успешна. Проверете данните и опитайте отново."
+          m.auth.msg64062f44f2
         );
         return;
       }
@@ -40,7 +43,7 @@ export function RegisterForm({
       router.refresh();
       return;
     } catch {
-      setError("Грешка при регистрация");
+      setError(m.auth.msg56015753d5);
     } finally {
       setLoading(false);
     }
@@ -49,21 +52,15 @@ export function RegisterForm({
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--waze-bg)] p-4">
       <div className="waze-panel w-full max-w-md p-6 text-[var(--waze-text)]">
-        <h1 className="mb-2 text-center text-2xl font-bold text-[var(--waze-accent-text)]">
-          Регистрация
-        </h1>
-        <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">
-          Профилът отключва любими места, запазени маршрути и общностни сигнали
-        </p>
+        <h1 className="mb-2 text-center text-2xl font-bold text-[var(--waze-accent-text)]">{m.login.register}</h1>
+        <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">{m.auth.msg36938c2e8c}</p>
         <SocialSignIn providers={providers} />
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
               className="mb-1 block text-sm font-medium"
               htmlFor="username"
-            >
-              Потребителско име
-            </label>
+            >{m.auth.msgc1232bca30}</label>
             <input
               id="username"
               type="text"
@@ -75,9 +72,7 @@ export function RegisterForm({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="email">
-              Имейл
-            </label>
+            <label className="mb-1 block text-sm font-medium" htmlFor="email">{m.login.email}</label>
             <input
               id="email"
               type="email"
@@ -92,9 +87,7 @@ export function RegisterForm({
             <label
               className="mb-1 block text-sm font-medium"
               htmlFor="password"
-            >
-              Парола
-            </label>
+            >{m.login.password}</label>
             <input
               id="password"
               type="password"
@@ -105,9 +98,7 @@ export function RegisterForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <span className="mt-1 block text-xs text-[var(--waze-text-muted)]">
-              Поне 8 знака
-            </span>
+            <span className="mt-1 block text-xs text-[var(--waze-text-muted)]">{m.auth.msg500fa3a599}</span>
           </div>
           {error && <p className="text-sm text-[var(--waze-danger)]">{error}</p>}
           <button
@@ -115,22 +106,18 @@ export function RegisterForm({
             disabled={loading}
             className="waze-btn-primary w-full py-2.5 disabled:opacity-50"
           >
-            {loading ? "Регистрация..." : "Регистрирай се"}
+            {loading ? m.auth.msg65ffff5a3d : m.auth.msgef8878e064}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-[var(--waze-text-muted)]">
-          Вече имате акаунт?{" "}
+          {m.auth.hasAccount}{" "}
           <Link
             href="/login"
             className="text-[var(--waze-accent-text)] hover:underline"
-          >
-            Вход
-          </Link>
+          >{m.login.title}</Link>
         </p>
         <p className="mt-3 text-center text-xs text-[var(--waze-text-muted)]">
-          <Link href="/" className="hover:text-[var(--waze-text-secondary)]">
-            Продължи без регистрация
-          </Link>
+          <Link href="/" className="hover:text-[var(--waze-text-secondary)]">{m.auth.msgace9ec1f67}</Link>
         </p>
       </div>
     </div>

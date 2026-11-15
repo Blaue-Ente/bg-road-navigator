@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { WeatherCard } from "./WeatherCard";
 import type { WeatherPoint } from "@/types/weather.types";
 
@@ -10,26 +12,23 @@ interface RouteWeatherTimelineProps {
 export function RouteWeatherTimeline({
   weatherPoints,
 }: RouteWeatherTimelineProps) {
+  const m = useMessages();
   if (!weatherPoints || weatherPoints.length === 0) {
     return (
-      <div className="py-8 text-center text-[var(--waze-text-muted)]">
-        Няма прогноза за този маршрут.
-      </div>
+      <div className="py-8 text-center text-[var(--waze-text-muted)]">{m.weather.msgfa14ae0b48}</div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-        Точки по маршрута
-      </h2>
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.weather.msg3c6bd1f887}</h2>
 
       <div className="flex gap-3 overflow-x-auto pb-2">
         {weatherPoints.map((point, idx) => {
           const eta =
             typeof point.eta_min === "number"
               ? `+${Math.floor(point.eta_min / 60)}ч ${point.eta_min % 60}м`
-              : (point.label ?? "точка");
+              : (point.label ?? m.weather.msg09ccbaca32);
 
           return (
             <div key={idx} className="min-w-[150px] shrink-0">

@@ -1,19 +1,22 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { MAP_LAYERS, type LayerKey } from "@/lib/constants/map-layers";
 import { useMapStore } from "@/lib/stores/map.store";
 
 export function LayerPanel() {
+  const m = useMessages();
   const layers = useMapStore((s) => s.layers);
   const toggleLayer = useMapStore((s) => s.toggleLayer);
 
   return (
     <section
       className="waze-panel max-h-[70vh] overflow-y-auto p-2"
-      aria-label="Слоеве на картата"
+      aria-label={m.map.msg8da8df78a7}
     >
       <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-secondary)]">
-        Слоеве
+        {m.mapControls.layers}
       </p>
       <ul className="space-y-0.5">
         {MAP_LAYERS.map((layer) => (

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -16,6 +18,7 @@ import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
 function FuelPageContent() {
+  const m = useMessages();
   const searchParams = useSearchParams();
   const wantRoute = searchParams.get("route") === "1";
   const activeRoute = useRouteStore((s) => s.activeRoute);
@@ -43,12 +46,12 @@ function FuelPageContent() {
   );
 
   if (isLoading) {
-    return <PageSkeleton label="Зареждане на гориво" />;
+    return <PageSkeleton label={m.fuelPage.loading} />;
   }
 
   if (isError || !data) {
     return (
-      <ErrorState message="Не може да се заредят данните за гориво и зарядка." />
+      <ErrorState message={m.fuelPage.loadError} />
     );
   }
 
@@ -58,19 +61,18 @@ function FuelPageContent() {
     <div className="waze-page">
       <div className="mx-auto max-w-4xl">
         <PageHeader
-          title="Гориво и зарядка"
+          title={m.fuelPage.title}
           subtitle={
             alongRoute
-              ? "Станции по активния маршрут"
-              : "Бензиностанции и зарядни точки около България"
+              ? m.fuelPage.subtitleRoute
+              : m.fuelPage.subtitleBulgaria
           }
         />
 
         {wantRoute && !activeRoute && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-secondary)]">
-              Няма активен маршрут. Изчислете маршрут или разгледайте станции в
-              България.
+              {m.fuelPage.noActiveRoute}
             </p>
           </WazeCard>
         )}
@@ -78,8 +80,7 @@ function FuelPageContent() {
         {data.degraded && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-secondary)]">
-              Списъкът със станции не отговори напълно. Оценката на разхода
-              по-долу остава налична.
+              {m.fuelPage.degraded}
             </p>
           </WazeCard>
         )}
@@ -92,9 +93,7 @@ function FuelPageContent() {
 
         <div className="grid grid-cols-1 gap-8">
           <section>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-              Бензиностанции
-              <span className="ml-2 text-[var(--waze-text-muted)]">
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.fuelPage.stations}<span className="ml-2 text-[var(--waze-text-muted)]">
                 ({data.fuelStations.length})
               </span>
             </h2>
@@ -102,8 +101,7 @@ function FuelPageContent() {
               {data.fuelStations.length === 0 ? (
                 <div className="space-y-3">
                   <p className="text-sm text-[var(--waze-text-secondary)]">
-                    В момента няма списък със станции. Оценката на разхода
-                    по-долу работи без него.
+                    {m.fuelPage.emptyStations}
                   </p>
                   <button
                     type="button"
@@ -111,7 +109,7 @@ function FuelPageContent() {
                     disabled={isFetching}
                     className="waze-btn-secondary min-h-11 px-4 text-sm"
                   >
-                    {isFetching ? "Зареждане…" : "Опитай отново"}
+                    {isFetching ? m.fuelPage.retrying : m.fuelPage.retry}
                   </button>
                 </div>
               ) : (
@@ -123,17 +121,13 @@ function FuelPageContent() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-              EV зарядни
-              <span className="ml-2 text-[var(--waze-text-muted)]">
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.fuelPage.ev}<span className="ml-2 text-[var(--waze-text-muted)]">
                 ({data.evStations.length})
               </span>
             </h2>
             <div className="space-y-3">
               {data.evStations.length === 0 ? (
-                <p className="text-sm text-[var(--waze-text-secondary)]">
-                  Списъкът със зарядни не отговори за този район.
-                </p>
+                <p className="text-sm text-[var(--waze-text-secondary)]">{m.fuelPage.emptyEv}</p>
               ) : (
                 data.evStations.map((station) => (
                   <EVChargerCard key={station.id} station={station} />
@@ -148,12 +142,11 @@ function FuelPageContent() {
 }
 
 export default function FuelPage() {
+  const m = useMessages();
   return (
     <Suspense
       fallback={
-        <div className="flex h-full items-center justify-center text-[var(--waze-accent-text)]">
-          Зареждане...
-        </div>
+        <div className="flex h-full items-center justify-center text-[var(--waze-accent-text)]">{m.fuelPage.suspense}</div>
       }
     >
       <FuelPageContent />

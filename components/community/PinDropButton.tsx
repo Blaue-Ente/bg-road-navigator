@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -32,6 +34,7 @@ interface PinDropButtonProps {
 }
 
 export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
+  const m = useMessages();
   const session = useUserStore((s) => s.session);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
   const beginDrop = useCommunityStore((s) => s.beginDrop);
@@ -47,8 +50,8 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
             ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
             : "bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
         }`}
-        aria-label="Вход за сигнал"
-        title="Влезте, за да пуснете сигнал"
+        aria-label={m.community.msgbfa882b71c}
+        title={m.community.msg0c0014ddab}
       >
         <Plus className="h-6 w-6" strokeWidth={2} />
       </Link>
@@ -87,12 +90,12 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
           : "bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
       }`}
       aria-label={
-        mode === "map" ? "Постави сигнал на картата" : "Добави маркер"
+        mode === "map" ? m.community.msgc270ea11f7 : m.community.msg22f2bd8dac
       }
       title={
         mode === "map"
-          ? "Докоснете картата за позиция"
-          : "Сигнал на текущата позиция"
+          ? m.community.msg96a758bd4b
+          : m.community.msg86bf437ca0
       }
     >
       {isDropMode ? (

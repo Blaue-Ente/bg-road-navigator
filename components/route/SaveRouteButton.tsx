@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -11,6 +13,7 @@ interface SaveRouteButtonProps {
 }
 
 export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
+  const m = useMessages();
   const session = useUserStore((s) => s.session);
   const profile = useUserStore((s) => s.profile);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
@@ -23,9 +26,7 @@ export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
       <Link
         href="/login"
         className={className ?? "waze-btn-secondary px-4 py-2 text-sm"}
-      >
-        Запази (вход)
-      </Link>
+      >{m.route.msg4cf81beb12}</Link>
     );
   }
 
@@ -56,19 +57,19 @@ export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
 
       if (response.status === 401) {
         setStatus("error");
-        setError("Влезте отново");
+        setError(m.favorites.msg633c0751dd);
         return;
       }
       if (response.status === 503) {
         setStatus("error");
-        setError("Нужна е база за акаунти");
+        setError(m.route.msg56065d0fd1);
         return;
       }
       if (!response.ok) throw new Error("save failed");
       setStatus("saved");
     } catch {
       setStatus("error");
-      setError("Неуспешно запазване");
+      setError(m.route.msgffafcc5443);
     }
   };
 
@@ -80,12 +81,12 @@ export function SaveRouteButton({ route, className }: SaveRouteButtonProps) {
       className={className ?? "waze-btn-secondary px-4 py-2 text-sm"}
     >
       {status === "saved"
-        ? "Запазен"
+        ? m.route.msg795550aaa0
         : status === "saving"
-          ? "Запазване…"
+          ? m.route.msg4d3d6bad08
           : status === "error"
-            ? (error ?? "Грешка")
-            : "Запази маршрут"}
+            ? (error ?? m.favorites.msge0baf32095)
+            : m.route.msg366a87eb84}
     </button>
   );
 }

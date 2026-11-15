@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 interface BorderStatsChartProps {
   hourlyData: number[];
   title?: string;
@@ -7,14 +9,16 @@ interface BorderStatsChartProps {
 
 export function BorderStatsChart({
   hourlyData,
-  title = "Средно изчакване по часове",
+  title,
 }: BorderStatsChartProps) {
+  const m = useMessages();
+  const resolvedTitle = title ?? m.borders.msg988aa1d065;
   const maxWait = Math.max(...hourlyData, 1);
   const peakHour = hourlyData.indexOf(Math.max(...hourlyData));
 
   return (
     <div className="rounded-lg border border-gray-800 bg-gray-900 p-3">
-      <h4 className="mb-1 text-sm font-medium">{title}</h4>
+      <h4 className="mb-1 text-sm font-medium">{resolvedTitle}</h4>
       <p className="mb-3 text-xs text-gray-400">
         Пик около {peakHour}:00 — {Math.round(hourlyData[peakHour])} мин
       </p>

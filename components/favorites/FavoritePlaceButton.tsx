@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -22,6 +24,7 @@ export function FavoritePlaceButton({
   place,
   className,
 }: FavoritePlaceButtonProps) {
+  const m = useMessages();
   const session = useUserStore((s) => s.session);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
@@ -39,9 +42,7 @@ export function FavoritePlaceButton({
         onClick={(e) => e.stopPropagation()}
       >
         <span className="inline-flex items-center gap-1">
-          <Heart className="h-3.5 w-3.5" strokeWidth={2} />
-          Любимо
-        </span>
+          <Heart className="h-3.5 w-3.5" strokeWidth={2} />{m.favorites.msg23f59a5c01}</span>
       </Link>
     );
   }
@@ -59,19 +60,19 @@ export function FavoritePlaceButton({
       });
       if (response.status === 401) {
         setStatus("error");
-        setMessage("Влезте отново");
+        setMessage(m.favorites.msg633c0751dd);
         return;
       }
       if (response.status === 503) {
         setStatus("error");
-        setMessage("Записът изисква вход");
+        setMessage(m.favorites.msg9eb9539af5);
         return;
       }
       if (!response.ok) throw new Error("save failed");
       setStatus("saved");
     } catch {
       setStatus("error");
-      setMessage("Грешка");
+      setMessage(m.favorites.msge0baf32095);
     }
   };
 
@@ -88,18 +89,14 @@ export function FavoritePlaceButton({
     >
       {status === "saved" ? (
         <span className="inline-flex items-center gap-1">
-          <Check className="h-3.5 w-3.5" strokeWidth={2} />
-          Запазено
-        </span>
+          <Check className="h-3.5 w-3.5" strokeWidth={2} />{m.favorites.msg20f68091e2}</span>
       ) : status === "saving" ? (
-        "Запис…"
+        m.favorites.msg1f68d7f5be
       ) : status === "error" ? (
-        (message ?? "Грешка")
+        (message ?? m.favorites.msge0baf32095)
       ) : (
         <span className="inline-flex items-center gap-1">
-          <Heart className="h-3.5 w-3.5" strokeWidth={2} />
-          Любимо
-        </span>
+          <Heart className="h-3.5 w-3.5" strokeWidth={2} />{m.favorites.msg23f59a5c01}</span>
       )}
     </button>
   );

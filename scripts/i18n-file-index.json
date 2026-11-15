@@ -1,0 +1,149 @@
+{
+  "app/(app)/borders/page.tsx": {
+    "Няма жива опашка, показваме обичаен час.": "bordersPage.msg37acf7bd69",
+    "Средно изчакване — ${border.name_bg}": "bordersPage.borderNameBgbdce"
+  },
+  "app/(app)/emergency/page.tsx": {
+    "Търсене…": "emergencyPage.msg463a0f99c5",
+    "Намери болници и сервизи": "emergencyPage.msga7fa912ad0"
+  },
+  "app/(app)/fuel/page.tsx": {
+    "Зареждане…": "fuelPage.msg0a434f910d",
+    "Опитай отново": "fuelPage.msgfbbc64f55a"
+  },
+  "app/(app)/profile/page.tsx": {
+    "Операторски режим е активен": "profilePage.msgab940809f0"
+  },
+  "app/(app)/route/page.tsx": {
+    "приблизителна оценка": "routePage.msga2f81ebcc5",
+    "всички": "routePage.msg5957d3869f"
+  },
+  "app/not-found.tsx": {
+    "Страницата не е намерена": "misc.msg859ea41011",
+    "Проверете адреса или се върнете към картата.": "misc.msg1fbd103aa0",
+    "Към картата": "misc.msg201fbadf60"
+  },
+  "components/auth/RegisterForm.tsx": {
+    "Регистрация...": "auth.msg65ffff5a3d",
+    "Регистрирай се": "auth.msgef8878e064"
+  },
+  "components/auth/SocialSignIn.tsx": {
+    "Пренасочване...": "auth.msgc62eee5fb0"
+  },
+  "components/borders/BorderCard.tsx": {
+    "< 30 мин": "borders.msg38f8659f01",
+    "> 120 мин": "borders.msgc42c66ea86"
+  },
+  "components/borders/BorderStatsChart.tsx": {
+    "${hour}:00 — ${Math.round(wait)} мин": "borders.hour00Mathef55"
+  },
+  "components/borders/BorderWebcam.tsx": {
+    "Камера ${label}": "borders.label618a"
+  },
+  "components/community/CommentThread.tsx": {
+    "Публикуване…": "community.msgdc759d77e4",
+    "Публикувай": "community.msg74d5fe4001"
+  },
+  "components/community/PinComposer.tsx": {
+    "Изберете вид сигнал.": "community.msg847c420eb1",
+    "Публикуване…": "community.msgdc759d77e4",
+    "Публикувай": "community.msg74d5fe4001"
+  },
+  "components/emergency/CountryEmergencyCard.tsx": {
+    "Полиция": "emergency.msg8e8ced3019",
+    "Линейка": "emergency.msg991c9096ff",
+    "Пожар": "emergency.msgf449d92080",
+    "Пътна помощ": "emergency.msge3775e6db8"
+  },
+  "components/emergency/RecommendedGarageCard.tsx": {
+    "Обади се": "emergency.msg10a9ab563a",
+    "Карта": "emergency.msg5736d0caff"
+  },
+  "components/hotels/RestAreaCard.tsx": {
+    "Тоалетна": "hotels.msg0df8d03bf8",
+    "Душ": "hotels.msgea9ba450b9",
+    "Ресторант": "hotels.msg7e6eac764a",
+    "Гориво": "hotels.msg6d8b2c16c8",
+    "Паркинг": "hotels.msgcba3a4d179",
+    "EV заряд": "hotels.ev7b31",
+    "по маршрута": "hotels.msg41b1643f5f",
+    "${distanceKm.toFixed(1)} км": "hotels.distancekmTofixed11858",
+    "Отвори в Maps": "hotels.maps3c51"
+  },
+  "components/layout/OfflineBanner.tsx": {
+    "Няма интернет. Спешните номера са офлайн.": "offline.body",
+    "Отвори": "offline.open"
+  },
+  "components/map/LayerPanel.tsx": {
+    "Слоеве": "mapControls.layers"
+  },
+  "components/map/MapPoiLayers.tsx": {
+    "${border.wait_time_cars} мин · коли": "map.borderWaitTimeffb3",
+    "Камера · ${crossing.name_bg}": "map.crossingNameBgec3b"
+  },
+  "components/map/RouteBottomSheet.tsx": {
+    "часа": "map.msg4e4e5817ea",
+    "мин": "map.msgd6035dc6ed"
+  },
+  "components/map/TrafficLayer.tsx": {
+    "\n          <div class=\"p-2 text-sm\">\n            <strong>${escapeHtml(incident.title)}</strong>\n            <p>Задържане: ${escapeHtml(String(incident.delay_min))} мин.</p>\n          </div>\n        ": "map.divClassP54e9"
+  },
+  "components/plan/BorderWaitBlock.tsx": {
+    " при пристигане · ${formatZonedHourLabel(new Date(arrivalAt))}": "plan.formatzonedhourlabelNewD7c7b"
+  },
+  "components/plan/PlanChecklist.tsx": {
+    "Винетка": "plan.msg6497aa6c4f"
+  },
+  "components/profile/ProfileEditForm.tsx": {
+    "Запази настройки": "profile.msg2b8508f32b"
+  },
+  "components/profile/SavedPlacesPanel.tsx": {
+    "Грешка при зареждане": "profile.msg38ba72b10a"
+  },
+  "components/profile/SavedRoutesPanel.tsx": {
+    "Грешка при зареждане": "profile.msg38ba72b10a",
+    "} км ·{": "profile.msge9ae10a275",
+    "Отвори": "offline.open"
+  },
+  "components/route/ManeuverList.tsx": {
+    "${(step.distance_m / 1000).toFixed(1)} км": "route.stepDistanceMd33a",
+    "${step.distance_m} м": "route.stepDistanceMe619"
+  },
+  "components/route/MapsHandoffButtons.tsx": {
+    "Google Maps — старт навигация": "route.googleMaps5505",
+    "Google Maps — част ${index + 1}": "route.googleMapsIndexb4ea",
+    "Apple Maps — част ${index + 1}": "route.appleMapsIndexfdc5",
+    "спирка ${index + 1}": "route.index1e0a0"
+  },
+  "components/route/SaveRouteButton.tsx": {
+    "Запази маршрут": "route.msg366a87eb84"
+  },
+  "components/setup/ServicesStatusPanel.tsx": {
+    " · липсва база за акаунти": "setup.msgd4af0d86e3",
+    "липсва": "setup.msg148160a258"
+  },
+  "components/setup/UserServicesPanel.tsx": {
+    "активно": "setup.msg2ae44e63a6",
+    "ограничено": "setup.msg217cf719a3"
+  },
+  "components/ui/CountryFlag.tsx": {
+    "държава": "ui.msgf8f4b05b10"
+  },
+  "components/ui/PageSkeleton.tsx": {
+    "Зареждане": "ui.msgbf664a43da",
+    "Опитай пак": "ui.msg87b6d05132"
+  },
+  "components/vignettes/VignetteLinks.tsx": {
+    "Тол на км": "vignettes.msg725f5ff905",
+    "Винетка": "plan.msg6497aa6c4f"
+  },
+  "components/weather/RouteWeatherTimeline.tsx": {
+    "+${Math.floor(point.eta_min / 60)}ч ${point.eta_min % 60}м": "weather.mathFloorPointedec",
+    " · ${point.distance_from_origin_km} км": "weather.pointDistanceFromcaf7"
+  },
+  "components/weather/WeatherCard.tsx": {
+    "Вятър": "weather.msg218d662814",
+    "Дъжд": "weather.msgbca3635cf4",
+    "Видимост": "weather.msg40d4c130a3"
+  }
+}

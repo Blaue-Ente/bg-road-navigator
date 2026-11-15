@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useCallback, useState, type ReactNode } from "react";
 import type { Map } from "maplibre-gl";
 import {
@@ -48,6 +50,7 @@ function ControlButton({
 }
 
 export function MapControls({ map }: MapControlsProps) {
+  const m = useMessages();
   const { getCurrentLocation } = useGeolocation();
   const locateStatus = useMapStore((s) => s.locateStatus);
   const [layersOpen, setLayersOpen] = useState(false);
@@ -77,15 +80,15 @@ export function MapControls({ map }: MapControlsProps) {
       className="absolute right-3 z-20 flex flex-col items-end gap-2"
       style={{ top: "calc(5.25rem + env(safe-area-inset-top, 0px))" }}
     >
-      <ControlButton onClick={zoomIn} label="Приближи">
+      <ControlButton onClick={zoomIn} label={m.mapControls.zoomIn}>
         <PlusIcon size={20} />
       </ControlButton>
-      <ControlButton onClick={zoomOut} label="Отдалечи">
+      <ControlButton onClick={zoomOut} label={m.mapControls.zoomOut}>
         <MinusIcon size={20} />
       </ControlButton>
       <ControlButton
         onClick={locate}
-        label="Моето място"
+        label={m.mapControls.myLocation}
         accent
         busy={locateStatus === "locating"}
       >
@@ -93,7 +96,7 @@ export function MapControls({ map }: MapControlsProps) {
       </ControlButton>
       <ControlButton
         onClick={() => setLayersOpen((open) => !open)}
-        label="Слоеве"
+        label={m.mapControls.layers}
         expanded={layersOpen}
       >
         <span className="text-sm font-bold" aria-hidden>

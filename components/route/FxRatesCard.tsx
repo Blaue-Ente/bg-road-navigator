@@ -1,11 +1,14 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useQuery } from "@tanstack/react-query";
 import type { FxQuote } from "@/lib/api-clients/frankfurter";
 
 const SHOW = ["BGN", "USD", "GBP", "CHF", "TRY", "RON", "HUF"] as const;
 
 export function FxRatesCard() {
+  const m = useMessages();
   const { data, isError, isLoading } = useQuery({
     queryKey: ["fx-eur"],
     queryFn: async (): Promise<FxQuote> => {
@@ -18,16 +21,12 @@ export function FxRatesCard() {
 
   if (isLoading) {
     return (
-      <p className="text-xs text-[var(--waze-text-muted)]">
-        Зареждане на курса…
-      </p>
+      <p className="text-xs text-[var(--waze-text-muted)]">{m.route.msg3833009916}</p>
     );
   }
   if (isError || !data) {
     return (
-      <p className="text-xs text-[var(--waze-text-muted)]">
-        Курсът не е наличен в момента.
-      </p>
+      <p className="text-xs text-[var(--waze-text-muted)]">{m.route.msgd708d95d3c}</p>
     );
   }
 

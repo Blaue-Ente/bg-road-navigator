@@ -1,7 +1,8 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import type { Messages } from "@/lib/i18n";
 import { useState } from "react";
-import { messages as m } from "@/lib/i18n";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { replanTrip } from "@/lib/planner/replan-trip";
 import {
@@ -13,7 +14,11 @@ import { getVignetteByCountryCode } from "@/lib/constants/vignettes";
 import { useRouteStore } from "@/lib/stores/route.store";
 import type { Route } from "@/types/route.types";
 
-function chargeChips(codes: string[], kind: "vignette" | "toll") {
+function chargeChips(
+  codes: string[],
+  kind: "vignette" | "toll",
+  m: Messages
+) {
   return codes.map((code) => {
     const link = getVignetteByCountryCode(code);
     const isVignette = link?.kind === "vignette";
@@ -27,7 +32,7 @@ function chargeChips(codes: string[], kind: "vignette" | "toll") {
         title={role}
       >
         {code}
-        {kind === "toll" ? " · тол" : ""}
+        {kind === "toll" ? m.routeChoice.tollMark : ""}
       </span>
     );
   });
@@ -38,11 +43,13 @@ function RouteChoiceCard({
   pressed,
   disabled,
   onPick,
+  m,
 }: {
   option: RouteOptionSummary;
   pressed: boolean;
   disabled: boolean;
   onPick: () => void;
+  m: Messages;
 }) {
   return (
     <button
@@ -73,7 +80,7 @@ function RouteChoiceCard({
         <div>
           <dt className="text-xs uppercase tracking-wide">{m.sheet.borderWait}</dt>
           <dd className="font-medium text-[var(--waze-text)]">
-            {option.wait_min} мин изчакване
+            {option.wait_min} {m.routeChoice.waitSuffix}
           </dd>
         </div>
         <div>
@@ -85,8 +92,8 @@ function RouteChoiceCard({
       </dl>
       {(option.vignette_codes.length > 0 || option.toll_codes.length > 0) && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {chargeChips(option.vignette_codes, "vignette")}
-          {chargeChips(option.toll_codes, "toll")}
+          {chargeChips(option.vignette_codes, "vignette", m)}
+          {chargeChips(option.toll_codes, "toll", m)}
         </div>
       )}
     </button>
@@ -150,6 +157,7 @@ export function applyPlanRouteOptions(
 }
 
 export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
+  const m = useMessages();
   const options: RouteOptionsBlock | undefined = plan.route_options;
   const via = useRouteStore((s) => s.planningVia);
   const activeRoute = useRouteStore((s) => s.activeRoute);
@@ -217,6 +225,7 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
           pressed
           disabled={busy}
           onPick={() => {}}
+          m={m}
         />
         {options.alternative ? (
           <RouteChoiceCard
@@ -224,6 +233,7 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
             pressed={false}
             disabled={busy}
             onPick={() => void pick(options.alternative!)}
+            m={m}
           />
         ) : null}
       </div>
