@@ -6,8 +6,8 @@ const INCIDENT_URL =
 
 /**
  * Highest TomTom incident delay inside a small box around a crossing.
- * TODO(hatarinfo-amss): Határinfó / AMSS can supply the queue itself for
- * Serbian and Turkish crossings. This delay stays a traffic note beside it.
+ * Határinfó supplies the queue for Serbia–Hungary. This delay stays beside it.
+ * AMSS is not fetched.
  */
 export async function trafficDelayNearBorder(input: {
   coords: GeoPoint;

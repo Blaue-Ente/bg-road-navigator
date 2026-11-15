@@ -88,6 +88,7 @@ describe("runTripPlan", () => {
     );
     expect(plan?.warnings.some((warning) => warning.includes("OSRM"))).toBe(true);
     expect(seen.some((url) => url.includes("overpass"))).toBe(false);
+    expect(seen.some((url) => url.includes("police.hu"))).toBe(false);
     expect(seen.filter((url) => url.includes("/route/v1/driving/"))).toHaveLength(1);
   });
 });

@@ -1,3 +1,4 @@
+import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
 import { fillLiters } from "@/lib/fuel-prices/advice";
 import { presentFuelStop, type KnownAverage } from "@/lib/fuel-prices/present";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
@@ -197,7 +198,18 @@ function borderNote(borders: ScoredBorder[]): string {
   if (borders.length === 0) {
     return "Няма български граничен пункт между тези две точки. Маршрутът е директният.";
   }
-  return "Сравнени са българските пунктове по направлението. Чакането е оценка, не официално време.";
+  const extra = borders.find((border) => border.reasonCode === "serbia_hungary");
+  const compared = borders.filter((border) => border.reasonCode !== "serbia_hungary");
+  if (
+    compared.length > 0 &&
+    compared.every((border) => isHungarySerbiaPlannerId(border.borderId))
+  ) {
+    return "Сравнени са пунктовете между Сърбия и Унгария. Чакането от Hárinfó е ориентировъчно; ако липсва, остава типичната стойност.";
+  }
+  const base =
+    "Сравнени са българските пунктове по направлението. Чакането е оценка, не официално време.";
+  if (!extra) return base;
+  return `${base} По пътя след това е ${extra.nameBg}.`;
 }
 
 function toPlanStop(

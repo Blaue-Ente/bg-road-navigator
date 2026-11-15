@@ -5,7 +5,12 @@ import type { GeoPoint } from "@/types/route.types";
 
 /** Stable codes Stage 3 can branch on. Bulgarian copy lives in the *_bg fields. */
 export type WaitSource =
-  "forecast" | "day_stats" | "current" | "local_typical" | "unavailable";
+  | "forecast"
+  | "day_stats"
+  | "current"
+  | "local_typical"
+  | "unavailable"
+  | "hatarinfo";
 
 export type StopKind = "fuel" | "charge" | "rest" | "overnight" | "sight";
 
@@ -46,6 +51,7 @@ export interface ChecklistItem {
   detail: string;
   country_code: string | null;
   href: string | null;
+  link_label?: string | null;
 }
 
 export interface PlanChecklist {
@@ -98,9 +104,9 @@ export interface OsmAttribution {
 }
 
 export interface NakordoniAttribution {
-  text: "Data by nakordoni.eu";
-  href: "https://nakordoni.eu/";
-  terms: "https://nakordoni.eu/en/p/developer_api_terms";
+  text: string;
+  href: string;
+  terms: string;
 }
 
 export interface WaitEstimate {
@@ -134,7 +140,11 @@ export interface BorderChoice {
   community_penalty_min: number;
   total_min: number;
   chosen: boolean;
-  reason_code: "lowest_total" | "slower_than_best" | "preferred";
+  reason_code:
+    | "lowest_total"
+    | "slower_than_best"
+    | "preferred"
+    | "serbia_hungary";
   reason: string;
   wait: WaitEstimate;
 }

@@ -63,7 +63,7 @@ export function PlanChecklist({
                       rel="noopener noreferrer"
                       className="mt-2 inline-block pl-7 text-sm text-[var(--waze-accent-text)] underline"
                     >
-                      {m.checklist.official}
+                      {item.link_label ?? m.checklist.official}
                     </a>
                   )}
                 </li>

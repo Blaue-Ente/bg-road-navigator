@@ -121,4 +121,45 @@ describe("Nakordoni parsers and wait fallback", () => {
     expect(parseDayStats({ ok: false, negative: true, status: 403 })).toBeNull();
     expect(parseForecast({ ok: false, negative: true, status: 404 })).toEqual([]);
   });
+
+  it("prefers a Hárinfó band over the local table and keeps the TomTom delay", () => {
+    const wait = expectedWait({
+      eta: new Date("2026-11-15T08:00:00.000Z"),
+      now: new Date("2026-11-15T08:10:00.000Z"),
+      forecast: [
+        { at: "2026-11-15T08:00:00.000Z", hour: 10, waitMin: 3, queue: 1 },
+      ],
+      dayStats: null,
+      current: { waitMin: 40, queueNow: 10, quality: "high", observedAt: null, ageMin: 5 },
+      localTypical: Array(24).fill(50),
+      licensed: false,
+      trafficDelayMin: 7,
+      hatarinfo: {
+        minutes: 15,
+        band: "under_15",
+        observedAt: "2026-11-15T08:00:00.000Z",
+      },
+    });
+    expect(wait.source).toBe("hatarinfo");
+    expect(wait.minutes).toBe(15);
+    expect(wait.traffic_delay_min).toBe(7);
+    expect(wait.attribution?.text).toBe("Източник: Унгарска полиция (Hárinfó)");
+    expect(wait.label_bg).toContain("над 15 мин");
+  });
+
+  it("falls through to the local table when Hárinfó has no reading", () => {
+    const wait = expectedWait({
+      eta: new Date("2026-11-15T08:00:00.000Z"),
+      now: new Date("2026-11-15T08:00:00.000Z"),
+      forecast: null,
+      dayStats: null,
+      current: null,
+      localTypical: Array(24).fill(22),
+      licensed: false,
+      hatarinfo: null,
+    });
+    expect(wait.source).toBe("local_typical");
+    expect(wait.minutes).toBe(22);
+    expect(wait.attribution).toBeNull();
+  });
 });

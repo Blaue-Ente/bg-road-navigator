@@ -49,6 +49,26 @@ describe("borderWaitView", () => {
     expect(view.attribution).toBeNull();
   });
 
+  it("keeps the Hárinfó credit and the traffic delay on that source", () => {
+    const view = borderWaitView(
+      wait({
+        source: "hatarinfo",
+        minutes: 15,
+        label_bg: "Няма чакане над 15 мин за лек автомобил.",
+        attribution: {
+          text: "Източник: Унгарска полиция (Hárinfó)",
+          href: "https://www.police.hu/hu/hirek-es-informaciok/hatarinfo",
+          terms: "https://www.police.hu/",
+        },
+        traffic_delay_min: 6,
+      })
+    );
+    expect(view.unlicensed).toBe(false);
+    expect(view.attribution?.text).toBe("Източник: Унгарска полиция (Hárinfó)");
+    expect(view.trafficDelayMin).toBe(6);
+    expect(view.source).toBe("hatarinfo");
+  });
+
   it("omits a missing traffic delay", () => {
     const view = borderWaitView(
       wait({

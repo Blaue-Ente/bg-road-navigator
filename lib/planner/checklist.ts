@@ -1,3 +1,4 @@
+import { MFA_TRAVEL_ADVICE_URL } from "@/lib/constants/border-official-links";
 import {
   WINTER_RULES,
   WINTER_RULES_DISCLAIMER_BG,
@@ -81,6 +82,16 @@ export function buildChecklist(input: {
         "Проверете дали гражданската отговорност покрива държавите по пътя. Зелена карта е нужна там, където полицата не важи.",
       country_code: null,
       href: null,
+    });
+  }
+  if (input.countries.some((code) => code !== "BG")) {
+    documents.push({
+      id: "mfa-advice",
+      title: "Съвети на МВнР за пътуване в чужбина",
+      detail: "Официални консулски указания преди пътуване извън България.",
+      country_code: null,
+      href: MFA_TRAVEL_ADVICE_URL,
+      link_label: "Съвети за пътуване",
     });
   }
   if (input.withPet) {

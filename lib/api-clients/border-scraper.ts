@@ -16,6 +16,12 @@ import {
   type NakordoniQueueData,
 } from "@/lib/api-clients/nakordoni";
 import { getNakordoniPageUrl } from "@/lib/constants/nakordoni-checkpoints";
+import {
+  HATARINFO_ATTRIBUTION_TEXT,
+  isHatarinfoCrossingId,
+} from "@/lib/constants/border-official-links";
+import { loadHatarinfo } from "@/lib/borders/hatarinfo";
+import type { HatarinfoPanel } from "@/lib/borders/hatarinfo-parse";
 import type { BorderStatus } from "@/types/border.types";
 
 export interface BorderFetchOptions {
@@ -113,19 +119,64 @@ function mergeNakordoni(
 export async function fetchBorderStatus(
   options: BorderFetchOptions = {}
 ): Promise<BorderStatus[]> {
-  const liveQueues = await fetchNakordoniQueues();
+  const crossings = resolveCrossings(options);
+  const [liveQueues, hatarinfo] = await Promise.all([
+    fetchNakordoniQueues(),
+    crossings.some((crossing) => isHatarinfoCrossingId(crossing.id))
+      ? loadHatarinfo()
+      : Promise.resolve(null),
+  ]);
   const queueByCrossing = Object.fromEntries(
     liveQueues.map((q) => [q.crossingId, q])
   );
+  const hatarinfoById = new Map(
+    (hatarinfo?.crossings ?? [])
+      .filter((crossing) => crossing.id)
+      .map((crossing) => [crossing.id as string, crossing])
+  );
 
   const hasLiveData = liveQueues.length > 0;
-  const crossings = resolveCrossings(options);
-
   return crossings.map((crossing) => {
     const live = queueByCrossing[crossing.id];
-    if (hasLiveData) {
-      return mergeNakordoni(crossing, live);
-    }
-    return buildFallbackStatus(crossing);
+    const status = hasLiveData
+      ? mergeNakordoni(crossing, live)
+      : buildFallbackStatus(crossing);
+    if (status.data_source === "nakordoni") return status;
+    const reading = hatarinfoById.get(crossing.id);
+    if (!reading || !hatarinfo) return status;
+    return applyHatarinfo(status, reading, hatarinfo.fetchedAt);
   });
+}
+
+function applyHatarinfo(
+  status: BorderStatus,
+  reading: HatarinfoPanel,
+  fetchedAt: string
+): BorderStatus {
+  const sides = [reading.out, reading.in].filter(
+    (side): side is NonNullable<typeof side> => side != null
+  );
+  if (sides.length === 0) return status;
+  const cars = Math.max(...sides.map((side) => side.minutes));
+  const phrase = (minutes: number, band: "under_15" | "measured") =>
+    band === "under_15" ? "няма чакане над 15 мин" : `${minutes} мин`;
+  const note = [
+    "Hárinfó, леки коли.",
+    reading.out ? `От Унгария: ${phrase(reading.out.minutes, reading.out.band)}.` : null,
+    reading.in ? `Към Унгария: ${phrase(reading.in.minutes, reading.in.band)}.` : null,
+    HATARINFO_ATTRIBUTION_TEXT,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return {
+    ...status,
+    wait_time_cars: cars,
+    wait_time_trucks: Math.round(cars * 1.5),
+    wait_time_buses: Math.round(cars * 1.2),
+    status: waitToStatus(cars),
+    last_updated: fetchedAt,
+    data_source: "hatarinfo",
+    notes_bg: [status.notes_bg, note].filter(Boolean).join(" "),
+    derived_heavy_wait: true,
+  };
 }

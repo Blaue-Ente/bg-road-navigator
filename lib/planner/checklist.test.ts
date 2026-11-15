@@ -37,8 +37,12 @@ describe("plan checklist", () => {
       "TR",
     ]);
     expect(checklist.documents.map((item) => item.id)).toEqual(
-      expect.arrayContaining(["tr-documents", "pet-passport", "child-seat"])
+      expect.arrayContaining(["tr-documents", "pet-passport", "child-seat", "mfa-advice"])
     );
+    expect(checklist.documents.find((item) => item.id === "mfa-advice")).toMatchObject({
+      href: "https://www.mfa.bg/bg/uslugi-patuvania/konsulski-uslugi/patuvane-chujbina",
+      link_label: "Съвети за пътуване",
+    });
     expect(checklist.kit.map((item) => item.id)).toEqual(
       expect.arrayContaining(["vest", "triangle"])
     );
@@ -61,6 +65,9 @@ describe("plan checklist", () => {
     );
     expect(checklist.documents.map((item) => item.id)).not.toContain(
       "child-seat"
+    );
+    expect(checklist.documents.map((item) => item.id)).not.toContain(
+      "mfa-advice"
     );
     expect(
       checklist.winter.find((item) => item.country_code === "BG")?.detail

@@ -26,12 +26,20 @@ export function borderWaitView(wait: WaitEstimate): BorderWaitView {
   return {
     unlicensed: false,
     minutes: wait.minutes,
-    trafficDelayMin: null,
+    trafficDelayMin: finiteDelay(wait.traffic_delay_min),
     source: wait.source,
     detail: wait.label_bg,
     ageLabel: wait.age_label,
     attribution: wait.attribution,
   };
+}
+
+export function serbiaHungaryChoices<
+  T extends { border_id: string; reason_code: string },
+>(alternatives: T[], chosenId: string | null): T[] {
+  return alternatives.filter(
+    (item) => item.reason_code === "serbia_hungary" && item.border_id !== chosenId
+  );
 }
 
 function finiteDelay(value: number | null | undefined): number | null {

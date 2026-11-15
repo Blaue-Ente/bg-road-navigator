@@ -244,6 +244,7 @@ export const bg = {
     current: "текуща опашка",
     local_typical: "местна типична стойност",
     unavailable: "няма данни",
+    hatarinfo: "Hárinfó",
   },
 } as const;
 

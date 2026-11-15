@@ -20,14 +20,25 @@ import { assembleTripPlan } from "@/lib/planner/assemble";
 import { attachStops } from "@/lib/planner/attach-stops";
 import {
   applyPreferredBorder,
+  nearestHungarySerbiaCrossing,
   selectCandidateBorders,
+  selectHungarySerbiaBorders,
   scoreBorderOptions,
+  tripMayCrossHungarySerbia,
   type BorderScoreInput,
+  type ScoredBorder,
 } from "@/lib/planner/borders";
 import { mergeDrivingBreaks, type FuelTimedStop } from "@/lib/planner/breaks";
 import { buildChecklist } from "@/lib/planner/checklist";
 import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
+import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
+import {
+  hatarinfoReading,
+  hungarySerbiaDirection,
+  loadHatarinfo,
+  type HatarinfoSnapshot,
+} from "@/lib/borders/hatarinfo";
 import { isCrossingLicensed } from "@/lib/nakordoni/markets";
 import { aggregateFlags } from "@/lib/planner/flag-score";
 import { fuelWindows } from "@/lib/planner/fuel-windows";
@@ -88,17 +99,27 @@ export async function runTripPlan(input: TripPlanRequest) {
       input.destination.coords.lng,
       input.destination.coords.lat
     );
-  const candidates = selectCandidateBorders({
+  const borderEnds = {
     origin: input.origin.coords,
     destination: input.destination.coords,
     originCountry,
     destinationCountry,
-  }).filter((candidate) => allowsBorder(candidate.id, prefs));
+  };
+  const bgCandidates = selectCandidateBorders(borderEnds).filter((candidate) =>
+    allowsBorder(candidate.id, prefs)
+  );
+  const crossesHuRs = tripMayCrossHungarySerbia(borderEnds);
+  const huRsIsRouteChoice = bgCandidates.length === 0 && crossesHuRs;
+  const candidates = huRsIsRouteChoice
+    ? selectHungarySerbiaBorders(borderEnds).filter((candidate) =>
+        allowsBorder(candidate.id, prefs)
+      )
+    : bgCandidates;
 
   const viaCoords = (input.via ?? [])
     .slice(0, MAX_VIA)
     .map((point) => point.coords);
-  const [direct, viaList, pins, waits, traffic] = await Promise.all([
+  const [direct, viaList, pins, waits, traffic, hatarinfo] = await Promise.all([
     viaCoords.length === 0
       ? fetchDirectRoute(input.origin.coords, input.destination.coords, costing)
       : fetchRouteThrough(
@@ -134,6 +155,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       now
     ),
     borderTraffic(candidates),
+    crossesHuRs ? loadHatarinfo(now.getTime()) : Promise.resolve(null),
   ]);
   if (!direct || direct.geometry.coordinates.length < 2) return null;
 
@@ -186,14 +208,17 @@ export async function runTripPlan(input: TripPlanRequest) {
         dayStats: cached?.dayStats ?? null,
         current: cached?.current ?? null,
         localTypical: candidate.localTypicalMinutes,
-        licensed: isCrossingLicensed(candidate.id),
+        licensed: isHungarySerbiaPlannerId(candidate.id)
+          ? false
+          : isCrossingLicensed(candidate.id),
         trafficDelayMin: traffic.get(candidate.id) ?? null,
+        hatarinfo: hatarinfoFor(hatarinfo, candidate.id, input.origin.coords, input.destination.coords),
       }),
       communityPenaltyMin: community.penaltyMin,
     });
   }
 
-  const borders = applyPreferredBorder(
+  let borders: ScoredBorder[] = applyPreferredBorder(
     scoreBorderOptions(scoreInputs),
     prefs.preferred_border
   );
@@ -205,6 +230,20 @@ export async function runTripPlan(input: TripPlanRequest) {
   const chosenLine = chosenRoute.geometry.coordinates as Array<
     [number, number]
   >;
+  if (!huRsIsRouteChoice && crossesHuRs) {
+    const attached = await serbiaHungaryOnRoute({
+      line: chosenLine,
+      snapshot: hatarinfo,
+      origin: input.origin.coords,
+      destination: input.destination.coords,
+      now,
+      driveMin: chosenRoute.duration_min,
+      distanceKm: chosenRoute.distance_km,
+    });
+    if (attached && !borders.some((border) => border.borderId === attached.borderId)) {
+      borders = [...borders, attached];
+    }
+  }
   const roadKm = chosenRoute.distance_km;
   const geometryKm = Math.max(1, lineLengthKm(chosenLine));
   const community = communityAlongRoute(chosenLine, pins, now.getTime());
@@ -359,7 +398,9 @@ export async function runTripPlan(input: TripPlanRequest) {
       return row ? { price: row.price, week: row.week } : null;
     },
     why: whyThisRoute({
-      borders: borders.map((border) => ({
+      borders: borders
+        .filter((border) => border.reasonCode !== "serbia_hungary")
+        .map((border) => ({
         chosen: border.chosen,
         nameBg: border.nameBg,
         totalMin: border.totalMin,
@@ -542,7 +583,8 @@ async function borderTraffic(
 ): Promise<Map<string, number | null>> {
   const apiKey = process.env.TOMTOM_API_KEY?.trim();
   const targets = candidates.filter(
-    (candidate) => !isCrossingLicensed(candidate.id)
+    (candidate) =>
+      !isCrossingLicensed(candidate.id) || isHungarySerbiaPlannerId(candidate.id)
   );
   if (!apiKey || targets.length === 0) return new Map();
   const rows = await Promise.all(
@@ -620,6 +662,73 @@ async function loadWaits(
     });
   }
   return map;
+}
+
+function hatarinfoFor(
+  snapshot: HatarinfoSnapshot | null,
+  crossingId: string,
+  origin: GeoPoint,
+  destination: GeoPoint
+) {
+  const reading = hatarinfoReading(
+    snapshot,
+    crossingId,
+    hungarySerbiaDirection(origin, destination)
+  );
+  if (!reading) return null;
+  return {
+    minutes: reading.minutes,
+    band: reading.band,
+    observedAt: reading.observedAt,
+  };
+}
+
+async function serbiaHungaryOnRoute(input: {
+  line: Array<[number, number]>;
+  snapshot: HatarinfoSnapshot | null;
+  origin: GeoPoint;
+  destination: GeoPoint;
+  now: Date;
+  driveMin: number;
+  distanceKm: number;
+}): Promise<ScoredBorder | null> {
+  const near = nearestHungarySerbiaCrossing(input.line);
+  if (!near) return null;
+  const delay = await trafficDelayNearBorder({
+    coords: near.coords,
+    apiKey: process.env.TOMTOM_API_KEY,
+  });
+  const wait = expectedWait({
+    eta: input.now,
+    now: input.now,
+    forecast: null,
+    dayStats: null,
+    current: null,
+    localTypical: near.localTypicalMinutes,
+    licensed: false,
+    trafficDelayMin: delay,
+    hatarinfo: hatarinfoFor(
+      input.snapshot,
+      near.id,
+      input.origin,
+      input.destination
+    ),
+  });
+  return {
+    borderId: near.id,
+    nameBg: near.nameBg,
+    nameEn: near.nameEn,
+    coords: near.coords,
+    ppid: near.ppid,
+    driveMin: input.driveMin,
+    distanceKm: input.distanceKm,
+    wait,
+    communityPenaltyMin: 0,
+    totalMin: input.driveMin + wait.minutes,
+    chosen: false,
+    reasonCode: "serbia_hungary",
+    reason: `Маршрутът минава през ${near.nameBg}. Чакането е отделно от избора на български пункт.`,
+  };
 }
 
 function asCurrent(payload: unknown): CurrentQueue | null {

@@ -16,7 +16,7 @@ export interface BorderStatus {
   queue_length?: number;
   nakordoni_url?: string;
   nakordoni_ppid?: string;
-  data_source?: "nakordoni" | "estimate";
+  data_source?: "nakordoni" | "estimate" | "hatarinfo";
   region?: string;
   accepted_documents?: string[];
   notes_bg?: string;

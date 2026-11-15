@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { loadHatarinfo } from "@/lib/borders/hatarinfo";
 import { refreshNakordoniCache } from "@/lib/nakordoni/refresh";
 import { authorizeCron } from "@/lib/server/cron-auth";
 
@@ -23,16 +24,28 @@ async function handle(request: Request) {
       { status: 401 }
     );
   }
+  const hatarinfoPromise = refreshHatarinfo();
   try {
     const report = await refreshNakordoniCache();
+    const hatarinfo = await hatarinfoPromise;
     const status = report.skipped === "migration_required" ? 503 : 200;
-    return NextResponse.json(report, { status });
+    return NextResponse.json({ ...report, hatarinfo }, { status });
   } catch (error) {
+    await hatarinfoPromise;
     console.error("Nakordoni refresh failed:", error);
     return NextResponse.json(
       { error: "Nakordoni refresh failed", code: "NAKORDONI_REFRESH_FAILED" },
       { status: 500 }
     );
+  }
+}
+
+async function refreshHatarinfo(): Promise<{ ok: boolean; crossings: number }> {
+  try {
+    const snapshot = await loadHatarinfo();
+    return { ok: snapshot != null, crossings: snapshot?.crossings.length ?? 0 };
+  } catch {
+    return { ok: false, crossings: 0 };
   }
 }
 

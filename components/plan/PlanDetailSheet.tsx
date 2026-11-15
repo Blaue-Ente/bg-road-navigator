@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
+import { serbiaHungaryChoices } from "@/lib/planner/border-wait-view";
 import { FuelPriceLegend } from "@/components/plan/FuelPriceLegend";
 import { PlanChecklist } from "@/components/plan/PlanChecklist";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
@@ -330,6 +331,12 @@ function DetailBody({
             {m.sheet.borderDirect}
           </p>
         )}
+        {serbiaHungaryChoices(
+          plan.border.alternatives,
+          chosen?.border_id ?? null
+        ).map((border) => (
+          <BorderWaitBlock key={border.border_id} chosen={border} />
+        ))}
       </section>
 
       {plan.community.notes.length > 0 && (

@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { messages as m } from "@/lib/i18n";
-import { borderWaitView } from "@/lib/planner/border-wait-view";
+import {
+  borderWaitView,
+  serbiaHungaryChoices,
+} from "@/lib/planner/border-wait-view";
 import {
   buildItineraryPoints,
   formatClockDuration,
@@ -46,6 +49,11 @@ export function PlanItineraryView({
     new Date(plan.depart_at).getTime() + plan.route.total_min * 60_000
   );
 
+  const hungaryBorders = serbiaHungaryChoices(
+    plan.border.alternatives,
+    plan.border.chosen?.border_id ?? null
+  );
+
   const share = async () => {
     const text = shareText(
       plan,
@@ -86,7 +94,7 @@ export function PlanItineraryView({
         </p>
       </header>
 
-      {plan.border.chosen ? (
+      {plan.border.chosen || hungaryBorders.length > 0 ? (
         <section aria-labelledby="itinerary-border">
           <h3
             id="itinerary-border"
@@ -94,7 +102,12 @@ export function PlanItineraryView({
           >
             {m.sheet.border}
           </h3>
-          <BorderWaitBlock chosen={plan.border.chosen} />
+          {plan.border.chosen ? (
+            <BorderWaitBlock chosen={plan.border.chosen} />
+          ) : null}
+          {hungaryBorders.map((border) => (
+            <BorderWaitBlock key={border.border_id} chosen={border} />
+          ))}
         </section>
       ) : null}
 
