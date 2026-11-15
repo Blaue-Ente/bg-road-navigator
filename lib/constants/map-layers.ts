@@ -21,18 +21,18 @@ export interface MapLayer {
 
 export const MAP_LAYERS: MapLayer[] = [
   { key: "traffic", label_bg: "Инциденти", visible: true, toggleable: true },
-  { key: "community", label_bg: "Общност", visible: true, toggleable: true },
-  { key: "borders", label_bg: "Граници", visible: false, toggleable: true },
-  { key: "fuel", label_bg: "Бензиностанции", visible: false, toggleable: true },
-  { key: "ev", label_bg: "EV зарядни", visible: false, toggleable: true },
-  { key: "rest", label_bg: "Почивки", visible: false, toggleable: true },
-  { key: "cameras", label_bg: "Камери", visible: false, toggleable: true },
   {
     key: "hotspots",
     label_bg: "Повишено внимание",
     visible: true,
     toggleable: true,
   },
+  { key: "community", label_bg: "Общност", visible: true, toggleable: true },
+  { key: "borders", label_bg: "Граници", visible: false, toggleable: true },
+  { key: "fuel", label_bg: "Бензиностанции", visible: false, toggleable: true },
+  { key: "ev", label_bg: "EV зарядни", visible: false, toggleable: true },
+  { key: "rest", label_bg: "Почивки", visible: false, toggleable: true },
+  { key: "cameras", label_bg: "Камери", visible: false, toggleable: true },
 ];
 
 export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import {
   alertsAhead,
   throttleAlerts,
@@ -106,17 +106,29 @@ export function TripProximity() {
 
   if (!banner) return null;
 
+  const bannerNode = (
+    <ProximityBanner text={banner} onDismiss={dismiss} />
+  );
+
+  if (typeof document === "undefined") return bannerNode;
+  return createPortal(bannerNode, document.body);
+}
+
+export function ProximityBanner({
+  text,
+  onDismiss,
+}: {
+  text: string;
+  onDismiss: () => void;
+}) {
   return (
     <div
       role="status"
-      className="absolute left-1/2 top-20 z-30 w-[min(28rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-2xl bg-[#7c2d12] px-4 py-3 text-sm font-medium text-white shadow-lg"
+      data-proximity-banner
+      className="pointer-events-auto fixed left-1/2 z-[80] w-[min(28rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-2xl bg-[#7c2d12] px-4 py-3 text-sm font-medium text-white shadow-lg top-[calc(0.75rem+env(safe-area-inset-top,0px))]"
     >
-      <p>{banner}</p>
-      <button
-        type="button"
-        onClick={dismiss}
-        className="mt-1 text-xs underline"
-      >
+      <p>{text}</p>
+      <button type="button" onClick={onDismiss} className="mt-1 text-xs underline">
         Затвори
       </button>
     </div>

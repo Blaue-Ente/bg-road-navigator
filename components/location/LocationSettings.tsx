@@ -9,8 +9,22 @@ import {
   saveLocationPreference,
   subscribeLocationPreference,
 } from "@/lib/location/browser-pref";
+import {
+  notificationPrompt,
+  type BrowserNotificationPermission,
+} from "@/lib/location/notifications";
 import type { LocationPreference } from "@/lib/location/preference";
 import { useUserStore } from "@/lib/stores/user.store";
+
+function readNotificationPermission(): BrowserNotificationPermission {
+  if (typeof Notification === "undefined") return "unsupported";
+  return Notification.permission;
+}
+
+function subscribeNotificationPermission(onChange: () => void): () => void {
+  window.addEventListener("focus", onChange);
+  return () => window.removeEventListener("focus", onChange);
+}
 
 export function LocationSettings() {
   const raw = useSyncExternalStore(
@@ -26,6 +40,12 @@ export function LocationSettings() {
         alert_radius_m: 1000,
       };
   const session = useUserStore((state) => state.session);
+  const permission = useSyncExternalStore(
+    subscribeNotificationPermission,
+    readNotificationPermission,
+    () => "default" as const
+  );
+  const prompt = notificationPrompt(permission);
 
   const update = (next: LocationPreference) => {
     saveLocationPreference(next);
@@ -44,7 +64,7 @@ export function LocationSettings() {
   };
 
   const askNotifications = async () => {
-    if (typeof Notification === "undefined") return;
+    if (permission !== "default" || typeof Notification === "undefined") return;
     const result = await Notification.requestPermission();
     update({ ...pref, notifications_opt_in: result === "granted" });
   };
@@ -95,15 +115,19 @@ export function LocationSettings() {
             className="mt-1 w-28 rounded-lg border border-[var(--waze-border)] bg-transparent px-2 py-1"
           />
         </label>
-        <button
-          type="button"
-          onClick={() => void askNotifications()}
-          className="mt-3 text-sm text-[var(--waze-accent-text)] underline"
-        >
-          {pref.notifications_opt_in
-            ? "Известията са разрешени"
-            : "Разреши известия на устройството"}
-        </button>
+        {prompt.status === "ask" ? (
+          <button
+            type="button"
+            onClick={() => void askNotifications()}
+            className="mt-3 text-sm text-[var(--waze-accent-text)] underline"
+          >
+            {prompt.text}
+          </button>
+        ) : (
+          <p className="mt-3 text-sm text-[var(--waze-text-secondary)]">
+            {prompt.text}
+          </p>
+        )}
       </section>
     </WazeCard>
   );

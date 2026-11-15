@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
-import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
+import { PlanSafetyBlock } from "@/components/plan/PlanChecklist";
+import {
+  AttentionSegments,
+  RoadHazards,
+} from "@/components/plan/PlanRoadNotes";
+import { hotspotDetail } from "@/lib/hotspots/present";
 import { messages as m } from "@/lib/i18n";
 import {
   borderWaitView,
@@ -27,11 +32,13 @@ export function PlanItineraryView({
   includedIds,
   checks,
   via,
+  onToggle = () => undefined,
 }: {
   plan: TripPlannerResult;
   includedIds: string[];
   checks: Record<string, boolean>;
   via: LabeledPoint | null;
+  onToggle?: (id: string, checked: boolean) => void;
 }) {
   const [shareNote, setShareNote] = useState<string | null>(null);
   const included = new Set(includedIds);
@@ -162,6 +169,14 @@ export function PlanItineraryView({
           empty={m.itinerary.none}
         />
       </section>
+
+      <PlanSafetyBlock
+        checklist={plan.checklist}
+        checks={checks}
+        onToggle={onToggle}
+      />
+      <RoadHazards plan={plan} />
+      <AttentionSegments plan={plan} />
 
       {plan.warnings.length > 0 && (
         <ul className="space-y-1 text-sm text-[var(--waze-warning)]">
@@ -294,21 +309,12 @@ function borderShareLine(plan: TripPlannerResult): string {
 }
 
 function checklistItems(plan: TripPlannerResult): ChecklistItem[] {
-  const safety = (plan.checklist.safety ?? []).map((item) => ({
-    id: item.id,
-    title: `${item.kind === "law" ? BG_ROAD_SAFETY.law_label : BG_ROAD_SAFETY.advice_label}: ${item.title}`,
-    detail: item.detail,
-    country_code: "BG" as const,
-    href: null,
-  }));
   return [
     ...plan.checklist.vignettes,
     ...plan.checklist.toll_sections,
     ...plan.checklist.documents,
     ...plan.checklist.winter,
     ...plan.checklist.kit,
-    ...safety,
-    ...(plan.checklist.bg_links ?? []),
   ];
 }
 
@@ -329,6 +335,11 @@ function shareText(
     left.length
       ? `${m.itinerary.unchecked}: ${left.map((item) => item.title).join(", ")}`
       : "",
+    ...(plan.checklist.safety ?? []).map(
+      (item) => `${item.title}: ${item.detail}`
+    ),
+    plan.checklist.safety_closing ?? "",
+    ...(plan.attention_segments ?? []).map((hotspot) => hotspotDetail(hotspot)),
   ]
     .filter(Boolean)
     .join("\n");

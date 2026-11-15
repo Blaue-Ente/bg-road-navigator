@@ -95,7 +95,7 @@ export function PlanChecklist({
           )}
         </div>
       ))}
-      <SafetyBlock checklist={checklist} checks={checks} onToggle={onToggle} />
+      <PlanSafetyBlock checklist={checklist} checks={checks} onToggle={onToggle} />
       {warnings.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-[var(--waze-warning)]">
@@ -114,7 +114,7 @@ export function PlanChecklist({
   );
 }
 
-function SafetyBlock({
+export function PlanSafetyBlock({
   checklist,
   checks,
   onToggle,

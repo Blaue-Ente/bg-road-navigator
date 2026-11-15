@@ -140,6 +140,7 @@ export const bg = {
     noRatings: "Оценки още не са налични.",
     community: "Сигнали по трасето",
     hazards: "Обстановка по пътя",
+    hazardsEmpty: "Няма активни събития от АПИ в момента",
     hazardsUntil: "Валидно до",
     attention: "Участък за повишено внимание",
     onTrip: "На път",
