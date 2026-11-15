@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { BorderCard } from "@/components/borders/BorderCard";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
+import { formatZonedHourLabel } from "@/lib/planner/wait";
 import { BorderWebcam } from "@/components/borders/BorderWebcam";
 import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
 import { BorderAlternatives } from "@/components/borders/BorderAlternatives";
@@ -208,9 +209,13 @@ function BorderPageContent() {
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <BorderCard border={border} />
                   <div className="flex flex-col items-end gap-1">
+                    <p className="text-[10px] text-[var(--waze-text-muted)]">
+                      изчакване сега
+                    </p>
                     <BorderWaitBadge
                       waitMinutes={border.wait_time_cars}
                       label="Коли"
+                      caption={formatZonedHourLabel(new Date())}
                     />
                     {border.data_source === "nakordoni" && (
                       <span className="text-xs font-medium text-[var(--waze-ok)]">

@@ -88,11 +88,13 @@ export function pickPlace(
     .map((place) => ({ place, score: scorePlace(place, prefs) }));
   const fuelOnly =
     options.kinds.length > 0 && options.kinds.every((kind) => kind === "fuel");
-  ranked.sort((a, b) =>
-    fuelOnly
+  ranked.sort((a, b) => {
+    let cmp = fuelOnly
       ? compareFuelStops(a.place, a.score, b.place, b.score)
-      : b.score - a.score
-  );
+      : b.score - a.score;
+    if (cmp === 0) cmp = a.place.id.localeCompare(b.place.id);
+    return cmp;
+  });
   return ranked[0]?.place ?? null;
 }
 

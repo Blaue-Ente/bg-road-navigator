@@ -60,4 +60,19 @@ describe("mergeDrivingBreaks", () => {
     });
     expect(stops.every((stop) => stop.kinds.includes("rest"))).toBe(true);
   });
+
+  it("keeps four rest stops on a long drive with the default break interval", () => {
+    const stops = mergeDrivingBreaks({
+      driveMin: 700,
+      distanceKm: 900,
+      breakEveryMin: 135,
+      mergeWithinMin: 30,
+      overnightAfterMin: 630,
+      fuelStops: [],
+    });
+    const rests = stops.filter(
+      (stop) => stop.kinds.includes("rest") && !stop.kinds.includes("overnight")
+    );
+    expect(rests.length).toBeGreaterThanOrEqual(4);
+  });
 });

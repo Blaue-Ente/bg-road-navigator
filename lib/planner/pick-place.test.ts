@@ -142,6 +142,35 @@ describe("named stops", () => {
     expect(attachments[0]?.placeId).toBe("other");
   });
 
+  it("breaks score ties by place id ascending", () => {
+    const places = annotatePlaces(line, 120, [
+      corridor({
+        id: "b",
+        name: "Бензиностанция B",
+        kind: "fuel",
+        lat: 42.45,
+        lng: 23.8,
+        alongM: 70_000,
+        distM: 400,
+      }),
+      corridor({
+        id: "a",
+        name: "Бензиностанция A",
+        kind: "fuel",
+        lat: 42.45,
+        lng: 23.81,
+        alongM: 70_000,
+        distM: 400,
+      }),
+    ]);
+    const chosen = pickPlace(places, DEFAULT_TRIP_PREFERENCES, {
+      kinds: ["fuel"],
+      windowStartKm: 40,
+      windowEndKm: 90,
+    });
+    expect(chosen?.id).toBe("a");
+  });
+
   it("keeps the closer stop when neither station has a price", () => {
     const places = annotatePlaces(line, 200, [
       corridor({

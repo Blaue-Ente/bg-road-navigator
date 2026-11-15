@@ -325,40 +325,61 @@ function DetailBody({
             {m.sheet.weatherEmpty}
           </p>
         ) : (
-          <ul className="mt-2 space-y-2">
-            {plan.weather.segments.map((segment) => {
-              const glyph =
-                segment.weather_code == null
-                  ? "unknown"
-                  : wmoToWeather(segment.weather_code).icon;
-              return (
-                <li
-                  key={`${segment.eta}-${segment.distance_from_start_km}`}
-                  className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
-                >
-                  <WeatherGlyphIcon
-                    name={glyph}
-                    className="h-6 w-6 text-[var(--waze-accent-text)]"
-                  />
-                  <div className="text-sm text-[var(--waze-text)]">
-                    <p className="font-medium">
-                      {formatWhen(segment.eta)} ·{" "}
-                      {segment.distance_from_start_km} {m.planning.km}
-                    </p>
-                    <p className="text-[var(--waze-text-secondary)]">
-                      {segment.summary_bg}
-                      {segment.temperature_c != null
-                        ? ` · ${Math.round(segment.temperature_c)}°C`
-                        : ""}
-                      {segment.wind_kmh != null
-                        ? ` · ${Math.round(segment.wind_kmh)} km/h`
-                        : ""}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <>
+            {plan.weather.segments.every(
+              (segment) => !segment.summary_bg?.trim()
+            ) ? (
+              <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
+                {m.sheet.weatherEmpty}
+              </p>
+            ) : null}
+            <ul className="mt-2 space-y-2">
+              {plan.weather.segments.map((segment) => {
+                const glyph =
+                  segment.weather_code == null
+                    ? "unknown"
+                    : wmoToWeather(segment.weather_code).icon;
+                return (
+                  <li
+                    key={`${segment.eta}-${segment.distance_from_start_km}`}
+                    className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
+                  >
+                    <WeatherGlyphIcon
+                      name={glyph}
+                      className="h-6 w-6 text-[var(--waze-accent-text)]"
+                    />
+                    <div className="text-sm text-[var(--waze-text)]">
+                      <p className="font-medium">
+                        {formatWhen(segment.eta)} ·{" "}
+                        {segment.distance_from_start_km} {m.planning.km}
+                      </p>
+                      {segment.summary_bg ? (
+                        <p className="text-[var(--waze-text-secondary)]">
+                          {segment.summary_bg}
+                          {segment.temperature_c != null
+                            ? ` · ${Math.round(segment.temperature_c)}°C`
+                            : ""}
+                          {segment.wind_kmh != null
+                            ? ` · ${Math.round(segment.wind_kmh)} km/h`
+                            : ""}
+                        </p>
+                      ) : segment.temperature_c != null ||
+                        segment.wind_kmh != null ? (
+                        <p className="text-[var(--waze-text-secondary)]">
+                          {segment.temperature_c != null
+                            ? `${Math.round(segment.temperature_c)}°C`
+                            : ""}
+                          {segment.wind_kmh != null
+                            ? `${segment.temperature_c != null ? " · " : ""}${Math.round(segment.wind_kmh)} km/h`
+                            : ""}
+                        </p>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
         {plan.weather.attribution && (
           <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
@@ -381,7 +402,15 @@ function DetailBody({
           {plan.border.note}
         </p>
         {chosen ? (
-          <BorderWaitBlock chosen={chosen} />
+          <BorderWaitBlock
+            chosen={chosen}
+            arrivalAt={
+              new Date(
+                new Date(plan.depart_at).getTime() +
+                  chosen.drive_min * 60_000
+              )
+            }
+          />
         ) : (
           <p className="mt-2 text-sm text-[var(--waze-text)]">
             {m.sheet.borderDirect}

@@ -11,6 +11,7 @@ import {
 } from "@/lib/hooks/useCommunityPins";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
+import { formatZonedHourLabel } from "@/lib/planner/wait";
 import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
 import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
@@ -98,7 +99,14 @@ export default function MapPage() {
               <p className="mb-1 max-w-[140px] truncate text-xs font-medium text-[var(--waze-text-secondary)]">
                 {border.name_bg}
               </p>
-              <BorderWaitBadge waitMinutes={border.wait_time_cars} compact />
+              <p className="mb-0.5 text-[10px] text-[var(--waze-text-muted)]">
+                изчакване сега
+              </p>
+              <BorderWaitBadge
+                waitMinutes={border.wait_time_cars}
+                compact
+                caption={formatZonedHourLabel(new Date())}
+              />
             </Link>
           ))}
           {incidentCount > 0 && (

@@ -1,12 +1,15 @@
 interface BorderWaitBadgeProps {
   waitMinutes: number;
   label?: string;
+  /** e.g. "14:00" for the clock this wait refers to */
+  caption?: string;
   compact?: boolean;
 }
 
 export function BorderWaitBadge({
   waitMinutes,
   label,
+  caption,
   compact,
 }: BorderWaitBadgeProps) {
   const getStyles = (wait: number) => {
@@ -21,20 +24,34 @@ export function BorderWaitBadge({
 
   if (compact) {
     return (
-      <span
-        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold ring-1 ${getStyles(waitMinutes)}`}
-      >
-        {waitMinutes} мин
+      <span className="inline-flex flex-col items-start gap-0.5">
+        {caption ? (
+          <span className="text-[10px] font-medium text-[var(--waze-text-muted)]">
+            {caption}
+          </span>
+        ) : null}
+        <span
+          className={`inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-bold ring-1 ${getStyles(waitMinutes)}`}
+        >
+          {waitMinutes} мин
+        </span>
       </span>
     );
   }
 
   return (
-    <div
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-semibold ring-1 ${getStyles(waitMinutes)}`}
-    >
-      {label && <span className="font-medium opacity-80">{label}</span>}
-      <span>{waitMinutes} мин</span>
+    <div className="inline-flex flex-col items-end gap-0.5">
+      {caption ? (
+        <span className="text-[10px] font-medium text-[var(--waze-text-muted)]">
+          {caption}
+        </span>
+      ) : null}
+      <div
+        className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-semibold ring-1 ${getStyles(waitMinutes)}`}
+      >
+        {label && <span className="font-medium opacity-80">{label}</span>}
+        <span>{waitMinutes} мин</span>
+      </div>
     </div>
   );
 }

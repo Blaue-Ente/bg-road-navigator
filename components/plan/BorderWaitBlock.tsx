@@ -1,8 +1,15 @@
 import { messages as m } from "@/lib/i18n";
 import { borderWaitView } from "@/lib/planner/border-wait-view";
+import { formatZonedHourLabel } from "@/lib/planner/wait";
 import type { BorderChoice, WaitSource } from "@/lib/planner/types";
 
-export function BorderWaitBlock({ chosen }: { chosen: BorderChoice }) {
+export function BorderWaitBlock({
+  chosen,
+  arrivalAt,
+}: {
+  chosen: BorderChoice;
+  arrivalAt?: Date | string | null;
+}) {
   const view = borderWaitView(chosen.wait);
   return (
     <div className="mt-2 rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm">
@@ -12,7 +19,11 @@ export function BorderWaitBlock({ chosen }: { chosen: BorderChoice }) {
         <p className="mt-1 font-medium text-[var(--waze-text)]">{m.sheet.borderUnlicensed}</p>
       ) : null}
       <p className="mt-1 text-[var(--waze-text)]">
-        {m.sheet.borderWait}: {view.minutes} {m.prefs.minutes}
+        {m.sheet.borderWait}
+        {arrivalAt
+          ? ` при пристигане · ${formatZonedHourLabel(new Date(arrivalAt))}`
+          : ""}
+        : {view.minutes} {m.prefs.minutes}
       </p>
       {view.trafficDelayMin != null ? (
         <p className="text-[var(--waze-text)]">
