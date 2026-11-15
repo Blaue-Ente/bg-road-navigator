@@ -36,12 +36,15 @@ function mergePlaces(
   curated: RoutePoint[],
   remote: RoutePoint[]
 ): RoutePoint[] {
-  const seen = new Set<string>();
+  const seenCoord = new Set<string>();
+  const seenLabel = new Set<string>();
   const merged: RoutePoint[] = [];
   for (const place of [...curated, ...remote]) {
-    const key = `${place.coords.lat.toFixed(3)},${place.coords.lng.toFixed(3)}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
+    const coordKey = `${place.coords.lat.toFixed(3)},${place.coords.lng.toFixed(3)}`;
+    const labelKey = `${place.label.toLocaleLowerCase("bg")}|${place.countryCode ?? ""}`;
+    if (seenCoord.has(coordKey) || seenLabel.has(labelKey)) continue;
+    seenCoord.add(coordKey);
+    seenLabel.add(labelKey);
     merged.push(place);
   }
   return merged.slice(0, 8);
@@ -56,6 +59,7 @@ export function LocationSearchInput({
   placeholder,
 }: LocationSearchInputProps) {
   const [query, setQuery] = useState(value?.label ?? "");
+  const listId = `${id}-suggestions`;
 
   useEffect(() => {
     const next = value?.label ?? "";
@@ -68,7 +72,11 @@ export function LocationSearchInput({
   const [isSearching, setIsSearching] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const requestVersion = useRef(0);
+  const listRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const blurCloseTimer = useRef<number | null>(null);
 
   const trimmedQuery = query.trim();
   const mapView = useMapStore((state) => state.view);
@@ -105,7 +113,6 @@ export function LocationSearchInput({
 
       try {
         const lang = document.documentElement.lang || "bg";
-        // Map center and zoom are Photon's location bias. Nominatim ignores them.
         const params = new URLSearchParams({
           q: trimmedQuery,
           lat: biasLat.toFixed(5),
@@ -151,6 +158,19 @@ export function LocationSearchInput({
     biasZoom,
   ]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onScroll = () => setOpen(false);
+    window.addEventListener("scroll", onScroll, true);
+    return () => window.removeEventListener("scroll", onScroll, true);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || !listRef.current) return;
+    const rect = listRef.current.getBoundingClientRect();
+    setOpenUpward(rect.bottom > window.innerHeight - 8);
+  }, [open, results.length, message]);
+
   const choosePlace = (place: RoutePoint) => {
     onSelect(place);
     setQuery(place.label);
@@ -160,8 +180,17 @@ export function LocationSearchInput({
     setOpen(false);
   };
 
+  const scheduleClose = () => {
+    if (blurCloseTimer.current) window.clearTimeout(blurCloseTimer.current);
+    blurCloseTimer.current = window.setTimeout(() => setOpen(false), 150);
+  };
+
+  const cancelClose = () => {
+    if (blurCloseTimer.current) window.clearTimeout(blurCloseTimer.current);
+  };
+
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       <label
         htmlFor={id}
         className="mb-1.5 block text-xs font-medium text-[var(--waze-text-secondary)]"
@@ -186,11 +215,17 @@ export function LocationSearchInput({
             setOpen(next.trim().length >= 1);
           }}
           onFocus={() => {
+            cancelClose();
             if (results.length > 0 || message) setOpen(true);
           }}
+          onBlur={() => scheduleClose()}
           placeholder={placeholder}
           autoComplete="off"
-          className={`w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] py-3 pr-10 text-[var(--waze-text)] outline-none placeholder:text-[var(--waze-text-muted)] focus:border-[var(--waze-accent)] ${
+          role="combobox"
+          aria-expanded={open && showSuggestions}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          className={`min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] py-3 pr-10 text-sm text-[var(--waze-text)] outline-none placeholder:text-[var(--waze-text-muted)] focus:border-[var(--waze-accent)] ${
             value?.countryCode && query === value.label ? "pl-10" : "px-3"
           }`}
         />
@@ -202,20 +237,30 @@ export function LocationSearchInput({
       )}
 
       {open && showSuggestions && (results.length > 0 || message) && (
-        <div className="absolute inset-x-0 z-30 mt-2 overflow-hidden rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] shadow-2xl">
+        <div
+          id={listId}
+          ref={listRef}
+          role="listbox"
+          className={`absolute inset-x-0 z-30 overflow-hidden rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] shadow-2xl ${
+            openUpward ? "bottom-full mb-2" : "mt-2"
+          }`}
+        >
           {results.map((place) => (
             <button
               key={place.id}
               type="button"
+              role="option"
+              aria-selected={false}
+              onMouseDown={(event) => event.preventDefault()}
               onClick={() => choosePlace(place)}
-              className="flex w-full items-start gap-3 border-b border-[var(--waze-border)] px-3 py-3 text-left last:border-b-0 hover:bg-[var(--waze-surface-elevated)]"
+              className="flex min-h-11 w-full items-start gap-3 border-b border-[var(--waze-border)] px-3 py-3 text-left text-sm last:border-b-0 hover:bg-[var(--waze-surface-elevated)]"
             >
               <CountryFlag
                 code={place.countryCode}
                 className="mt-0.5 h-4 w-[1.35rem]"
               />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-[var(--waze-text)]">
+                <span className="block font-medium text-[var(--waze-text)]">
                   {place.label}
                 </span>
                 {place.subtitle && (

@@ -1,3 +1,4 @@
+import { proposedDepartLocalValue } from "@/lib/planner/proposed-depart";
 import { resolveTripPreferences, type TripPreferences } from "@/lib/planner/preferences";
 import type { RoutePoint } from "@/types/route.types";
 
@@ -10,7 +11,7 @@ export interface PlannerDraft {
   via: RoutePoint | null;
   corridorId: string | null;
   preferences: TripPreferences;
-  /** Value of the datetime-local input. Empty means "leave now". */
+  /** Value of the datetime-local input (Europe/Sofia morning default when unset). */
   departLocal: string;
   fuelPercent: number;
 }
@@ -39,7 +40,7 @@ export function createPlannerDraft(input: {
     via: input.via ?? null,
     corridorId: input.corridorId ?? null,
     preferences: input.preferences ?? resolveTripPreferences(),
-    departLocal: input.departLocal ?? "",
+    departLocal: input.departLocal ?? proposedDepartLocalValue(),
     fuelPercent: clampFuel(input.fuelPercent ?? 80),
   };
 }

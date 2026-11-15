@@ -407,7 +407,7 @@ function reasonFor(
     parts.push("Почивка след около 2–2.5 часа шофиране.");
   }
   if (kinds.includes("overnight")) {
-    parts.push("Дълъг етап: прозорец за нощувка. Оценки още няма.");
+    parts.push("Тук се спи. На сутринта пътят продължава.");
   }
   if (attachment?.lodgingNote) parts.push(attachment.lodgingNote);
   return parts.join(" ");

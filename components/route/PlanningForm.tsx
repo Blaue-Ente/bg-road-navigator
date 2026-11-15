@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { ChevronDown, Star } from "lucide-react";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import { PreferenceFields } from "@/components/route/PreferenceFields";
 import { WazeCard } from "@/components/ui/WazeCard";
@@ -14,10 +14,15 @@ import {
 } from "@/lib/planner/form-preferences";
 import type { PlannerDraft } from "@/lib/planner/planner-draft";
 import type { TripPreferences } from "@/lib/planner/preferences";
+import {
+  formatDepartLocaleDisplay,
+  proposedDepartLocalValue,
+} from "@/lib/planner/proposed-depart";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore, type Profile } from "@/lib/stores/user.store";
 import { messages as m } from "@/lib/i18n";
 import { committedPlace } from "@/lib/route/place-commit";
+import { hasAdvancedPlannerOptions } from "@/lib/route/planner-advanced";
 
 export interface PlanningSubmit {
   preferences: TripPreferences;
@@ -60,6 +65,28 @@ export function PlanningForm({
   const prefs = draft.preferences;
   const depart = draft.departLocal;
   const fuel = draft.fuelPercent;
+  const proposedDepart = useMemo(() => proposedDepartLocalValue(), []);
+  const morePanelId = useId();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const autoExpandedMore = useRef(false);
+
+  const advancedActive = useMemo(
+    () =>
+      hasAdvancedPlannerOptions({
+        via,
+        fuelPercent: fuel,
+        departLocal: depart,
+        preferences: prefs,
+        proposedDepart,
+      }),
+    [via, fuel, depart, prefs, proposedDepart]
+  );
+
+  useEffect(() => {
+    if (!advancedActive || autoExpandedMore.current) return;
+    autoExpandedMore.current = true;
+    queueMicrotask(() => setMoreOpen(true));
+  }, [advancedActive]);
 
   const changePrefs = (next: TripPreferences) => {
     onChange({ preferences: next });
@@ -167,6 +194,8 @@ export function PlanningForm({
       committedOrigin.id === committedDestination.id
   );
 
+  const departDisplay = formatDepartLocaleDisplay(depart || proposedDepart);
+
   return (
     <WazeCard className="space-y-4">
       <LocationSearchInput
@@ -177,23 +206,6 @@ export function PlanningForm({
         onSelect={(place) => onChange({ origin: place, corridorId: null })}
         onQueryChange={onOriginQueryChange}
       />
-      <LocationSearchInput
-        id="via"
-        label={m.planning.via}
-        value={via}
-        placeholder={m.planning.viaPlaceholder}
-        onSelect={(place) => onChange({ via: place })}
-        onQueryChange={onViaQueryChange}
-      />
-      {via && (
-        <button
-          type="button"
-          onClick={() => onChange({ via: null })}
-          className="text-sm text-[var(--waze-text-muted)] underline"
-        >
-          {m.planning.clearVia}
-        </button>
-      )}
       <LocationSearchInput
         id="destination"
         label={m.planning.to}
@@ -211,86 +223,21 @@ export function PlanningForm({
         <input
           id="depart-at"
           type="datetime-local"
-          value={depart}
+          lang="bg"
+          value={depart || proposedDepart}
           onChange={(event) => onChange({ departLocal: event.target.value })}
-          className="mt-1 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
+          className="mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
         />
       </label>
-      <p className="text-xs text-[var(--waze-text-muted)]">{m.planning.departHint}</p>
-
-      <section aria-labelledby="plan-car">
-        <h2 id="plan-car" className="text-sm font-medium text-[var(--waze-text)]">
-          {m.planning.car}
-        </h2>
-        <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-          {carSummary(profile)}
-        </p>
-        {profile && (
-          <p className="mt-1 text-xs text-[var(--waze-accent-text)]">
-            {m.planning.carFromProfile}
-          </p>
-        )}
-        <Link
-          href="/profile"
-          className="mt-2 inline-block text-sm text-[var(--waze-accent-text)] underline"
-        >
-          {m.planning.carEdit}
-        </Link>
-      </section>
-
-      <label className="block text-sm text-[var(--waze-text)]" htmlFor="fuel-level">
-        {m.planning.fuelLevel}: {fuel}%
-        <input
-          id="fuel-level"
-          type="range"
-          min={10}
-          max={100}
-          step={5}
-          value={fuel}
-          onChange={(event) => onChange({ fuelPercent: Number(event.target.value) })}
-          className="mt-2 w-full"
-        />
-      </label>
-
-      <details open className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)]">
-        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[var(--waze-text)]">
-          {m.planning.preferences}
-        </summary>
-        <div className="border-t border-[var(--waze-border)] px-4 py-3">
-          <PreferenceFields value={prefs} onChange={changePrefs} />
-        </div>
-      </details>
-
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => void saveSettings()}
-          disabled={busy !== null}
-          className="waze-btn-secondary px-4 py-2 text-sm disabled:opacity-50"
-        >
-          {busy === "settings" ? m.planning.savingSettings : m.planning.saveSettings}
-        </button>
-        <button
-          type="button"
-          onClick={() => void starRoute()}
-          disabled={!origin || !destination || busy !== null}
-          className="waze-btn-secondary inline-flex items-center gap-2 px-4 py-2 text-sm disabled:opacity-50"
-        >
-          <Star className="h-4 w-4" aria-hidden />
-          {m.planning.starRoute}
-        </button>
-      </div>
-      {note && (
-        <p className="text-sm text-[var(--waze-text-secondary)]" role="status">
-          {!session && note === m.planning.signInToSave ? (
-            <Link href="/login" className="text-[var(--waze-accent-text)] underline">
-              {note}
-            </Link>
-          ) : (
-            note
-          )}
+      {departDisplay && (
+        <p className="text-sm text-[var(--waze-text-secondary)]">
+          {departDisplay}
         </p>
       )}
+      <p className="text-xs text-[var(--waze-text-muted)]">
+        {m.planning.departProposed}
+      </p>
+
       {error && (
         <p className="text-sm text-[var(--waze-danger)]" role="alert">
           {error}
@@ -302,23 +249,165 @@ export function PlanningForm({
         onClick={() =>
           onSubmit({
             preferences: currentPrefs(),
-            departAt: fromDatetimeLocalValue(depart),
+            departAt: fromDatetimeLocalValue(depart || proposedDepart),
             fuelLevel: fuel / 100,
           })
         }
-        disabled={calculating || sameEnds}
-        className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
+        disabled={sameEnds}
+        aria-busy={calculating}
+        className={`waze-btn-primary min-h-11 w-full py-3.5 text-sm ${
+          calculating ? "" : "disabled:opacity-50"
+        }`}
       >
         {calculating ? m.planning.calculating : m.planning.calculate}
       </button>
-      <button
-        type="button"
-        onClick={onReset}
-        disabled={calculating}
-        className="waze-btn-secondary w-full py-3 text-sm disabled:opacity-50"
-      >
-        {m.planning.reset}
-      </button>
+      {calculating && (
+        <p className="text-sm text-[var(--waze-text-secondary)]" role="status">
+          {m.planning.calculatingStatus}
+        </p>
+      )}
+
+      <div className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)]">
+        <button
+          type="button"
+          id={`${morePanelId}-toggle`}
+          aria-expanded={moreOpen}
+          aria-controls={morePanelId}
+          onClick={() => setMoreOpen((value) => !value)}
+          className="flex min-h-11 w-full items-center justify-between gap-2 px-4 py-3 text-left text-sm font-semibold text-[var(--waze-text)]"
+        >
+          <span className="inline-flex items-center gap-2">
+            {m.planning.moreOptions}
+            {advancedActive && !moreOpen && (
+              <span
+                className="inline-block h-2 w-2 shrink-0 rounded-full bg-[var(--waze-accent)]"
+                aria-label={m.planning.moreOptionsActive}
+              />
+            )}
+          </span>
+          <ChevronDown
+            className={`h-5 w-5 shrink-0 text-[var(--waze-text-muted)] transition-transform ${
+              moreOpen ? "rotate-180" : ""
+            }`}
+            aria-hidden
+          />
+        </button>
+        {moreOpen && (
+          <div
+            id={morePanelId}
+            role="region"
+            aria-labelledby={`${morePanelId}-toggle`}
+            className="space-y-4 border-t border-[var(--waze-border)] px-4 py-4"
+          >
+            <LocationSearchInput
+              id="via"
+              label={m.planning.via}
+              value={via}
+              placeholder={m.planning.viaPlaceholder}
+              onSelect={(place) => onChange({ via: place })}
+              onQueryChange={onViaQueryChange}
+            />
+            {via && (
+              <button
+                type="button"
+                onClick={() => onChange({ via: null })}
+                className="text-sm text-[var(--waze-text-muted)] underline"
+              >
+                {m.planning.clearVia}
+              </button>
+            )}
+
+            <section aria-labelledby="plan-car">
+              <h2
+                id="plan-car"
+                className="text-sm font-medium text-[var(--waze-text)]"
+              >
+                {m.planning.car}
+              </h2>
+              <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
+                {carSummary(profile)}
+              </p>
+              {profile && (
+                <p className="mt-1 text-xs text-[var(--waze-accent-text)]">
+                  {m.planning.carFromProfile}
+                </p>
+              )}
+              <Link
+                href="/profile"
+                className="mt-2 inline-block text-sm text-[var(--waze-accent-text)] underline"
+              >
+                {m.planning.carEdit}
+              </Link>
+            </section>
+
+            <label
+              className="block text-sm text-[var(--waze-text)]"
+              htmlFor="fuel-level"
+            >
+              {m.planning.fuelLevel}: {fuel}%
+              <input
+                id="fuel-level"
+                type="range"
+                min={10}
+                max={100}
+                step={5}
+                value={fuel}
+                onChange={(event) =>
+                  onChange({ fuelPercent: Number(event.target.value) })
+                }
+                className="mt-2 w-full"
+              />
+            </label>
+
+            <PreferenceFields value={prefs} onChange={changePrefs} />
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void saveSettings()}
+                disabled={busy !== null}
+                className="waze-btn-secondary min-h-11 px-4 py-2 text-sm disabled:opacity-50"
+              >
+                {busy === "settings"
+                  ? m.planning.savingSettings
+                  : m.planning.saveSettings}
+              </button>
+              <button
+                type="button"
+                onClick={() => void starRoute()}
+                disabled={!origin || !destination || busy !== null}
+                className="waze-btn-secondary inline-flex min-h-11 items-center gap-2 px-4 py-2 text-sm disabled:opacity-50"
+              >
+                <Star className="h-4 w-4" aria-hidden />
+                {m.planning.starRoute}
+              </button>
+            </div>
+            {note && (
+              <p className="text-sm text-[var(--waze-text-secondary)]" role="status">
+                {!session && note === m.planning.signInToSave ? (
+                  <Link
+                    href="/login"
+                    className="text-[var(--waze-accent-text)] underline"
+                  >
+                    {note}
+                  </Link>
+                ) : (
+                  note
+                )}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={onReset}
+              disabled={calculating}
+              className="waze-btn-secondary min-h-11 w-full py-3 text-sm disabled:opacity-50"
+            >
+              {m.planning.reset}
+            </button>
+          </div>
+        )}
+      </div>
     </WazeCard>
   );
 }
