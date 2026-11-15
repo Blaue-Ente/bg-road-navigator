@@ -15,16 +15,18 @@ import {
   fetchValhallaRoute,
   type ValhallaCosting,
 } from "@/lib/api-clients/valhalla";
+import type { Locale } from "@/lib/i18n/locale";
 
 export async function fetchDrivingRoute(
   coords: Array<{ lng: number; lat: number }>,
-  costing?: ValhallaCosting
+  costing?: ValhallaCosting,
+  locale: Locale = "bg"
 ): Promise<ProvidedRoadRoute | null> {
   const state = ociGeoEnvState();
   if (state === "ready") {
     const config = readOciGeoConfig();
     if (config) {
-      const valhalla = await fetchValhallaRoute(coords, config, costing);
+      const valhalla = await fetchValhallaRoute(coords, config, costing, locale);
       if (valhalla.ok) {
         logGeo("routing", { provider: "valhalla", outcome: "ok" });
         return { provider: "valhalla", ...valhalla.route };

@@ -1,3 +1,4 @@
+import type { DeepRecord } from "@/lib/i18n/deep-record";
 import { bgRestUi } from "@/lib/i18n/locales/bg-rest-ui";
 import { bgRestPlanner } from "@/lib/i18n/locales/bg-rest-planner";
 import { mergeMessageTrees } from "@/lib/i18n/merge-messages";
@@ -407,3 +408,5 @@ export const bg = mergedCatalog as typeof bgCore &
   typeof bgRestUi &
   typeof bgRestPlanner;
 export type Messages = typeof bg;
+/** Locale catalog shape: same keys as `bg`, leaf values are arbitrary strings. */
+export type MessageCatalog = DeepRecord<Messages>;

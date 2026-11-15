@@ -2,7 +2,7 @@
  * Server and planner code import Bulgarian `messages` by default.
  * Client UI should use `useMessages()` from the locale provider.
  */
-export type { Messages } from "./locales/bg";
+export type { MessageCatalog, Messages } from "./locales/bg";
 export { bg, bg as messages } from "./locales/bg";
 export {
   LOCALES,

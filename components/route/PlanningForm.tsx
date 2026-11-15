@@ -20,7 +20,7 @@ import {
 } from "@/lib/planner/proposed-depart";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore, type Profile } from "@/lib/stores/user.store";
-import type { Messages } from "@/lib/i18n/locales/bg";
+import type { MessageCatalog } from "@/lib/i18n/locales/bg";
 import { localeTag } from "@/lib/i18n/locale";
 import {
   useLocale,
@@ -422,7 +422,7 @@ export function PlanningForm({
   );
 }
 
-function carSummary(profile: Profile | null, m: Messages): string {
+function carSummary(profile: Profile | null, m: MessageCatalog): string {
   if (!profile) return m.planning.carGuest;
   const name = profile.car?.trim() || m.vehicle[profile.vehicle_type];
   const fuel = m.fuel[profile.fuel_type];

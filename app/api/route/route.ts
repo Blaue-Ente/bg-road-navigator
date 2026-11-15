@@ -7,6 +7,7 @@ import {
   resolveRoutePointsFromCityIds,
 } from "@/lib/utils/route-builder";
 import { nearestBgBorder } from "@/lib/geo/border-on-route";
+import { parseLocale, type Locale } from "@/lib/i18n/locale";
 import type { RoutePoint } from "@/types/route.types";
 
 const EuropePointSchema = z.object({
@@ -26,6 +27,7 @@ const RouteBodySchema = z.object({
   origin_id: z.string().max(80).optional(),
   destination_id: z.string().max(80).optional(),
   points: z.array(EuropePointSchema).min(2).max(12).optional(),
+  locale: z.enum(["bg", "en", "tr", "ro"]).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -73,7 +75,8 @@ export async function POST(request: NextRequest) {
     }
 
     const coords = points.map((point) => point.coords);
-    const routed = await fetchDrivingRoute(coords);
+    const locale: Locale = parseLocale(parsed.data.locale);
+    const routed = await fetchDrivingRoute(coords, undefined, locale);
 
     const input = {
       points,

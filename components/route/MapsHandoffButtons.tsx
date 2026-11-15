@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 import type { Route } from "@/types/route.types";
 import {
@@ -37,7 +38,7 @@ function HandoffLinks({
           className="waze-btn-primary px-4 py-2 text-sm"
         >
           {severalLegs
-            ? `Google Maps — част ${index + 1}`
+            ? formatTemplate(m.route.googleMapsIndexb4ea, { index: index + 1 })
             : m.route.googleMaps5505}
         </a>
       ))}
@@ -49,7 +50,9 @@ function HandoffLinks({
           rel="noopener noreferrer"
           className="waze-btn-secondary px-4 py-2 text-sm"
         >
-          {severalLegs ? `Apple Maps — част ${index + 1}` : m.itinerary.apple}
+          {severalLegs
+            ? formatTemplate(m.route.appleMapsIndexfdc5, { index: index + 1 })
+            : m.itinerary.apple}
         </a>
       ))}
       {plan.wazeStops.map((stop, index) => (
@@ -64,7 +67,7 @@ function HandoffLinks({
             ? m.route.waze62d7
             : index === 0
               ? m.route.waze9a10
-              : `Waze — ${stop.label ?? `спирка ${index + 1}`}`}
+              : `Waze — ${stop.label ?? formatTemplate(m.route.index1e0a0, { index: index + 1 })}`}
         </a>
       ))}
     </>

@@ -18,9 +18,13 @@ describe("parseLocale", () => {
 });
 
 describe("catalog", () => {
-  it("mirrors Bulgarian for alias locales in this PR", () => {
-    expect(catalog("en").planning.calculate).toBe(bg.planning.calculate);
-    expect(catalog("tr").sheet.oneRoute).toBe(bg.sheet.oneRoute);
+  it("returns Bulgarian copy for bg", () => {
+    expect(catalog("bg").planning.calculate).toBe(bg.planning.calculate);
+  });
+
+  it("returns localized copy for en and tr", () => {
+    expect(catalog("en").planning.calculate).not.toBe(bg.planning.calculate);
+    expect(catalog("tr").sheet.oneRoute).not.toBe(bg.sheet.oneRoute);
   });
 
   it("never returns empty strings for known keys", () => {

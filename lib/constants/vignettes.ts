@@ -8,6 +8,10 @@ export type RoadChargeKind = "vignette" | "distance_toll";
 import type { Locale } from "@/lib/i18n/locale";
 import { catalog } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
+import {
+  VIGNETTE_NAME_I18N,
+  VIGNETTE_NOTES_I18N,
+} from "@/lib/constants/vignette-i18n-patches";
 
 export interface VignetteLink {
   country_code: string;
@@ -151,7 +155,16 @@ export const OFFICIAL_VIGNETTE_LINKS: VignetteLink[] = [
     notes_bg:
       "Няма винетка. Мостове и магистрали се плащат с HGS (PTT) по тарифа на KGM. Чужди номера се регистрират преди пътуване.",
   },
-];
+].map((link) => ({
+  ...link,
+  name_i18n: {
+    en: link.name_en,
+    ...VIGNETTE_NAME_I18N[link.country_code],
+  },
+  notes_i18n: {
+    ...VIGNETTE_NOTES_I18N[link.country_code],
+  },
+})) as VignetteLink[];
 
 const CODE_ALIASES: Record<string, string> = {
   BULGARIA: "BG",

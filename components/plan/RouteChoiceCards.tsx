@@ -1,7 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import type { Messages } from "@/lib/i18n";
+import type { MessageCatalog } from "@/lib/i18n";
 import { useState } from "react";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { replanTrip } from "@/lib/planner/replan-trip";
@@ -17,7 +17,7 @@ import type { Route } from "@/types/route.types";
 function chargeChips(
   codes: string[],
   kind: "vignette" | "toll",
-  m: Messages
+  m: MessageCatalog
 ) {
   return codes.map((code) => {
     const link = getVignetteByCountryCode(code);
@@ -49,7 +49,7 @@ function RouteChoiceCard({
   pressed: boolean;
   disabled: boolean;
   onPick: () => void;
-  m: Messages;
+  m: MessageCatalog;
 }) {
   return (
     <button

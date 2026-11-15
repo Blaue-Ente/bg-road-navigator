@@ -39,9 +39,9 @@ function BorderPageContent() {
   const m = useMessages();
   const tabs = useMemo(
     (): { id: TabId; label: string; region: EuropeanBorderRegion }[] => [
-      { id: "bulgaria", label: m.bordersPage.msg7870710a01, region: "bulgaria" },
-      { id: "europe", label: m.bordersPage.msg7b9a5a3f3b, region: "all" },
-      { id: "route", label: m.bordersPage.msgb962f0c0d8, region: "route" },
+      { id: "bulgaria", label: m.bordersPage.tabBulgaria, region: "bulgaria" },
+      { id: "europe", label: m.bordersPage.tabEurope, region: "all" },
+      { id: "route", label: m.bordersPage.tabOnRoute, region: "route" },
     ],
     [m]
   );

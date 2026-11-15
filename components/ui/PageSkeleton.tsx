@@ -1,10 +1,16 @@
-export function PageSkeleton({ label = "Зареждане" }: { label?: string }) {
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
+export function PageSkeleton({ label }: { label?: string }) {
+  const m = useMessages();
+  const aria = label ?? m.ui.defaultLoading;
   return (
     <div
       className="waze-page"
       role="status"
       aria-live="polite"
-      aria-label={label}
+      aria-label={aria}
     >
       <div className="mx-auto max-w-2xl space-y-3">
         <div className="h-8 w-2/3 animate-pulse rounded-xl bg-[var(--waze-surface-elevated)]" />
@@ -23,6 +29,7 @@ export function ErrorState({
   message: string;
   onRetry?: () => void;
 }) {
+  const m = useMessages();
   return (
     <div className="waze-page text-center">
       <p className="text-sm text-[var(--waze-danger)]">{message}</p>
@@ -32,7 +39,7 @@ export function ErrorState({
           onClick={onRetry}
           className="waze-btn-secondary mt-3 px-4 py-2 text-sm"
         >
-          Опитай пак
+          {m.misc.retry}
         </button>
       )}
     </div>
