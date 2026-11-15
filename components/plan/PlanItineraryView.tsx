@@ -54,7 +54,8 @@ export function PlanItineraryView({
   const done = items.filter((item) => checks[item.id]);
   const left = items.filter((item) => !checks[item.id]);
   const arrival = new Date(
-    new Date(plan.depart_at).getTime() + plan.route.total_min * 60_000
+    plan.route.arrive_at ??
+      new Date(plan.depart_at).getTime() + plan.route.total_min * 60_000
   );
 
   const hungaryBorders = serbiaHungaryChoices(

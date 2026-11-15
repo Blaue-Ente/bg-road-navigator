@@ -31,10 +31,18 @@ import {
   selectHungarySerbiaBorders,
   scoreBorderOptions,
   tripMayCrossHungarySerbia,
+  type BorderCandidate,
   type BorderScoreInput,
   type ScoredBorder,
 } from "@/lib/planner/borders";
-import { mergeDrivingBreaks, type FuelTimedStop } from "@/lib/planner/breaks";
+import {
+  mergeDrivingBreaks,
+  resolveSleepShifts,
+  sleepMinutesBefore,
+  sleepShifts,
+  type FuelTimedStop,
+  type SleepShift,
+} from "@/lib/planner/breaks";
 import { buildChecklist } from "@/lib/planner/checklist";
 import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
@@ -274,6 +282,64 @@ export async function runTripPlan(input: TripPlanRequest) {
     input.vehicle.fuel_type === "petrol" || input.vehicle.fuel_type === "diesel"
       ? input.vehicle.fuel_type
       : null;
+  const borderRoadKm =
+    borderAlong == null ? null : (borderAlong / geometryKm) * roadKm;
+  const windows = fuelWindows(roadKm, input.vehicle);
+  const fuelStops: FuelTimedStop[] = windows.map((window) => ({
+    kind: input.vehicle.energy === "charge" ? "charge" : "fuel",
+    distanceKm: window.windowEndKm,
+    etaMin:
+      (window.windowEndKm / Math.max(roadKm, 1)) * chosenRoute.duration_min,
+  }));
+  const merged = mergeDrivingBreaks({
+    driveMin: chosenRoute.duration_min,
+    distanceKm: roadKm,
+    breakEveryMin: effectiveBreakEveryMin(prefs),
+    mergeWithinMin: 30,
+    overnightAfterMin: day.overnight
+      ? day.overnightAfterMin
+      : chosenRoute.duration_min + 1,
+    overnightAtMin: day.overnightAtMin,
+    fuelStops,
+  });
+  const preliminaryWait = chosen?.wait.minutes ?? 0;
+  const sleepAnchor = sleepShifts({
+    driveMin: chosenRoute.duration_min,
+    overnight: day.overnight,
+    overnightAfterMin: day.overnight
+      ? day.overnightAfterMin
+      : chosenRoute.duration_min + 1,
+    overnightAtMin: day.overnightAtMin,
+  });
+  const sleepResolved = resolveSleepShifts({
+    departAt: input.departAt,
+    shifts: sleepAnchor,
+    extraWaitMin: (drivingMin) => {
+      if (borderRoadKm == null) return 0;
+      const roadAt =
+        (drivingMin / Math.max(chosenRoute.duration_min, 1)) * roadKm;
+      return roadAt >= borderRoadKm - 1 ? preliminaryWait : 0;
+    },
+  });
+  borders = refreshBorderWaits({
+    borders,
+    scoreInputs,
+    chosenId: chosen?.borderId ?? null,
+    departAt: input.departAt,
+    borderRoadKm,
+    driveMin: chosenRoute.duration_min,
+    roadKm,
+    sleepShifts: sleepResolved,
+    now,
+    hatarinfo,
+    origin: input.origin.coords,
+    destination: input.destination.coords,
+    candidates,
+    waits,
+    traffic,
+  });
+  const chosenBorder = borders.find((border) => border.chosen) ?? null;
+  const borderWaitForWeather = chosenBorder?.wait.minutes ?? 0;
 
   const [corridor, weather, averageDetails, chargers, hazardFeed] =
     await Promise.all([
@@ -286,6 +352,9 @@ export async function runTripPlan(input: TripPlanRequest) {
         departAt: input.departAt,
         durationMin: chosenRoute.duration_min,
         distanceKm: roadKm,
+        borderAlongKm: borderRoadKm,
+        borderWaitMin: borderWaitForWeather,
+        sleepShifts: sleepResolved,
       }),
       bulletinFuel
         ? readLatestAverageDetails(countries, bulletinFuel)
@@ -317,25 +386,6 @@ export async function runTripPlan(input: TripPlanRequest) {
   ]);
   const flags = aggregateFlags(flagRows, now);
   const reports = newestReport(reportRows);
-
-  const windows = fuelWindows(roadKm, input.vehicle);
-  const fuelStops: FuelTimedStop[] = windows.map((window) => ({
-    kind: input.vehicle.energy === "charge" ? "charge" : "fuel",
-    distanceKm: window.windowEndKm,
-    etaMin:
-      (window.windowEndKm / Math.max(roadKm, 1)) * chosenRoute.duration_min,
-  }));
-  const merged = mergeDrivingBreaks({
-    driveMin: chosenRoute.duration_min,
-    distanceKm: roadKm,
-    breakEveryMin: effectiveBreakEveryMin(prefs),
-    mergeWithinMin: 30,
-    overnightAfterMin: day.overnight
-      ? day.overnightAfterMin
-      : chosenRoute.duration_min + 1,
-    overnightAtMin: day.overnightAtMin,
-    fuelStops,
-  });
 
   const annotated = annotatePlaces(chosenLine, roadKm, places).map((place) =>
     applyPrice(place, officialPrices, reports, flags.get(place.id)?.weights)
@@ -417,8 +467,8 @@ export async function runTripPlan(input: TripPlanRequest) {
     geometry: chosenRoute.geometry,
     routingSource: chosenRoute.provider,
     borders,
-    borderAlongKm:
-      borderAlong == null ? null : (borderAlong / geometryKm) * roadKm,
+    borderAlongKm: borderRoadKm,
+    sleepShifts: sleepResolved,
     merged,
     attachments,
     sights,
@@ -692,6 +742,62 @@ async function loadWaits(
     });
   }
   return map;
+}
+
+function refreshBorderWaits(input: {
+  borders: ScoredBorder[];
+  scoreInputs: BorderScoreInput[];
+  chosenId: string | null;
+  departAt: Date;
+  borderRoadKm: number | null;
+  driveMin: number;
+  roadKm: number;
+  sleepShifts: SleepShift[];
+  now: Date;
+  hatarinfo: HatarinfoSnapshot | null;
+  origin: GeoPoint;
+  destination: GeoPoint;
+  candidates: BorderCandidate[];
+  waits: Awaited<ReturnType<typeof loadWaits>>;
+  traffic: Map<string, number | null>;
+}): ScoredBorder[] {
+  if (!input.chosenId || input.borderRoadKm == null) return input.borders;
+  const candidate = input.candidates.find((row) => row.id === input.chosenId);
+  if (!candidate) return input.borders;
+  const borderDrivingMin =
+    (input.borderRoadKm / Math.max(input.roadKm, 1)) * input.driveMin;
+  const sleepBefore = sleepMinutesBefore(borderDrivingMin, input.sleepShifts);
+  const eta = new Date(
+    input.departAt.getTime() + (borderDrivingMin + sleepBefore) * 60_000
+  );
+  const cached = candidate.ppid ? input.waits.get(candidate.ppid) : undefined;
+  const wait = expectedWait({
+    eta,
+    now: input.now,
+    forecast: cached?.forecast ?? null,
+    dayStats: cached?.dayStats ?? null,
+    current: cached?.current ?? null,
+    localTypical: candidate.localTypicalMinutes,
+    licensed: isHungarySerbiaPlannerId(candidate.id)
+      ? false
+      : isCrossingLicensed(candidate.id),
+    trafficDelayMin: input.traffic.get(candidate.id) ?? null,
+    hatarinfo: hatarinfoFor(
+      input.hatarinfo,
+      candidate.id,
+      input.origin,
+      input.destination
+    ),
+  });
+  return input.borders.map((border) =>
+    border.borderId === input.chosenId
+      ? {
+          ...border,
+          wait,
+          totalMin: border.driveMin + wait.minutes + border.communityPenaltyMin,
+        }
+      : border
+  );
 }
 
 function hatarinfoFor(

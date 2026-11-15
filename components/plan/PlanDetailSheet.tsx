@@ -27,6 +27,10 @@ import {
   formatClockDuration,
   whySummary,
 } from "@/lib/planner/itinerary";
+import {
+  sleepShiftsFromPlanStops,
+  wallClockEta,
+} from "@/lib/planner/breaks";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
@@ -100,7 +104,11 @@ export function PlanDetailSheet() {
   }
 
   const arrival = new Date(
-    new Date(plan.depart_at).getTime() + plan.route.total_min * 60_000
+    plan.route.arrive_at ??
+      new Date(plan.depart_at).getTime() + plan.route.total_min * 60_000
+  );
+  const hasOvernightSleep = plan.stops.some(
+    (stop) => stop.sleep_min != null && stop.sleep_min > 0
   );
   const summary = whySummary(plan.why_this_route);
 
@@ -170,6 +178,16 @@ export function PlanDetailSheet() {
               value={formatWhen(arrival.toISOString())}
             />
           </dl>
+          {hasOvernightSleep ? (
+            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+              {m.sheet.includesOvernight}{" "}
+              {formatClockDuration(plan.route.duration_min)}.
+            </p>
+          ) : plan.preferences.overnight ? (
+            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+              {m.sheet.fitsOneDay}
+            </p>
+          ) : null}
           <TripMode />
         </div>
 
@@ -404,12 +422,12 @@ function DetailBody({
         {chosen ? (
           <BorderWaitBlock
             chosen={chosen}
-            arrivalAt={
-              new Date(
-                new Date(plan.depart_at).getTime() +
-                  chosen.drive_min * 60_000
-              )
-            }
+            arrivalAt={wallClockEta({
+              departAt: new Date(plan.depart_at),
+              drivingMin: chosen.drive_min,
+              extraWaitMin: 0,
+              sleepShifts: sleepShiftsFromPlanStops(plan.stops),
+            })}
           />
         ) : (
           <p className="mt-2 text-sm text-[var(--waze-text)]">
