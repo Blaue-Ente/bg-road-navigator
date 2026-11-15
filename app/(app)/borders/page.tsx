@@ -109,6 +109,9 @@ function BorderPageContent() {
   const hasLiveData = displayedBorders.some(
     (b) => b.data_source === "nakordoni"
   );
+  const hasHatarinfo = displayedBorders.some(
+    (b) => b.data_source === "hatarinfo"
+  );
 
   return (
     <div className="waze-page">
@@ -143,7 +146,9 @@ function BorderPageContent() {
         <p className="mb-6 text-xs text-[var(--waze-text-muted)]">
           {hasLiveData
             ? "Живи опашки от граничните камери и официалните източници"
-            : "Няма жива опашка, показваме обичаен час."}
+            : hasHatarinfo
+              ? "Сърбия — Унгария е от Hárinfó. Останалите пунктове са типична оценка."
+              : "Няма жива опашка, показваме обичаен час."}
         </p>
 
         <WazeCard className="mb-6">
@@ -210,6 +215,11 @@ function BorderPageContent() {
                     {border.data_source === "nakordoni" && (
                       <span className="text-xs font-medium text-[var(--waze-ok)]">
                         на живо
+                      </span>
+                    )}
+                    {border.data_source === "hatarinfo" && (
+                      <span className="text-xs font-medium text-[var(--waze-text-secondary)]">
+                        Hárinfó
                       </span>
                     )}
                   </div>

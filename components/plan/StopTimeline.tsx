@@ -4,8 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { readApiError } from "@/lib/client/read-api-error";
+import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { messages as m } from "@/lib/i18n";
-import { PLACE_FLAG_VALUES, type PlaceFlagKind } from "@/lib/planner/flag-score";
+import {
+  PLACE_FLAG_VALUES,
+  type PlaceFlagKind,
+} from "@/lib/planner/flag-score";
 import type { PlanStop, StopKind } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -38,16 +42,21 @@ export function StopTimeline({
 
   return (
     <section aria-labelledby="plan-stops">
-      <h3 id="plan-stops" className="text-base font-semibold text-[var(--waze-text)]">
+      <h3
+        id="plan-stops"
+        className="text-base font-semibold text-[var(--waze-text)]"
+      >
         {m.sheet.stops}
       </h3>
       {stops.length === 0 ? (
-        <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">{m.sheet.stopsEmpty}</p>
+        <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+          {m.sheet.stopsEmpty}
+        </p>
       ) : (
         <ol className="mt-3 space-y-3">
           {stops.map((stop, index) => {
             const hotel = stop.kinds.includes("overnight");
-            const color = KIND_COLOR[primaryKind(stop)] ?? KIND_COLOR.rest;
+            const color = markerColor(stop);
             return (
               <li key={stop.id}>
                 <article
@@ -71,35 +80,34 @@ export function StopTimeline({
                         {index + 1}. {stop.place_name ?? stop.title}
                       </p>
                       <p className="text-sm text-[var(--waze-text-secondary)]">
-                        {stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(" · ")}
+                        {stop.kinds
+                          .map((kind) => m.kinds[kind] ?? kind)
+                          .join(" · ")}
                         {stop.kinds.length > 1 ? ` · ${m.sheet.combined}` : ""}
                         {stop.optional ? ` · ${m.sheet.optional}` : ""}
                       </p>
                       <p className="text-sm text-[var(--waze-text-secondary)]">
                         {stop.distance_from_start_km} {m.planning.km} ·{" "}
-                        {formatDuration(stop.driving_min)} · {formatWhen(stop.eta)}
+                        {formatDuration(stop.driving_min)} ·{" "}
+                        {formatWhen(stop.eta)}
                       </p>
-                      <p className="mt-1 text-sm text-[var(--waze-text)]">{stop.reason}</p>
+                      <p className="mt-1 text-sm text-[var(--waze-text)]">
+                        {stop.reason}
+                      </p>
                       {stop.detour_km != null && (
                         <p className="text-xs text-[var(--waze-text-muted)]">
                           {stop.detour_km} {m.planning.km} {m.sheet.detour}
-                          {stop.on_motorway_service ? ` · ${m.sheet.onService}` : ""}
+                          {stop.on_motorway_service
+                            ? ` · ${m.sheet.onService}`
+                            : ""}
                         </p>
                       )}
                       {stop.brand && (
-                        <p className="text-xs text-[var(--waze-text-muted)]">{stop.brand}</p>
-                      )}
-                      <PriceLine stop={stop} />
-                      {stop.advice && (
-                        <p className="mt-1 text-sm text-[var(--waze-ok)]">
-                          ~{stop.advice.est_savings_eur.toFixed(2)} EUR ·{" "}
-                          {stop.advice.cheaper_than_avg_per_l.toFixed(3)} EUR/
-                          {m.sheet.perLitre} {m.sheet.adviceSavings} ·{" "}
-                          {stop.advice.basis === "official"
-                            ? m.sheet.basisOfficial
-                            : m.sheet.basisCommunity}
+                        <p className="text-xs text-[var(--waze-text-muted)]">
+                          {stop.brand}
                         </p>
                       )}
+                      <PriceLine stop={stop} />
                       {hotel && <HotelBlock stop={stop} />}
                       {stop.flags.length > 0 && (
                         <ul className="mt-2 flex flex-wrap gap-1">
@@ -117,7 +125,9 @@ export function StopTimeline({
                         <input
                           type="checkbox"
                           checked={included[stop.id] !== false}
-                          onChange={(event) => onToggle(stop.id, event.target.checked)}
+                          onChange={(event) =>
+                            onToggle(stop.id, event.target.checked)
+                          }
                           className="h-4 w-4 accent-[var(--waze-accent)]"
                         />
                         {m.sheet.include}
@@ -126,7 +136,9 @@ export function StopTimeline({
                         <button
                           type="button"
                           onClick={() =>
-                            setFlagFor((current) => (current === stop.id ? null : stop.id))
+                            setFlagFor((current) =>
+                              current === stop.id ? null : stop.id
+                            )
                           }
                           disabled={!stop.place_id}
                           className="waze-btn-secondary px-3 py-1.5 text-xs disabled:opacity-50"
@@ -140,7 +152,9 @@ export function StopTimeline({
                           className="waze-btn-secondary inline-flex items-center gap-1 px-3 py-1.5 text-xs disabled:opacity-50"
                         >
                           <Star className="h-3.5 w-3.5" aria-hidden />
-                          {savedPlaces[stop.id] ? m.sheet.favoritedPlace : m.sheet.favoritePlace}
+                          {savedPlaces[stop.id]
+                            ? m.sheet.favoritedPlace
+                            : m.sheet.favoritePlace}
                         </button>
                       </div>
                       {!stop.place_id && (
@@ -154,7 +168,10 @@ export function StopTimeline({
                         />
                       )}
                       {status[stop.id] && (
-                        <p className="mt-2 text-xs text-[var(--waze-text-secondary)]" role="status">
+                        <p
+                          className="mt-2 text-xs text-[var(--waze-text-secondary)]"
+                          role="status"
+                        >
                           {status[stop.id] === m.planning.signInToSave ? (
                             <Link href="/login" className="underline">
                               {status[stop.id]}
@@ -177,7 +194,10 @@ export function StopTimeline({
 
   async function submitFlag(stop: PlanStop, flag: string) {
     if (!session) {
-      setStatus((current) => ({ ...current, [stop.id]: m.planning.signInToSave }));
+      setStatus((current) => ({
+        ...current,
+        [stop.id]: m.planning.signInToSave,
+      }));
       return;
     }
     if (!stop.place_id) return;
@@ -206,7 +226,10 @@ export function StopTimeline({
 
   async function savePlace(stop: PlanStop) {
     if (!session) {
-      setStatus((current) => ({ ...current, [stop.id]: m.planning.signInToSave }));
+      setStatus((current) => ({
+        ...current,
+        [stop.id]: m.planning.signInToSave,
+      }));
       return;
     }
     try {
@@ -228,7 +251,10 @@ export function StopTimeline({
         return;
       }
       setSavedPlaces((current) => ({ ...current, [stop.id]: true }));
-      setStatus((current) => ({ ...current, [stop.id]: m.sheet.favoritedPlace }));
+      setStatus((current) => ({
+        ...current,
+        [stop.id]: m.sheet.favoritedPlace,
+      }));
     } catch {
       setStatus((current) => ({ ...current, [stop.id]: m.sheet.placeFailed }));
     }
@@ -241,7 +267,9 @@ function HotelBlock({ stop }: { stop: PlanStop }) {
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
         {m.hotel.name}
       </p>
-      <p className="font-medium text-[var(--waze-text)]">{stop.place_name ?? stop.title}</p>
+      <p className="font-medium text-[var(--waze-text)]">
+        {stop.place_name ?? stop.title}
+      </p>
       <p className="text-sm text-[var(--waze-text-secondary)]">
         {m.hotel.distance}:{" "}
         {stop.detour_km != null ? `${stop.detour_km} ${m.planning.km}` : "—"}
@@ -263,22 +291,76 @@ function HotelBlock({ stop }: { stop: PlanStop }) {
       >
         {m.hotel.reserve}
       </button>
-      <p className="mt-1 text-xs text-[var(--waze-text-muted)]">{m.hotel.reserveHint}</p>
+      <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
+        {m.hotel.reserveHint}
+      </p>
     </div>
   );
 }
 
+function markerColor(stop: PlanStop): string {
+  if (stop.kinds.includes("fuel") && stop.price_band) {
+    return PRICE_BAND_COLOR[stop.price_band];
+  }
+  return KIND_COLOR[primaryKind(stop)] ?? KIND_COLOR.rest;
+}
+
 function PriceLine({ stop }: { stop: PlanStop }) {
+  if (stop.kinds.includes("fuel")) {
+    const tint =
+      stop.price_band && stop.price_band !== "grey"
+        ? PRICE_BAND_COLOR[stop.price_band]
+        : undefined;
+    return (
+      <div
+        className="mt-2 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2.5 py-2"
+        style={tint ? { borderColor: tint } : undefined}
+      >
+        {stop.average_label_bg && (
+          <p className="text-sm text-[var(--waze-text)]">
+            {stop.average_label_bg}
+          </p>
+        )}
+        {stop.price_label_bg ? (
+          <p
+            className="text-sm font-medium"
+            style={tint ? { color: tint } : undefined}
+          >
+            {stop.price_label_bg}
+          </p>
+        ) : (
+          <p className="text-sm text-[var(--waze-text-muted)]">
+            {m.sheet.bandGrey}
+          </p>
+        )}
+        {stop.price_delta_label_bg && (
+          <p className="text-sm text-[var(--waze-text)]">
+            {stop.price_delta_label_bg}
+          </p>
+        )}
+        {stop.price_source_label_bg && (
+          <p className="text-xs text-[var(--waze-text-muted)]">
+            {stop.price_source_label_bg}
+          </p>
+        )}
+      </div>
+    );
+  }
   if (stop.price) {
     return (
       <p className="text-xs text-[var(--waze-text-muted)]">
         {stop.price.amount.toFixed(3)} {stop.price.currency}/
-        {stop.price.unit === "L" ? m.sheet.perLitre : "kWh"} · {stop.price.source}
+        {stop.price.unit === "L" ? m.sheet.perLitre : "kWh"} ·{" "}
+        {stop.price.source}
       </p>
     );
   }
   if (stop.price_note === "price unknown") {
-    return <p className="text-xs text-[var(--waze-text-muted)]">{m.sheet.priceUnknown}</p>;
+    return (
+      <p className="text-xs text-[var(--waze-text-muted)]">
+        {m.sheet.priceUnknown}
+      </p>
+    );
   }
   return null;
 }
@@ -324,7 +406,8 @@ function primaryKind(stop: PlanStop): StopKind {
 
 function flagKind(stop: PlanStop): PlaceFlagKind {
   if (stop.kinds.includes("overnight")) return "hotel";
-  if (stop.kinds.includes("fuel") || stop.kinds.includes("charge")) return "fuel";
+  if (stop.kinds.includes("fuel") || stop.kinds.includes("charge"))
+    return "fuel";
   return "rest";
 }
 
@@ -332,7 +415,8 @@ function favoriteKind(
   stop: PlanStop
 ): "fuel" | "hotel" | "restaurant" | "rest_area" | "custom" {
   if (stop.kinds.includes("overnight")) return "hotel";
-  if (stop.kinds.includes("fuel") || stop.kinds.includes("charge")) return "fuel";
+  if (stop.kinds.includes("fuel") || stop.kinds.includes("charge"))
+    return "fuel";
   if (stop.kinds.includes("rest")) return "rest_area";
   return "custom";
 }

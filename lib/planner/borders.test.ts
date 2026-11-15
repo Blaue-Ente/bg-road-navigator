@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  nearestHungarySerbiaCrossing,
   scoreBorderOptions,
   selectCandidateBorders,
+  selectHungarySerbiaBorders,
+  tripMayCrossHungarySerbia,
 } from "@/lib/planner/borders";
 import type { WaitEstimate } from "@/lib/planner/types";
 import { NAKORDONI_ATTRIBUTION } from "@/lib/planner/wait";
@@ -52,6 +55,58 @@ describe("selectCandidateBorders", () => {
 
     expect(ids).toContain("kapitan-andreevo");
     expect(ids).not.toContain("kalotina");
+  });
+
+  it("offers the Serbia–Hungary posts when that frontier is the choice", () => {
+    const belgrade = { lng: 20.46, lat: 44.79 };
+    const budapest = { lng: 19.04, lat: 47.5 };
+    const ids = selectHungarySerbiaBorders({
+      origin: belgrade,
+      destination: budapest,
+      originCountry: "RS",
+      destinationCountry: "HU",
+    }).map((border) => border.id);
+
+    expect(ids).toContain("horgos");
+    expect(ids).toContain("tompa");
+    expect(ids).toContain("hercegszanto");
+    expect(ids).not.toContain("kalotina");
+    expect(ids).not.toContain("asotthalom");
+  });
+
+  it("picks the motorway when the driven line passes through Horgoš", () => {
+    expect(
+      nearestHungarySerbiaCrossing([
+        [19.978, 44.8],
+        [19.978, 46.183],
+        [19.978, 47.5],
+      ])?.id
+    ).toBe("horgos");
+    expect(
+      nearestHungarySerbiaCrossing([
+        [23.32, 42.7],
+        [24.75, 42.14],
+      ])
+    ).toBeNull();
+  });
+
+  it("does not ask for Hárinfó on a trip that stays south of the frontier", () => {
+    expect(
+      tripMayCrossHungarySerbia({
+        origin: sofia,
+        destination: { lng: 24.75, lat: 42.14 },
+        originCountry: "BG",
+        destinationCountry: "BG",
+      })
+    ).toBe(false);
+    expect(
+      tripMayCrossHungarySerbia({
+        origin: sofia,
+        destination: munich,
+        originCountry: "BG",
+        destinationCountry: "DE",
+      })
+    ).toBe(true);
   });
 
   it("does not force a border when both ends are in the same country", () => {

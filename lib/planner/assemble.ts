@@ -1,3 +1,10 @@
+import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
+import { fillLiters } from "@/lib/fuel-prices/advice";
+import { DATEX_ATTRIBUTION } from "@/lib/hazards/present";
+import type { RoadHazard } from "@/lib/hazards/types";
+import { hotspotAttribution } from "@/lib/hotspots/present";
+import type { Hotspot } from "@/lib/hotspots/types";
+import { presentFuelStop, type KnownAverage } from "@/lib/fuel-prices/present";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import { buildMapsHandoff, type MapStop } from "@/lib/utils/maps-handoff";
 import type { TimedStop } from "@/lib/planner/breaks";
@@ -6,6 +13,7 @@ import type { CommunityScore } from "@/lib/planner/community";
 import type { ScoredBorder } from "@/lib/planner/borders";
 import type {
   FuelAdvice,
+  FuelCountryAverage,
   PlanChecklist,
   PlanPrice,
   PlanStop,
@@ -59,7 +67,12 @@ export interface AssembleInput {
   checklist: PlanChecklist;
   weather: RouteWeather;
   why: WhyReason[];
+  roadHazards?: RoadHazard[];
+  attentionSegments?: Hotspot[];
   sights?: StopAttachment[];
+  fuelAverages: FuelCountryAverage[];
+  countryAt: (lng: number, lat: number) => string | null;
+  averageFor: (country: string) => KnownAverage | null;
 }
 
 export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
@@ -135,6 +148,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       note: borderNote(input.borders),
     },
     stops,
+    fuel_averages: input.fuelAverages,
     community: {
       penalty_min: input.community.penaltyMin,
       notes: input.community.notes,
@@ -156,6 +170,11 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     checklist: input.checklist,
     weather: input.weather,
     why_this_route: input.why,
+    road_hazards: input.roadHazards ?? [],
+    road_hazard_attribution:
+      (input.roadHazards?.length ?? 0) > 0 ? DATEX_ATTRIBUTION : null,
+    attention_segments: input.attentionSegments ?? [],
+    attention_attribution: hotspotAttribution(input.attentionSegments ?? []),
     recommended_fuel: recommended,
   };
 }
@@ -190,7 +209,22 @@ function borderNote(borders: ScoredBorder[]): string {
   if (borders.length === 0) {
     return "Няма български граничен пункт между тези две точки. Маршрутът е директният.";
   }
-  return "Сравнени са българските пунктове по направлението. Чакането е оценка, не официално време.";
+  const extra = borders.find(
+    (border) => border.reasonCode === "serbia_hungary"
+  );
+  const compared = borders.filter(
+    (border) => border.reasonCode !== "serbia_hungary"
+  );
+  if (
+    compared.length > 0 &&
+    compared.every((border) => isHungarySerbiaPlannerId(border.borderId))
+  ) {
+    return "Сравнени са пунктовете между Сърбия и Унгария. Чакането от Hárinfó е ориентировъчно; ако липсва, остава типичната стойност.";
+  }
+  const base =
+    "Сравнени са българските пунктове по направлението. Чакането е оценка, не официално време.";
+  if (!extra) return base;
+  return `${base} По пътя след това е ${extra.nameBg}.`;
 }
 
 function toPlanStop(
@@ -237,6 +271,7 @@ function toPlanStop(
     place_source: attachment?.source ?? "calculated",
     price: attachment?.price ?? null,
     advice: attachment?.advice ?? null,
+    ...fuelCopy(stop.kinds, coords, attachment, input),
     flags: attachment?.flags ?? [],
     optional: false,
     price_note: energy && !attachment?.price ? "price unknown" : null,
@@ -273,6 +308,11 @@ function sightStop(
     place_source: sight.source,
     price: null,
     advice: null,
+    price_band: null,
+    average_label_bg: null,
+    price_label_bg: null,
+    price_delta_label_bg: null,
+    price_source_label_bg: null,
     flags: sight.flags,
     optional: true,
     price_note: null,
@@ -282,16 +322,48 @@ function sightStop(
   };
 }
 
+function fuelCopy(
+  kinds: TimedStop["kinds"],
+  coords: GeoPoint,
+  attachment: StopAttachment | undefined,
+  input: AssembleInput
+): Pick<
+  PlanStop,
+  | "price_band"
+  | "average_label_bg"
+  | "price_label_bg"
+  | "price_delta_label_bg"
+  | "price_source_label_bg"
+> {
+  const blank = {
+    price_band: null,
+    average_label_bg: null,
+    price_label_bg: null,
+    price_delta_label_bg: null,
+    price_source_label_bg: null,
+  };
+  const fuel = input.vehicle.fuel_type;
+  if (!kinds.includes("fuel") || fuel === "electric") return blank;
+  const country = input.countryAt(coords.lng, coords.lat);
+  return presentFuelStop({
+    countryCode: country,
+    fuel,
+    average: country ? input.averageFor(country) : null,
+    stationPerL: attachment?.price?.amount ?? null,
+    source: attachment?.price?.source ?? null,
+    observedAt: attachment?.price?.observed_at ?? null,
+    liters: fillLiters(input.vehicle),
+    now: input.now,
+  });
+}
+
 function bestFuelAdvice(
   stops: PlanStop[]
 ): TripPlannerResult["recommended_fuel"] {
   let best: TripPlannerResult["recommended_fuel"] = null;
   for (const stop of stops) {
     if (!stop.advice) continue;
-    if (
-      !best ||
-      stop.advice.est_savings_eur > best.advice.est_savings_eur
-    ) {
+    if (!best || stop.advice.est_savings_eur > best.advice.est_savings_eur) {
       best = { stop_id: stop.id, advice: stop.advice };
     }
   }

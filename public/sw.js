@@ -14,6 +14,17 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || data.type !== "hotspot-alert") return;
+  const title = typeof data.title === "string" ? data.title : "Повишено внимание";
+  const body = typeof data.body === "string" ? data.body : "";
+  const tag = typeof data.tag === "string" ? data.tag : "hotspot";
+  event.waitUntil(
+    self.registration.showNotification(title, { body, tag, lang: "bg" })
+  );
+});
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;

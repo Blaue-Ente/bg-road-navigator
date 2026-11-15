@@ -93,7 +93,119 @@ describe("named stops", () => {
     });
     expect(attachments[0]?.name).toBe("Евтина");
   });
+
+  it("prefers green over a closer yellow station inside the same detour budget", () => {
+    const vehicle = resolveVehicle({
+      fuel_type: "diesel",
+      tank_capacity_liters: 8,
+      reserve: 0.4,
+      level: 0.5,
+    });
+    const places = pricedPair(line, {
+      cheap: {
+        price: 1.45,
+        alongM: 50_000,
+        distM: 2_500,
+        name: "бензиностанция",
+      },
+      other: { price: 1.5, alongM: 48_000, distM: 200, name: "Нормална" },
+    });
+    const { attachments } = attachStops({
+      merged: [{ kinds: ["fuel"], distanceKm: 70, etaMin: 60 }],
+      places,
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      vehicle,
+      driveMin: 120,
+      distanceKm: 200,
+      countryAt: () => "BG",
+      averagePerLitre: () => 1.5,
+    });
+    expect(attachments[0]?.placeId).toBe("cheap");
+  });
+
+  it("keeps the station inside the detour budget when the cheaper one is farther", () => {
+    const vehicle = resolveVehicle({ fuel_type: "diesel", level: 0.4 });
+    const places = pricedPair(line, {
+      cheap: { price: 1.4, alongM: 50_000, distM: 8_000, name: "Далечна" },
+      other: { price: 1.6, alongM: 48_000, distM: 300, name: "На пътя" },
+    });
+    const { attachments } = attachStops({
+      merged: [{ kinds: ["fuel"], distanceKm: 70, etaMin: 60 }],
+      places,
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      vehicle,
+      driveMin: 120,
+      distanceKm: 200,
+      countryAt: () => "AT",
+      averagePerLitre: () => 1.6,
+    });
+    expect(attachments[0]?.placeId).toBe("other");
+  });
+
+  it("keeps the closer stop when neither station has a price", () => {
+    const places = annotatePlaces(line, 200, [
+      corridor({
+        id: "far",
+        name: "Далечна",
+        kind: "fuel",
+        lat: 42.5,
+        lng: 23.7,
+        alongM: 50_000,
+        distM: 2_000,
+      }),
+      corridor({
+        id: "near",
+        name: "Близка",
+        kind: "fuel",
+        lat: 42.48,
+        lng: 23.75,
+        alongM: 48_000,
+        distM: 500,
+      }),
+    ]);
+    const chosen = pickPlace(places, DEFAULT_TRIP_PREFERENCES, {
+      kinds: ["fuel"],
+      windowStartKm: 40,
+      windowEndKm: 90,
+    });
+    expect(chosen?.id).toBe("near");
+  });
 });
+
+function pricedPair(
+  route: Array<[number, number]>,
+  input: {
+    cheap: { price: number; alongM: number; distM: number; name: string };
+    other: { price: number; alongM: number; distM: number; name: string };
+  }
+) {
+  return annotatePlaces(route, 200, [
+    corridor({
+      id: "other",
+      name: input.other.name,
+      kind: "fuel",
+      lat: 42.5,
+      lng: 23.7,
+      alongM: input.other.alongM,
+      distM: input.other.distM,
+    }),
+    corridor({
+      id: "cheap",
+      name: input.cheap.name,
+      kind: "fuel",
+      lat: 42.48,
+      lng: 23.75,
+      alongM: input.cheap.alongM,
+      distM: input.cheap.distM,
+    }),
+  ]).map((place) => ({
+    ...place,
+    priceAmount: place.id === "cheap" ? input.cheap.price : input.other.price,
+    priceBasis: "official" as const,
+    priceSource: "e-control" as const,
+    observedAt: "2026-11-14T00:00:00.000Z",
+  }));
+}
 
 function corridor(input: {
   id: string;

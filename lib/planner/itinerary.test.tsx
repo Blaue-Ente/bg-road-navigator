@@ -1,4 +1,7 @@
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
+import type { Hotspot } from "@/lib/hotspots/types";
 import { DEFAULT_TRIP_PREFERENCES } from "@/lib/planner/preferences";
 import {
   buildItineraryPoints,
@@ -35,6 +38,35 @@ describe("buildItineraryPoints", () => {
       "Ниш",
       "Белград",
     ]);
+  });
+
+  it("keeps the safety block, the closing line, the hotspot list, and an empty hazard note", () => {
+    const plan = fakePlan();
+    plan.checklist.safety = [
+      {
+        id: "bg-belts",
+        kind: "law",
+        title: "Колани",
+        detail: "Колан за всички.",
+      },
+    ];
+    plan.checklist.safety_closing = "Пазете себе си и другите на пътя.";
+    plan.attention_segments = [hotspot()];
+    plan.road_hazards = [];
+    const html = renderToStaticMarkup(
+      <PlanItineraryView
+        plan={plan}
+        includedIds={["stop-1"]}
+        checks={{}}
+        via={null}
+      />
+    );
+    expect(html).toContain("Безопасност в България");
+    expect(html).toContain("Пазете себе си и другите на пътя.");
+    expect(html).toContain("Участък за повишено внимание");
+    expect(html).toContain("4 произшествия");
+    expect(html).toContain("Обстановка по пътя");
+    expect(html).toContain("Няма активни събития от АПИ в момента");
   });
 
   it("leaves optional sights out of the default selection", () => {
@@ -119,7 +151,14 @@ function fakePlan(): TripPlannerResult {
       documents: [],
       winter: [],
       kit: [],
+      safety: [],
+      safety_closing: null,
+      bg_links: [],
     },
+    road_hazards: [],
+    road_hazard_attribution: null,
+    attention_segments: [],
+    attention_attribution: null,
     weather: { segments: [], warnings: [], attribution: "" },
     why_this_route: [
       {
@@ -131,6 +170,24 @@ function fakePlan(): TripPlannerResult {
       },
     ],
     recommended_fuel: null,
+    fuel_averages: [],
+  };
+}
+
+function hotspot(): Hotspot {
+  return {
+    id: "bg-1",
+    country: "BG",
+    lng: 23.1,
+    lat: 42.8,
+    count: 4,
+    fatal: 1,
+    serious: 1,
+    slight: 2,
+    severity: 7,
+    year_from: 2021,
+    year_to: 2025,
+    source_id: "bg-cherna",
   };
 }
 
@@ -152,6 +209,11 @@ function stop(id: string, optional: boolean, lng: number): PlanStop {
     place_source: "osm",
     price: null,
     advice: null,
+    price_band: optional ? null : "grey",
+    average_label_bg: optional ? null : "България: няма средна цена",
+    price_label_bg: null,
+    price_delta_label_bg: null,
+    price_source_label_bg: null,
     flags: [],
     optional,
     price_note: null,

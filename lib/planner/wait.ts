@@ -1,3 +1,4 @@
+import { HATARINFO_ATTRIBUTION } from "@/lib/constants/border-official-links";
 import type {
   NakordoniAttribution,
   WaitEstimate,
@@ -49,6 +50,15 @@ export interface ExpectedWaitInput {
   licensed?: boolean;
   /** Live TomTom delay near the crossing, minutes. */
   trafficDelayMin?: number | null;
+  /**
+   * Indicative car wait from Hungarian Police Hárinfó.
+   * Used for a Serbia–Hungary crossing ahead of the local typical table.
+   */
+  hatarinfo?: {
+    minutes: number;
+    band: "under_15" | "measured";
+    observedAt: string | null;
+  } | null;
 }
 
 const FORECAST_WINDOW_MS = 75 * 60 * 1000;
@@ -60,9 +70,7 @@ const FORECAST_WINDOW_MS = 75 * 60 * 1000;
  */
 export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
   if (input.licensed === false) {
-    // TODO(hatarinfo-amss): when a Határinfó or AMSS feed exists for an
-    // unlicensed Serbian or Turkish crossing, prefer that queue over the
-    // local typical table and keep TomTom as the traffic delay beside it.
+    if (input.hatarinfo) return hatarinfoWait(input);
     return unlicensedWait(input);
   }
   const forecast = matchForecast(
@@ -121,6 +129,8 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     });
   }
 
+  if (input.hatarinfo) return hatarinfoWait(input);
+
   const hour = zonedHour(input.eta, input.timeZone ?? "Europe/Sofia");
   const local = input.localTypical?.[hour];
   if (typeof local === "number") {
@@ -152,6 +162,35 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     label_bg: "няма данни за чакане",
     attribution: null,
   };
+}
+
+function hatarinfoWait(input: ExpectedWaitInput): WaitEstimate {
+  const reading = input.hatarinfo!;
+  const traffic = trafficDelay(input);
+  const band =
+    reading.band === "under_15"
+      ? "Няма чакане над 15 мин за лек автомобил."
+      : `Около ${Math.round(reading.minutes)} мин за лек автомобил.`;
+  const age = ageMinutes(reading.observedAt, input.now);
+  return {
+    source: "hatarinfo",
+    estimate: true,
+    minutes: Math.max(0, Math.round(reading.minutes)),
+    metric: "wait_min",
+    quality: null,
+    queue_now: null,
+    observed_at: reading.observedAt,
+    age_min: age,
+    age_label: formatAge(age),
+    label_bg: `${band} Показанието е ориентировъчно.`,
+    attribution: HATARINFO_ATTRIBUTION,
+    traffic_delay_min: traffic,
+  };
+}
+
+function trafficDelay(input: ExpectedWaitInput): number | null {
+  if (input.trafficDelayMin == null || input.trafficDelayMin <= 0) return null;
+  return Math.round(input.trafficDelayMin);
 }
 
 function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {

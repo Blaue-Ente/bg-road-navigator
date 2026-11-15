@@ -3,10 +3,20 @@
 import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
+import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
+import { DATEX_ATTRIBUTION, formatHazardUntil } from "@/lib/hazards/present";
+import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
 import { messages as m } from "@/lib/i18n";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useRouteStore } from "@/lib/stores/route.store";
 import type { PlanStop, StopKind } from "@/lib/planner/types";
+
+const HAZARD_COLOR: Record<RoadHazardKind, string> = {
+  roadworks: "#d97706",
+  closed: "#b91c1c",
+  danger: "#c2410c",
+  conditions: "#1d4ed8",
+};
 
 const KIND_COLOR: Record<StopKind, string> = {
   overnight: "#6d28d9",
@@ -26,21 +36,38 @@ export function PlanMarkers({ map }: { map: Map | null }) {
 
     for (const stop of plan.stops) {
       markers.push(
-        marker(map, stop.coords.lng, stop.coords.lat, colorFor(stop), labelFor(stop), {
-          focused: stop.id === focusedStopId,
-          flags: stop.flags.length,
-          onSelect: () => useRouteStore.getState().setFocusedStopId(stop.id),
-        })
+        marker(
+          map,
+          stop.coords.lng,
+          stop.coords.lat,
+          colorFor(stop),
+          labelFor(stop),
+          {
+            focused: stop.id === focusedStopId,
+            flags: stop.flags.length,
+            onSelect: () => useRouteStore.getState().setFocusedStopId(stop.id),
+          }
+        )
       );
+    }
+    for (const hazard of plan.road_hazards ?? []) {
+      markers.push(hazardMarker(map, hazard));
     }
     const border = plan.border.chosen;
     if (border) {
       markers.push(
-        marker(map, border.coords.lng, border.coords.lat, "#b91c1c", border.name_bg, {
-          focused: false,
-          flags: 0,
-          onSelect: () => useRouteStore.getState().setPlanDetailOpen(true),
-        })
+        marker(
+          map,
+          border.coords.lng,
+          border.coords.lat,
+          "#b91c1c",
+          border.name_bg,
+          {
+            focused: false,
+            flags: 0,
+            onSelect: () => useRouteStore.getState().setPlanDetailOpen(true),
+          }
+        )
       );
     }
 
@@ -52,7 +79,51 @@ export function PlanMarkers({ map }: { map: Map | null }) {
   return null;
 }
 
+function hazardMarker(map: Map, hazard: RoadHazard): maplibregl.Marker {
+  const where = hazard.road_km_bg
+    ? `${hazard.label_bg} · ${hazard.road_km_bg}`
+    : hazard.label_bg;
+  const until = formatHazardUntil(hazard.valid_until);
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "flex h-8 w-8 items-center justify-center";
+  el.setAttribute("aria-label", `${where}. ${hazard.text_bg}`);
+  const diamond = document.createElement("span");
+  diamond.className = "block h-3 w-3 rotate-45 border-2 border-white shadow";
+  diamond.style.background = HAZARD_COLOR[hazard.kind];
+  el.append(diamond);
+
+  const popup = document.createElement("div");
+  popup.className = "max-w-xs text-sm";
+  const title = document.createElement("p");
+  title.className = "font-semibold";
+  title.textContent = where;
+  const body = document.createElement("p");
+  body.textContent = hazard.text_bg;
+  popup.append(title, body);
+  if (until) {
+    const line = document.createElement("p");
+    line.textContent = `${m.sheet.hazardsUntil} ${until}`;
+    popup.append(line);
+  }
+  const source = document.createElement("p");
+  source.textContent = DATEX_ATTRIBUTION;
+  popup.append(source);
+
+  return new maplibregl.Marker({ element: el })
+    .setLngLat([hazard.lng, hazard.lat])
+    .setPopup(
+      new maplibregl.Popup({ offset: 16, closeButton: true }).setDOMContent(
+        popup
+      )
+    )
+    .addTo(map);
+}
+
 function colorFor(stop: PlanStop): string {
+  if (stop.kinds.includes("fuel") && stop.price_band) {
+    return PRICE_BAND_COLOR[stop.price_band];
+  }
   if (stop.kinds.includes("overnight")) return KIND_COLOR.overnight;
   if (stop.kinds.includes("charge")) return KIND_COLOR.charge;
   if (stop.kinds.includes("fuel")) return KIND_COLOR.fuel;
@@ -60,11 +131,19 @@ function colorFor(stop: PlanStop): string {
   return KIND_COLOR.rest;
 }
 
+const BAND_LABEL = {
+  green: m.sheet.bandGreen,
+  yellow: m.sheet.bandYellow,
+  red: m.sheet.bandRed,
+  grey: m.sheet.bandGrey,
+} as const;
+
 function labelFor(stop: PlanStop): string {
   const kinds = stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(", ");
-  const flags =
-    stop.flags.length > 0 ? `, ${stop.flags.length}` : "";
-  return `${stop.place_name ?? stop.title}. ${kinds}${flags}`;
+  const flags = stop.flags.length > 0 ? `, ${stop.flags.length}` : "";
+  const price = stop.average_label_bg ? `. ${stop.average_label_bg}` : "";
+  const band = stop.price_band ? `. ${BAND_LABEL[stop.price_band]}` : "";
+  return `${stop.place_name ?? stop.title}. ${kinds}${flags}${price}${band}`;
 }
 
 function marker(
@@ -101,5 +180,7 @@ function marker(
     el.append(badge);
   }
 
-  return new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
+  return new maplibregl.Marker({ element: el })
+    .setLngLat([lng, lat])
+    .addTo(map);
 }

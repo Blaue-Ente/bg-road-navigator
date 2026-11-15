@@ -87,8 +87,8 @@ export default function MapPage() {
         )}
       </div>
 
-      <div className="pointer-events-none absolute left-0 z-10 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]">
-        <div className="flex gap-2 overflow-x-auto pb-1 pr-16 md:pr-1">
+      <div className="pointer-events-none absolute left-0 z-10 w-full bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-24 md:w-[380px]">
+        <div className="flex gap-2 overflow-x-auto pb-1 pl-3 [scrollbar-width:thin]">
           {topBorders.map((border) => (
             <Link
               key={border.crossing_id}
@@ -120,6 +120,7 @@ export default function MapPage() {
               </p>
             </Link>
           )}
+          <span aria-hidden className="w-20 shrink-0" />
         </div>
       </div>
 

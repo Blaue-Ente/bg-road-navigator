@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<d2LogicalModel xmlns="http://datex2.eu/schema/2/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" modelBaseVersion="2">
+  <payloadPublication xsi:type="SituationPublication" lang="bg">
+    <publicationTime>2026-11-15T08:00:00+02:00</publicationTime>
+    <situation id="rw-trakia">
+      <overallSeverity>medium</overallSeverity>
+      <situationRecord xsi:type="Roadworks" id="rw-trakia-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.6977</latitude>
+              <longitude>23.3219</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <validity>
+          <validityTimeSpecification>
+            <overallStartTime>2026-11-15T06:00:00+02:00</overallStartTime>
+            <overallEndTime>2026-11-20T18:00:00+02:00</overallEndTime>
+          </validityTimeSpecification>
+        </validity>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Ремонт на АМ Тракия при км 45. Ограничение в дясната лента.</value>
+              <value lang="en">Roadworks on the Trakia motorway at km 45.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+        <roadworks>
+          <roadworksType>resurfacingWork</roadworksType>
+        </roadworks>
+      </situationRecord>
+    </situation>
+    <situation id="ac-mislabelled">
+      <situationRecord xsi:type="Roadworks" id="ac-mislabelled-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.1354</latitude>
+              <longitude>24.7453</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <validity>
+          <validityTimeSpecification>
+            <overallEndTime>2026-11-15T22:00:00+02:00</overallEndTime>
+          </validityTimeSpecification>
+        </validity>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">ПТП на път I-1 при км 12+300. Движение с повишено внимание.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+        <roadworks>
+          <roadworksType>resurfacingWork</roadworksType>
+        </roadworks>
+        <accident>
+          <accidentType>accident</accidentType>
+        </accident>
+      </situationRecord>
+    </situation>
+    <situation id="ac-text-only">
+      <situationRecord xsi:type="Roadworks" id="ac-text-only-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.15</latitude>
+              <longitude>24.75</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Катастрофа и препятствие на пътя. Ремонтните екипи още не са тръгнали.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+        <roadworks>
+          <roadworksType>resurfacingWork</roadworksType>
+        </roadworks>
+      </situationRecord>
+    </situation>
+    <situation id="closed-hemus">
+      <situationRecord xsi:type="Roadworks" id="closed-hemus-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.80</latitude>
+              <longitude>23.40</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <validity>
+          <validityTimeSpecification>
+            <overallEndTime>2026-11-16T06:00:00+02:00</overallEndTime>
+          </validityTimeSpecification>
+        </validity>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Пътят е затворен на АМ Хемус при км 23.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+        <roadworks>
+          <roadworksType>resurfacingWork</roadworksType>
+        </roadworks>
+      </situationRecord>
+    </situation>
+    <situation id="poor-road">
+      <situationRecord xsi:type="Roadworks" id="poor-road-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.50</latitude>
+              <longitude>25.00</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Хлъзгаво платно и лоши условия на път II-86 при км 10.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+        <roadworks>
+          <roadworksType>resurfacingWork</roadworksType>
+        </roadworks>
+      </situationRecord>
+    </situation>
+    <situation id="fog">
+      <situationRecord xsi:type="Roadworks" id="fog-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.60</latitude>
+              <longitude>24.10</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Гъста мъгла.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+        <weatherRelatedRoadConditions>
+          <weatherRelatedRoadConditionType>fog</weatherRelatedRoadConditionType>
+        </weatherRelatedRoadConditions>
+      </situationRecord>
+    </situation>
+    <situation id="expired">
+      <situationRecord xsi:type="Roadworks" id="expired-1">
+        <groupOfLocations>
+          <pointByCoordinates>
+            <pointCoordinates>
+              <latitude>42.70</latitude>
+              <longitude>23.32</longitude>
+            </pointCoordinates>
+          </pointByCoordinates>
+        </groupOfLocations>
+        <validity>
+          <validityTimeSpecification>
+            <overallEndTime>2026-11-14T18:00:00+02:00</overallEndTime>
+          </validityTimeSpecification>
+        </validity>
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Ремонт, който вече е приключил, на АМ Тракия при км 10.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+      </situationRecord>
+    </situation>
+    <situation id="no-point">
+      <situationRecord xsi:type="Roadworks" id="no-point-1">
+        <generalPublicComment>
+          <comment>
+            <values>
+              <value lang="bg">Ремонт без координати.</value>
+            </values>
+          </comment>
+        </generalPublicComment>
+      </situationRecord>
+    </situation>
+  </payloadPublication>
+</d2LogicalModel>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { BorderStatus } from "@/types/border.types";
+import { officialLinksForCrossing } from "@/lib/constants/border-official-links";
 import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
 
 interface BorderCardProps {
@@ -84,6 +85,11 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
         </p>
       )}
 
+      <OfficialBorderLinks
+        crossingId={border.crossing_id}
+        countryPair={border.country_pair}
+      />
+
       <div className="flex flex-wrap items-center gap-2">
         {border.coords && (
           <FavoritePlaceButton
@@ -106,6 +112,35 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function OfficialBorderLinks({
+  crossingId,
+  countryPair,
+}: {
+  crossingId: string;
+  countryPair: string;
+}) {
+  const links = officialLinksForCrossing({
+    id: crossingId,
+    country_pair: countryPair,
+  });
+  if (links.length === 0) return null;
+  return (
+    <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1">
+      {links.map((link) => (
+        <a
+          key={link.kind}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[var(--waze-accent-text)] underline"
+        >
+          {link.label_bg}
+        </a>
+      ))}
     </div>
   );
 }

@@ -1,14 +1,37 @@
 import type { VignetteLink } from "@/lib/constants/vignettes";
+import type { PriceBand } from "@/lib/fuel-prices/bands";
+import type { RoadHazard } from "@/lib/hazards/types";
+import type { Hotspot } from "@/lib/hotspots/types";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { GeoPoint } from "@/types/route.types";
 
 /** Stable codes Stage 3 can branch on. Bulgarian copy lives in the *_bg fields. */
 export type WaitSource =
-  "forecast" | "day_stats" | "current" | "local_typical" | "unavailable";
+  | "forecast"
+  | "day_stats"
+  | "current"
+  | "local_typical"
+  | "unavailable"
+  | "hatarinfo";
 
 export type StopKind = "fuel" | "charge" | "rest" | "overnight" | "sight";
 
 export type PlanPriceSource = "e-control" | "tankerkoenig" | "community";
+
+export type { PriceBand };
+
+/** National Weekly Oil Bulletin figure for one country on this route. */
+export interface FuelCountryAverage {
+  country_code: string;
+  country_name_bg: string;
+  fuel: "diesel" | "petrol" | "lpg" | "electric";
+  price_eur_per_l: number | null;
+  week: string | null;
+  week_label_bg: string | null;
+  source: "ec-oil-bulletin" | null;
+  source_label_bg: string;
+  label_bg: string;
+}
 
 export interface FuelAdvice {
   cheaper_than_avg_per_l: number;
@@ -30,6 +53,14 @@ export interface ChecklistItem {
   detail: string;
   country_code: string | null;
   href: string | null;
+  link_label?: string | null;
+}
+
+export interface SafetyNote {
+  id: string;
+  kind: "law" | "advice";
+  title: string;
+  detail: string;
 }
 
 export interface PlanChecklist {
@@ -38,6 +69,11 @@ export interface PlanChecklist {
   documents: ChecklistItem[];
   winter: ChecklistItem[];
   kit: ChecklistItem[];
+  /** Bulgarian rules. Empty when the route does not enter Bulgaria. */
+  safety: SafetyNote[];
+  safety_closing: string | null;
+  /** Official pages for the Bulgarian part of the trip. No scraping. */
+  bg_links: ChecklistItem[];
 }
 
 export interface RouteWeatherSegment {
@@ -72,7 +108,9 @@ export interface WhyReason {
     | "time_delta"
     | "distance_delta"
     | "incident"
-    | "preference";
+    | "preference"
+    | "road_hazard"
+    | "attention_segment";
   title: string;
   detail: string;
   delta_min: number | null;
@@ -86,9 +124,9 @@ export interface OsmAttribution {
 }
 
 export interface NakordoniAttribution {
-  text: "Data by nakordoni.eu";
-  href: "https://nakordoni.eu/";
-  terms: "https://nakordoni.eu/en/p/developer_api_terms";
+  text: string;
+  href: string;
+  terms: string;
 }
 
 export interface WaitEstimate {
@@ -122,7 +160,8 @@ export interface BorderChoice {
   community_penalty_min: number;
   total_min: number;
   chosen: boolean;
-  reason_code: "lowest_total" | "slower_than_best" | "preferred";
+  reason_code:
+    "lowest_total" | "slower_than_best" | "preferred" | "serbia_hungary";
   reason: string;
   wait: WaitEstimate;
 }
@@ -153,6 +192,13 @@ export interface PlanStop {
   place_source: "osm" | "openstreetmap" | "openchargemap" | "calculated";
   price: PlanPrice | null;
   advice: FuelAdvice | null;
+  /** Null when the stop is not a fuel stop. Grey means no station price. */
+  price_band: PriceBand | null;
+  /** National average for this stop's country, e.g. "България: дизел ср. 1,90 €/л". */
+  average_label_bg: string | null;
+  price_label_bg: string | null;
+  price_delta_label_bg: string | null;
+  price_source_label_bg: string | null;
   flags: PlaceFlagSummary[];
   /** Scenic sights are optional and can be skipped. */
   optional: boolean;
@@ -204,6 +250,8 @@ export interface TripPlannerResult {
     note: string;
   };
   stops: PlanStop[];
+  /** One row per country the route crosses, in travel order. */
+  fuel_averages: FuelCountryAverage[];
   community: {
     penalty_min: number;
     notes: CommunityNote[];
@@ -219,6 +267,12 @@ export interface TripPlannerResult {
   preferences: TripPreferences;
   attribution: OsmAttribution;
   checklist: PlanChecklist;
+  /** АПИ situations on the Bulgarian part of the route. Empty when none match. */
+  road_hazards: RoadHazard[];
+  road_hazard_attribution: string | null;
+  /** Clustered injury and fatal accidents on the driven line. */
+  attention_segments: Hotspot[];
+  attention_attribution: string | null;
   weather: RouteWeather;
   why_this_route: WhyReason[];
   recommended_fuel: { stop_id: string; advice: FuelAdvice } | null;

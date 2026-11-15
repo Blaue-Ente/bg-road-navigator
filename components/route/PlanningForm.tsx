@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
@@ -11,16 +11,12 @@ import { buildFavoriteEnvelope } from "@/lib/planner/favorite-envelope";
 import {
   fromDatetimeLocalValue,
   normalizePlannerPreferences,
-  toDatetimeLocalValue,
 } from "@/lib/planner/form-preferences";
-import {
-  resolveTripPreferences,
-  type TripPreferences,
-} from "@/lib/planner/preferences";
+import type { PlannerDraft } from "@/lib/planner/planner-draft";
+import type { TripPreferences } from "@/lib/planner/preferences";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore, type Profile } from "@/lib/stores/user.store";
 import { messages as m } from "@/lib/i18n";
-import type { RoutePoint } from "@/types/route.types";
 
 export interface PlanningSubmit {
   preferences: TripPreferences;
@@ -29,22 +25,16 @@ export interface PlanningSubmit {
 }
 
 export function PlanningForm({
-  origin,
-  destination,
-  via,
-  onOrigin,
-  onDestination,
-  onVia,
+  draft,
+  onChange,
+  onReset,
   calculating,
   error,
   onSubmit,
 }: {
-  origin: RoutePoint | null;
-  destination: RoutePoint | null;
-  via: RoutePoint | null;
-  onOrigin: (place: RoutePoint) => void;
-  onDestination: (place: RoutePoint) => void;
-  onVia: (place: RoutePoint | null) => void;
+  draft: PlannerDraft;
+  onChange: (partial: Partial<PlannerDraft>) => void;
+  onReset: () => void;
   calculating: boolean;
   error: string | null;
   onSubmit: (draft: PlanningSubmit) => void;
@@ -53,39 +43,15 @@ export function PlanningForm({
   const session = useUserStore((state) => state.session);
   const setProfile = useUserStore((state) => state.setProfile);
   const tripPlan = useRouteStore((state) => state.tripPlan);
-  const replan = useRouteStore((state) => state.replanDraft);
-  const setReplanDraft = useRouteStore((state) => state.setReplanDraft);
-  const [prefs, setPrefs] = useState<TripPreferences>(() =>
-    resolveTripPreferences(undefined, profile?.trip_preferences)
-  );
-  const [depart, setDepart] = useState(() =>
-    toDatetimeLocalValue(profile?.trip_preferences?.depart_at)
-  );
-  const [fuel, setFuel] = useState(80);
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState<"settings" | "star" | null>(null);
-  const edited = useRef(false);
-  const appliedReplan = useRef(0);
-
-  useEffect(() => {
-    if (edited.current || !profile?.trip_preferences) return;
-    setPrefs(resolveTripPreferences(undefined, profile.trip_preferences));
-    setDepart(toDatetimeLocalValue(profile.trip_preferences.depart_at));
-  }, [profile]);
-
-  useEffect(() => {
-    if (!replan || appliedReplan.current === replan.token) return;
-    appliedReplan.current = replan.token;
-    edited.current = true;
-    setPrefs(resolveTripPreferences(replan.preferences));
-    setDepart(toDatetimeLocalValue(replan.departAt));
-    setFuel(Math.round(replan.fuelLevel * 100));
-    setReplanDraft(null);
-  }, [replan, setReplanDraft]);
+  const { origin, destination, via } = draft;
+  const prefs = draft.preferences;
+  const depart = draft.departLocal;
+  const fuel = draft.fuelPercent;
 
   const changePrefs = (next: TripPreferences) => {
-    edited.current = true;
-    setPrefs(next);
+    onChange({ preferences: next });
   };
 
   const currentPrefs = () =>
@@ -192,10 +158,7 @@ export function PlanningForm({
         label={m.planning.from}
         value={origin}
         placeholder={m.planning.fromPlaceholder}
-        onSelect={(place) => {
-          edited.current = true;
-          onOrigin(place);
-        }}
+        onSelect={(place) => onChange({ origin: place, corridorId: null })}
       />
       <LocationSearchInput
         key={via?.id ?? "via-empty"}
@@ -203,15 +166,12 @@ export function PlanningForm({
         label={m.planning.via}
         value={via}
         placeholder={m.planning.viaPlaceholder}
-        onSelect={(place) => {
-          edited.current = true;
-          onVia(place);
-        }}
+        onSelect={(place) => onChange({ via: place })}
       />
       {via && (
         <button
           type="button"
-          onClick={() => onVia(null)}
+          onClick={() => onChange({ via: null })}
           className="text-sm text-[var(--waze-text-muted)] underline"
         >
           {m.planning.clearVia}
@@ -223,10 +183,7 @@ export function PlanningForm({
         label={m.planning.to}
         value={destination}
         placeholder={m.planning.toPlaceholder}
-        onSelect={(place) => {
-          edited.current = true;
-          onDestination(place);
-        }}
+        onSelect={(place) => onChange({ destination: place, corridorId: null })}
       />
       <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
         {m.planning.searchHint}
@@ -238,10 +195,7 @@ export function PlanningForm({
           id="depart-at"
           type="datetime-local"
           value={depart}
-          onChange={(event) => {
-            edited.current = true;
-            setDepart(event.target.value);
-          }}
+          onChange={(event) => onChange({ departLocal: event.target.value })}
           className="mt-1 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
         />
       </label>
@@ -276,7 +230,7 @@ export function PlanningForm({
           max={100}
           step={5}
           value={fuel}
-          onChange={(event) => setFuel(Number(event.target.value))}
+          onChange={(event) => onChange({ fuelPercent: Number(event.target.value) })}
           className="mt-2 w-full"
         />
       </label>
@@ -339,6 +293,14 @@ export function PlanningForm({
         className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
       >
         {calculating ? m.planning.calculating : m.planning.calculate}
+      </button>
+      <button
+        type="button"
+        onClick={onReset}
+        disabled={calculating}
+        className="waze-btn-secondary w-full py-3 text-sm disabled:opacity-50"
+      >
+        {m.planning.reset}
       </button>
     </WazeCard>
   );

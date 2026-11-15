@@ -1,11 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCityById } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
+import { toDatetimeLocalValue } from "@/lib/planner/form-preferences";
+import {
+  createPlannerDraft,
+  patchPlannerDraft,
+  type PlannerDraft,
+} from "@/lib/planner/planner-draft";
+import { resolveTripPreferences } from "@/lib/planner/preferences";
+import {
+  hydratePlannerDraft,
+  usePlannerDraftStore,
+} from "@/lib/stores/planner-draft.store";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { useUserStore } from "@/lib/stores/user.store";
 import {
   estimateRestStops,
   formatDuration,
@@ -13,6 +25,7 @@ import {
 } from "@/lib/utils/route-planner";
 import { isRoadRoute } from "@/lib/utils/route-builder";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
@@ -69,32 +82,74 @@ export default function RoutePage() {
     setPlanningVia,
     clearRoute,
     replanDraft,
+    setReplanDraft,
   } = useRouteStore();
-  const [origin, setOrigin] = useState<RoutePoint | null>(() =>
-    activeRoute
-      ? { ...activeRoute.origin, source: "user" }
-      : toRoutePoint("london")
-  );
-  const [destination, setDestination] = useState<RoutePoint | null>(() =>
-    activeRoute
-      ? { ...activeRoute.destination, source: "user" }
-      : toRoutePoint("sofia")
-  );
-  const [selectedCorridor, setSelectedCorridor] = useState<string | null>(null);
+  const profilePrefs = useUserStore((state) => state.profile?.trip_preferences);
+  const storedDraft = usePlannerDraftStore((state) => state.draft);
+  const setStoredDraft = usePlannerDraftStore((state) => state.setDraft);
+  const clearStoredDraft = usePlannerDraftStore((state) => state.clearDraft);
+  const [ready, setReady] = useState(false);
   const [calculating, setCalculating] = useState(false);
-  const [via, setVia] = useState<RoutePoint | null>(null);
   const [routeBorders, setRouteBorders] = useState<string[]>([]);
   const [routeError, setRouteError] = useState<string | null>(null);
   const appliedReplan = useRef(0);
 
+  const blank = useMemo(
+    () =>
+      createPlannerDraft({
+        origin: activeRoute
+          ? { ...activeRoute.origin, source: "user" }
+          : toRoutePoint("london"),
+        destination: activeRoute
+          ? { ...activeRoute.destination, source: "user" }
+          : toRoutePoint("sofia"),
+        preferences: resolveTripPreferences(undefined, profilePrefs),
+        departLocal: toDatetimeLocalValue(profilePrefs?.depart_at),
+      }),
+    [activeRoute, profilePrefs]
+  );
+  const draft = storedDraft ?? blank;
+  const { origin, destination, via } = draft;
+  const selectedCorridor = draft.corridorId;
+
   useEffect(() => {
-    if (!replanDraft || appliedReplan.current === replanDraft.token) return;
+    hydratePlannerDraft();
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !replanDraft || appliedReplan.current === replanDraft.token) {
+      return;
+    }
     appliedReplan.current = replanDraft.token;
-    setOrigin(replanDraft.origin);
-    setDestination(replanDraft.destination);
-    setVia(replanDraft.via);
-    setSelectedCorridor(null);
-  }, [replanDraft]);
+    setStoredDraft(
+      createPlannerDraft({
+        origin: replanDraft.origin,
+        destination: replanDraft.destination,
+        via: replanDraft.via,
+        preferences: resolveTripPreferences(replanDraft.preferences),
+        departLocal: toDatetimeLocalValue(replanDraft.departAt),
+        fuelPercent: Math.round(replanDraft.fuelLevel * 100),
+      })
+    );
+    setReplanDraft(null);
+  }, [ready, replanDraft, setReplanDraft, setStoredDraft]);
+
+  const commit = (partial: Partial<PlannerDraft>) => {
+    const base = usePlannerDraftStore.getState().draft ?? blank;
+    setStoredDraft(patchPlannerDraft(base, partial));
+  };
+
+  const resetDraft = () => {
+    setRouteError(null);
+    setRouteBorders([]);
+    setStoredDraft(
+      createPlannerDraft({
+        preferences: resolveTripPreferences(undefined, profilePrefs),
+        departLocal: toDatetimeLocalValue(profilePrefs?.depart_at),
+      })
+    );
+  };
 
   const promoteAlternative = (alt: RouteAlternative) => {
     if (!activeRoute) return;
@@ -136,15 +191,17 @@ export default function RoutePage() {
     const corridor = TRAVEL_CORRIDORS.find((c) => c.id === corridorId);
     if (!corridor) return;
 
-    setSelectedCorridor(corridorId);
     const first = toRoutePoint(corridor.cityIds[0]!);
     const last = toRoutePoint(corridor.cityIds[corridor.cityIds.length - 1]!);
-    if (first) setOrigin(first);
-    if (last) setDestination(last);
+    commit({
+      corridorId,
+      ...(first ? { origin: first } : {}),
+      ...(last ? { destination: last } : {}),
+    });
     setRouteBorders(corridor.borderIds);
   };
 
-  const runCalculation = async (corridorId: string | null, draft: PlanningSubmit) => {
+  const runCalculation = async (corridorId: string | null, submitted: PlanningSubmit) => {
     setCalculating(true);
     setRouteError(null);
 
@@ -161,20 +218,15 @@ export default function RoutePage() {
       ? TRAVEL_CORRIDORS.find((c) => c.id === corridorId)
       : null;
 
-    if (corridor) {
-      setSelectedCorridor(corridorId!);
-      setRouteBorders(corridor.borderIds);
-    } else {
-      setSelectedCorridor(null);
-      setRouteBorders([]);
-    }
+    if (corridor) setRouteBorders(corridor.borderIds);
+    else setRouteBorders([]);
 
     const points = corridorId
       ? undefined
       : via
         ? [origin!, via, destination!]
         : [origin!, destination!];
-    const planPromise = postPlan(origin!, destination!, via, draft);
+    const planPromise = postPlan(origin!, destination!, via, submitted);
     const route = await fetchRoute({
       corridorId: corridorId ?? undefined,
       points,
@@ -192,8 +244,8 @@ export default function RoutePage() {
     const next = plan ? routeFromPlan(base, plan, via) : base;
     const keepAlternatives =
       Boolean(route) &&
-      !draft.preferences.avoid_motorways &&
-      !draft.preferences.avoid_tolls;
+      !submitted.preferences.avoid_motorways &&
+      !submitted.preferences.avoid_tolls;
     setPlanningVia(
       via
         ? { label: via.label, lng: via.coords.lng, lat: via.coords.lat }
@@ -215,6 +267,7 @@ export default function RoutePage() {
     );
     if (!plan) setRouteError(m.planning.planFailed);
     if (plan) {
+      clearStoredDraft();
       setPlanDetailOpen(true);
       router.push("/");
     }
@@ -225,6 +278,8 @@ export default function RoutePage() {
   const restStops = activeRoute
     ? estimateRestStops(activeRoute.duration_min)
     : 0;
+
+  if (!ready) return <PageSkeleton label={m.planning.title} />;
 
   return (
     <div className="waze-page">
@@ -252,21 +307,12 @@ export default function RoutePage() {
         </section>
 
         <PlanningForm
-          origin={origin}
-          destination={destination}
-          via={via}
-          onOrigin={(place) => {
-            setOrigin(place);
-            setSelectedCorridor(null);
-          }}
-          onDestination={(place) => {
-            setDestination(place);
-            setSelectedCorridor(null);
-          }}
-          onVia={setVia}
+          draft={draft}
+          onChange={commit}
+          onReset={resetDraft}
           calculating={calculating}
           error={routeError}
-          onSubmit={(draft) => void runCalculation(selectedCorridor, draft)}
+          onSubmit={(submitted) => void runCalculation(selectedCorridor, submitted)}
         />
 
         {activeRoute && (

@@ -1,9 +1,15 @@
+import { MFA_TRAVEL_ADVICE_URL } from "@/lib/constants/border-official-links";
 import {
   WINTER_RULES,
   WINTER_RULES_DISCLAIMER_BG,
 } from "@/lib/constants/winter-rules";
 import type { VignetteLink } from "@/lib/constants/vignettes";
-import type { ChecklistItem, PlanChecklist } from "@/lib/planner/types";
+import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
+import type {
+  ChecklistItem,
+  PlanChecklist,
+  SafetyNote,
+} from "@/lib/planner/types";
 
 const SEASON: Record<string, { from: number; to: number } | "conditions"> = {
   BG: { from: 11, to: 3 },
@@ -59,7 +65,8 @@ export function buildChecklist(input: {
     {
       id: "licence",
       title: "Свидетелство за управление",
-      detail: "Националното свидетелство е достатъчно в ЕС. Извън ЕС носете и международно, ако се изисква.",
+      detail:
+        "Националното свидетелство е достатъчно в ЕС. Извън ЕС носете и международно, ако се изисква.",
       country_code: null,
       href: null,
     },
@@ -83,6 +90,16 @@ export function buildChecklist(input: {
       href: null,
     });
   }
+  if (input.countries.some((code) => code !== "BG")) {
+    documents.push({
+      id: "mfa-advice",
+      title: "Съвети на МВнР за пътуване в чужбина",
+      detail: "Официални консулски указания преди пътуване извън България.",
+      country_code: null,
+      href: MFA_TRAVEL_ADVICE_URL,
+      link_label: "Съвети за пътуване",
+    });
+  }
   if (input.withPet) {
     documents.push({
       id: "pet-passport",
@@ -95,9 +112,7 @@ export function buildChecklist(input: {
   }
   if (input.withChildren) {
     const youngest =
-      input.childrenAges.length === 0
-        ? null
-        : Math.min(...input.childrenAges);
+      input.childrenAges.length === 0 ? null : Math.min(...input.childrenAges);
     documents.push({
       id: "child-seat",
       title: "Детско столче",
@@ -162,7 +177,43 @@ export function buildChecklist(input: {
     });
   }
 
-  return { vignettes, toll_sections: tolls, documents, winter, kit };
+  return {
+    vignettes,
+    toll_sections: tolls,
+    documents,
+    winter,
+    kit,
+    ...safetyBlock(input.countries),
+  };
+}
+
+function safetyBlock(countries: string[]): {
+  safety: SafetyNote[];
+  safety_closing: string | null;
+  bg_links: ChecklistItem[];
+} {
+  if (!countries.includes("BG")) {
+    return { safety: [], safety_closing: null, bg_links: [] };
+  }
+  const safety: SafetyNote[] = [
+    ...BG_ROAD_SAFETY.law.map((item) => ({ ...item, kind: "law" as const })),
+    ...BG_ROAD_SAFETY.advice.map((item) => ({
+      ...item,
+      kind: "advice" as const,
+    })),
+  ];
+  return {
+    safety,
+    safety_closing: BG_ROAD_SAFETY.closing,
+    bg_links: BG_ROAD_SAFETY.links.map((link) => ({
+      id: link.id,
+      title: link.title,
+      detail: link.detail,
+      country_code: "BG",
+      href: link.href,
+      link_label: link.link_label,
+    })),
+  };
 }
 
 function inSeason(code: string, month: number): boolean {

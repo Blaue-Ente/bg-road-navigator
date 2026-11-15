@@ -14,7 +14,7 @@ export function BorderWaitBlock({ chosen }: { chosen: BorderChoice }) {
       <p className="mt-1 text-[var(--waze-text)]">
         {m.sheet.borderWait}: {view.minutes} {m.prefs.minutes}
       </p>
-      {view.unlicensed && view.trafficDelayMin != null ? (
+      {view.trafficDelayMin != null ? (
         <p className="text-[var(--waze-text)]">
           {m.sheet.borderTraffic}: {view.trafficDelayMin} {m.prefs.minutes}
         </p>

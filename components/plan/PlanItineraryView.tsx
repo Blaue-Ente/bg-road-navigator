@@ -2,8 +2,17 @@
 
 import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
+import { PlanSafetyBlock } from "@/components/plan/PlanChecklist";
+import {
+  AttentionSegments,
+  RoadHazards,
+} from "@/components/plan/PlanRoadNotes";
+import { hotspotDetail } from "@/lib/hotspots/present";
 import { messages as m } from "@/lib/i18n";
-import { borderWaitView } from "@/lib/planner/border-wait-view";
+import {
+  borderWaitView,
+  serbiaHungaryChoices,
+} from "@/lib/planner/border-wait-view";
 import {
   buildItineraryPoints,
   formatClockDuration,
@@ -23,16 +32,20 @@ export function PlanItineraryView({
   includedIds,
   checks,
   via,
+  onToggle = () => undefined,
 }: {
   plan: TripPlannerResult;
   includedIds: string[];
   checks: Record<string, boolean>;
   via: LabeledPoint | null;
+  onToggle?: (id: string, checked: boolean) => void;
 }) {
   const [shareNote, setShareNote] = useState<string | null>(null);
   const included = new Set(includedIds);
   const points = buildItineraryPoints({ plan, includedStopIds: included, via });
-  const desktop = buildMapsHandoff(points, { maxWaypoints: GOOGLE_MAPS_MAX_WAYPOINTS });
+  const desktop = buildMapsHandoff(points, {
+    maxWaypoints: GOOGLE_MAPS_MAX_WAYPOINTS,
+  });
   const mobile = buildMapsHandoff(points, {
     maxWaypoints: GOOGLE_MAPS_MOBILE_MAX_WAYPOINTS,
   });
@@ -44,8 +57,18 @@ export function PlanItineraryView({
     new Date(plan.depart_at).getTime() + plan.route.total_min * 60_000
   );
 
+  const hungaryBorders = serbiaHungaryChoices(
+    plan.border.alternatives,
+    plan.border.chosen?.border_id ?? null
+  );
+
   const share = async () => {
-    const text = shareText(plan, stops.map((stop) => stop.place_name ?? stop.title), done, left);
+    const text = shareText(
+      plan,
+      stops.map((stop) => stop.place_name ?? stop.title),
+      done,
+      left
+    );
     try {
       if (navigator.share) {
         await navigator.share({ title: m.itinerary.title, text });
@@ -61,40 +84,70 @@ export function PlanItineraryView({
   return (
     <article className="plan-print-root space-y-4">
       <header>
-        <h2 className="text-xl font-semibold text-[var(--waze-text)]">{m.itinerary.title}</h2>
-        <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">{m.itinerary.lead}</p>
+        <h2 className="text-xl font-semibold text-[var(--waze-text)]">
+          {m.itinerary.title}
+        </h2>
+        <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
+          {m.itinerary.lead}
+        </p>
         <p className="mt-3 text-lg font-semibold text-[var(--waze-text)]">
           {plan.route.origin.label} → {plan.route.destination.label}
         </p>
         <p className="text-sm text-[var(--waze-text-secondary)]">
-          {plan.route.distance_km} {m.planning.km} · {formatClockDuration(plan.route.duration_min)}{" "}
-          {m.sheet.driving.toLowerCase()} · {formatClockDuration(plan.route.total_min)}{" "}
+          {plan.route.distance_km} {m.planning.km} ·{" "}
+          {formatClockDuration(plan.route.duration_min)}{" "}
+          {m.sheet.driving.toLowerCase()} ·{" "}
+          {formatClockDuration(plan.route.total_min)}{" "}
           {m.sheet.total.toLowerCase()} · {formatWhen(arrival.toISOString())}
         </p>
       </header>
 
-      {plan.border.chosen ? (
+      {plan.border.chosen || hungaryBorders.length > 0 ? (
         <section aria-labelledby="itinerary-border">
-          <h3 id="itinerary-border" className="text-sm font-semibold text-[var(--waze-text)]">
+          <h3
+            id="itinerary-border"
+            className="text-sm font-semibold text-[var(--waze-text)]"
+          >
             {m.sheet.border}
           </h3>
-          <BorderWaitBlock chosen={plan.border.chosen} />
+          {plan.border.chosen ? (
+            <BorderWaitBlock chosen={plan.border.chosen} />
+          ) : null}
+          {hungaryBorders.map((border) => (
+            <BorderWaitBlock key={border.border_id} chosen={border} />
+          ))}
         </section>
       ) : null}
 
       <section>
-        <h3 className="text-sm font-semibold text-[var(--waze-text)]">{m.itinerary.stops}</h3>
+        <h3 className="text-sm font-semibold text-[var(--waze-text)]">
+          {m.itinerary.stops}
+        </h3>
         {stops.length === 0 ? (
-          <p className="mt-1 text-sm text-[var(--waze-text-muted)]">{m.sheet.stopsEmpty}</p>
+          <p className="mt-1 text-sm text-[var(--waze-text-muted)]">
+            {m.sheet.stopsEmpty}
+          </p>
         ) : (
           <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm text-[var(--waze-text)]">
             {stops.map((stop) => (
               <li key={stop.id}>
-                <span className="font-medium">{stop.place_name ?? stop.title}</span>
+                <span className="font-medium">
+                  {stop.place_name ?? stop.title}
+                </span>
                 <span className="text-[var(--waze-text-secondary)]">
                   {" "}
-                  — {stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(", ")}. {stop.reason}
+                  — {stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(", ")}
+                  . {stop.reason}
                 </span>
+                {stop.kinds.includes("fuel") && stop.average_label_bg && (
+                  <span className="block text-[var(--waze-text-secondary)]">
+                    {stop.average_label_bg}
+                    {stop.price_delta_label_bg
+                      ? `. ${stop.price_delta_label_bg}`
+                      : ""}
+                    {!stop.price_label_bg ? `. ${m.sheet.bandGrey}` : ""}
+                  </span>
+                )}
               </li>
             ))}
           </ol>
@@ -102,10 +155,28 @@ export function PlanItineraryView({
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold text-[var(--waze-text)]">{m.itinerary.checks}</h3>
-        <CheckList title={m.itinerary.checks} items={done} empty={m.itinerary.none} />
-        <CheckList title={m.itinerary.unchecked} items={left} empty={m.itinerary.none} />
+        <h3 className="text-sm font-semibold text-[var(--waze-text)]">
+          {m.itinerary.checks}
+        </h3>
+        <CheckList
+          title={m.itinerary.checks}
+          items={done}
+          empty={m.itinerary.none}
+        />
+        <CheckList
+          title={m.itinerary.unchecked}
+          items={left}
+          empty={m.itinerary.none}
+        />
       </section>
+
+      <PlanSafetyBlock
+        checklist={plan.checklist}
+        checks={checks}
+        onToggle={onToggle}
+      />
+      <RoadHazards plan={plan} />
+      <AttentionSegments plan={plan} />
 
       {plan.warnings.length > 0 && (
         <ul className="space-y-1 text-sm text-[var(--waze-warning)]">
@@ -116,21 +187,34 @@ export function PlanItineraryView({
       )}
 
       <div className="plan-no-print flex flex-wrap gap-2">
-        <button type="button" onClick={() => window.print()} className="waze-btn-secondary px-4 py-2 text-sm">
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="waze-btn-secondary px-4 py-2 text-sm"
+        >
           {m.itinerary.print}
         </button>
-        <button type="button" onClick={() => void share()} className="waze-btn-secondary px-4 py-2 text-sm">
+        <button
+          type="button"
+          onClick={() => void share()}
+          className="waze-btn-secondary px-4 py-2 text-sm"
+        >
           {m.itinerary.share}
         </button>
       </div>
       {shareNote && (
-        <p className="plan-no-print text-sm text-[var(--waze-text-secondary)]" role="status">
+        <p
+          className="plan-no-print text-sm text-[var(--waze-text-secondary)]"
+          role="status"
+        >
           {shareNote}
         </p>
       )}
 
       <section className="plan-no-print" aria-label={m.itinerary.export}>
-        <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">{m.itinerary.export}</h3>
+        <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
+          {m.itinerary.export}
+        </h3>
         <div className="flex flex-wrap gap-2 max-md:hidden">
           <HandoffLinks plan={desktop} />
         </div>
@@ -245,8 +329,17 @@ function shareText(
     `${plan.route.distance_km} ${m.planning.km}, ${formatClockDuration(plan.route.duration_min)}, ${formatClockDuration(plan.route.total_min)}`,
     borderShareLine(plan),
     stopNames.length ? `${m.itinerary.stops}: ${stopNames.join(", ")}` : "",
-    done.length ? `${m.itinerary.checks}: ${done.map((item) => item.title).join(", ")}` : "",
-    left.length ? `${m.itinerary.unchecked}: ${left.map((item) => item.title).join(", ")}` : "",
+    done.length
+      ? `${m.itinerary.checks}: ${done.map((item) => item.title).join(", ")}`
+      : "",
+    left.length
+      ? `${m.itinerary.unchecked}: ${left.map((item) => item.title).join(", ")}`
+      : "",
+    ...(plan.checklist.safety ?? []).map(
+      (item) => `${item.title}: ${item.detail}`
+    ),
+    plan.checklist.safety_closing ?? "",
+    ...(plan.attention_segments ?? []).map((hotspot) => hotspotDetail(hotspot)),
   ]
     .filter(Boolean)
     .join("\n");
