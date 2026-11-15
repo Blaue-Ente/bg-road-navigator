@@ -1,25 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
+import { useMemo, useState } from "react";
 import { useUserStore } from "@/lib/stores/user.store";
 import type { Profile } from "@/types/profile.types";
 import { WazeCard } from "@/components/ui/WazeCard";
 
-const VEHICLE_OPTIONS: Array<[Profile["vehicle_type"], string]> = [
-  ["car", "Автомобил"],
-  ["ev", "Електромобил"],
-  ["truck", "Камион"],
-  ["motorcycle", "Мотоциклет"],
-];
-
-const FUEL_OPTIONS: Array<[Profile["fuel_type"], string]> = [
-  ["diesel", "Дизел"],
-  ["petrol", "Бензин"],
-  ["lpg", "Газ"],
-  ["electric", "Електричество"],
-];
-
 export function ProfileEditForm() {
+  const m = useMessages();
+  const vehicleOptions = useMemo(
+    (): Array<[Profile["vehicle_type"], string]> => [
+      ["car", m.profile.msg3d4632bfd8],
+      ["ev", m.profile.msg16785e68fc],
+      ["truck", m.profile.msg44f23e13a1],
+      ["motorcycle", m.profile.msg945b9e0a05],
+    ],
+    [m]
+  );
+  const fuelOptions = useMemo(
+    (): Array<[Profile["fuel_type"], string]> => [
+      ["diesel", m.profile.msga5ed481eca],
+      ["petrol", m.profile.msg2ef483ab79],
+      ["lpg", m.profile.msg5d1111cb05],
+      ["electric", m.profile.msg1828d59889],
+    ],
+    [m]
+  );
   const profile = useUserStore((s) => s.profile);
   const setProfile = useUserStore((s) => s.setProfile);
   const [username, setUsername] = useState(
@@ -49,8 +56,7 @@ export function ProfileEditForm() {
     return (
       <WazeCard>
         <p className="text-sm text-[var(--waze-text-muted)]">
-          Профилът още не е зареден. Ако базата не е включена, данните не се пазят.
-          След като Neon миграцията е приложена, влезте отново.
+          {m.profile.msg52e23bf583}
         </p>
       </WazeCard>
     );
@@ -109,20 +115,16 @@ export function ProfileEditForm() {
       setStatus("saved");
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Грешка при запис");
+      setError(err instanceof Error ? err.message : m.profile.msg7f43c9e9f8);
     }
   };
 
   return (
     <WazeCard>
-      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">
-        Профил за пътуванията
-      </h2>
+      <h2 className="mb-3 text-base font-semibold text-[var(--waze-accent-text)]">{m.profile.msgba3330713a}</h2>
       <div className="space-y-3">
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">
-            Потребителско име
-          </span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">{m.auth.msgc1232bca30}</span>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -130,40 +132,34 @@ export function ProfileEditForm() {
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">
-            Град в България
-          </span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">{m.profile.msg797e28fd6a}</span>
           <input
             value={homeCity}
             onChange={(e) => setHomeCity(e.target.value)}
-            placeholder="София"
+            placeholder={m.profile.msgb2a508425c}
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">
-            Обичайна държава навън
-          </span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">{m.profile.msgdf9c6d782a}</span>
           <input
             value={usualCountry}
             onChange={(e) => setUsualCountry(e.target.value)}
-            placeholder="Германия"
+            placeholder={m.profile.msg542237d7d0}
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">Кола</span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">{m.profile.msgd109d9ef8e}</span>
           <input
             value={car}
             onChange={(e) => setCar(e.target.value)}
-            placeholder="VW Passat, дизел"
+            placeholder={m.profile.vwPassatc557}
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           />
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">
-            Транспорт
-          </span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">{m.profile.msge25d2d0eed}</span>
           <select
             value={vehicleType}
             onChange={(e) =>
@@ -171,7 +167,7 @@ export function ProfileEditForm() {
             }
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           >
-            {VEHICLE_OPTIONS.map(([value, label]) => (
+            {vehicleOptions.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -179,9 +175,7 @@ export function ProfileEditForm() {
           </select>
         </label>
         <label className="block text-sm">
-          <span className="mb-1 block text-[var(--waze-text-muted)]">
-            Гориво
-          </span>
+          <span className="mb-1 block text-[var(--waze-text-muted)]">{m.kinds.fuel}</span>
           <select
             value={fuelType}
             onChange={(e) =>
@@ -189,7 +183,7 @@ export function ProfileEditForm() {
             }
             className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2"
           >
-            {FUEL_OPTIONS.map(([value, label]) => (
+            {fuelOptions.map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -198,9 +192,7 @@ export function ProfileEditForm() {
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="block text-sm">
-            <span className="mb-1 block text-[var(--waze-text-muted)]">
-              Резервоар (л)
-            </span>
+            <span className="mb-1 block text-[var(--waze-text-muted)]">{m.profile.msg16f8357158}</span>
             <input
               type="number"
               min={10}
@@ -211,9 +203,7 @@ export function ProfileEditForm() {
             />
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-[var(--waze-text-muted)]">
-              EV обхват (км)
-            </span>
+            <span className="mb-1 block text-[var(--waze-text-muted)]">{m.profile.ev1ceb}</span>
             <input
               type="number"
               min={50}
@@ -232,10 +222,10 @@ export function ProfileEditForm() {
           className="waze-btn-primary w-full py-2.5 text-sm disabled:opacity-50"
         >
           {status === "saved"
-            ? "Запазено"
+            ? m.favorites.msg20f68091e2
             : status === "saving"
-              ? "Запис…"
-              : "Запази настройки"}
+              ? m.planning.savingSettings
+              : m.profile.msg2b8508f32b}
         </button>
       </div>
     </WazeCard>

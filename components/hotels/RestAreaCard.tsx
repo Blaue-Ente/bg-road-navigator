@@ -1,3 +1,6 @@
+"use client";
+
+import { useMemo } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Bath,
@@ -8,6 +11,7 @@ import {
   Utensils,
   Wifi,
 } from "lucide-react";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 interface RestAreaCardProps {
   name: string;
@@ -17,16 +21,6 @@ interface RestAreaCardProps {
   coords: { lng: number; lat: number };
 }
 
-const FACILITIES: Record<string, { label: string; Icon: LucideIcon }> = {
-  toilet: { label: "Тоалетна", Icon: Bath },
-  shower: { label: "Душ", Icon: Droplets },
-  restaurant: { label: "Ресторант", Icon: Utensils },
-  fuel: { label: "Гориво", Icon: Fuel },
-  parking: { label: "Паркинг", Icon: SquareParking },
-  wifi: { label: "Wi-Fi", Icon: Wifi },
-  ev_charging: { label: "EV заряд", Icon: Plug },
-};
-
 export function RestAreaCard({
   name,
   location,
@@ -34,6 +28,20 @@ export function RestAreaCard({
   distanceKm,
   coords,
 }: RestAreaCardProps) {
+  const m = useMessages();
+  const facilitiesMeta = useMemo(
+    (): Record<string, { label: string; Icon: LucideIcon }> => ({
+      toilet: { label: m.hotels.msg0df8d03bf8, Icon: Bath },
+      shower: { label: m.hotels.msgea9ba450b9, Icon: Droplets },
+      restaurant: { label: m.hotels.msg7e6eac764a, Icon: Utensils },
+      fuel: { label: m.hotels.msg6d8b2c16c8, Icon: Fuel },
+      parking: { label: m.hotels.msgcba3a4d179, Icon: SquareParking },
+      wifi: { label: "Wi-Fi", Icon: Wifi },
+      ev_charging: { label: m.hotels.ev7b31, Icon: Plug },
+    }),
+    [m]
+  );
+
   return (
     <div className="waze-panel p-4">
       <div className="mb-2 flex items-start justify-between gap-2">
@@ -44,13 +52,15 @@ export function RestAreaCard({
           </p>
         </div>
         <span className="shrink-0 rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-1 text-xs font-medium text-[var(--waze-accent-text)]">
-          {distanceKm > 0 ? `${distanceKm.toFixed(1)} км` : "по маршрута"}
+          {distanceKm > 0
+            ? `${distanceKm.toFixed(1)}${m.units.kmPrefix}`
+            : m.hotels.msg41b1643f5f}
         </span>
       </div>
 
       <div className="mb-3 flex flex-wrap gap-2">
         {facilities.map((facility) => {
-          const meta = FACILITIES[facility];
+          const meta = facilitiesMeta[facility];
           const Icon = meta?.Icon;
           return (
             <span
@@ -70,7 +80,7 @@ export function RestAreaCard({
         rel="noopener noreferrer"
         className="waze-btn-secondary block w-full py-2.5 text-center text-sm"
       >
-        Отвори в Maps
+        {m.hotels.maps3c51}
       </a>
     </div>
   );

@@ -1,16 +1,17 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import {
   WINTER_RULES,
   WINTER_RULES_DISCLAIMER_BG,
 } from "@/lib/constants/winter-rules";
 
 export function WinterRulesList() {
+  const m = useMessages();
   return (
     <div>
-      <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
-        Зимни гуми и вериги
-      </h3>
+      <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">{m.route.msgad37c9702a}</h3>
       <ul className="space-y-2">
         {WINTER_RULES.map((rule) => (
           <li

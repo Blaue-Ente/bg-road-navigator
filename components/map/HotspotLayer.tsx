@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
@@ -13,6 +15,7 @@ const SOURCE = "attention-hotspots";
 const LAYER = "attention-hotspots";
 
 export function HotspotLayer({ map }: { map: Map | null }) {
+  const m = useMessages();
   const enabled = useMapStore((state) => state.layers.hotspots);
   const [credits, setCredits] = useState<string[]>([]);
   const [creditsOpen, setCreditsOpen] = useState(false);
@@ -145,7 +148,7 @@ export function HotspotLayer({ map }: { map: Map | null }) {
     <aside className="pointer-events-auto absolute left-3 z-20 bottom-[calc(11.25rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:left-[400px]">
       <button
         type="button"
-        aria-label="Източници: повишено внимание"
+        aria-label={m.map.msg741964e944}
         aria-expanded={creditsOpen}
         aria-controls="hotspot-credits"
         onClick={() => setCreditsOpen((open) => !open)}
@@ -158,7 +161,7 @@ export function HotspotLayer({ map }: { map: Map | null }) {
           id="hotspot-credits"
           className="absolute bottom-full left-0 mb-2 max-h-48 w-[min(22rem,calc(100vw-1.5rem))] overflow-y-auto rounded-lg border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 py-1 text-[11px] leading-snug text-[var(--waze-text)] shadow"
         >
-          <p className="font-medium">Източници: повишено внимание</p>
+          <p className="font-medium">{m.map.msg741964e944}</p>
           <ul className="mt-1 space-y-1">
             {credits.map((line) => (
               <li key={line}>{line}</li>

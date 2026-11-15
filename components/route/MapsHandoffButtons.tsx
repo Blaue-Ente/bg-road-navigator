@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import type { Route } from "@/types/route.types";
 import {
   buildMapsHandoff,
@@ -13,7 +15,13 @@ interface MapsHandoffButtonsProps {
   route: Route;
 }
 
-function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
+function HandoffLinks({
+  plan,
+  m,
+}: {
+  plan: MapsHandoffPlan;
+  m: ReturnType<typeof useMessages>;
+}) {
   const severalLegs = plan.legs.length > 1;
   const directTrip =
     plan.legs.length === 1 && plan.legs[0]?.waypoints.length === 0;
@@ -30,7 +38,7 @@ function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
         >
           {severalLegs
             ? `Google Maps — част ${index + 1}`
-            : "Google Maps — старт навигация"}
+            : m.route.googleMaps5505}
         </a>
       ))}
       {plan.legs.map((leg, index) => (
@@ -41,7 +49,7 @@ function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
           rel="noopener noreferrer"
           className="waze-btn-secondary px-4 py-2 text-sm"
         >
-          {severalLegs ? `Apple Maps — част ${index + 1}` : "Apple Maps"}
+          {severalLegs ? `Apple Maps — част ${index + 1}` : m.itinerary.apple}
         </a>
       ))}
       {plan.wazeStops.map((stop, index) => (
@@ -53,9 +61,9 @@ function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
           className="waze-btn-secondary px-4 py-2 text-sm"
         >
           {directTrip
-            ? "Waze — навигация"
+            ? m.route.waze62d7
             : index === 0
-              ? "Waze — следваща спирка"
+              ? m.route.waze9a10
               : `Waze — ${stop.label ?? `спирка ${index + 1}`}`}
         </a>
       ))}
@@ -64,6 +72,7 @@ function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
 }
 
 export function MapsHandoffButtons({ route }: MapsHandoffButtonsProps) {
+  const m = useMessages();
   const stops = stopsFromRoute(route);
   const desktop = buildMapsHandoff(stops, {
     maxWaypoints: GOOGLE_MAPS_MAX_WAYPOINTS,
@@ -75,10 +84,10 @@ export function MapsHandoffButtons({ route }: MapsHandoffButtonsProps) {
   return (
     <>
       <div className="contents max-md:hidden">
-        <HandoffLinks plan={desktop} />
+        <HandoffLinks plan={desktop} m={m} />
       </div>
       <div className="contents md:hidden">
-        <HandoffLinks plan={mobile} />
+        <HandoffLinks plan={mobile} m={m} />
       </div>
     </>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useSyncExternalStore } from "react";
 import { WazeCard } from "@/components/ui/WazeCard";
 import {
@@ -27,6 +29,7 @@ function subscribeNotificationPermission(onChange: () => void): () => void {
 }
 
 export function LocationSettings() {
+  const m = useMessages();
   const raw = useSyncExternalStore(
     subscribeLocationPreference,
     locationPreferenceSnapshot,
@@ -75,17 +78,12 @@ export function LocationSettings() {
         <h2
           id="location-settings"
           className="text-base font-semibold text-[var(--waze-text)]"
-        >
-          Местоположение
-        </h2>
+        >{m.location.msg82bd05bd0a}</h2>
         <p className="mt-2 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
-          Използва се за предупреждения за участъци с чести катастрофи и
-          опасности по пътя, ремонти, предложения за почивка и по-късно
-          забавяния в трафика.
+          {m.location.msg999c46a3cc}
         </p>
         <p className="mt-2 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
-          Местоположението остава на устройството и не се записва на сървъра,
-          освен ако по-късно не изберете да го споделяте.
+          {m.location.msg41d387b638}
         </p>
         <label className="mt-3 flex items-center gap-2 text-sm text-[var(--waze-text)]">
           <input
@@ -95,12 +93,8 @@ export function LocationSettings() {
             onChange={(event) =>
               update({ ...pref, location_opt_in: event.target.checked })
             }
-          />
-          Предупреждения по време на път
-        </label>
-        <label className="mt-3 block text-sm text-[var(--waze-text)]">
-          Предупреждение на разстояние (м)
-          <input
+          />{m.location.msgc92ced4d4f}</label>
+        <label className="mt-3 block text-sm text-[var(--waze-text)]">{m.location.msg40e89328d0}<input
             type="number"
             min={200}
             max={5000}

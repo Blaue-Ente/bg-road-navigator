@@ -1,3 +1,6 @@
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { EmergencyData } from "@/lib/constants/emergency-numbers";
 
 interface CountryEmergencyCardProps {
@@ -5,11 +8,15 @@ interface CountryEmergencyCardProps {
 }
 
 export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
+  const m = useMessages();
   const numbers = [
-    { label: "Полиция", value: country.police || "112" },
-    { label: "Линейка", value: country.ambulance || "112" },
-    { label: "Пожар", value: country.fire || "112" },
-    { label: "Пътна помощ", value: country.roadside_assistance || "112" },
+    { label: m.emergency.msg8e8ced3019, value: country.police || "112" },
+    { label: m.emergency.msg991c9096ff, value: country.ambulance || "112" },
+    { label: m.emergency.msgf449d92080, value: country.fire || "112" },
+    {
+      label: m.emergency.msge3775e6db8,
+      value: country.roadside_assistance || "112",
+    },
   ];
 
   return (
@@ -28,21 +35,11 @@ export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
             href={`tel:${n.value.replace(/\s/g, "")}`}
             className="rounded-xl bg-[var(--waze-surface-elevated)] p-2.5 transition hover:ring-1 hover:ring-[var(--waze-accent)]/30"
           >
-            <span className="block text-xs text-[var(--waze-text-muted)]">
-              {n.label}
-            </span>
-            <span className="font-bold text-[var(--waze-accent-text)]">
-              {n.value}
-            </span>
+            <p className="text-xs text-[var(--waze-text-muted)]">{n.label}</p>
+            <p className="font-semibold text-[var(--waze-text)]">{n.value}</p>
           </a>
         ))}
       </div>
-
-      {country.notes_bg && (
-        <p className="mt-3 rounded-xl bg-[var(--waze-surface-elevated)] p-2 text-xs text-[var(--waze-text-secondary)]">
-          {country.notes_bg}
-        </p>
-      )}
     </div>
   );
 }

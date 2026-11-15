@@ -1,24 +1,25 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { useServiceStatus } from "@/lib/hooks/useServiceStatus";
 import { WazeCard } from "@/components/ui/WazeCard";
 
-const PRIORITY_LABEL = {
-  required_for_auth: "Нужен за акаунти",
-  recommended: "Препоръчан",
-  optional: "По избор",
-} as const;
-
 /** Operator-only catalog. Never render this for regular users. */
 export function ServicesStatusPanel() {
+  const m = useMessages();
+  const priorityLabel = {
+    required_for_auth: m.setup.msg17a2874498,
+    recommended: m.setup.msg1bdf450223,
+    optional: m.sheet.optional,
+  } as const;
   const { data, isLoading, isError, refetch } = useServiceStatus();
 
   if (isLoading) {
     return (
       <WazeCard>
-        <p className="text-sm text-[var(--waze-text-muted)]">
-          Проверка на услугите…
-        </p>
+        <p className="text-sm text-[var(--waze-text-muted)]">{m.setup.msgeaa64818de}</p>
       </WazeCard>
     );
   }
@@ -26,16 +27,12 @@ export function ServicesStatusPanel() {
   if (isError || !data) {
     return (
       <WazeCard>
-        <p className="text-sm text-[var(--waze-text-secondary)]">
-          Статусът на услугите не може да се зареди.
-        </p>
+        <p className="text-sm text-[var(--waze-text-secondary)]">{m.setup.msgbac040a5ba}</p>
         <button
           type="button"
           onClick={() => void refetch()}
           className="mt-2 text-sm text-[var(--waze-accent-text)] underline"
-        >
-          Опитай пак
-        </button>
+        >{m.communityPage.msg87b6d05132}</button>
       </WazeCard>
     );
   }
@@ -45,12 +42,13 @@ export function ServicesStatusPanel() {
   return (
     <WazeCard>
       <div className="mb-3">
-        <h2 className="text-sm font-semibold text-[var(--waze-text)]">
-          Услуги и ключове
-        </h2>
+        <h2 className="text-sm font-semibold text-[var(--waze-text)]">{m.setup.msg53be117927}</h2>
         <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
-          {data.summary.configured_count}/{data.summary.total_count} свързани
-          {data.database.configured ? "" : " · липсва база за акаунти"}
+          {formatTemplate(m.setup.servicesConnected, {
+            configured: data.summary.configured_count,
+            total: data.summary.total_count,
+          })}
+          {data.database.configured ? "" : m.setup.msgd4af0d86e3}
         </p>
       </div>
 
@@ -65,7 +63,7 @@ export function ServicesStatusPanel() {
                 {service.label}
               </p>
               <p className="text-[11px] text-[var(--waze-text-muted)]">
-                {PRIORITY_LABEL[service.priority]} · {service.unlocks}
+                {priorityLabel[service.priority]} · {service.unlocks}
               </p>
             </div>
             <span
@@ -75,7 +73,7 @@ export function ServicesStatusPanel() {
                   : "bg-amber-500/15 text-[var(--waze-warning)]"
               }`}
             >
-              {service.configured ? "OK" : "липсва"}
+              {service.configured ? "OK" : m.setup.msg148160a258}
             </span>
           </li>
         ))}
@@ -83,14 +81,16 @@ export function ServicesStatusPanel() {
 
       {missing.length > 0 && (
         <p className="mt-3 text-xs text-[var(--waze-text-muted)]">
-          Липсват ключове за: {missing.map((s) => s.label).join(" · ")}
+          {m.setup.missingKeysFor}{" "}
+          {missing.map((s) => s.label).join(" · ")}
         </p>
       )}
 
       {!data.database.configured && (
         <p className="mt-2 text-xs text-[var(--waze-warning)]">
-          За акаунти задайте DATABASE_URL и приложете {data.database.migration}{" "}
-          веднъж в Neon. Стъпките са в docs/SETUP.md.
+          {formatTemplate(m.setup.accountDatabaseHint, {
+            migration: data.database.migration,
+          })}
         </p>
       )}
     </WazeCard>

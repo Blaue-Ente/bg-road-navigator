@@ -1,5 +1,8 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
+import { useMemo } from "react";
 import { useServiceStatus } from "@/lib/hooks/useServiceStatus";
 import { WazeCard } from "@/components/ui/WazeCard";
 import type { ServiceId } from "@/lib/config/service-status";
@@ -11,48 +14,49 @@ interface UserServiceCopy {
   whenOff: string;
 }
 
-const USER_SERVICES: UserServiceCopy[] = [
-  {
-    id: "postgres",
-    title: "Профил и запазени данни",
-    whenOn: "Вход, любими, маршрути и сигнали се пазят в профила.",
-    whenOff: "Можете да разглеждате свободно; записите чакат базата",
-  },
-  {
-    id: "nakordoni",
-    title: "Опашки на границите",
-    whenOn: "Показваме живи времена на изчакване",
-    whenOff: "Показваме оценка по обичайните часове",
-  },
-  {
-    id: "windy",
-    title: "Камери на границите",
-    whenOn: "Вградени кадри, където има камера",
-    whenOff: "Отваряме външна страница, когато няма вграден поток",
-  },
-  {
-    id: "tomtom",
-    title: "Трафик и бензиностанции",
-    whenOn: "Станции и трафик по маршрута",
-    whenOff: "Показваме оценка на разхода без жива карта на станциите",
-  },
-  {
-    id: "opencharge",
-    title: "Зарядни станции",
-    whenOn: "Зарядни точки по маршрута",
-    whenOff: "EV точки ще се появят, когато услугата е свързана",
-  },
-];
-
 export function UserServicesPanel() {
+  const m = useMessages();
+  const userServices = useMemo(
+    (): UserServiceCopy[] => [
+      {
+        id: "postgres",
+        title: m.setup.msg97406ea8de,
+        whenOn: m.setup.msg2ca0c5618b,
+        whenOff: m.setup.msged95c33e53,
+      },
+      {
+        id: "nakordoni",
+        title: m.setup.msg6a3712454f,
+        whenOn: m.setup.msg7b975853e6,
+        whenOff: m.setup.msg47346ecb4a,
+      },
+      {
+        id: "windy",
+        title: m.setup.msg57f468dcf9,
+        whenOn: m.setup.msg6ca25e8dea,
+        whenOff: m.setup.msgf7d41274a2,
+      },
+      {
+        id: "tomtom",
+        title: m.setup.msg768e496d7c,
+        whenOn: m.setup.msga67be93a69,
+        whenOff: m.setup.msgddd0272fc1,
+      },
+      {
+        id: "opencharge",
+        title: m.setup.msg6c9e82c3ec,
+        whenOn: m.setup.msg4c5e565b63,
+        whenOff: m.setup.ev57f3,
+      },
+    ],
+    [m]
+  );
   const { data, isLoading, isError, refetch } = useServiceStatus();
 
   if (isLoading) {
     return (
       <WazeCard>
-        <p className="text-sm text-[var(--waze-text-muted)]">
-          Проверка на услугите…
-        </p>
+        <p className="text-sm text-[var(--waze-text-muted)]">{m.setup.msgeaa64818de}</p>
       </WazeCard>
     );
   }
@@ -60,16 +64,12 @@ export function UserServicesPanel() {
   if (isError || !data) {
     return (
       <WazeCard>
-        <p className="text-sm text-[var(--waze-text-secondary)]">
-          Състоянието на услугите не може да се зареди.
-        </p>
+        <p className="text-sm text-[var(--waze-text-secondary)]">{m.setup.msg824515b648}</p>
         <button
           type="button"
           onClick={() => void refetch()}
           className="mt-2 text-sm text-[var(--waze-accent-text)] underline"
-        >
-          Опитай пак
-        </button>
+        >{m.communityPage.msg87b6d05132}</button>
       </WazeCard>
     );
   }
@@ -78,15 +78,12 @@ export function UserServicesPanel() {
 
   return (
     <WazeCard>
-      <h2 className="text-sm font-semibold text-[var(--waze-text)]">
-        Състояние на услугите
-      </h2>
+      <h2 className="text-sm font-semibold text-[var(--waze-text)]">{m.setup.msgd59baec2ec}</h2>
       <p className="mt-1 mb-3 text-xs text-[var(--waze-text-muted)]">
-        Карта, маршрут и съвети работят винаги. По-долу е какво е свързано в
-        момента.
+        {m.setup.msgff46c98629}
       </p>
       <ul className="space-y-1.5">
-        {USER_SERVICES.map((item) => {
+        {userServices.map((item) => {
           const configured = byId.get(item.id)?.configured ?? false;
           return (
             <li
@@ -108,7 +105,7 @@ export function UserServicesPanel() {
                     : "bg-[var(--waze-surface)] text-[var(--waze-text-muted)]"
                 }`}
               >
-                {configured ? "активно" : "ограничено"}
+                {configured ? m.setup.msg2ae44e63a6 : m.setup.msg217cf719a3}
               </span>
             </li>
           );

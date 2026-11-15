@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RoutePoint } from "@/types/route.types";
 import { searchCuratedCities } from "@/lib/constants/european-cities";
@@ -58,6 +60,7 @@ export function LocationSearchInput({
   onQueryChange,
   placeholder,
 }: LocationSearchInputProps) {
+  const m = useMessages();
   const [query, setQuery] = useState(value?.label ?? "");
   const listId = `${id}-suggestions`;
 
@@ -131,14 +134,14 @@ export function LocationSearchInput({
         setRemoteResults(data.places);
         setOpen(true);
         if (data.places.length === 0 && curated.length === 0) {
-          setMessage("Не е намерено място в Европа. Опитайте адрес или град.");
+          setMessage(m.route.msg01e74cd654);
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError")
           return;
         if (version === requestVersion.current && curated.length === 0) {
           setRemoteResults([]);
-          setMessage("Търсенето не е достъпно в момента.");
+          setMessage(m.route.msg32a9fa2a05);
         }
       } finally {
         if (version === requestVersion.current) setIsSearching(false);
@@ -231,9 +234,7 @@ export function LocationSearchInput({
         />
       </div>
       {isSearching && (
-        <span className="absolute right-3 top-9 text-xs text-[var(--waze-accent-text)]">
-          Търсене…
-        </span>
+        <span className="absolute right-3 top-9 text-xs text-[var(--waze-accent-text)]">{m.emergencyPage.msg463a0f99c5}</span>
       )}
 
       {open && showSuggestions && (results.length > 0 || message) && (

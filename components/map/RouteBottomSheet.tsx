@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import Link from "next/link";
 import { useState } from "react";
 import { BedDouble, ChevronUp, CloudSun, Fuel, Landmark } from "lucide-react";
@@ -14,6 +16,7 @@ interface RouteBottomSheetProps {
 }
 
 export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
+  const m = useMessages();
   const [expanded, setExpanded] = useState(false);
   const clearRoute = useRouteStore((s) => s.clearRoute);
   const tripPlan = useRouteStore((s) => s.tripPlan);
@@ -23,7 +26,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   const hours = Math.floor(route.duration_min / 60);
   const mins = route.duration_min % 60;
   const badgePrimary = hours > 0 ? hours : mins;
-  const badgeUnit = hours > 0 ? "часа" : "мин";
+  const badgeUnit = hours > 0 ? m.map.msg4e4e5817ea : m.prefs.minutes;
 
   return (
     <div className="pointer-events-none absolute left-0 z-20 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]">
@@ -50,9 +53,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             <p className="text-sm text-[var(--waze-text-secondary)]">
               {durationLabel} · {route.distance_km} км
               {isRoadRoute(route.routing_source) && (
-                <span className="ml-1 text-[var(--waze-accent-text)]">
-                  · по пътищата
-                </span>
+                <span className="ml-1 text-[var(--waze-accent-text)]">{m.map.msg0287d9cf5d}</span>
               )}
             </p>
           </div>
@@ -68,9 +69,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
 
         {expanded && (
           <div className="border-t border-[var(--waze-border)] px-4 pb-4 pt-3">
-            <p className="mb-1 text-xs text-[var(--waze-text-muted)]">
-              Маршрут
-            </p>
+            <p className="mb-1 text-xs text-[var(--waze-text-muted)]">{m.nav.route}</p>
             <p className="text-sm text-[var(--waze-text)]">
               {route.origin.label} → {route.destination.label}
             </p>
@@ -85,30 +84,22 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
                 href="/fuel"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
-                <Fuel className="h-5 w-5" strokeWidth={2} aria-hidden />
-                Гориво
-              </Link>
+                <Fuel className="h-5 w-5" strokeWidth={2} aria-hidden />{m.kinds.fuel}</Link>
               <Link
                 href="/weather"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
-                <CloudSun className="h-5 w-5" strokeWidth={2} aria-hidden />
-                Време
-              </Link>
+                <CloudSun className="h-5 w-5" strokeWidth={2} aria-hidden />{m.nav.weather}</Link>
               <Link
                 href="/borders"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
-                <Landmark className="h-5 w-5" strokeWidth={2} aria-hidden />
-                Граници
-              </Link>
+                <Landmark className="h-5 w-5" strokeWidth={2} aria-hidden />{m.nav.borders}</Link>
               <Link
                 href="/hotels"
                 className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
-                <BedDouble className="h-5 w-5" strokeWidth={2} aria-hidden />
-                Почивка
-              </Link>
+                <BedDouble className="h-5 w-5" strokeWidth={2} aria-hidden />{m.kinds.rest}</Link>
             </div>
 
             <div className="mt-3 flex gap-2">
@@ -124,15 +115,11 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
               <Link
                 href="/route"
                 className="waze-btn-primary flex-1 py-2.5 text-center text-sm"
-              >
-                Промени
-              </Link>
+              >{m.home.change}</Link>
               <button
                 onClick={clearRoute}
                 className="waze-btn-secondary flex-1 py-2.5 text-sm text-[var(--waze-danger)]"
-              >
-                Изчисти
-              </button>
+              >{m.routePage.msg72cdd825c4}</button>
             </div>
           </div>
         )}

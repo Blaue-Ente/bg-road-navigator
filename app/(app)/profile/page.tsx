@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -18,6 +20,7 @@ import { signOut } from "@/lib/auth/sign-out";
 import { useState } from "react";
 
 export default function ProfilePage() {
+  const m = useMessages();
   const session = useUserStore((s) => s.session);
   const profile = useUserStore((s) => s.profile);
   const router = useRouter();
@@ -40,13 +43,13 @@ export default function ProfilePage() {
     <div className="waze-page">
       <div className="mx-auto max-w-2xl space-y-4">
         <PageHeader
-          title="Профил"
-          subtitle="Любими, запазени маршрути и настройки на превозното средство"
+          title={m.profilePage.msga5d9b9afd3}
+          subtitle={m.profilePage.msgb494b3b3d6}
         />
 
         <LocationSettings />
 
-        <RequireAuth reason="Влезте, за да видите профила, любимите и запазените маршрути.">
+        <RequireAuth reason={m.profilePage.msg80b1a91f81}>
           <WazeCard>
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -61,9 +64,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => void handleLogout()}
                 className="text-sm text-[var(--waze-text-muted)] hover:text-[var(--waze-danger)]"
-              >
-                Изход
-              </button>
+              >{m.profilePage.msgdb71e56347}</button>
             </div>
           </WazeCard>
 
@@ -77,9 +78,7 @@ export default function ProfilePage() {
             <Link
               href="/route"
               className="text-[var(--waze-accent-text)] hover:underline"
-            >
-              Планирай нов маршрут
-            </Link>
+            >{m.profilePage.msg47b672a489}</Link>
           </p>
           <p className="pb-6 text-center">
             <button
@@ -87,7 +86,7 @@ export default function ProfilePage() {
               onClick={handleBrandTap}
               className="text-[11px] text-[var(--waze-text-muted)]"
             >
-              {isOperator ? "Операторски режим е активен" : PRODUCT_NAME}
+              {isOperator ? m.profilePage.msgab940809f0 : PRODUCT_NAME}
             </button>
           </p>
         </RequireAuth>

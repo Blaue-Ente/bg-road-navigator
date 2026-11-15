@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -20,6 +22,7 @@ import { useRouteStore } from "@/lib/stores/route.store";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
 
 export function TripProximity() {
+  const m = useMessages();
   const raw = useSyncExternalStore(
     subscribeLocationPreference,
     locationPreferenceSnapshot,
@@ -121,6 +124,7 @@ export function ProximityBanner({
   text: string;
   onDismiss: () => void;
 }) {
+  const m = useMessages();
   return (
     <div
       role="status"
@@ -128,9 +132,7 @@ export function ProximityBanner({
       className="pointer-events-auto fixed left-1/2 z-[80] w-[min(28rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-2xl bg-[#7c2d12] px-4 py-3 text-sm font-medium text-white shadow-lg top-[calc(0.75rem+env(safe-area-inset-top,0px))]"
     >
       <p>{text}</p>
-      <button type="button" onClick={onDismiss} className="mt-1 text-xs underline">
-        Затвори
-      </button>
+      <button type="button" onClick={onDismiss} className="mt-1 text-xs underline">{m.nav.close}</button>
     </div>
   );
 }

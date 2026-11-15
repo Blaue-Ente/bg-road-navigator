@@ -1,5 +1,8 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
+
 import { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -19,19 +22,12 @@ import type { EuropeanBorderRegion } from "@/lib/constants/european-borders";
 
 type TabId = "bulgaria" | "europe" | "route";
 
-const TABS: { id: TabId; label: string; region: EuropeanBorderRegion }[] = [
-  { id: "bulgaria", label: "България", region: "bulgaria" },
-  { id: "europe", label: "Европа", region: "all" },
-  { id: "route", label: "По маршрута", region: "route" },
-];
-
 export default function BorderPage() {
+  const m = useMessages();
   return (
     <Suspense
       fallback={
-        <div className="px-4 py-16 text-center text-sm text-[var(--waze-text-secondary)]">
-          Зареждане на граници...
-        </div>
+        <div className="px-4 py-16 text-center text-sm text-[var(--waze-text-secondary)]">{m.bordersPage.msg94b2a38a43}</div>
       }
     >
       <BorderPageContent />
@@ -40,6 +36,15 @@ export default function BorderPage() {
 }
 
 function BorderPageContent() {
+  const m = useMessages();
+  const tabs = useMemo(
+    (): { id: TabId; label: string; region: EuropeanBorderRegion }[] => [
+      { id: "bulgaria", label: m.bordersPage.msg7870710a01, region: "bulgaria" },
+      { id: "europe", label: m.bordersPage.msg7b9a5a3f3b, region: "all" },
+      { id: "route", label: m.bordersPage.msgb962f0c0d8, region: "route" },
+    ],
+    [m]
+  );
   const searchParams = useSearchParams();
   const routeMode = searchParams.get("route") === "1";
   const borderIdsParam = searchParams.get("border_ids");
@@ -87,22 +92,16 @@ function BorderPageContent() {
 
   if (isLoading && fetchOptions.enabled !== false) {
     return (
-      <div className="px-4 py-16 text-center text-sm text-[var(--waze-text-secondary)]">
-        Зареждане на граници...
-      </div>
+      <div className="px-4 py-16 text-center text-sm text-[var(--waze-text-secondary)]">{m.bordersPage.msg94b2a38a43}</div>
     );
   }
 
   if (error || !borderStatus) {
     return (
-      <div className="p-8 text-center text-sm text-[var(--waze-danger)]">
-        Списъкът с пунктове не се зареди. Проверете връзката и опитайте отново.
-        <button
+      <div className="p-8 text-center text-sm text-[var(--waze-danger)]">{m.bordersPage.msgcfb43299fd}<button
           onClick={() => window.location.reload()}
           className="mt-4 block text-[var(--waze-accent-text)]"
-        >
-          Опитай отново
-        </button>
+        >{m.fuelPage.retry}</button>
       </div>
     );
   }
@@ -118,12 +117,12 @@ function BorderPageContent() {
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
         <PageHeader
-          title="Гранични пролази"
-          subtitle="България, Европа и граници по вашия маршрут"
+          title={m.bordersPage.msgf071ab10f5}
+          subtitle={m.bordersPage.msgdf64f77529}
         />
 
         <div className="mb-6 flex gap-2">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -139,43 +138,33 @@ function BorderPageContent() {
         </div>
 
         {activeTab === "route" && !borderIds?.length && (
-          <p className="mb-4 rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-3 text-sm text-[var(--waze-warning)]">
-            Няма избран маршрут. Изчислете пътя, за да видите границите по него.
-          </p>
+          <p className="mb-4 rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-3 text-sm text-[var(--waze-warning)]">{m.bordersPage.msg7d4bda760d}</p>
         )}
 
         <p className="mb-6 text-xs text-[var(--waze-text-muted)]">
           {hasLiveData
-            ? "Живи опашки от граничните камери и официалните източници"
+            ? m.bordersPage.msgabdf29bd07
             : hasHatarinfo
-              ? "Сърбия — Унгария е от Hárinfó. Останалите пунктове са типична оценка."
-              : "Няма жива опашка, показваме обичаен час."}
+              ? m.bordersPage.hRinf3cf6
+              : m.bordersPage.msg37acf7bd69}
         </p>
 
         <WazeCard className="mb-6">
-          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
-            Винетки за преминаване
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--waze-text)]">{m.bordersPage.msg5642af6032}</h2>
           <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-            Преди граница проверете официалните портали за електронни винетки и
-            тол.
+            {m.bordersPage.msgf58032a3e9}
           </p>
           <Link
             href="/vignettes"
             className="mt-3 inline-flex text-sm font-medium text-[var(--waze-accent-text)] hover:underline"
-          >
-            Към пълния списък с винетки
-          </Link>
+          >{m.bordersPage.msg4b007ed953}</Link>
         </WazeCard>
 
         <WazeCard className="mb-6">
-          <h2 className="text-sm font-semibold text-[var(--waze-text)]">
-            Опашки от шофьори
-          </h2>
+          <h2 className="text-sm font-semibold text-[var(--waze-text)]">{m.bordersPage.msg2f5d8616cd}</h2>
           {borderQueues.length === 0 ? (
             <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
-              Няма пресен сигнал за опашка. Задръжте на картата и изберете
-              „Опашка на граница“.
+              {m.bordersPage.msgb516367234}
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
@@ -200,32 +189,24 @@ function BorderPageContent() {
 
         <div className="grid gap-4">
           {displayedBorders.length === 0 ? (
-            <p className="text-center text-sm text-[var(--waze-text-secondary)]">
-              Няма пунктове за този избор. Сменете раздела или изчислете маршрут.
-            </p>
+            <p className="text-center text-sm text-[var(--waze-text-secondary)]">{m.bordersPage.msg263c0ce6e0}</p>
           ) : (
             displayedBorders.map((border) => (
               <WazeCard key={border.crossing_id} className="!p-4">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <BorderCard border={border} />
                   <div className="flex flex-col items-end gap-1">
-                    <p className="text-[10px] text-[var(--waze-text-muted)]">
-                      изчакване сега
-                    </p>
+                    <p className="text-[10px] text-[var(--waze-text-muted)]">{m.home.waitNow}</p>
                     <BorderWaitBadge
                       waitMinutes={border.wait_time_cars}
-                      label="Коли"
+                      label={m.bordersPage.msg6a2c5dc8ec}
                       caption={formatZonedHourLabel(new Date())}
                     />
                     {border.data_source === "nakordoni" && (
-                      <span className="text-xs font-medium text-[var(--waze-ok)]">
-                        на живо
-                      </span>
+                      <span className="text-xs font-medium text-[var(--waze-ok)]">{m.bordersPage.msg868089045f}</span>
                     )}
                     {border.data_source === "hatarinfo" && (
-                      <span className="text-xs font-medium text-[var(--waze-text-secondary)]">
-                        Hárinfó
-                      </span>
+                      <span className="text-xs font-medium text-[var(--waze-text-secondary)]">{m.waitSource.hatarinfo}</span>
                     )}
                   </div>
                 </div>
@@ -238,7 +219,9 @@ function BorderPageContent() {
                 <div className="mt-4 grid grid-cols-1 gap-4">
                   <BorderStatsChart
                     hourlyData={border.avg_wait_by_hour}
-                    title={`Средно изчакване — ${border.name_bg}`}
+                    title={formatTemplate(m.bordersPage.borderWaitChartTitle, {
+                      name: border.name_bg,
+                    })}
                   />
                   <BorderWebcam
                     crossingId={border.crossing_id}
@@ -252,24 +235,20 @@ function BorderPageContent() {
         </div>
 
         <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
-          Данни за опашки:{" "}
+          {m.bordersPage.queueDataPrefix}{" "}
           <a
             href="https://nakordoni.eu/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[var(--waze-accent-text)]"
-          >
-            гранични камери
-          </a>
+          >{m.bordersPage.msg21d3a6bde4}</a>
           {" · "}
           <a
             href="https://www.windy.com/webcams"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[var(--waze-accent-text)]"
-          >
-            уеб камери
-          </a>
+          >{m.bordersPage.msg19f0cb96d3}</a>
         </p>
       </div>
     </div>

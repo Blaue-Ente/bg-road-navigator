@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import {
   Accordion,
   AccordionItem,
@@ -14,11 +16,10 @@ interface RoadsideAdviceAccordionProps {
 export function RoadsideAdviceAccordion({
   adviceSections,
 }: RoadsideAdviceAccordionProps) {
+  const m = useMessages();
   return (
     <div className="waze-panel p-4">
-      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
-        Съвети при инцидент
-      </h2>
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.emergency.msg5f9d4c3e20}</h2>
       <Accordion>
         {adviceSections.map((section, idx) => (
           <AccordionItem key={idx} value={section.title}>

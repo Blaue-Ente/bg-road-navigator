@@ -36,6 +36,9 @@ import type { TripPreferences } from "@/lib/planner/preferences";
 import { OSM_ATTRIBUTION } from "@/lib/planner/osm-attribution";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import type { GeoPoint } from "@/types/route.types";
+import { catalog, type Locale } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import type { Messages } from "@/lib/i18n/locales/bg";
 
 export interface StopAttachment {
   etaMin: number;
@@ -84,17 +87,21 @@ export interface AssembleInput {
   countryAt: (lng: number, lat: number) => string | null;
   averageFor: (country: string) => KnownAverage | null;
   sleepShifts: SleepShift[];
+  locale?: Locale;
 }
 
+type PlannerCopy = Messages["planner"];
+
 export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
+  const p = catalog(input.locale ?? "bg").planner;
   const chosen = input.borders.find((border) => border.chosen) ?? null;
   const waitMin = chosen?.wait.minutes ?? 0;
   const stops = [
     ...input.merged.map((stop, index) =>
-      toPlanStop(stop, index, input, waitMin)
+      toPlanStop(stop, index, input, waitMin, p)
     ),
     ...(input.sights ?? []).map((sight, index) =>
-      sightStop(sight, input.merged.length + index, input, waitMin)
+      sightStop(sight, input.merged.length + index, input, waitMin, p)
     ),
   ];
   const recommended = bestFuelAdvice(stops);
@@ -115,12 +122,10 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
 
   const warnings = [...input.warnings];
   if (stops.some((stop) => stop.kinds.includes("overnight"))) {
-    warnings.push("Оценки на местата за нощувка още не са налични.");
+    warnings.push(p.warnings.hotelRatings);
   }
   if (input.durationMin > 630) {
-    warnings.push(
-      "Пътуването е над 10 часа шофиране. Потвърдете нощувката преди тръгване."
-    );
+    warnings.push(p.warnings.confirmOvernight);
   }
 
   return {
@@ -165,7 +170,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     border: {
       chosen: chosen ? toChoice(chosen) : null,
       alternatives: input.borders.map(toChoice),
-      note: borderNote(input.borders),
+      note: borderNote(input.borders, p.border),
     },
     stops,
     fuel_averages: input.fuelAverages,
@@ -188,7 +193,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     preferences: input.preferences,
     attribution: OSM_ATTRIBUTION,
     checklist: input.checklist,
-    weather: normalizeWeatherSummaries(input.weather),
+    weather: normalizeWeatherSummaries(input.weather, p.weather.hourlyEmpty),
     why_this_route: input.why,
     road_hazards: input.roadHazards ?? [],
     road_hazard_attribution:
@@ -225,9 +230,12 @@ function geometryKmAt(input: AssembleInput, roadKm: number): number {
   return (roadKm / input.distanceKm) * length;
 }
 
-function borderNote(borders: ScoredBorder[]): string {
+function borderNote(
+  borders: ScoredBorder[],
+  copy: PlannerCopy["border"]
+): string {
   if (borders.length === 0) {
-    return "Няма български граничен пункт между тези две точки. Маршрутът е директният.";
+    return copy.noBgBorder;
   }
   const extra = borders.find(
     (border) => border.reasonCode === "serbia_hungary"
@@ -239,19 +247,19 @@ function borderNote(borders: ScoredBorder[]): string {
     compared.length > 0 &&
     compared.every((border) => isHungarySerbiaPlannerId(border.borderId))
   ) {
-    return "Сравнени са пунктовете между Сърбия и Унгария. Чакането от Hárinfó е ориентировъчно; ако липсва, остава типичната стойност.";
+    return copy.serbiaHungary;
   }
-  const base =
-    "Сравнени са българските пунктове по направлението. Чакането е оценка, не официално време.";
+  const base = copy.bgCompared;
   if (!extra) return base;
-  return `${base} По пътя след това е ${extra.nameBg}.`;
+  return `${base} ${formatTemplate(copy.viaAfter, { name: extra.nameBg })}`;
 }
 
 function toPlanStop(
   stop: TimedStop,
   index: number,
   input: AssembleInput,
-  borderWaitMin: number
+  borderWaitMin: number,
+  p: PlannerCopy
 ): PlanStop {
   const attachment = input.attachments.find(
     (item) => Math.abs(item.etaMin - stop.etaMin) < 0.5
@@ -291,7 +299,7 @@ function toPlanStop(
   return {
     id: `stop-${index + 1}`,
     kinds: stop.kinds,
-    title: titleFor(stop.kinds, attachment?.name ?? null),
+    title: titleFor(stop.kinds, attachment?.name ?? null, p.stops),
     reason: reasonFor(
       stop.kinds,
       attachment,
@@ -299,7 +307,8 @@ function toPlanStop(
       input.durationMin,
       sleepMin,
       eta,
-      wakeZone
+      wakeZone,
+      p.stops
     ),
     coords,
     distance_from_start_km: Math.round(stop.distanceKm),
@@ -320,7 +329,7 @@ function toPlanStop(
     ratings_available: overnight ? false : null,
     lodging_note:
       attachment?.lodgingNote ??
-      (overnight ? "Оценки на нощувките още не са налични." : null),
+      (overnight ? p.warnings.hotelRatingsOvernight : null),
     stars: attachment?.stars ?? null,
     sleep_min: sleepMin,
     wake_time_zone: wakeZone,
@@ -331,7 +340,8 @@ function sightStop(
   sight: StopAttachment,
   index: number,
   input: AssembleInput,
-  borderWaitMin: number
+  borderWaitMin: number,
+  p: PlannerCopy
 ): PlanStop {
   const eta = wallClockEta({
     departAt: input.departAt,
@@ -346,8 +356,8 @@ function sightStop(
   return {
     id: `stop-${index + 1}`,
     kinds: ["sight"],
-    title: sight.name ?? "Забележителност",
-    reason: "По избор: гледка или забележителност близо до пътя.",
+    title: sight.name ?? p.stops.sight,
+    reason: p.stops.sightReason,
     coords: sight.coords ?? input.origin.coords,
     distance_from_start_km: Math.round(sight.distanceKm ?? 0),
     driving_min: Math.round(sight.etaMin),
@@ -422,19 +432,23 @@ function bestFuelAdvice(
   return best;
 }
 
-function titleFor(kinds: TimedStop["kinds"], name: string | null): string {
+function titleFor(
+  kinds: TimedStop["kinds"],
+  name: string | null,
+  stops: PlannerCopy["stops"]
+): string {
   if (kinds.includes("overnight") && kinds.includes("fuel"))
-    return name ?? "Зареждане и нощувка";
+    return name ?? stops.chargeOvernight;
   if (kinds.includes("overnight") && kinds.includes("charge"))
-    return name ?? "Зареждане и нощувка";
-  if (kinds.includes("overnight")) return name ?? "Нощувка";
+    return name ?? stops.chargeOvernight;
+  if (kinds.includes("overnight")) return name ?? stops.overnight;
   if (kinds.includes("charge") && kinds.includes("rest"))
-    return name ?? "Зареждане и почивка";
+    return name ?? stops.chargeRest;
   if (kinds.includes("fuel") && kinds.includes("rest"))
-    return name ?? "Гориво и почивка";
-  if (kinds.includes("charge")) return name ?? "Зареждане";
-  if (kinds.includes("fuel")) return name ?? "Гориво";
-  return "Почивка";
+    return name ?? stops.fuelRest;
+  if (kinds.includes("charge")) return name ?? stops.charge;
+  if (kinds.includes("fuel")) return name ?? stops.fuel;
+  return stops.rest;
 }
 
 function reasonFor(
@@ -444,24 +458,25 @@ function reasonFor(
   totalDriveMin: number,
   sleepMin: number | null,
   arrivalIso: string,
-  wakeTimeZone: string | null
+  wakeTimeZone: string | null,
+  stops: PlannerCopy["stops"]
 ): string {
   const parts: string[] = [];
   if (kinds.includes("fuel") || kinds.includes("charge")) {
-    parts.push("Резервът свършва в този участък.");
+    parts.push(stops.reserveLow);
     if (attachment?.motorwayService) {
-      parts.push("Станцията е в крайпътно обслужване.");
+      parts.push(stops.motorwayService);
     } else if (attachment?.name) {
-      parts.push("Предпочетена е станция до 3 км извън магистралата.");
+      parts.push(stops.detourFuel);
     }
   }
   if (
     kinds.includes("rest") &&
     (kinds.includes("fuel") || kinds.includes("charge"))
   ) {
-    parts.push("Почивката съвпада със зареждането.");
+    parts.push(stops.restWithCharge);
   } else if (kinds.includes("rest")) {
-    parts.push("Почивка след около 2–2.5 часа шофиране.");
+    parts.push(stops.restAfterDrive);
   }
   if (kinds.includes("overnight") && sleepMin != null && sleepMin > 0) {
     const zone = wakeTimeZone ?? "Europe/Sofia";
@@ -470,10 +485,14 @@ function reasonFor(
     const place = timeZoneLabelBg(zone);
     const remaining = Math.max(0, totalDriveMin - drivingMin);
     parts.push(
-      `Спите тук. Тръгване на следващия ден в ${wakeLabel} (${place}). Остават ${formatClockDuration(remaining)} шофиране.`
+      formatTemplate(stops.overnightWake, {
+        wake: wakeLabel,
+        place,
+        remaining: formatClockDuration(remaining),
+      })
     );
   } else if (kinds.includes("overnight")) {
-    parts.push("Тук се спи. На сутринта пътят продължава.");
+    parts.push(stops.overnightGeneric);
   }
   if (attachment?.lodgingNote) parts.push(attachment.lodgingNote);
   return parts.join(" ");
@@ -499,13 +518,14 @@ function exportStops(input: AssembleInput, stops: PlanStop[]): MapStop[] {
   ];
 }
 
-const HOURLY_WEATHER_EMPTY = "Няма почасова прогноза за този час.";
-
-function normalizeWeatherSummaries(weather: RouteWeather): RouteWeather {
+function normalizeWeatherSummaries(
+  weather: RouteWeather,
+  hourlyEmpty: string
+): RouteWeather {
   return {
     ...weather,
     segments: weather.segments.map((segment) =>
-      segment.summary_bg === HOURLY_WEATHER_EMPTY
+      segment.summary_bg === hourlyEmpty
         ? { ...segment, summary_bg: "" }
         : segment
     ),

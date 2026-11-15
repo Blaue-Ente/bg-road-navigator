@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { LayerPanel } from "@/components/map/LayerPanel";
+import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import {
   DEFAULT_LAYER_VISIBILITY,
   MAP_LAYERS,
@@ -21,7 +22,11 @@ describe("map layers", () => {
       toggleable: true,
     });
     expect(DEFAULT_LAYER_VISIBILITY.hotspots).toBe(true);
-    const html = renderToStaticMarkup(<LayerPanel />);
+    const html = renderToStaticMarkup(
+      <LocaleProvider initialLocale="bg">
+        <LayerPanel />
+      </LocaleProvider>
+    );
     expect(html).toContain("Повишено внимание");
     expect(html.indexOf("Повишено внимание")).toBeLessThan(
       html.indexOf("Общност")

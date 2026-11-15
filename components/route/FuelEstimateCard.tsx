@@ -1,9 +1,12 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { estimateRouteFuel } from "@/lib/utils/fuel-estimate";
 import { useUserStore } from "@/lib/stores/user.store";
 
 export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
+  const m = useMessages();
   const profile = useUserStore((s) => s.profile);
   const estimate = estimateRouteFuel(distanceKm, profile);
 
@@ -11,12 +14,8 @@ export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
 
   return (
     <div className="waze-panel p-4">
-      <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">
-        Оценка на разход
-      </h3>
-      <p className="mb-2 text-xs text-[var(--waze-text-muted)]">
-        Оценка на разхода, не оферта за гориво.
-      </p>
+      <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">{m.fuelEstimate.title}</h3>
+      <p className="mb-2 text-xs text-[var(--waze-text-muted)]">{m.fuelEstimate.disclaimer}</p>
       <p className="text-lg font-semibold text-[var(--waze-text)]">
         {estimate.fuel_needed} {estimate.unit} · ≈ {estimate.cost_bgn} лв
       </p>

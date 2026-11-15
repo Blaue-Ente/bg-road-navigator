@@ -1,5 +1,7 @@
 "use client";
 
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 import { useEffect } from "react";
 import Link from "next/link";
 import { useCommunityStore } from "@/lib/stores/community.store";
@@ -12,6 +14,7 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { useCommunityPins } from "@/lib/hooks/useCommunityPins";
 
 export default function CommunityPage() {
+  const m = useMessages();
   const setPins = useCommunityStore((s) => s.setPins);
   const session = useUserStore((s) => s.session);
   const { data, isLoading, isError, refetch } = useCommunityPins();
@@ -27,28 +30,22 @@ export default function CommunityPage() {
     <div className="waze-page">
       <div className="mx-auto max-w-2xl">
         <PageHeader
-          title="Общност"
-          subtitle="Задръствания, катастрофи, граници, хотели и места от шофьори"
+          title={m.nav.community}
+          subtitle={m.communityPage.msgef654c97bc}
         />
 
         {!session && serviceAvailable && (
           <WazeCard className="mb-4">
-            <p className="text-sm text-[var(--waze-text-secondary)]">
-              Четенето е свободно. За да пуснете сигнал, влезте в профила си.
-            </p>
+            <p className="text-sm text-[var(--waze-text-secondary)]">{m.communityPage.msge68451b952}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
                 href="/login"
                 className="waze-btn-primary px-4 py-2 text-xs"
-              >
-                Вход
-              </Link>
+              >{m.login.title}</Link>
               <Link
                 href="/register"
                 className="waze-btn-secondary px-4 py-2 text-xs"
-              >
-                Регистрация
-              </Link>
+              >{m.login.register}</Link>
             </div>
           </WazeCard>
         )}
@@ -56,37 +53,28 @@ export default function CommunityPage() {
         {!serviceAvailable && (
           <WazeCard className="mb-4">
             <p className="text-sm text-[var(--waze-text-secondary)]">
-              Записите не са включени. Сигналите ще се пазят, когато общността
-              е свързана.
+              {m.communityPage.msgc720f23642}
             </p>
           </WazeCard>
         )}
 
         {isLoading && (
-          <p className="mb-4 text-sm text-[var(--waze-text-muted)]">
-            Зареждане…
-          </p>
+          <p className="mb-4 text-sm text-[var(--waze-text-muted)]">{m.fuelPage.retrying}</p>
         )}
 
         {isError && (
           <WazeCard className="mb-4">
-            <p className="text-sm text-[var(--waze-text-secondary)]">
-              Сигналите не могат да бъдат заредени.
-            </p>
+            <p className="text-sm text-[var(--waze-text-secondary)]">{m.communityPage.msg1cae47a8f2}</p>
             <button
               type="button"
               onClick={() => void refetch()}
               className="mt-2 text-sm text-[var(--waze-accent-text)] underline"
-            >
-              Опитай пак
-            </button>
+            >{m.communityPage.msg87b6d05132}</button>
           </WazeCard>
         )}
 
         {!isLoading && !isError && pins.length === 0 && serviceAvailable && (
-          <p className="mb-4 text-sm text-[var(--waze-text-muted)]">
-            Все още няма активни сигнали в региона.
-          </p>
+          <p className="mb-4 text-sm text-[var(--waze-text-muted)]">{m.communityPage.msg06ad6a89eb}</p>
         )}
 
         {!isLoading && !isError && <CommunityFeed />}
