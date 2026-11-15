@@ -108,6 +108,8 @@ export const bg = {
     border: "Избрана граница",
     borderDirect: "Директен маршрут, без граничен избор.",
     borderWait: "Чакане",
+    borderUnlicensed: "Типично време за чакане (няма живи данни)",
+    borderTraffic: "Задръстване наблизо",
     borderSource: "Източник",
     borderAge: "Възраст на данните",
     estimate: "Оценка, не официално време.",

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { messages as m } from "@/lib/i18n";
+import { borderWaitView } from "@/lib/planner/border-wait-view";
 import {
   buildItineraryPoints,
   formatClockDuration,
@@ -70,6 +72,15 @@ export function PlanItineraryView({
           {m.sheet.total.toLowerCase()} · {formatWhen(arrival.toISOString())}
         </p>
       </header>
+
+      {plan.border.chosen ? (
+        <section aria-labelledby="itinerary-border">
+          <h3 id="itinerary-border" className="text-sm font-semibold text-[var(--waze-text)]">
+            {m.sheet.border}
+          </h3>
+          <BorderWaitBlock chosen={plan.border.chosen} />
+        </section>
+      ) : null}
 
       <section>
         <h3 className="text-sm font-semibold text-[var(--waze-text)]">{m.itinerary.stops}</h3>
@@ -202,6 +213,17 @@ function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
   );
 }
 
+function borderShareLine(plan: TripPlannerResult): string {
+  const chosen = plan.border.chosen;
+  if (!chosen) return "";
+  const view = borderWaitView(chosen.wait);
+  const wait = view.unlicensed
+    ? `${chosen.name_bg}: ${m.sheet.borderUnlicensed}, ${view.minutes} ${m.prefs.minutes}`
+    : `${chosen.name_bg}: ${view.minutes} ${m.prefs.minutes}`;
+  if (view.trafficDelayMin == null) return wait;
+  return `${wait}. ${m.sheet.borderTraffic}: ${view.trafficDelayMin} ${m.prefs.minutes}`;
+}
+
 function checklistItems(plan: TripPlannerResult): ChecklistItem[] {
   return [
     ...plan.checklist.vignettes,
@@ -221,6 +243,7 @@ function shareText(
   return [
     `${m.itinerary.title}: ${plan.route.origin.label} → ${plan.route.destination.label}`,
     `${plan.route.distance_km} ${m.planning.km}, ${formatClockDuration(plan.route.duration_min)}, ${formatClockDuration(plan.route.total_min)}`,
+    borderShareLine(plan),
     stopNames.length ? `${m.itinerary.stops}: ${stopNames.join(", ")}` : "",
     done.length ? `${m.itinerary.checks}: ${done.map((item) => item.title).join(", ")}` : "",
     left.length ? `${m.itinerary.unchecked}: ${left.map((item) => item.title).join(", ")}` : "",

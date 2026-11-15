@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
+import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { PlanChecklist } from "@/components/plan/PlanChecklist";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
@@ -13,7 +14,7 @@ import {
   formatClockDuration,
   whySummary,
 } from "@/lib/planner/itinerary";
-import type { TripPlannerResult, WaitSource } from "@/lib/planner/types";
+import type { TripPlannerResult } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
 
@@ -281,34 +282,7 @@ function DetailBody({
           {m.sheet.border}
         </h3>
         <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">{plan.border.note}</p>
-        {chosen ? (
-          <div className="mt-2 rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm">
-            <p className="font-medium text-[var(--waze-text)]">{chosen.name_bg}</p>
-            <p className="text-[var(--waze-text-secondary)]">{chosen.reason}</p>
-            <p className="mt-1 text-[var(--waze-text)]">
-              {m.sheet.borderWait}: {chosen.wait.minutes} {m.prefs.minutes}
-            </p>
-            <p className="text-[var(--waze-text-secondary)]">
-              {m.sheet.borderSource}: {waitSource(chosen.wait.source)} · {chosen.wait.label_bg}
-            </p>
-            <p className="text-[var(--waze-text-muted)]">
-              {m.sheet.borderAge}: {chosen.wait.age_label}
-            </p>
-            <p className="text-xs text-[var(--waze-text-muted)]">{m.sheet.estimate}</p>
-            {chosen.wait.attribution && (
-              <p className="mt-2 text-[11px] text-[var(--waze-text)]">
-                <a
-                  href={chosen.wait.attribution.href}
-                  title="Border queues, forecasts & statistics"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {chosen.wait.attribution.text}
-                </a>
-              </p>
-            )}
-          </div>
-        ) : (
+        {chosen ? <BorderWaitBlock chosen={chosen} /> : (
           <p className="mt-2 text-sm text-[var(--waze-text)]">{m.sheet.borderDirect}</p>
         )}
       </section>
@@ -360,10 +334,6 @@ function Stat({ label, value }: { label: string; value: string }) {
       <dd className="font-semibold text-[var(--waze-text)]">{value}</dd>
     </div>
   );
-}
-
-function waitSource(source: WaitSource): string {
-  return m.waitSource[source] ?? source;
 }
 
 function readChecks(key: string): Record<string, boolean> {
