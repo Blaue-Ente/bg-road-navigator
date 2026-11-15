@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { formatDuration } from "@/lib/utils/route-planner";
@@ -40,6 +41,20 @@ export default function MapPage() {
   const communityPins = communityData?.pins ?? localPins;
   const topBorders = borders?.slice(0, 4) ?? [];
   const incidentCount = traffic?.incidents?.length ?? 0;
+  const chipRowRef = useRef<HTMLDivElement>(null);
+  const [chipRowOverflows, setChipRowOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = chipRowRef.current;
+    if (!el) return;
+    const measure = () => {
+      setChipRowOverflows(el.scrollWidth > el.clientWidth + 2);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [topBorders.length, incidentCount, communityPins.length]);
 
   return (
     <>
@@ -89,7 +104,19 @@ export default function MapPage() {
       </div>
 
       <div className="pointer-events-none absolute left-0 z-10 w-full bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-24 md:w-[380px]">
-        <div className="flex gap-2 overflow-x-auto pb-1 pl-3 [scrollbar-width:thin]">
+        <div
+          ref={chipRowRef}
+          className="flex gap-2 overflow-x-auto pb-1 pl-3 [scrollbar-width:thin]"
+          style={
+            chipRowOverflows
+              ? {
+                  maskImage: "linear-gradient(to right, black 85%, transparent)",
+                  WebkitMaskImage:
+                    "linear-gradient(to right, black 85%, transparent)",
+                }
+              : undefined
+          }
+        >
           {topBorders.map((border) => (
             <Link
               key={border.crossing_id}

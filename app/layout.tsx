@@ -42,7 +42,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var r=localStorage.getItem('bg-road-theme');var s='light';if(r){var t=JSON.parse(r);if(t&&t.state&&(t.state.scheme==='light'||t.state.scheme==='dark'))s=t.state.scheme;}document.documentElement.dataset.theme=s;document.documentElement.style.colorScheme=s;var m=document.querySelector('meta[name=\"theme-color\"]');if(m)m.setAttribute('content',s==='dark'?'#0b0f14':'#f3f5f8');}catch(e){}})();",
+              "(function(){try{var r=localStorage.getItem('bg-road-theme');var s='light';if(r){var t=JSON.parse(r);if(t&&t.state&&(t.state.scheme==='light'||t.state.scheme==='dark'))s=t.state.scheme;}else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){s='dark';}document.documentElement.dataset.theme=s;document.documentElement.style.colorScheme=s;var m=document.querySelector('meta[name=\"theme-color\"]');if(m)m.setAttribute('content',s==='dark'?'#0b0f14':'#f3f5f8');}catch(e){}})();",
           }}
         />
       </head>

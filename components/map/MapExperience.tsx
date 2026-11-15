@@ -13,6 +13,7 @@ import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
 import { PlanMarkers } from "@/components/map/PlanMarkers";
 import { HotspotLayer } from "@/components/map/HotspotLayer";
+import { MapLegend } from "@/components/map/MapLegend";
 import { TripProximity } from "@/components/location/TripProximity";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
@@ -124,7 +125,7 @@ export function MapExperience() {
     }
     const desktop = window.matchMedia("(min-width: 768px)").matches;
     const sheet = document.getElementById("plan-detail");
-    const sheetPad = sheet?.offsetWidth ? sheet.offsetWidth + 24 : 384;
+    const sheetPad = sheet?.offsetWidth ? sheet.offsetWidth + 24 : 404;
     fitMapToRoute(
       mapInstance,
       merged,
@@ -133,7 +134,7 @@ export function MapExperience() {
             top: 88,
             bottom: 48,
             left: onHome ? 40 : 420,
-            right: planOpen ? Math.min(720, window.innerWidth - sheetPad) : 56,
+            right: planOpen ? sheetPad : 56,
           }
         : { top: 96, bottom: planOpen ? 96 : 210, left: 28, right: 28 }
     );
@@ -151,6 +152,7 @@ export function MapExperience() {
         className="h-[100dvh]"
       />
       <MapControls map={mapInstance} />
+      <MapLegend />
       <RouteLayer
         map={mapInstance}
         route={activeRoute}

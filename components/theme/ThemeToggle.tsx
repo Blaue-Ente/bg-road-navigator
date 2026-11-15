@@ -7,6 +7,9 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const scheme = useThemeStore((s) => s.scheme);
   const toggleScheme = useThemeStore((s) => s.toggleScheme);
   const isDark = scheme === "dark";
+  const ariaLabel = isDark
+    ? "Сега: тъмна. Превключи към светла"
+    : "Сега: светла. Превключи към тъмна";
 
   return (
     <button
@@ -17,9 +20,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
           ? "flex h-12 w-12 items-center justify-center rounded-full waze-panel"
           : "flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-[var(--waze-text)] hover:bg-[var(--waze-surface-elevated)]"
       }
-      aria-label={
-        isDark ? "Превключи към светла тема" : "Превключи към тъмна тема"
-      }
+      aria-label={ariaLabel}
       aria-pressed={!isDark}
     >
       {isDark ? (
@@ -27,11 +28,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
       ) : (
         <Sun className="h-5 w-5" strokeWidth={2} aria-hidden />
       )}
-      {!compact && (
-        <span className="font-medium">
-          {isDark ? "Тъмна тема (нощно шофиране)" : "Светла тема"}
-        </span>
-      )}
+      {!compact && <span className="font-medium">{ariaLabel}</span>}
     </button>
   );
 }

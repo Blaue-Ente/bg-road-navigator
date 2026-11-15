@@ -85,7 +85,7 @@ export function MapControls({ map }: MapControlsProps) {
       </ControlButton>
       <ControlButton
         onClick={locate}
-        label="Намери ме"
+        label="Моето място"
         accent
         busy={locateStatus === "locating"}
       >
