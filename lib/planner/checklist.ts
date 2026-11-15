@@ -3,7 +3,10 @@ import {
   WINTER_RULES,
   WINTER_RULES_DISCLAIMER_BG,
 } from "@/lib/constants/winter-rules";
-import type { VignetteLink } from "@/lib/constants/vignettes";
+import {
+  formatVignetteValidity,
+  type VignetteLink,
+} from "@/lib/constants/vignettes";
 import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
 import type {
   ChecklistItem,
@@ -31,6 +34,41 @@ const SEASON: Record<string, { from: number; to: number } | "conditions"> = {
 
 const FIRST_AID = new Set(["AT", "HU", "CZ", "SK", "SI", "HR", "BG"]);
 
+const EU_CODES = new Set([
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+]);
+
+const CITIZENSHIP_NOTE_MARKETS = new Set(["TR", "RS", "MK"]);
+
+const PET_PASSPORT_URL =
+  "https://food.ec.europa.eu/animals/movement-pets_en";
+
 export function buildChecklist(input: {
   countries: string[];
   departAt: Date;
@@ -43,10 +81,13 @@ export function buildChecklist(input: {
   const vignettes: ChecklistItem[] = [];
   const tolls: ChecklistItem[] = [];
   for (const link of input.tolls) {
+    const validity = formatVignetteValidity(link);
     const item: ChecklistItem = {
       id: `${link.kind}-${link.country_code}`,
       title: link.name_bg,
-      detail: link.notes_bg ?? link.name_en,
+      detail: [link.notes_bg ?? link.name_en, validity]
+        .filter(Boolean)
+        .join(" "),
       country_code: link.country_code,
       href: link.official_url,
       link_role: link.link_role,
@@ -55,6 +96,8 @@ export function buildChecklist(input: {
         link.link_role === "info"
           ? "Официална информация"
           : "Официален магазин",
+      validity_bg: link.validity_bg ?? null,
+      checked_on: link.checked_on ?? null,
     };
     if (link.kind === "distance_toll") tolls.push(item);
     else vignettes.push(item);
@@ -111,7 +154,18 @@ export function buildChecklist(input: {
       id: "pet-passport",
       title: "Ветеринарен паспорт на любимеца",
       detail:
-        "ЕС паспорт, микрочип и валидна ваксина срещу бяс. За Турция и други страни извън ЕС проверете допълнителните условия.",
+        "ЕС паспорт на животното, микрочип и валидна ваксина срещу бяс. Важи за пътуване в ЕС и зависи от документите на животното, не от гражданството на водача. За Турция и други страни извън ЕС проверете условията преди тръгване.",
+      country_code: null,
+      href: PET_PASSPORT_URL,
+      link_label: "Условия за любимци в ЕС",
+    });
+  }
+  if (needsCitizenshipNote(input.countries)) {
+    documents.push({
+      id: "citizenship-docs",
+      title: "Документи и винетка според водача и колата",
+      detail:
+        "Паспортът и визата зависят от гражданството. Германско пребиваване не се чете от този план. Винетката следва регистрацията на автомобила.",
       country_code: null,
       href: null,
     });
@@ -220,6 +274,12 @@ function safetyBlock(countries: string[]): {
       link_label: link.link_label,
     })),
   };
+}
+
+function needsCitizenshipNote(countries: string[]): boolean {
+  const codes = countries.map((code) => code.trim().toUpperCase());
+  if (codes.some((code) => CITIZENSHIP_NOTE_MARKETS.has(code))) return true;
+  return codes.some((code) => code.length === 2 && !EU_CODES.has(code));
 }
 
 function inSeason(code: string, month: number): boolean {

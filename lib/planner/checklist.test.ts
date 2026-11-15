@@ -49,8 +49,12 @@ describe("plan checklist", () => {
         "pet-passport",
         "child-seat",
         "mfa-advice",
+        "citizenship-docs",
       ])
     );
+    expect(
+      checklist.documents.find((item) => item.id === "pet-passport")?.href
+    ).toContain("movement-pets");
     expect(
       checklist.documents.find((item) => item.id === "mfa-advice")
     ).toMatchObject({
@@ -128,6 +132,24 @@ describe("plan checklist", () => {
     expect(abroad.safety).toEqual([]);
     expect(abroad.safety_closing).toBeNull();
     expect(abroad.bg_links).toEqual([]);
+  });
+
+  it("adds the citizenship note for Germany to Turkey without EU-citizen wording", () => {
+    const checklist = buildChecklist({
+      countries: ["DE", "TR"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [tr],
+    });
+    const citizenship = checklist.documents.find(
+      (item) => item.id === "citizenship-docs"
+    );
+    expect(citizenship?.detail).toMatch(/гражданството/);
+    expect(citizenship?.detail).not.toMatch(/ЕС граждани/);
+    const blob = checklist.documents.map((item) => item.detail).join(" ");
+    expect(blob).not.toMatch(/ЕС граждани/);
   });
 
   it("builds checklist rows for every charge on a long Europe corridor", () => {

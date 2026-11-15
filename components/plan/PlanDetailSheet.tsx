@@ -500,6 +500,12 @@ function DetailBody({
               ))}
             </ul>
           )}
+          <p className="mt-2 text-xs text-[var(--waze-text-muted)]">
+            {m.sheet.fuelAveragesDisclaimer}
+          </p>
+          <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
+            {m.sheet.fuelNoTripTotal}
+          </p>
           <FuelPriceLegend />
         </section>
       )}

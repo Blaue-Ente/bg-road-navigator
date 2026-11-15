@@ -56,6 +56,8 @@ export interface ChecklistItem {
   link_label?: string | null;
   link_role?: "shop" | "info" | null;
   charge_kind?: "vignette" | "distance_toll";
+  validity_bg?: string | null;
+  checked_on?: string | null;
 }
 
 export interface SafetyNote {

@@ -140,15 +140,19 @@ export function PlanItineraryView({
                   — {stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(", ")}
                   . {stop.reason}
                 </span>
-                {stop.kinds.includes("fuel") && stop.average_label_bg && (
-                  <span className="block text-[var(--waze-text-secondary)]">
-                    {stop.average_label_bg}
-                    {stop.price_delta_label_bg
-                      ? `. ${stop.price_delta_label_bg}`
-                      : ""}
-                    {!stop.price_label_bg ? `. ${m.sheet.bandGrey}` : ""}
-                  </span>
-                )}
+                {stop.kinds.includes("fuel") &&
+                  (stop.price_label_bg ? (
+                    <span className="block text-[var(--waze-text-secondary)]">
+                      {stop.price_label_bg}
+                      {stop.price_delta_label_bg
+                        ? `. ${stop.price_delta_label_bg}`
+                        : ""}
+                    </span>
+                  ) : (
+                    <span className="block text-[var(--waze-text-muted)]">
+                      {m.sheet.priceUnknown}
+                    </span>
+                  ))}
               </li>
             ))}
           </ol>

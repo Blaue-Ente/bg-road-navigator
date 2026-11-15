@@ -14,6 +14,9 @@ export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
       <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">
         Оценка на разход
       </h3>
+      <p className="mb-2 text-xs text-[var(--waze-text-muted)]">
+        Оценка на разхода, не оферта за гориво.
+      </p>
       <p className="text-lg font-semibold text-[var(--waze-text)]">
         {estimate.fuel_needed} {estimate.unit} · ≈ {estimate.cost_bgn} лв
       </p>

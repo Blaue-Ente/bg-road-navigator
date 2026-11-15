@@ -42,7 +42,6 @@ const MAJOR_PLACE: Record<string, number> = {
 const MINOR_PLACE = new Set([
   "village",
   "hamlet",
-  "locality",
   "suburb",
   "neighbourhood",
   "neighborhood",
@@ -50,6 +49,29 @@ const MINOR_PLACE = new Set([
   "farm",
   "allotments",
   "quarter",
+]);
+
+const CITY_LIKE_PLACE = new Set([
+  "city",
+  "town",
+  "municipality",
+  "locality",
+  "county",
+  "state",
+  "region",
+]);
+
+const STREET_LIKE = new Set([
+  "street",
+  "house",
+  "primary",
+  "secondary",
+  "residential",
+  "trunk",
+  "tertiary",
+  "road",
+  "path",
+  "footway",
 ]);
 const STATION_TOKENS = new Set([
   "hauptbahnhof",
@@ -575,6 +597,16 @@ function scoreFeature(
     if (tier !== "none" && house) score += 220;
     else if (tier !== "none") score += 100;
     else if (house) score += 18;
+  } else if (flags.shortCity) {
+    const match = nameScore(props.name ?? "", query);
+    if (CITY_LIKE_PLACE.has(value) && match >= 4) score += 140;
+    if (
+      (key === "highway" || STREET_LIKE.has(value)) &&
+      !CITY_LIKE_PLACE.has(value)
+    ) {
+      score -= 50;
+    }
+    if (value === "station" || key === "railway") score -= 24;
   }
   return score;
 }

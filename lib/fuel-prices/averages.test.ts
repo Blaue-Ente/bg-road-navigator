@@ -158,6 +158,6 @@ describe("fuel stop copy", () => {
     expect(copy.price_band).toBe("grey");
     expect(copy.price_label_bg).toBeNull();
     expect(copy.price_delta_label_bg).toBeNull();
-    expect(copy.average_label_bg).toBe("Унгария: дизел ср. 1,70 €/л");
+    expect(copy.average_label_bg).toBeNull();
   });
 });

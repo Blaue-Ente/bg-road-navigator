@@ -35,9 +35,12 @@ function FuelPageContent() {
   }, [wantRoute, activeRoute]);
 
   const bbox = routePolyline ? undefined : DEFAULT_BBOX;
-  const { data, isLoading, isError } = useFuelStations(bbox, {
-    routePolyline,
-  });
+  const { data, isLoading, isError, refetch, isFetching } = useFuelStations(
+    bbox,
+    {
+      routePolyline,
+    }
+  );
 
   if (isLoading) {
     return <PageSkeleton label="Зареждане на гориво" />;
@@ -97,10 +100,20 @@ function FuelPageContent() {
             </h2>
             <div className="space-y-3">
               {data.fuelStations.length === 0 ? (
-                <p className="text-sm text-[var(--waze-text-secondary)]">
-                  Списъкът със станции не отговори. Опитайте отново след малко
-                  или изчислете разхода от маршрута.
-                </p>
+                <div className="space-y-3">
+                  <p className="text-sm text-[var(--waze-text-secondary)]">
+                    В момента няма списък със станции. Оценката на разхода
+                    по-долу работи без него.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void refetch()}
+                    disabled={isFetching}
+                    className="waze-btn-secondary min-h-11 px-4 text-sm"
+                  >
+                    {isFetching ? "Зареждане…" : "Опитай отново"}
+                  </button>
+                </div>
               ) : (
                 data.fuelStations.map((station) => (
                   <FuelStationCard key={station.id} station={station} />

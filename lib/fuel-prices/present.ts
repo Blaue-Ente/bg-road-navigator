@@ -124,7 +124,7 @@ export function presentFuelStop(input: {
     ? countryNameBg(input.countryCode)
     : null;
   const averageLabel =
-    countryName == null
+    countryName == null || input.stationPerL == null
       ? null
       : countryAverageLabel({
           countryName,
