@@ -3,6 +3,7 @@ import type { TimedStop } from "@/lib/planner/breaks";
 import { buildFuelAdvice, fillLiters } from "@/lib/fuel-prices/advice";
 import { isNamedPlace, pickPlace, pickSights, type AnnotatedPlace } from "@/lib/planner/pick-place";
 import type { TripPreferences } from "@/lib/planner/preferences";
+import { starsFromTags } from "@/lib/planner/stars";
 import type { FuelAdvice, PlaceFlagSummary, PlanPrice } from "@/lib/planner/types";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 
@@ -151,6 +152,7 @@ function toAttachment(
     advice,
     flags,
     lodgingNote,
+    stars: starsFromTags(place?.tags),
     optional: place?.kind === "attraction" || place?.kind === "viewpoint",
   };
 }

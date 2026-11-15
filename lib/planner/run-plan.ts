@@ -44,6 +44,7 @@ import { weatherAlongRoute } from "@/lib/planner/route-weather";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import { expectedWait, type CurrentQueue } from "@/lib/planner/wait";
 import { whyThisRoute } from "@/lib/planner/why-route";
+import { routeThroughPoints } from "@/lib/planner/via-points";
 import { fetchDirectRoute, fetchRouteThrough } from "@/lib/planner/via-route";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import type { CommunityPin } from "@/types/community.types";
@@ -61,6 +62,8 @@ export interface TripPlanRequest {
   vehicle: ResolvedVehicle;
   fromProfile: boolean;
   preferences: TripPreferences;
+  /** Optional user waypoints, at most three. Empty keeps origin → destination. */
+  via?: Array<{ label: string; coords: GeoPoint }>;
   now?: Date;
 }
 
@@ -86,16 +89,27 @@ export async function runTripPlan(input: TripPlanRequest) {
     destinationCountry,
   }).filter((candidate) => allowsBorder(candidate.id, prefs));
 
+  const viaCoords = (input.via ?? []).slice(0, MAX_VIA).map((point) => point.coords);
   const [direct, viaList, pins, waits] = await Promise.all([
-    fetchDirectRoute(input.origin.coords, input.destination.coords, costing),
+    viaCoords.length === 0
+      ? fetchDirectRoute(input.origin.coords, input.destination.coords, costing)
+      : fetchRouteThrough(
+          routeThroughPoints(
+            input.origin.coords,
+            viaCoords,
+            input.destination.coords
+          ),
+          costing
+        ),
     Promise.all(
       candidates.slice(0, MAX_VIA).map(async (candidate) => {
         const routed = await fetchRouteThrough(
-          [
-            { ...input.origin.coords, role: "break" },
-            { ...candidate.coords, role: "through" },
-            { ...input.destination.coords, role: "break" },
-          ],
+          routeThroughPoints(
+            input.origin.coords,
+            viaCoords,
+            input.destination.coords,
+            candidate.coords
+          ),
           costing
         );
         return [candidate.id, routed] as const;

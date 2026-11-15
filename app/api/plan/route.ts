@@ -31,6 +31,12 @@ const PlanSchema = z.object({
   fuel_level: z.number().finite().min(0.05).max(1).optional(),
   reserve_margin: z.number().finite().min(0.05).max(0.4).optional(),
   break_every_min: z.number().int().min(45).max(240).optional(),
+  /**
+   * Optional intermediate points, at most three. Omitted or empty keeps the
+   * previous origin–destination contract. Points are ordered along the chord
+   * together with a chosen border.
+   */
+  via: z.array(PointSchema).max(3).optional(),
   preferences: TripPreferencePatchSchema.optional(),
   vehicle: z
     .object({
@@ -110,6 +116,10 @@ export async function POST(request: NextRequest) {
       vehicle,
       fromProfile: Boolean(profile),
       preferences,
+      via: body.via?.map((point) => ({
+        label: point.label,
+        coords: { lng: point.lng, lat: point.lat },
+      })),
     });
     if (!plan) {
       return NextResponse.json(

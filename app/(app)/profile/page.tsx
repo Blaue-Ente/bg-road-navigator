@@ -7,6 +7,7 @@ import { RequireAuth } from "@/components/auth/RequireAuth";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
+import { FavoritesPanel } from "@/components/profile/FavoritesPanel";
 import { SavedRoutesPanel } from "@/components/profile/SavedRoutesPanel";
 import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
 import { UserServicesPanel } from "@/components/setup/UserServicesPanel";
@@ -64,6 +65,7 @@ export default function ProfilePage() {
           </WazeCard>
 
           <ProfileEditForm />
+          <FavoritesPanel />
           <UserServicesPanel />
           <SavedRoutesPanel />
           <SavedPlacesPanel />

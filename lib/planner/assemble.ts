@@ -32,6 +32,7 @@ export interface StopAttachment {
   advice: FuelAdvice | null;
   flags: PlaceFlagSummary[];
   lodgingNote: string | null;
+  stars: number | null;
   optional?: boolean;
   kinds?: PlanStop["kinds"];
   distanceKm?: number;
@@ -243,6 +244,7 @@ function toPlanStop(
     lodging_note:
       attachment?.lodgingNote ??
       (overnight ? "Оценки на нощувките още не са налични." : null),
+    stars: attachment?.stars ?? null,
   };
 }
 
@@ -276,6 +278,7 @@ function sightStop(
     price_note: null,
     ratings_available: null,
     lodging_note: null,
+    stars: sight.stars,
   };
 }
 

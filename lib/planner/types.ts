@@ -157,6 +157,8 @@ export interface PlanStop {
   /** False on overnight stops. Hotel ratings are not wired up. */
   ratings_available: false | null;
   lodging_note: string | null;
+  /** OSM star class, 1–5, when the place tag says so. Null when unknown. */
+  stars: number | null;
 }
 
 export interface CommunityNote {

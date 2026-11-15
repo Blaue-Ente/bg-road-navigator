@@ -7,6 +7,7 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { MenuProvider } from "@/components/layout/MenuContext";
 import { MapHost } from "@/components/map/MapHost";
+import { PlanDetailSheet } from "@/components/plan/PlanDetailSheet";
 import { useUserStore } from "@/lib/stores/user.store";
 import { usePathname } from "next/navigation";
 
@@ -32,6 +33,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <BottomNav />
+          <PlanDetailSheet />
           <Sidebar />
           <OfflineBanner />
         </div>
