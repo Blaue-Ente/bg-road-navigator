@@ -17,6 +17,7 @@ import type { TripPreferences } from "@/lib/planner/preferences";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore, type Profile } from "@/lib/stores/user.store";
 import { messages as m } from "@/lib/i18n";
+import { committedPlace } from "@/lib/route/place-commit";
 
 export interface PlanningSubmit {
   preferences: TripPreferences;
@@ -31,6 +32,11 @@ export function PlanningForm({
   calculating,
   error,
   onSubmit,
+  originQuery,
+  destinationQuery,
+  onOriginQueryChange,
+  onDestinationQueryChange,
+  onViaQueryChange,
 }: {
   draft: PlannerDraft;
   onChange: (partial: Partial<PlannerDraft>) => void;
@@ -38,6 +44,11 @@ export function PlanningForm({
   calculating: boolean;
   error: string | null;
   onSubmit: (draft: PlanningSubmit) => void;
+  originQuery: string;
+  destinationQuery: string;
+  onOriginQueryChange: (query: string) => void;
+  onDestinationQueryChange: (query: string) => void;
+  onViaQueryChange: (query: string) => void;
 }) {
   const profile = useUserStore((state) => state.profile);
   const session = useUserStore((state) => state.session);
@@ -148,25 +159,31 @@ export function PlanningForm({
     }
   };
 
-  const sameEnds = Boolean(origin && destination && origin.id === destination.id);
+  const committedOrigin = committedPlace(origin, originQuery);
+  const committedDestination = committedPlace(destination, destinationQuery);
+  const sameEnds = Boolean(
+    committedOrigin &&
+      committedDestination &&
+      committedOrigin.id === committedDestination.id
+  );
 
   return (
     <WazeCard className="space-y-4">
       <LocationSearchInput
-        key={origin?.id ?? "origin-empty"}
         id="origin"
         label={m.planning.from}
         value={origin}
         placeholder={m.planning.fromPlaceholder}
         onSelect={(place) => onChange({ origin: place, corridorId: null })}
+        onQueryChange={onOriginQueryChange}
       />
       <LocationSearchInput
-        key={via?.id ?? "via-empty"}
         id="via"
         label={m.planning.via}
         value={via}
         placeholder={m.planning.viaPlaceholder}
         onSelect={(place) => onChange({ via: place })}
+        onQueryChange={onViaQueryChange}
       />
       {via && (
         <button
@@ -178,12 +195,12 @@ export function PlanningForm({
         </button>
       )}
       <LocationSearchInput
-        key={destination?.id ?? "destination-empty"}
         id="destination"
         label={m.planning.to}
         value={destination}
         placeholder={m.planning.toPlaceholder}
         onSelect={(place) => onChange({ destination: place, corridorId: null })}
+        onQueryChange={onDestinationQueryChange}
       />
       <p className="text-xs leading-relaxed text-[var(--waze-text-muted)]">
         {m.planning.searchHint}
@@ -289,7 +306,7 @@ export function PlanningForm({
             fuelLevel: fuel / 100,
           })
         }
-        disabled={calculating || !origin || !destination || sameEnds}
+        disabled={calculating || sameEnds}
         className="waze-btn-primary w-full py-3.5 text-sm disabled:opacity-50"
       >
         {calculating ? m.planning.calculating : m.planning.calculate}

@@ -11,6 +11,7 @@ interface LocationSearchInputProps {
   label: string;
   value: RoutePoint | null;
   onSelect: (place: RoutePoint) => void;
+  onQueryChange: (query: string) => void;
   placeholder: string;
 }
 
@@ -51,9 +52,18 @@ export function LocationSearchInput({
   label,
   value,
   onSelect,
+  onQueryChange,
   placeholder,
 }: LocationSearchInputProps) {
   const [query, setQuery] = useState(value?.label ?? "");
+
+  useEffect(() => {
+    const next = value?.label ?? "";
+    // Sync corridor/replan picks into the field without remounting the input.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- external value drives the label
+    setQuery(next);
+    onQueryChange(next);
+  }, [value?.id, value?.label, onQueryChange]);
   const [remoteResults, setRemoteResults] = useState<RoutePoint[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -144,6 +154,7 @@ export function LocationSearchInput({
   const choosePlace = (place: RoutePoint) => {
     onSelect(place);
     setQuery(place.label);
+    onQueryChange(place.label);
     setRemoteResults([]);
     setMessage(null);
     setOpen(false);
@@ -169,6 +180,7 @@ export function LocationSearchInput({
           onChange={(event) => {
             const next = event.target.value;
             setQuery(next);
+            onQueryChange(next);
             setRemoteResults([]);
             setMessage(null);
             setOpen(next.trim().length >= 1);
