@@ -1,38 +1,58 @@
-import { countryCodeAtPoint } from "@/lib/geo/countries-along-route";
+import { getEVStations } from "@/lib/api-clients/opencharge";
+import { countryCodeAtPoint, countriesAlongRoute } from "@/lib/geo/countries-along-route";
 import { haversineKm } from "@/lib/geo/haversine";
 import { listPins } from "@/lib/db/community";
 import { isDatabaseConfigured } from "@/lib/db";
+import { listValidFuelReports } from "@/lib/db/fuel-reports";
+import { listPlaceFlags } from "@/lib/db/place-flags";
+import { readLatestAverages } from "@/lib/fuel-prices/national-store";
 import { resolveStationPrice } from "@/lib/fuel-prices/resolve";
 import type { KnownPrice } from "@/lib/fuel-prices/types";
-import { getEVStations } from "@/lib/api-clients/opencharge";
 import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
 import { parseDayStats, parseForecast } from "@/lib/nakordoni/parse";
-import { assembleTripPlan, type StopAttachment } from "@/lib/planner/assemble";
+import { loadCorridorPlaces } from "@/lib/poi/load-corridor";
+import type { CorridorPlace } from "@/lib/poi/types";
+import { assembleTripPlan } from "@/lib/planner/assemble";
+import { attachStops } from "@/lib/planner/attach-stops";
 import {
+  applyPreferredBorder,
   selectCandidateBorders,
   scoreBorderOptions,
   type BorderScoreInput,
 } from "@/lib/planner/borders";
 import { mergeDrivingBreaks, type FuelTimedStop } from "@/lib/planner/breaks";
+import { buildChecklist } from "@/lib/planner/checklist";
 import { communityAlongRoute } from "@/lib/planner/community";
+import { aggregateFlags } from "@/lib/planner/flag-score";
 import { fuelWindows } from "@/lib/planner/fuel-windows";
 import {
   distanceToPolylineKm,
   lineLengthKm,
   pointAtDistance,
 } from "@/lib/planner/line";
-import { chooseStation, type RankedPlace } from "@/lib/planner/stations";
-import type { PlanPrice } from "@/lib/planner/types";
+import { annotatePlaces, type AnnotatedPlace } from "@/lib/planner/pick-place";
+import {
+  allowsBorder,
+  childAmenityTypes,
+  costingFromPreferences,
+  drivingDayLimits,
+  effectiveBreakEveryMin,
+  scenicTypes,
+  type TripPreferences,
+} from "@/lib/planner/preferences";
+import { weatherAlongRoute } from "@/lib/planner/route-weather";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import { expectedWait, type CurrentQueue } from "@/lib/planner/wait";
+import { whyThisRoute } from "@/lib/planner/why-route";
 import { fetchDirectRoute, fetchRouteThrough } from "@/lib/planner/via-route";
-import { placesAlong, type OsmPlace } from "@/lib/osm/corridor";
+import { getRouteTolls } from "@/lib/utils/route-tolls";
 import type { CommunityPin } from "@/types/community.types";
 import type { GeoPoint } from "@/types/route.types";
 import type { ProvidedRoadRoute } from "@/lib/api-clients/road-route";
 
 const ON_PATH_KM = 12;
 const MAX_VIA = 3;
+const PRICE_LOOKUPS = 8;
 
 export interface TripPlanRequest {
   origin: { label: string; coords: GeoPoint; countryCode?: string | null };
@@ -40,17 +60,15 @@ export interface TripPlanRequest {
   departAt: Date;
   vehicle: ResolvedVehicle;
   fromProfile: boolean;
-  breakEveryMin: number;
+  preferences: TripPreferences;
   now?: Date;
 }
 
 export async function runTripPlan(input: TripPlanRequest) {
   const now = input.now ?? new Date();
-  const direct = await fetchDirectRoute(
-    input.origin.coords,
-    input.destination.coords
-  );
-  if (!direct || direct.geometry.coordinates.length < 2) return null;
+  const prefs = input.preferences;
+  const costing = costingFromPreferences(prefs);
+  const day = drivingDayLimits(prefs);
 
   const originCountry =
     input.origin.countryCode ??
@@ -61,14 +79,46 @@ export async function runTripPlan(input: TripPlanRequest) {
       input.destination.coords.lng,
       input.destination.coords.lat
     );
-
   const candidates = selectCandidateBorders({
     origin: input.origin.coords,
     destination: input.destination.coords,
     originCountry,
     destinationCountry,
-  });
+  }).filter((candidate) => allowsBorder(candidate.id, prefs));
 
+  const [direct, viaList, pins, waits] = await Promise.all([
+    fetchDirectRoute(input.origin.coords, input.destination.coords, costing),
+    Promise.all(
+      candidates.slice(0, MAX_VIA).map(async (candidate) => {
+        const routed = await fetchRouteThrough(
+          [
+            { ...input.origin.coords, role: "break" },
+            { ...candidate.coords, role: "through" },
+            { ...input.destination.coords, role: "break" },
+          ],
+          costing
+        );
+        return [candidate.id, routed] as const;
+      })
+    ),
+    pinsNear(
+      input,
+      candidates.map((candidate) => candidate.coords)
+    ),
+    loadWaits(
+      candidates
+        .map((candidate) => candidate.ppid)
+        .filter((ppid): ppid is string => Boolean(ppid)),
+      now
+    ),
+  ]);
+  if (!direct || direct.geometry.coordinates.length < 2) return null;
+
+  const viaRoutes = new Map(
+    viaList.filter((entry): entry is [string, ProvidedRoadRoute] =>
+      Boolean(entry[1])
+    )
+  );
   const directLine = direct.geometry.coordinates as Array<[number, number]>;
   const onPath = new Set(
     candidates
@@ -78,30 +128,6 @@ export async function runTripPlan(input: TripPlanRequest) {
           ON_PATH_KM
       )
       .map((candidate) => candidate.id)
-  );
-
-  const viaRoutes = new Map<string, ProvidedRoadRoute>();
-  let viaCount = 0;
-  for (const candidate of candidates) {
-    if (onPath.has(candidate.id) || viaCount >= MAX_VIA) continue;
-    viaCount += 1;
-    const routed = await fetchRouteThrough([
-      { ...input.origin.coords, role: "break" },
-      { ...candidate.coords, role: "through" },
-      { ...input.destination.coords, role: "break" },
-    ]);
-    if (routed) viaRoutes.set(candidate.id, routed);
-  }
-
-  const pins = await pinsNear(
-    input,
-    candidates.map((candidate) => candidate.coords)
-  );
-  const waits = await loadWaits(
-    candidates
-      .map((candidate) => candidate.ppid)
-      .filter((ppid): ppid is string => Boolean(ppid)),
-    now
   );
 
   const scoreInputs: BorderScoreInput[] = [];
@@ -117,9 +143,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       routed.distance_km > 0
         ? Math.min(1, along.alongKm / Math.max(lineLengthKm(line), 1))
         : 0;
-    const eta = new Date(
-      input.departAt.getTime() + fraction * driveMin * 60_000
-    );
+    const eta = new Date(input.departAt.getTime() + fraction * driveMin * 60_000);
     const cached = candidate.ppid ? waits.get(candidate.ppid) : undefined;
     const community = communityAlongRoute(line, pins, now.getTime());
     scoreInputs.push({
@@ -142,48 +166,118 @@ export async function runTripPlan(input: TripPlanRequest) {
     });
   }
 
-  const borders = scoreBorderOptions(scoreInputs);
+  const borders = applyPreferredBorder(
+    scoreBorderOptions(scoreInputs),
+    prefs.preferred_border
+  );
   const chosen = borders.find((border) => border.chosen) ?? null;
   const chosenRoute =
     chosen && !onPath.has(chosen.borderId) && viaRoutes.get(chosen.borderId)
       ? viaRoutes.get(chosen.borderId)!
       : direct;
-  const chosenLine = chosenRoute.geometry.coordinates as Array<
-    [number, number]
-  >;
+  const chosenLine = chosenRoute.geometry.coordinates as Array<[number, number]>;
   const roadKm = chosenRoute.distance_km;
   const geometryKm = Math.max(1, lineLengthKm(chosenLine));
   const community = communityAlongRoute(chosenLine, pins, now.getTime());
   const borderAlong =
-    chosen == null
-      ? null
-      : distanceToPolylineKm(chosenLine, chosen.coords).alongKm;
+    chosen == null ? null : distanceToPolylineKm(chosenLine, chosen.coords).alongKm;
+  const countries = countriesAlongRoute({
+    geometry: chosenRoute.geometry,
+    origin: { coords: input.origin.coords },
+    destination: { coords: input.destination.coords },
+  });
+  const bulletinFuel =
+    input.vehicle.fuel_type === "petrol" || input.vehicle.fuel_type === "diesel"
+      ? input.vehicle.fuel_type
+      : null;
+
+  const [corridor, weather, averages, chargers] = await Promise.all([
+    loadCorridorPlaces({
+      line: chosenLine,
+      extraTypes: [...scenicTypes(prefs), ...childAmenityTypes(prefs)],
+    }),
+    weatherAlongRoute({
+      line: chosenLine,
+      departAt: input.departAt,
+      durationMin: chosenRoute.duration_min,
+      distanceKm: roadKm,
+    }),
+    bulletinFuel
+      ? readLatestAverages(countries, bulletinFuel)
+      : Promise.resolve(new Map<string, number>()),
+    input.vehicle.energy === "charge"
+      ? chargersAlong(chosenLine, geometryKm)
+      : Promise.resolve([] as CorridorPlace[]),
+  ]);
+
+  const places = dedupeChargers(
+    [...corridor.places, ...chargers],
+    chosenLine
+  );
+  const [flagRows, reportRows, officialPrices] = await Promise.all([
+    safeFlags(places.map((place) => place.id)),
+    safeReports(
+      places.filter((place) => place.kind === "fuel").map((place) => place.id),
+      bulletinFuel,
+      now
+    ),
+    officialPricesFor(places, bulletinFuel, now),
+  ]);
+  const flags = aggregateFlags(flagRows, now);
+  const reports = newestReport(reportRows);
 
   const windows = fuelWindows(roadKm, input.vehicle);
   const fuelStops: FuelTimedStop[] = windows.map((window) => ({
     kind: input.vehicle.energy === "charge" ? "charge" : "fuel",
     distanceKm: window.windowEndKm,
-    etaMin:
-      (window.windowEndKm / Math.max(roadKm, 1)) * chosenRoute.duration_min,
+    etaMin: (window.windowEndKm / Math.max(roadKm, 1)) * chosenRoute.duration_min,
   }));
   const merged = mergeDrivingBreaks({
     driveMin: chosenRoute.duration_min,
     distanceKm: roadKm,
-    breakEveryMin: input.breakEveryMin,
+    breakEveryMin: effectiveBreakEveryMin(prefs),
     mergeWithinMin: 30,
-    overnightAfterMin: 630,
+    overnightAfterMin: day.overnight ? day.overnightAfterMin : chosenRoute.duration_min + 1,
+    overnightAtMin: day.overnightAtMin,
     fuelStops,
   });
 
-  const warnings: string[] = [];
-  const attachments = await attachPlaces({
+  const annotated = annotatePlaces(chosenLine, roadKm, places).map((place) =>
+    applyPrice(place, officialPrices, reports, flags.get(place.id)?.weights)
+  );
+  const { attachments, sights } = attachStops({
     merged,
-    line: chosenLine,
-    geometryKm,
-    roadKm,
+    places: annotated,
+    preferences: prefs,
     vehicle: input.vehicle,
-    warnings,
-    now,
+    driveMin: chosenRoute.duration_min,
+    distanceKm: roadKm,
+    countryAt: (lat, lng) => countryCodeAtPoint(lng, lat),
+    averagePerLitre: (country) => averages.get(country) ?? null,
+  });
+
+  const warnings: string[] = [];
+  if (!corridor.ok) {
+    warnings.push(
+      "Част от станциите и хотелите не се заредиха. Липсващите спирки са ориентири по пътя."
+    );
+  }
+  if (
+    chosenRoute.provider === "osrm" &&
+    (prefs.avoid_motorways || prefs.avoid_tolls)
+  ) {
+    warnings.push(
+      "Избягването на магистрали или тол важи при Valhalla. Този маршрут е от публичния OSRM."
+    );
+  }
+  if (prefs.pace === "scenic" && sights.length === 0) {
+    warnings.push("Няма забележителности по трасето за по-спокойния ход.");
+  }
+
+  const tolls = getRouteTolls({
+    geometry: chosenRoute.geometry,
+    origin: { coords: input.origin.coords },
+    destination: { coords: input.destination.coords },
   });
 
   return assembleTripPlan({
@@ -205,199 +299,196 @@ export async function runTripPlan(input: TripPlanRequest) {
       borderAlong == null ? null : (borderAlong / geometryKm) * roadKm,
     merged,
     attachments,
+    sights,
     community,
     warnings,
+    preferences: prefs,
+    checklist: buildChecklist({
+      countries,
+      departAt: input.departAt,
+      withPet: prefs.with_pet,
+      withChildren: prefs.with_children,
+      childrenAges: prefs.children_ages,
+      tolls,
+    }),
+    weather,
+    why: whyThisRoute({
+      borders: borders.map((border) => ({
+        chosen: border.chosen,
+        nameBg: border.nameBg,
+        totalMin: border.totalMin,
+        waitMinutes: border.wait.minutes,
+        driveMin: border.driveMin,
+        distanceKm: border.distanceKm,
+      })),
+      directDurationMin: direct.duration_min,
+      directDistanceKm: direct.distance_km,
+      chosenDurationMin: chosenRoute.duration_min,
+      chosenDistanceKm: roadKm,
+      incidents: community.notes.map((note) => ({
+        title: note.title,
+        penaltyMin: note.penalty_min,
+      })),
+      preferences: prefs,
+    }),
   });
 }
 
-async function attachPlaces(input: {
-  merged: ReturnType<typeof mergeDrivingBreaks>;
-  line: Array<[number, number]>;
-  geometryKm: number;
-  roadKm: number;
-  vehicle: ResolvedVehicle;
-  warnings: string[];
-  now: Date;
-}): Promise<StopAttachment[]> {
-  const attachments: StopAttachment[] = [];
-  let fuelPlaces: Array<OsmPlace & RankedPlace> | null = null;
-  let fuelAnchor: GeoPoint | null = null;
-  let hotelPlaces: OsmPlace[] | null = null;
-  let hotelAnchor: GeoPoint | null = null;
-  let queries = 0;
-  let overpassFailed = false;
-
-  for (const stop of input.merged) {
-    const anchor = pointAtDistance(
-      input.line,
-      (stop.distanceKm / Math.max(input.roadKm, 1)) * input.geometryKm
-    );
-    const wantsEnergy =
-      stop.kinds.includes("fuel") || stop.kinds.includes("charge");
-    const wantsHotel = stop.kinds.includes("overnight");
-    let place: (OsmPlace & RankedPlace) | null = null;
-    let lodgingNote: string | null = null;
-
-    if (wantsEnergy) {
-      const stale =
-        !fuelPlaces || !fuelAnchor || kmBetween(fuelAnchor, anchor) > 35;
-      if (stale && queries < 3) {
-        queries += 1;
-        const loaded = await loadEnergyPlaces(
-          input.line,
-          geometryAt(input, Math.max(0, stop.distanceKm - 40)),
-          geometryAt(input, stop.distanceKm),
-          input.vehicle
-        );
-        fuelPlaces = loaded.places;
-        fuelAnchor = anchor;
-        if (!loaded.ok) overpassFailed = true;
-      }
-      const chosen = fuelPlaces
-        ? chooseStation(fuelPlaces, input.line, anchor)
-        : null;
-      place = chosen?.place ?? null;
-    }
-
-    if (wantsHotel) {
-      const stale =
-        !hotelPlaces || !hotelAnchor || kmBetween(hotelAnchor, anchor) > 35;
-      if (stale && queries < 3) {
-        queries += 1;
-        const loaded = await placesAlong(
-          input.line,
-          geometryAt(input, Math.max(0, stop.distanceKm - 15)),
-          geometryAt(input, stop.distanceKm + 5),
-          "hotel"
-        );
-        hotelPlaces = loaded.places;
-        hotelAnchor = anchor;
-        if (!loaded.ok) overpassFailed = true;
-      }
-      const hotel = nearestHotel(hotelPlaces ?? [], anchor);
-      if (!place && hotel) {
-        place = { ...hotel, priceAmount: null };
-      } else if (hotel) {
-        lodgingNote = `Наблизо: ${hotel.name}. Оценки още няма.`;
-      } else {
-        lodgingNote = "Няма зареден хотел от картата. Оценки още няма.";
-      }
-    }
-
-    let price: PlanPrice | null = null;
-    if (
-      place &&
-      (stop.kinds.includes("fuel") || input.vehicle.energy === "fuel") &&
-      stop.kinds.includes("fuel")
-    ) {
-      const country = countryCodeAtPoint(place.lng, place.lat);
-      const fuel =
-        input.vehicle.fuel_type === "electric" ? null : input.vehicle.fuel_type;
-      if (fuel) {
-        const looked = await resolveStationPrice(
-          { countryCode: country, fuel, lat: place.lat, lng: place.lng },
-          { now: input.now }
-        );
-        price = toPlanPrice(looked.price);
-      }
-    }
-
-    attachments.push({
-      etaMin: stop.etaMin,
-      name: place?.name ?? null,
-      brand: place?.brand ?? null,
-      coords: place ? { lng: place.lng, lat: place.lat } : null,
-      detourKm: place
-        ? Math.round(distanceToPolylineKm(input.line, place).distanceKm * 10) /
-          10
-        : null,
-      motorwayService: place?.motorwayService ?? false,
-      source: place
-        ? place.id.startsWith("ocm-")
-          ? "openchargemap"
-          : "openstreetmap"
-        : "calculated",
-      price,
-      lodgingNote,
-    });
-  }
-
-  if (overpassFailed) {
-    input.warnings.push(
-      "Част от станциите и хотелите не се заредиха. Липсващите спирки са ориентири по пътя."
-    );
-  }
-  return attachments;
-}
-
-function geometryAt(
-  input: { roadKm: number; geometryKm: number },
-  roadKm: number
-): number {
-  return (roadKm / Math.max(input.roadKm, 1)) * input.geometryKm;
-}
-
-async function loadEnergyPlaces(
-  line: Array<[number, number]>,
-  fromKm: number,
-  toKm: number,
-  vehicle: ResolvedVehicle
-): Promise<{ places: Array<OsmPlace & RankedPlace>; ok: boolean }> {
-  if (vehicle.energy === "charge") {
-    const osm = await placesAlong(line, fromKm, toKm, "charging_station");
-    const anchor = pointAtDistance(line, toKm);
-    const ocm = await getEVStations(anchor.lng, anchor.lat, 15);
-    const fromOcm: Array<OsmPlace & RankedPlace> = ocm.map((station) => ({
-      id: station.id,
-      name: station.name,
-      brand: station.operator,
-      lat: station.coords.lat,
-      lng: station.coords.lng,
-      kind: "charging_station",
-      motorwayService: false,
-      priceAmount: null,
-    }));
+function applyPrice(
+  place: AnnotatedPlace,
+  official: Map<string, KnownPrice>,
+  reports: Map<string, { amount: number; at: string }>,
+  flagWeights: Record<string, number> | undefined
+): AnnotatedPlace {
+  const known = official.get(place.id);
+  if (known) {
     return {
-      places: [
-        ...fromOcm,
-        ...osm.places.map((place) => ({ ...place, priceAmount: null })),
-      ],
-      ok: osm.ok || ocm.length > 0,
+      ...place,
+      flagWeights,
+      priceAmount: known.amount,
+      priceBasis: "official",
+      priceSource: known.source,
+      observedAt: known.observedAt,
     };
   }
-  const osm = await placesAlong(line, fromKm, toKm, "fuel");
-  return {
-    places: osm.places.map((place) => ({ ...place, priceAmount: null })),
-    ok: osm.ok,
-  };
+  const report = reports.get(place.id);
+  if (report) {
+    return {
+      ...place,
+      flagWeights,
+      priceAmount: report.amount,
+      priceBasis: "community",
+      priceSource: "community",
+      observedAt: report.at,
+    };
+  }
+  return { ...place, flagWeights };
 }
 
-function nearestHotel(places: OsmPlace[], anchor: GeoPoint): OsmPlace | null {
-  let best: OsmPlace | null = null;
-  let bestKm = 12;
+async function officialPricesFor(
+  places: CorridorPlace[],
+  fuel: "petrol" | "diesel" | null,
+  now: Date
+): Promise<Map<string, KnownPrice>> {
+  const found = new Map<string, KnownPrice>();
+  if (!fuel) return found;
+  const candidates = places
+    .filter((place) => place.kind === "fuel")
+    .filter((place) => {
+      const country = countryCodeAtPoint(place.lng, place.lat);
+      return country === "AT" || country === "DE";
+    })
+    .slice(0, PRICE_LOOKUPS);
+  const looked = await Promise.all(
+    candidates.map(async (place) => {
+      const country = countryCodeAtPoint(place.lng, place.lat);
+      const result = await resolveStationPrice(
+        { countryCode: country, fuel, lat: place.lat, lng: place.lng },
+        { now }
+      );
+      return result.price ? ([place.id, result.price] as const) : null;
+    })
+  );
+  for (const row of looked) {
+    if (row) found.set(row[0], row[1]);
+  }
+  return found;
+}
+
+async function chargersAlong(
+  line: Array<[number, number]>,
+  geometryKm: number
+): Promise<CorridorPlace[]> {
+  const samples = [0.3, 0.7].map((fraction) =>
+    pointAtDistance(line, geometryKm * fraction)
+  );
+  const batches = await Promise.all(
+    samples.map(async (point) => {
+      try {
+        return await getEVStations(point.lng, point.lat, 20);
+      } catch {
+        return [];
+      }
+    })
+  );
+  return batches.flat().map((station) => ({
+    id: station.id.startsWith("ocm-") ? station.id : `ocm-${station.id}`,
+    name: station.name,
+    brand: station.operator || null,
+    lat: station.coords.lat,
+    lng: station.coords.lng,
+    kind: "charging" as const,
+    motorwayService: false,
+    tags: {},
+    alongM: null,
+    distM: null,
+    source: "openchargemap" as const,
+  }));
+}
+
+function dedupeChargers(
+  places: CorridorPlace[],
+  line: Array<[number, number]>
+): CorridorPlace[] {
+  const kept: CorridorPlace[] = [];
   for (const place of places) {
-    const km = haversineKm(anchor, { lng: place.lng, lat: place.lat });
-    if (km < bestKm) {
-      best = place;
-      bestKm = km;
+    if (place.kind !== "charging" || place.source !== "openchargemap") {
+      kept.push(place);
+      continue;
+    }
+    const nearOsm = places.some(
+      (other) =>
+        other.source !== "openchargemap" &&
+        other.kind === "charging" &&
+        haversineKm(
+          { lng: place.lng, lat: place.lat },
+          { lng: other.lng, lat: other.lat }
+        ) < 0.15
+    );
+    if (
+      !nearOsm &&
+      distanceToPolylineKm(line, { lng: place.lng, lat: place.lat })
+        .distanceKm <= 8
+    ) {
+      kept.push(place);
     }
   }
-  return best;
+  return kept;
 }
 
-function kmBetween(a: GeoPoint, b: GeoPoint): number {
-  return haversineKm(a, b);
+function newestReport(
+  rows: Array<{ station_id: string; price: number; reported_at: string }>
+): Map<string, { amount: number; at: string }> {
+  const map = new Map<string, { amount: number; at: string }>();
+  for (const row of rows) {
+    const current = map.get(row.station_id);
+    if (!current || row.reported_at > current.at) {
+      map.set(row.station_id, { amount: row.price, at: row.reported_at });
+    }
+  }
+  return map;
 }
 
-function toPlanPrice(price: KnownPrice | null): PlanPrice | null {
-  if (!price) return null;
-  return {
-    amount: price.amount,
-    currency: price.currency,
-    unit: price.unit,
-    source: price.source,
-    observed_at: price.observedAt,
-  };
+async function safeFlags(placeIds: string[]) {
+  if (!isDatabaseConfigured() || placeIds.length === 0) return [];
+  try {
+    return await listPlaceFlags(placeIds);
+  } catch {
+    return [];
+  }
+}
+
+async function safeReports(
+  stationIds: string[],
+  fuel: "petrol" | "diesel" | null,
+  now: Date
+) {
+  if (!isDatabaseConfigured() || !fuel || stationIds.length === 0) return [];
+  try {
+    return await listValidFuelReports(stationIds, fuel, now);
+  } catch {
+    return [];
+  }
 }
 
 async function pinsNear(

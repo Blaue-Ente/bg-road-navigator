@@ -11,6 +11,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { TripPreferences } from "@/lib/planner/preferences";
 import type { SavedPlacePayload } from "@/types/place.types";
 
 /**
@@ -85,6 +86,7 @@ export const profiles = pgTable("profiles", {
   fuelType: text("fuel_type").notNull().default("diesel"),
   tankCapacityLiters: doublePrecision("tank_capacity_liters"),
   evRangeKm: integer("ev_range_km"),
+  tripPreferences: jsonb("trip_preferences").$type<TripPreferences | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -202,6 +204,88 @@ export const osmQueryCache = pgTable("osm_query_cache", {
   payload: jsonb("payload").notNull(),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+export const fuelNationalAverages = pgTable(
+  "fuel_national_averages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    countryCode: text("country_code").notNull(),
+    fuel: text("fuel").notNull(),
+    priceEurPerL: doublePrecision("price_eur_per_l").notNull(),
+    week: text("week").notNull(),
+    source: text("source").notNull(),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    unique("fuel_national_averages_week").on(
+      table.countryCode,
+      table.fuel,
+      table.week,
+      table.source
+    ),
+  ]
+);
+
+export const fuelPriceReports = pgTable("fuel_price_reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  stationId: text("station_id").notNull(),
+  fuelType: text("fuel_type").notNull(),
+  price: doublePrecision("price").notNull(),
+  currency: text("currency").notNull().default("EUR"),
+  photoUrl: text("photo_url"),
+  reportedAt: timestamp("reported_at", { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  reporterId: text("reporter_id")
+    .notNull()
+    .references(() => profiles.userId, { onDelete: "cascade" }),
+});
+
+export const placeFlags = pgTable(
+  "place_flags",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    placeId: text("place_id").notNull(),
+    placeKind: text("place_kind").notNull(),
+    flag: text("flag").notNull(),
+    note: text("note"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => profiles.userId, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique("place_flags_user_flag").on(table.placeId, table.userId, table.flag),
+  ]
+);
+
+export const favoriteRoutes = pgTable("favorite_routes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => profiles.userId, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  origin: jsonb("origin").$type<{ label: string; lng: number; lat: number }>().notNull(),
+  destination: jsonb("destination")
+    .$type<{ label: string; lng: number; lat: number }>()
+    .notNull(),
+  preferences: jsonb("preferences").$type<TripPreferences>().notNull(),
+  plan: jsonb("plan").$type<unknown>(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const favoritePlaces = pgTable("favorite_places", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => profiles.userId, { onDelete: "cascade" }),
+  placeId: text("place_id"),
+  kind: text("kind").notNull(),
+  name: text("name").notNull(),
+  lat: doublePrecision("lat").notNull(),
+  lng: doublePrecision("lng").notNull(),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const pinReports = pgTable(

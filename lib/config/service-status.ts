@@ -4,6 +4,7 @@
 
 import { ociGeoEnvState } from "@/lib/api-clients/oci-geo";
 import { isDatabaseConfigured } from "@/lib/db";
+import { readPoiConfig } from "@/lib/poi/config";
 
 export type ServiceId =
   | "postgres"
@@ -19,6 +20,7 @@ export type ServiceId =
   | "osrm_custom"
   | "geocoding_custom"
   | "oci_geo"
+  | "oci_poi"
   | "cron_warm"
   | "app_url";
 
@@ -190,6 +192,16 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       env_vars: ["OCI_GEO_BASE_URL", "OCI_GEO_API_KEY"],
     },
     {
+      id: "oci_poi",
+      label: "Коридор с места (POI)",
+      unlocks:
+        "Станции, хотели и почивки по маршрута от собствения POI. Overpass е резерва само с POI_OVERPASS_FALLBACK",
+      configured: readPoiConfig() != null,
+      cost: "self_host",
+      priority: "optional",
+      env_vars: ["OCI_POI_BASE_URL", "OCI_GEO_API_KEY"],
+    },
+    {
       id: "cron_warm",
       label: "Подгряване на Valhalla и Photon",
       unlocks: "Защитен cron ping, за да не изтича първото търсене след пауза",
@@ -207,6 +219,9 @@ export const ACCOUNT_MIGRATION_FILE =
 export const PLANNER_MIGRATION_FILE =
   "drizzle/0002_trip_planner_cache.sql" as const;
 
+export const PLACES_MIGRATION_FILE =
+  "drizzle/0003_planner_places.sql" as const;
+
 export interface ConfigStatusResponse {
   ok: true;
   generated_at: string;
@@ -217,6 +232,7 @@ export interface ConfigStatusResponse {
     configured: boolean;
     migration: typeof ACCOUNT_MIGRATION_FILE;
     planner_migration: typeof PLANNER_MIGRATION_FILE;
+    places_migration: typeof PLACES_MIGRATION_FILE;
   };
   summary: {
     configured_count: number;
@@ -259,6 +275,7 @@ export function buildConfigStatus(): ConfigStatusResponse {
       configured: isDatabaseConfigured(),
       migration: ACCOUNT_MIGRATION_FILE,
       planner_migration: PLANNER_MIGRATION_FILE,
+      places_migration: PLACES_MIGRATION_FILE,
     },
     summary: {
       configured_count,

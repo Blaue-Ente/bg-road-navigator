@@ -31,7 +31,7 @@ export interface BorderScoreInput {
 export interface ScoredBorder extends BorderScoreInput {
   totalMin: number;
   chosen: boolean;
-  reasonCode: "lowest_total" | "slower_than_best";
+  reasonCode: "lowest_total" | "slower_than_best" | "preferred";
   reason: string;
 }
 
@@ -107,6 +107,25 @@ export function scoreBorderOptions(
       chosen,
       reasonCode: chosen ? "lowest_total" : "slower_than_best",
       reason,
+    };
+  });
+}
+
+/** A saved preferred crossing stays chosen when it was actually scored. */
+export function applyPreferredBorder(
+  scored: ScoredBorder[],
+  preferredId: string | null
+): ScoredBorder[] {
+  if (!preferredId) return scored;
+  if (!scored.some((border) => border.borderId === preferredId)) return scored;
+  return scored.map((border) => {
+    const chosen = border.borderId === preferredId;
+    if (!chosen) return { ...border, chosen: false };
+    return {
+      ...border,
+      chosen: true,
+      reasonCode: "preferred",
+      reason: `Предпочитан граничен пункт: ${border.nameBg}.`,
     };
   });
 }

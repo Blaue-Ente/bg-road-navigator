@@ -1,3 +1,4 @@
+import { queriedStreet, streetTier } from "@/lib/geo/street-match";
 import type { RoutePoint } from "@/types/route.types";
 
 interface NominatimResult {
@@ -155,9 +156,21 @@ function scoreResult(result: NominatimResult, query: string): number {
   }
   score += roadHits * 5;
   if (tokens.length > 0 && road && roadHits === 0) score -= 4;
+  const wantedStreet = queriedStreet(query);
+  const roadTier = streetTier(wantedStreet, road);
+  const nameTier = streetTier(wantedStreet, name);
+  if (roadTier === "exact") score += 36;
+  else if (roadTier === "substring") score += 28;
+  else if (nameTier === "exact") score += 8;
+  else if (nameTier === "substring") score += 6;
   const askedNumber = query.match(/(?:^|\s)(\d+[a-zа-я]?)(?:\s|,|$)/iu)?.[1];
-  if (askedNumber && address?.house_number === askedNumber) score += 8;
-  else if (address?.house_number) score += 2;
+  const houseNumber = address?.house_number?.toLocaleLowerCase("bg-BG");
+  const numberMatches = Boolean(
+    askedNumber &&
+      houseNumber === askedNumber.toLocaleLowerCase("bg-BG")
+  );
+  if (numberMatches && roadTier !== "none") score += 12;
+  else if (numberMatches) score += 4;
   if (result.type === "house" || result.type === "building") score += 3;
   if (result.type === "pedestrian") score += 3;
   if (

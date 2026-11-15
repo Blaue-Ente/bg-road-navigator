@@ -1,0 +1,126 @@
+import { distanceToPolylineKm, lineLengthKm } from "@/lib/planner/line";
+import { flagBias } from "@/lib/planner/flag-score";
+import {
+  detourLimitKm,
+  placePreferenceScore,
+  type TripPreferences,
+} from "@/lib/planner/preferences";
+import type { CorridorPlace } from "@/lib/poi/types";
+
+const GENERIC = new Set([
+  "бензиностанция",
+  "зарядна станция",
+  "място за нощувка",
+  "ресторант",
+  "крайпътна зона",
+  "забележителност",
+  "fuel",
+  "hotel",
+]);
+
+export interface AnnotatedPlace extends CorridorPlace {
+  alongKm: number;
+  detourKm: number;
+  priceAmount: number | null;
+  priceBasis: "official" | "community" | null;
+  priceSource: "e-control" | "tankerkoenig" | "community" | null;
+  observedAt: string | null;
+  savingsEur: number | null;
+  flagWeights?: Record<string, number>;
+}
+
+export function annotatePlaces(
+  line: Array<[number, number]>,
+  roadKm: number,
+  places: CorridorPlace[]
+): AnnotatedPlace[] {
+  const geometryKm = Math.max(1, lineLengthKm(line));
+  const scale = roadKm > 0 ? roadKm / geometryKm : 1;
+  return places.map((place) => {
+    const along = distanceToPolylineKm(line, {
+      lng: place.lng,
+      lat: place.lat,
+    });
+    return {
+      ...place,
+      alongKm:
+        place.alongM == null
+          ? along.alongKm * scale
+          : (place.alongM / 1000) * scale,
+      detourKm:
+        place.distM == null ? along.distanceKm : place.distM / 1000,
+      priceAmount: null,
+      priceBasis: null,
+      priceSource: null,
+      observedAt: null,
+      savingsEur: null,
+    };
+  });
+}
+
+export function isNamedPlace(place: { name: string }): boolean {
+  const name = place.name.trim().toLocaleLowerCase("bg-BG");
+  return name.length >= 2 && !GENERIC.has(name);
+}
+
+export function pickPlace(
+  places: AnnotatedPlace[],
+  prefs: TripPreferences,
+  options: {
+    kinds: string[];
+    windowStartKm: number;
+    windowEndKm: number;
+    looseDetourKm?: number;
+  }
+): AnnotatedPlace | null {
+  const limit = options.looseDetourKm ?? detourLimitKm(prefs);
+  const ranked = places
+    .filter((place) => options.kinds.includes(place.kind))
+    .filter(
+      (place) =>
+        place.alongKm >= options.windowStartKm - 8 &&
+        place.alongKm <= options.windowEndKm + 8
+    )
+    .filter((place) => place.detourKm <= limit)
+    .map((place) => ({ place, score: scorePlace(place, prefs) }));
+  ranked.sort((a, b) => b.score - a.score);
+  return ranked[0]?.place ?? null;
+}
+
+export function pickSights(
+  places: AnnotatedPlace[],
+  prefs: TripPreferences,
+  takenKm: number[],
+  driveMin: number,
+  distanceKm: number
+): AnnotatedPlace[] {
+  if (prefs.pace !== "scenic" || distanceKm <= 0) return [];
+  const chosen: AnnotatedPlace[] = [];
+  const ranked = places
+    .filter(
+      (place) => place.kind === "attraction" || place.kind === "viewpoint"
+    )
+    .filter((place) => isNamedPlace(place) && place.detourKm <= 8)
+    .sort((a, b) => scorePlace(b, prefs) - scorePlace(a, prefs));
+  for (const place of ranked) {
+    const minute = (place.alongKm / distanceKm) * driveMin;
+    if (minute < 20 || minute > driveMin - 20) continue;
+    const crowded = [...takenKm, ...chosen.map((item) => item.alongKm)].some(
+      (km) => Math.abs(km - place.alongKm) < 40
+    );
+    if (crowded) continue;
+    chosen.push(place);
+    if (chosen.length >= 2) break;
+  }
+  return chosen;
+}
+
+function scorePlace(place: AnnotatedPlace, prefs: TripPreferences): number {
+  let score = placePreferenceScore(place, prefs);
+  score += flagBias(place.flagWeights, prefs);
+  if (isNamedPlace(place)) score += 6;
+  if (place.priceAmount != null) score += 1;
+  if (place.savingsEur != null) score += place.savingsEur * 4;
+  score -= place.detourKm;
+  return score;
+}

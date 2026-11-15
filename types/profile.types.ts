@@ -1,3 +1,5 @@
+import type { TripPreferences } from "@/lib/planner/preferences";
+
 export interface Profile {
   id: string;
   /** Same as display_name. Kept so older screens keep working. */
@@ -11,4 +13,5 @@ export interface Profile {
   fuel_type: "diesel" | "petrol" | "lpg" | "electric";
   tank_capacity_liters: number | null;
   ev_range_km: number | null;
+  trip_preferences: TripPreferences | null;
 }

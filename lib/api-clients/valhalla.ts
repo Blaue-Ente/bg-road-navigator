@@ -96,19 +96,31 @@ export interface ValhallaMiss {
   outcome: UpstreamFailure;
 }
 
+export interface ValhallaCosting {
+  useHighways?: boolean;
+  useTolls?: boolean;
+}
+
 export function buildValhallaRouteBody(
-  coords: Array<{ lng: number; lat: number }>
+  coords: Array<{ lng: number; lat: number; type?: "break" | "through" }>,
+  costing?: ValhallaCosting
 ): Record<string, unknown> {
   const body: Record<string, unknown> = {
     locations: coords.map((point) => ({
       lon: point.lng,
       lat: point.lat,
-      type: "break",
+      type: point.type ?? "break",
     })),
     costing: "auto",
     units: "kilometers",
     language: "bg-BG",
   };
+  const auto: Record<string, number> = {};
+  if (costing?.useHighways === false) auto.use_highways = 0;
+  if (costing?.useTolls === false) auto.use_tolls = 0;
+  if (Object.keys(auto).length > 0) {
+    body.costing_options = { auto };
+  }
   // Valhalla only returns alternates for a single origin/destination pair.
   if (coords.length === 2) body.alternates = MAX_ALTERNATES;
   return body;
@@ -129,7 +141,8 @@ export function mapValhallaResponse(payload: unknown): RoadRoute | null {
 
 export async function fetchValhallaRoute(
   coords: Array<{ lng: number; lat: number }>,
-  config: OciGeoConfig
+  config: OciGeoConfig,
+  costing?: ValhallaCosting
 ): Promise<ValhallaAttempt | ValhallaMiss> {
   if (coords.length < 2) return { ok: false, outcome: "empty" };
   const url = `${config.baseUrl}/valhalla/route`;
@@ -140,7 +153,7 @@ export async function fetchValhallaRoute(
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildValhallaRouteBody(coords)),
+        body: JSON.stringify(buildValhallaRouteBody(coords, costing)),
         next: { revalidate: 0 },
       },
       VALHALLA_TIMEOUT_MS

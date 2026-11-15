@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
+import { resolveTripPreferences } from "@/lib/planner/preferences";
 import type { Profile } from "@/types/profile.types";
 
 function toProfile(row: typeof profiles.$inferSelect): Profile {
@@ -16,6 +17,9 @@ function toProfile(row: typeof profiles.$inferSelect): Profile {
     fuel_type: row.fuelType as Profile["fuel_type"],
     tank_capacity_liters: row.tankCapacityLiters,
     ev_range_km: row.evRangeKm,
+    trip_preferences: row.tripPreferences
+      ? resolveTripPreferences(undefined, row.tripPreferences)
+      : null,
   };
 }
 
@@ -79,6 +83,7 @@ export async function updateProfile(
     fuelType: string;
     tankCapacityLiters: number | null;
     evRangeKm: number | null;
+    tripPreferences: Profile["trip_preferences"];
   }>
 ): Promise<Profile | null> {
   const db = getDb();

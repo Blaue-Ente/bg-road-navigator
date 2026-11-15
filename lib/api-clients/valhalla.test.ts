@@ -98,6 +98,19 @@ describe("buildValhallaRouteBody", () => {
     expect(via.alternates).toBeUndefined();
     expect(via.locations).toHaveLength(3);
   });
+
+  it("passes highway and toll avoidance through to auto costing", () => {
+    const body = buildValhallaRouteBody(
+      [
+        { lng: SOFIA[0], lat: SOFIA[1] },
+        { lng: PLOVDIV[0], lat: PLOVDIV[1] },
+      ],
+      { useHighways: false, useTolls: false }
+    );
+    expect(body.costing_options).toEqual({
+      auto: { use_highways: 0, use_tolls: 0 },
+    });
+  });
 });
 
 function tripBetween(

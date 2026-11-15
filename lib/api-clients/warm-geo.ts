@@ -1,4 +1,5 @@
 import { notePhotonSuccess } from "@/lib/api-clients/photon";
+import { readPoiConfig } from "@/lib/poi/config";
 import {
   failureFromError,
   failureFromStatus,
@@ -16,6 +17,7 @@ export interface WarmGeoResult {
   reason?: "unconfigured";
   valhalla?: "ok" | UpstreamFailure;
   photon?: "ok" | UpstreamFailure;
+  poi?: "ok" | "skipped" | UpstreamFailure;
 }
 
 /** Valhalla /status plus a one-hit Photon query. The OCI key stays on the server. */
@@ -23,9 +25,13 @@ export async function warmOciGeo(): Promise<WarmGeoResult> {
   const config = readOciGeoConfig();
   if (!config) return { ok: true, warmed: false, reason: "unconfigured" };
 
-  const [valhalla, photon] = await Promise.all([
+  const poiConfig = readPoiConfig();
+  const [valhalla, photon, poi] = await Promise.all([
     ping(`${config.baseUrl}/valhalla/status`, config.apiKey),
     ping(`${config.baseUrl}/photon/api?q=Sofia&limit=1&lang=bg`, config.apiKey),
+    poiConfig
+      ? ping(`${poiConfig.baseUrl}/health`, poiConfig.apiKey)
+      : Promise.resolve("skipped" as const),
   ]);
   if (photon === "ok") notePhotonSuccess();
 
@@ -37,6 +43,7 @@ export async function warmOciGeo(): Promise<WarmGeoResult> {
     warmed: true,
     valhalla,
     photon,
+    poi,
   };
 }
 
