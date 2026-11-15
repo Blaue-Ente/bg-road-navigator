@@ -7,7 +7,9 @@ import type { Hotspot } from "@/lib/hotspots/types";
 import { presentFuelStop, type KnownAverage } from "@/lib/fuel-prices/present";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import { buildMapsHandoff, type MapStop } from "@/lib/utils/maps-handoff";
-import type { TimedStop } from "@/lib/planner/breaks";
+import type { SleepShift, TimedStop } from "@/lib/planner/breaks";
+import { formatWakeLabel, wakeAt, wallClockEta } from "@/lib/planner/breaks";
+import { formatClockDuration } from "@/lib/planner/itinerary";
 import { lineLengthKm, pointAtDistance } from "@/lib/planner/line";
 import type { CommunityScore } from "@/lib/planner/community";
 import type { ScoredBorder } from "@/lib/planner/borders";
@@ -73,6 +75,7 @@ export interface AssembleInput {
   fuelAverages: FuelCountryAverage[];
   countryAt: (lng: number, lat: number) => string | null;
   averageFor: (country: string) => KnownAverage | null;
+  sleepShifts: SleepShift[];
 }
 
 export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
@@ -83,7 +86,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       toPlanStop(stop, index, input, waitMin)
     ),
     ...(input.sights ?? []).map((sight, index) =>
-      sightStop(sight, input.merged.length + index, input)
+      sightStop(sight, input.merged.length + index, input, waitMin)
     ),
   ];
   const recommended = bestFuelAdvice(stops);
@@ -93,6 +96,14 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     input.durationMin +
     waitMin +
     (chosen?.communityPenaltyMin ?? input.community.penaltyMin);
+  const borderAlongKm = input.borderAlongKm;
+  const arriveIso = wallClockEta({
+    departAt: input.departAt,
+    drivingMin: input.durationMin,
+    extraWaitMin:
+      borderAlongKm != null ? waitMin : 0,
+    sleepShifts: input.sleepShifts,
+  }).toISOString();
 
   const warnings = [...input.warnings];
   if (stops.some((stop) => stop.kinds.includes("overnight"))) {
@@ -122,6 +133,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       distance_km: Math.round(input.distanceKm),
       duration_min: input.durationMin,
       total_min: totalMin,
+      arrive_at: arriveIso,
       routing_source: input.routingSource,
       origin: {
         label: input.origin.label,
@@ -243,11 +255,21 @@ function toPlanStop(
   const coords = attachment?.coords ?? fallback;
   const afterBorder =
     input.borderAlongKm != null && stop.distanceKm >= input.borderAlongKm - 1;
-  const clockMin = stop.etaMin + (afterBorder ? borderWaitMin : 0);
-  const eta = new Date(
-    input.departAt.getTime() + clockMin * 60_000
-  ).toISOString();
+  const wait = afterBorder ? borderWaitMin : 0;
+  const eta = wallClockEta({
+    departAt: input.departAt,
+    drivingMin: stop.etaMin,
+    extraWaitMin: wait,
+    sleepShifts: input.sleepShifts,
+  }).toISOString();
   const overnight = stop.kinds.includes("overnight");
+  const sleepShift = input.sleepShifts.find(
+    (shift) => Math.abs(shift.afterDrivingMin - stop.etaMin) < 0.5
+  );
+  const sleepMin =
+    overnight && sleepShift && sleepShift.sleepMin > 0
+      ? sleepShift.sleepMin
+      : null;
   const energy = stop.kinds.includes("charge")
     ? "charge"
     : stop.kinds.includes("fuel")
@@ -258,7 +280,14 @@ function toPlanStop(
     id: `stop-${index + 1}`,
     kinds: stop.kinds,
     title: titleFor(stop.kinds, attachment?.name ?? null),
-    reason: reasonFor(stop.kinds, attachment),
+    reason: reasonFor(
+      stop.kinds,
+      attachment,
+      stop.etaMin,
+      input.durationMin,
+      sleepMin,
+      eta
+    ),
     coords,
     distance_from_start_km: Math.round(stop.distanceKm),
     driving_min: Math.round(stop.etaMin),
@@ -280,17 +309,26 @@ function toPlanStop(
       attachment?.lodgingNote ??
       (overnight ? "Оценки на нощувките още не са налични." : null),
     stars: attachment?.stars ?? null,
+    sleep_min: sleepMin,
   };
 }
 
 function sightStop(
   sight: StopAttachment,
   index: number,
-  input: AssembleInput
+  input: AssembleInput,
+  borderWaitMin: number
 ): PlanStop {
-  const eta = new Date(
-    input.departAt.getTime() + sight.etaMin * 60_000
-  ).toISOString();
+  const eta = wallClockEta({
+    departAt: input.departAt,
+    drivingMin: sight.etaMin,
+    extraWaitMin:
+      input.borderAlongKm != null &&
+      (sight.distanceKm ?? 0) >= input.borderAlongKm - 1
+        ? borderWaitMin
+        : 0,
+    sleepShifts: input.sleepShifts,
+  }).toISOString();
   return {
     id: `stop-${index + 1}`,
     kinds: ["sight"],
@@ -387,7 +425,11 @@ function titleFor(kinds: TimedStop["kinds"], name: string | null): string {
 
 function reasonFor(
   kinds: TimedStop["kinds"],
-  attachment: StopAttachment | undefined
+  attachment: StopAttachment | undefined,
+  drivingMin: number,
+  totalDriveMin: number,
+  sleepMin: number | null,
+  arrivalIso: string
 ): string {
   const parts: string[] = [];
   if (kinds.includes("fuel") || kinds.includes("charge")) {
@@ -406,7 +448,14 @@ function reasonFor(
   } else if (kinds.includes("rest")) {
     parts.push("Почивка след около 2–2.5 часа шофиране.");
   }
-  if (kinds.includes("overnight")) {
+  if (kinds.includes("overnight") && sleepMin != null && sleepMin > 0) {
+    const wake = wakeAt(new Date(arrivalIso));
+    const wakeLabel = formatWakeLabel(wake);
+    const remaining = Math.max(0, totalDriveMin - drivingMin);
+    parts.push(
+      `Спите тук. Тръгване на следващия ден в ${wakeLabel}. Остават ${formatClockDuration(remaining)} шофиране.`
+    );
+  } else if (kinds.includes("overnight")) {
     parts.push("Тук се спи. На сутринта пътят продължава.");
   }
   if (attachment?.lodgingNote) parts.push(attachment.lodgingNote);

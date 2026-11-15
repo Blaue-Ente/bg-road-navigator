@@ -1,4 +1,6 @@
 import { countryCodeAtPoint } from "@/lib/geo/countries-along-route";
+import type { SleepShift } from "@/lib/planner/breaks";
+import { wallClockEta } from "@/lib/planner/breaks";
 import { pointAtDistance, lineLengthKm } from "@/lib/planner/line";
 import type { RouteWeather, RouteWeatherWarning } from "@/lib/planner/types";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
@@ -21,6 +23,9 @@ export async function weatherAlongRoute(input: {
   departAt: Date;
   durationMin: number;
   distanceKm: number;
+  borderAlongKm?: number | null;
+  borderWaitMin?: number;
+  sleepShifts?: SleepShift[];
   fetchImpl?: typeof fetch;
 }): Promise<RouteWeather> {
   const fetchImpl = input.fetchImpl ?? fetch;
@@ -88,16 +93,29 @@ function samplePoints(input: {
   departAt: Date;
   durationMin: number;
   distanceKm: number;
+  borderAlongKm?: number | null;
+  borderWaitMin?: number;
+  sleepShifts?: SleepShift[];
 }) {
   const geometryKm = lineLengthKm(input.line);
   if (geometryKm <= 0) return [];
   const fractions = [0, 0.35, 0.7, 1];
+  const sleepShifts = input.sleepShifts ?? [];
+  const borderWaitMin = input.borderWaitMin ?? 0;
   return fractions.map((fraction) => {
     const roadKm = input.distanceKm * fraction;
     const point = pointAtDistance(input.line, geometryKm * fraction);
-    const eta = new Date(
-      input.departAt.getTime() + fraction * input.durationMin * 60_000
-    );
+    const drivingMin = fraction * input.durationMin;
+    const wait =
+      input.borderAlongKm != null && roadKm >= input.borderAlongKm - 1
+        ? borderWaitMin
+        : 0;
+    const eta = wallClockEta({
+      departAt: input.departAt,
+      drivingMin,
+      extraWaitMin: wait,
+      sleepShifts,
+    });
     return {
       eta: eta.toISOString(),
       lat: Math.round(point.lat * 10_000) / 10_000,

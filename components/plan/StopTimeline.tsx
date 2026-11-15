@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import { readApiError } from "@/lib/client/read-api-error";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
+import { wakeAt, formatWakeLabel } from "@/lib/planner/breaks";
 import { messages as m } from "@/lib/i18n";
 import {
   PLACE_FLAG_VALUES,
@@ -91,6 +92,12 @@ export function StopTimeline({
                         {formatClockDuration(stop.driving_min)} ·{" "}
                         {formatWhen(stop.eta)}
                       </p>
+                      {stop.sleep_min != null && stop.sleep_min > 0 ? (
+                        <p className="text-sm font-medium text-[var(--waze-text)]">
+                          {m.sheet.stopWake}{" "}
+                          {formatWakeLabel(wakeAt(new Date(stop.eta)))}
+                        </p>
+                      ) : null}
                       {stop.reason &&
                       (index === 0 ||
                         stop.reason !== stops[index - 1]?.reason) ? (

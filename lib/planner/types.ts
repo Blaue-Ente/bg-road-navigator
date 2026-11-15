@@ -211,6 +211,8 @@ export interface PlanStop {
   lodging_note: string | null;
   /** OSM star class, 1–5, when the place tag says so. Null when unknown. */
   stars: number | null;
+  /** Minutes asleep after this stop; set only on the overnight anchor stop. */
+  sleep_min?: number | null;
 }
 
 export interface CommunityNote {
@@ -240,6 +242,8 @@ export interface TripPlannerResult {
     distance_km: number;
     duration_min: number;
     total_min: number;
+    /** Wall-clock arrival at destination, including overnight sleep. */
+    arrive_at?: string;
     routing_source: "valhalla" | "osrm";
     origin: { label: string; lng: number; lat: number };
     destination: { label: string; lng: number; lat: number };

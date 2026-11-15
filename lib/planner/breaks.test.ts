@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { mergeDrivingBreaks } from "@/lib/planner/breaks";
+import {
+  mergeDrivingBreaks,
+  resolveSleepShifts,
+  sleepMinutesBefore,
+  sleepShifts,
+  wakeAt,
+  wallClockEta,
+} from "@/lib/planner/breaks";
 
 describe("mergeDrivingBreaks", () => {
   it("folds a rest into a fuel stop within 30 minutes", () => {
@@ -74,5 +81,82 @@ describe("mergeDrivingBreaks", () => {
       (stop) => stop.kinds.includes("rest") && !stop.kinds.includes("overnight")
     );
     expect(rests.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe("wakeAt", () => {
+  const tz = "Europe/Sofia";
+
+  it("after 18:00 Sofia sleeps until 08:00 the next morning", () => {
+    const arrival = new Date("2026-11-16T16:00:00.000Z");
+    const wake = wakeAt(arrival, tz);
+    expect(wake.toISOString()).toBe("2026-11-17T06:00:00.000Z");
+  });
+
+  it("after 23:30 Sofia sleeps until 08:00", () => {
+    const arrival = new Date("2026-11-16T21:30:00.000Z");
+    const wake = wakeAt(arrival, tz);
+    expect(wake.toISOString()).toBe("2026-11-17T06:00:00.000Z");
+  });
+
+  it("after 05:00 Sofia waits at least eight hours", () => {
+    const arrival = new Date("2026-11-16T03:00:00.000Z");
+    const wake = wakeAt(arrival, tz);
+    expect(wake.toISOString()).toBe("2026-11-16T11:00:00.000Z");
+  });
+});
+
+describe("sleepShifts", () => {
+  it("is empty without overnight or on a short drive", () => {
+    expect(
+      sleepShifts({
+        driveMin: 540,
+        overnight: true,
+        overnightAfterMin: 630,
+        overnightAtMin: 600,
+      })
+    ).toEqual([]);
+    expect(
+      sleepShifts({
+        driveMin: 880,
+        overnight: false,
+        overnightAfterMin: 630,
+        overnightAtMin: 600,
+      })
+    ).toEqual([]);
+  });
+
+  it("locks the Berlin-shaped overnight timeline", () => {
+    const depart = new Date("2026-11-16T06:00:00.000Z");
+    const anchors = sleepShifts({
+      driveMin: 880,
+      overnight: true,
+      overnightAfterMin: 630,
+      overnightAtMin: 600,
+    });
+    expect(anchors).toHaveLength(1);
+    expect(anchors[0]!.afterDrivingMin).toBe(600);
+    const resolved = resolveSleepShifts({
+      departAt: depart,
+      shifts: anchors,
+      extraWaitMin: () => 0,
+    });
+    expect(resolved[0]!.sleepMin).toBe(14 * 60);
+    const stopArrival = wallClockEta({
+      departAt: depart,
+      drivingMin: 600,
+      extraWaitMin: 0,
+      sleepShifts: [],
+    });
+    expect(stopArrival.toISOString()).toBe("2026-11-16T16:00:00.000Z");
+    const destination = wallClockEta({
+      departAt: depart,
+      drivingMin: 880,
+      extraWaitMin: 0,
+      sleepShifts: resolved,
+    });
+    expect(destination.toISOString()).toBe("2026-11-17T10:40:00.000Z");
+    expect(sleepMinutesBefore(600, resolved)).toBe(0);
+    expect(sleepMinutesBefore(601, resolved)).toBe(14 * 60);
   });
 });
