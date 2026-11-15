@@ -141,6 +141,11 @@ export const bg = {
     community: "Сигнали по трасето",
     hazards: "Обстановка по пътя",
     hazardsUntil: "Валидно до",
+    attention: "Участък за повишено внимание",
+    onTrip: "На път",
+    endTrip: "Край на пътуването",
+    tripNeedsLocation:
+      "Включете местоположението от Профил, за да получавате предупреждения по пътя.",
     addFlag: "Добави флаг",
     favoritePlace: "Добави в любими",
     favoritedPlace: "В любими",

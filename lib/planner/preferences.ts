@@ -16,6 +16,9 @@ export const TripPreferencePatchSchema = z.object({
   depart_at: z.string().datetime().nullable().optional(),
   avoid_borders: z.array(z.string().trim().min(1).max(64)).max(12).optional(),
   preferred_border: z.string().trim().min(1).max(64).nullable().optional(),
+  location_opt_in: z.boolean().optional(),
+  notifications_opt_in: z.boolean().optional(),
+  alert_radius_m: z.number().int().min(200).max(5000).optional(),
 });
 
 export type TripPreferencePatch = z.infer<typeof TripPreferencePatchSchema>;
@@ -36,6 +39,10 @@ export interface TripPreferences {
   depart_at: string | null;
   avoid_borders: string[];
   preferred_border: string | null;
+  /** Continuous GPS for hazard alerts. Off until the person turns it on. */
+  location_opt_in: boolean;
+  notifications_opt_in: boolean;
+  alert_radius_m: number;
 }
 
 export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
@@ -54,6 +61,9 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   depart_at: null,
   avoid_borders: [],
   preferred_border: null,
+  location_opt_in: false,
+  notifications_opt_in: false,
+  alert_radius_m: 1000,
 };
 
 export interface ValhallaCosting {
@@ -147,9 +157,7 @@ export function scenicTypes(
   return prefs.pace === "scenic" ? ["attraction", "viewpoint"] : [];
 }
 
-export function childAmenityTypes(
-  prefs: TripPreferences
-): Array<"playground"> {
+export function childAmenityTypes(prefs: TripPreferences): Array<"playground"> {
   return prefs.with_children ? ["playground"] : [];
 }
 
@@ -173,7 +181,10 @@ export function placePreferenceScore(
 ): number {
   let score = 0;
   const limit = detourLimitKm(prefs);
-  if (place.detourKm > limit && (place.kind === "fuel" || place.kind === "charging")) {
+  if (
+    place.detourKm > limit &&
+    (place.kind === "fuel" || place.kind === "charging")
+  ) {
     score -= 40;
   } else if (prefs.fuel_stop === "on_route") {
     if (place.motorwayService || place.detourKm <= 0.4) score += 8;
@@ -197,10 +208,7 @@ export function placePreferenceScore(
       score += 6;
     }
     const cuisine = (place.tags.cuisine ?? "").toLowerCase();
-    if (
-      cuisine.includes("family") ||
-      tagYes(place.tags, ["family", "kids"])
-    ) {
+    if (cuisine.includes("family") || tagYes(place.tags, ["family", "kids"])) {
       score += 4;
     }
   }

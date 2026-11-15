@@ -1,6 +1,7 @@
 import type { VignetteLink } from "@/lib/constants/vignettes";
 import type { PriceBand } from "@/lib/fuel-prices/bands";
 import type { RoadHazard } from "@/lib/hazards/types";
+import type { Hotspot } from "@/lib/hotspots/types";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { GeoPoint } from "@/types/route.types";
 
@@ -108,7 +109,8 @@ export interface WhyReason {
     | "distance_delta"
     | "incident"
     | "preference"
-    | "road_hazard";
+    | "road_hazard"
+    | "attention_segment";
   title: string;
   detail: string;
   delta_min: number | null;
@@ -268,6 +270,9 @@ export interface TripPlannerResult {
   /** АПИ situations on the Bulgarian part of the route. Empty when none match. */
   road_hazards: RoadHazard[];
   road_hazard_attribution: string | null;
+  /** Clustered injury and fatal accidents on the driven line. */
+  attention_segments: Hotspot[];
+  attention_attribution: string | null;
   weather: RouteWeather;
   why_this_route: WhyReason[];
   recommended_fuel: { stop_id: string; advice: FuelAdvice } | null;

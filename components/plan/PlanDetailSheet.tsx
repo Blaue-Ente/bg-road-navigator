@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { serbiaHungaryChoices } from "@/lib/planner/border-wait-view";
@@ -10,6 +10,18 @@ import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import { formatHazardUntil, hazardsForSheet } from "@/lib/hazards/present";
+import {
+  ATTENTION_TITLE,
+  hotspotDetail,
+  hotspotsForSheet,
+} from "@/lib/hotspots/present";
+import {
+  currentLocationPreference,
+  locationPreferenceServerSnapshot,
+  locationPreferenceSnapshot,
+  subscribeLocationPreference,
+} from "@/lib/location/browser-pref";
+import { useTripSessionStore } from "@/lib/stores/trip-session.store";
 import { messages as m } from "@/lib/i18n";
 import {
   checklistStorageKey,
@@ -158,6 +170,7 @@ export function PlanDetailSheet() {
               value={formatWhen(arrival.toISOString())}
             />
           </dl>
+          <TripMode />
         </div>
 
         <div className="space-y-6 px-4 py-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
@@ -252,6 +265,73 @@ function RoadHazards({ plan }: { plan: TripPlannerResult }) {
       {plan.road_hazard_attribution && (
         <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
           {plan.road_hazard_attribution}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function TripMode() {
+  const active = useTripSessionStore((state) => state.active);
+  const start = useTripSessionStore((state) => state.start);
+  const stop = useTripSessionStore((state) => state.stop);
+  const raw = useSyncExternalStore(
+    subscribeLocationPreference,
+    locationPreferenceSnapshot,
+    locationPreferenceServerSnapshot
+  );
+  const locationOn = raw ? currentLocationPreference().location_opt_in : false;
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={() => (active ? stop() : start())}
+        className="plan-no-print rounded-full bg-[var(--waze-accent)] px-4 py-2 text-sm font-semibold text-white"
+      >
+        {active ? m.sheet.endTrip : m.sheet.onTrip}
+      </button>
+      {active && !locationOn && (
+        <p className="mt-2 text-xs text-[var(--waze-text-muted)]">
+          {m.sheet.tripNeedsLocation}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function AttentionSegments({ plan }: { plan: TripPlannerResult }) {
+  const segments = hotspotsForSheet(plan.attention_segments ?? []);
+  if (segments.length === 0) return null;
+  const hidden = (plan.attention_segments?.length ?? 0) - segments.length;
+  return (
+    <section aria-labelledby="plan-attention">
+      <h3
+        id="plan-attention"
+        className="text-base font-semibold text-[var(--waze-text)]"
+      >
+        {ATTENTION_TITLE}
+      </h3>
+      <ul className="mt-2 space-y-2">
+        {segments.map((hotspot) => (
+          <li
+            key={hotspot.id}
+            className="rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm text-[var(--waze-text)]"
+          >
+            <p className="font-medium">{m.sheet.attention}</p>
+            <p className="mt-0.5 text-[var(--waze-text-secondary)]">
+              {hotspotDetail(hotspot)}
+            </p>
+          </li>
+        ))}
+      </ul>
+      {hidden > 0 && (
+        <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
+          Още {hidden} участъка по маршрута.
+        </p>
+      )}
+      {plan.attention_attribution && (
+        <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
+          {plan.attention_attribution}
         </p>
       )}
     </section>
@@ -360,6 +440,7 @@ function DetailBody({
       </section>
 
       <RoadHazards plan={plan} />
+      <AttentionSegments plan={plan} />
 
       <section aria-labelledby="plan-border">
         <h3

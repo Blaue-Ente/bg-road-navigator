@@ -13,6 +13,9 @@ import { fuelAveragesForCountries } from "@/lib/fuel-prices/present";
 import { hazardsAlongRoute } from "@/lib/hazards/along-route";
 import { loadRoadHazards } from "@/lib/hazards/datex";
 import { hazardReason, hazardWarnings } from "@/lib/hazards/present";
+import { hotspotsAlongRoute } from "@/lib/hotspots/along-route";
+import { loadHotspots } from "@/lib/hotspots/load";
+import { hotspotReason, hotspotWarnings } from "@/lib/hotspots/present";
 import { resolveStationPrice } from "@/lib/fuel-prices/resolve";
 import type { KnownPrice } from "@/lib/fuel-prices/types";
 import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
@@ -300,6 +303,7 @@ export async function runTripPlan(input: TripPlanRequest) {
         : Promise.resolve([]),
     ]);
   const roadHazards = hazardsAlongRoute(hazardFeed, chosenLine);
+  const attentionSegments = hotspotsAlongRoute(loadHotspots(), chosenLine);
 
   const places = dedupeChargers([...corridor.places, ...chargers], chosenLine);
   const [flagRows, reportRows, officialPrices] = await Promise.all([
@@ -365,6 +369,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     warnings.push("Няма забележителности по трасето за по-спокойния ход.");
   }
   warnings.push(...hazardWarnings(roadHazards));
+  warnings.push(...hotspotWarnings(attentionSegments));
 
   const tolls = getRouteTolls({
     geometry: chosenRoute.geometry,
@@ -394,6 +399,8 @@ export async function runTripPlan(input: TripPlanRequest) {
   });
   const hazard = hazardReason(roadHazards);
   if (hazard) why.push(hazard);
+  const attention = hotspotReason(attentionSegments);
+  if (attention) why.push(attention);
 
   return assembleTripPlan({
     now,
@@ -438,6 +445,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       return row ? { price: row.price, week: row.week } : null;
     },
     roadHazards,
+    attentionSegments,
     why,
   });
 }

@@ -11,6 +11,7 @@ import { FavoritesPanel } from "@/components/profile/FavoritesPanel";
 import { SavedRoutesPanel } from "@/components/profile/SavedRoutesPanel";
 import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
 import { UserServicesPanel } from "@/components/setup/UserServicesPanel";
+import { LocationSettings } from "@/components/location/LocationSettings";
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
 import { PRODUCT_NAME } from "@/lib/constants/brand";
 import { signOut } from "@/lib/auth/sign-out";
@@ -42,6 +43,8 @@ export default function ProfilePage() {
           title="Профил"
           subtitle="Любими, запазени маршрути и настройки на превозното средство"
         />
+
+        <LocationSettings />
 
         <RequireAuth reason="Влезте, за да видите профила, любимите и запазените маршрути.">
           <WazeCard>

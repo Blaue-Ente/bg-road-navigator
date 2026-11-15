@@ -12,6 +12,8 @@ import { CommunityPins } from "@/components/map/CommunityPins";
 import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
 import { PlanMarkers } from "@/components/map/PlanMarkers";
+import { HotspotLayer } from "@/components/map/HotspotLayer";
+import { TripProximity } from "@/components/location/TripProximity";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
@@ -111,6 +113,8 @@ export function MapExperience() {
         </>
       )}
       <PlanMarkers map={mapInstance} />
+      <HotspotLayer map={mapInstance} />
+      <TripProximity />
       <UserLocationMarker map={mapInstance} />
     </div>
   );

@@ -125,6 +125,8 @@ function fakePlan(): TripPlannerResult {
     },
     road_hazards: [],
     road_hazard_attribution: null,
+    attention_segments: [],
+    attention_attribution: null,
     weather: { segments: [], warnings: [], attribution: "" },
     why_this_route: [
       {

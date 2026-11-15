@@ -3,7 +3,14 @@
  */
 
 export type LayerKey =
-  "traffic" | "fuel" | "ev" | "community" | "borders" | "rest" | "cameras";
+  | "traffic"
+  | "fuel"
+  | "ev"
+  | "community"
+  | "borders"
+  | "rest"
+  | "cameras"
+  | "hotspots";
 
 export interface MapLayer {
   key: LayerKey;
@@ -20,6 +27,12 @@ export const MAP_LAYERS: MapLayer[] = [
   { key: "ev", label_bg: "EV зарядни", visible: false, toggleable: true },
   { key: "rest", label_bg: "Почивки", visible: false, toggleable: true },
   { key: "cameras", label_bg: "Камери", visible: false, toggleable: true },
+  {
+    key: "hotspots",
+    label_bg: "Повишено внимание",
+    visible: true,
+    toggleable: true,
+  },
 ];
 
 export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {
@@ -30,4 +43,5 @@ export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {
   ev: false,
   rest: false,
   cameras: false,
+  hotspots: true,
 };

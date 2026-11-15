@@ -2,6 +2,8 @@ import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links"
 import { fillLiters } from "@/lib/fuel-prices/advice";
 import { DATEX_ATTRIBUTION } from "@/lib/hazards/present";
 import type { RoadHazard } from "@/lib/hazards/types";
+import { hotspotAttribution } from "@/lib/hotspots/present";
+import type { Hotspot } from "@/lib/hotspots/types";
 import { presentFuelStop, type KnownAverage } from "@/lib/fuel-prices/present";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import { buildMapsHandoff, type MapStop } from "@/lib/utils/maps-handoff";
@@ -66,6 +68,7 @@ export interface AssembleInput {
   weather: RouteWeather;
   why: WhyReason[];
   roadHazards?: RoadHazard[];
+  attentionSegments?: Hotspot[];
   sights?: StopAttachment[];
   fuelAverages: FuelCountryAverage[];
   countryAt: (lng: number, lat: number) => string | null;
@@ -170,6 +173,8 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     road_hazards: input.roadHazards ?? [],
     road_hazard_attribution:
       (input.roadHazards?.length ?? 0) > 0 ? DATEX_ATTRIBUTION : null,
+    attention_segments: input.attentionSegments ?? [],
+    attention_attribution: hotspotAttribution(input.attentionSegments ?? []),
     recommended_fuel: recommended,
   };
 }
