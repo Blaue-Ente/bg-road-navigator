@@ -1,5 +1,6 @@
 import type { VignetteLink } from "@/lib/constants/vignettes";
 import type { PriceBand } from "@/lib/fuel-prices/bands";
+import type { RoadHazard } from "@/lib/hazards/types";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { GeoPoint } from "@/types/route.types";
 
@@ -54,12 +55,24 @@ export interface ChecklistItem {
   link_label?: string | null;
 }
 
+export interface SafetyNote {
+  id: string;
+  kind: "law" | "advice";
+  title: string;
+  detail: string;
+}
+
 export interface PlanChecklist {
   vignettes: ChecklistItem[];
   toll_sections: ChecklistItem[];
   documents: ChecklistItem[];
   winter: ChecklistItem[];
   kit: ChecklistItem[];
+  /** Bulgarian rules. Empty when the route does not enter Bulgaria. */
+  safety: SafetyNote[];
+  safety_closing: string | null;
+  /** Official pages for the Bulgarian part of the trip. No scraping. */
+  bg_links: ChecklistItem[];
 }
 
 export interface RouteWeatherSegment {
@@ -90,7 +103,12 @@ export interface RouteWeather {
 
 export interface WhyReason {
   code:
-    "border_wait" | "time_delta" | "distance_delta" | "incident" | "preference";
+    | "border_wait"
+    | "time_delta"
+    | "distance_delta"
+    | "incident"
+    | "preference"
+    | "road_hazard";
   title: string;
   detail: string;
   delta_min: number | null;
@@ -141,10 +159,7 @@ export interface BorderChoice {
   total_min: number;
   chosen: boolean;
   reason_code:
-    | "lowest_total"
-    | "slower_than_best"
-    | "preferred"
-    | "serbia_hungary";
+    "lowest_total" | "slower_than_best" | "preferred" | "serbia_hungary";
   reason: string;
   wait: WaitEstimate;
 }
@@ -250,6 +265,9 @@ export interface TripPlannerResult {
   preferences: TripPreferences;
   attribution: OsmAttribution;
   checklist: PlanChecklist;
+  /** АПИ situations on the Bulgarian part of the route. Empty when none match. */
+  road_hazards: RoadHazard[];
+  road_hazard_attribution: string | null;
   weather: RouteWeather;
   why_this_route: WhyReason[];
   recommended_fuel: { stop_id: string; advice: FuelAdvice } | null;

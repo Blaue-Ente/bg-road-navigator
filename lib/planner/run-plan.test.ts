@@ -1,4 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/hazards/datex", () => ({
+  loadRoadHazards: async () => [],
+}));
 import { clearOsmMemoryCacheForTests } from "@/lib/nakordoni/cache-store";
 import { clearAveragesForTests } from "@/lib/fuel-prices/national-store";
 import { runTripPlan } from "@/lib/planner/run-plan";
@@ -77,18 +81,33 @@ describe("runTripPlan", () => {
       href: "https://www.openstreetmap.org/copyright",
     });
     expect(plan?.preferences.avoid_motorways).toBe(true);
-    expect(plan?.checklist.vignettes.some((item) => item.country_code === "BG")).toBe(
-      true
-    );
+    expect(
+      plan?.checklist.vignettes.some((item) => item.country_code === "BG")
+    ).toBe(true);
     expect(plan?.checklist.winter.length).toBeGreaterThan(0);
     expect(plan?.checklist.kit.length).toBeGreaterThan(0);
     expect(plan?.weather.segments).toHaveLength(4);
-    expect(plan?.why_this_route.some((reason) => reason.code === "preference")).toBe(
+    expect(
+      plan?.why_this_route.some((reason) => reason.code === "preference")
+    ).toBe(true);
+    expect(plan?.warnings.some((warning) => warning.includes("OSRM"))).toBe(
       true
     );
-    expect(plan?.warnings.some((warning) => warning.includes("OSRM"))).toBe(true);
+    expect(plan?.checklist.safety_closing).toBe(
+      "Пазете себе си и другите на пътя."
+    );
+    expect(plan?.checklist.safety.some((item) => item.kind === "law")).toBe(
+      true
+    );
+    expect(plan?.checklist.safety.some((item) => item.kind === "advice")).toBe(
+      true
+    );
+    expect(plan?.road_hazards).toEqual([]);
+    expect(seen.some((url) => url.includes("datasheet.api.bg"))).toBe(false);
     expect(seen.some((url) => url.includes("overpass"))).toBe(false);
     expect(seen.some((url) => url.includes("police.hu"))).toBe(false);
-    expect(seen.filter((url) => url.includes("/route/v1/driving/"))).toHaveLength(1);
+    expect(
+      seen.filter((url) => url.includes("/route/v1/driving/"))
+    ).toHaveLength(1);
   });
 });

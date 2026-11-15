@@ -10,6 +10,9 @@ import { listValidFuelReports } from "@/lib/db/fuel-reports";
 import { listPlaceFlags } from "@/lib/db/place-flags";
 import { readLatestAverageDetails } from "@/lib/fuel-prices/national-store";
 import { fuelAveragesForCountries } from "@/lib/fuel-prices/present";
+import { hazardsAlongRoute } from "@/lib/hazards/along-route";
+import { loadRoadHazards } from "@/lib/hazards/datex";
+import { hazardReason, hazardWarnings } from "@/lib/hazards/present";
 import { resolveStationPrice } from "@/lib/fuel-prices/resolve";
 import type { KnownPrice } from "@/lib/fuel-prices/types";
 import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
@@ -212,7 +215,12 @@ export async function runTripPlan(input: TripPlanRequest) {
           ? false
           : isCrossingLicensed(candidate.id),
         trafficDelayMin: traffic.get(candidate.id) ?? null,
-        hatarinfo: hatarinfoFor(hatarinfo, candidate.id, input.origin.coords, input.destination.coords),
+        hatarinfo: hatarinfoFor(
+          hatarinfo,
+          candidate.id,
+          input.origin.coords,
+          input.destination.coords
+        ),
       }),
       communityPenaltyMin: community.penaltyMin,
     });
@@ -240,7 +248,10 @@ export async function runTripPlan(input: TripPlanRequest) {
       driveMin: chosenRoute.duration_min,
       distanceKm: chosenRoute.distance_km,
     });
-    if (attached && !borders.some((border) => border.borderId === attached.borderId)) {
+    if (
+      attached &&
+      !borders.some((border) => border.borderId === attached.borderId)
+    ) {
       borders = [...borders, attached];
     }
   }
@@ -261,29 +272,34 @@ export async function runTripPlan(input: TripPlanRequest) {
       ? input.vehicle.fuel_type
       : null;
 
-  const [corridor, weather, averageDetails, chargers] = await Promise.all([
-    loadCorridorPlaces({
-      line: chosenLine,
-      extraTypes: [...scenicTypes(prefs), ...childAmenityTypes(prefs)],
-    }),
-    weatherAlongRoute({
-      line: chosenLine,
-      departAt: input.departAt,
-      durationMin: chosenRoute.duration_min,
-      distanceKm: roadKm,
-    }),
-    bulletinFuel
-      ? readLatestAverageDetails(countries, bulletinFuel)
-      : Promise.resolve(
-          new Map<
-            string,
-            { price: number; week: string; source: "ec-oil-bulletin" }
-          >()
-        ),
-    input.vehicle.energy === "charge"
-      ? chargersAlong(chosenLine, geometryKm)
-      : Promise.resolve([] as CorridorPlace[]),
-  ]);
+  const [corridor, weather, averageDetails, chargers, hazardFeed] =
+    await Promise.all([
+      loadCorridorPlaces({
+        line: chosenLine,
+        extraTypes: [...scenicTypes(prefs), ...childAmenityTypes(prefs)],
+      }),
+      weatherAlongRoute({
+        line: chosenLine,
+        departAt: input.departAt,
+        durationMin: chosenRoute.duration_min,
+        distanceKm: roadKm,
+      }),
+      bulletinFuel
+        ? readLatestAverageDetails(countries, bulletinFuel)
+        : Promise.resolve(
+            new Map<
+              string,
+              { price: number; week: string; source: "ec-oil-bulletin" }
+            >()
+          ),
+      input.vehicle.energy === "charge"
+        ? chargersAlong(chosenLine, geometryKm)
+        : Promise.resolve([] as CorridorPlace[]),
+      countries.includes("BG")
+        ? loadRoadHazards(now.getTime())
+        : Promise.resolve([]),
+    ]);
+  const roadHazards = hazardsAlongRoute(hazardFeed, chosenLine);
 
   const places = dedupeChargers([...corridor.places, ...chargers], chosenLine);
   const [flagRows, reportRows, officialPrices] = await Promise.all([
@@ -348,12 +364,36 @@ export async function runTripPlan(input: TripPlanRequest) {
   if (prefs.pace === "scenic" && sights.length === 0) {
     warnings.push("Няма забележителности по трасето за по-спокойния ход.");
   }
+  warnings.push(...hazardWarnings(roadHazards));
 
   const tolls = getRouteTolls({
     geometry: chosenRoute.geometry,
     origin: { coords: input.origin.coords },
     destination: { coords: input.destination.coords },
   });
+  const why = whyThisRoute({
+    borders: borders
+      .filter((border) => border.reasonCode !== "serbia_hungary")
+      .map((border) => ({
+        chosen: border.chosen,
+        nameBg: border.nameBg,
+        totalMin: border.totalMin,
+        waitMinutes: border.wait.minutes,
+        driveMin: border.driveMin,
+        distanceKm: border.distanceKm,
+      })),
+    directDurationMin: direct.duration_min,
+    directDistanceKm: direct.distance_km,
+    chosenDurationMin: chosenRoute.duration_min,
+    chosenDistanceKm: roadKm,
+    incidents: community.notes.map((note) => ({
+      title: note.title,
+      penaltyMin: note.penalty_min,
+    })),
+    preferences: prefs,
+  });
+  const hazard = hazardReason(roadHazards);
+  if (hazard) why.push(hazard);
 
   return assembleTripPlan({
     now,
@@ -397,27 +437,8 @@ export async function runTripPlan(input: TripPlanRequest) {
       const row = averageDetails.get(country);
       return row ? { price: row.price, week: row.week } : null;
     },
-    why: whyThisRoute({
-      borders: borders
-        .filter((border) => border.reasonCode !== "serbia_hungary")
-        .map((border) => ({
-        chosen: border.chosen,
-        nameBg: border.nameBg,
-        totalMin: border.totalMin,
-        waitMinutes: border.wait.minutes,
-        driveMin: border.driveMin,
-        distanceKm: border.distanceKm,
-      })),
-      directDurationMin: direct.duration_min,
-      directDistanceKm: direct.distance_km,
-      chosenDurationMin: chosenRoute.duration_min,
-      chosenDistanceKm: roadKm,
-      incidents: community.notes.map((note) => ({
-        title: note.title,
-        penaltyMin: note.penalty_min,
-      })),
-      preferences: prefs,
-    }),
+    roadHazards,
+    why,
   });
 }
 
@@ -584,7 +605,8 @@ async function borderTraffic(
   const apiKey = process.env.TOMTOM_API_KEY?.trim();
   const targets = candidates.filter(
     (candidate) =>
-      !isCrossingLicensed(candidate.id) || isHungarySerbiaPlannerId(candidate.id)
+      !isCrossingLicensed(candidate.id) ||
+      isHungarySerbiaPlannerId(candidate.id)
   );
   if (!apiKey || targets.length === 0) return new Map();
   const rows = await Promise.all(

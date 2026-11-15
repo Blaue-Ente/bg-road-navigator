@@ -139,6 +139,8 @@ export const bg = {
     basisCommunity: "общностна база",
     noRatings: "Оценки още не са налични.",
     community: "Сигнали по трасето",
+    hazards: "Обстановка по пътя",
+    hazardsUntil: "Валидно до",
     addFlag: "Добави флаг",
     favoritePlace: "Добави в любими",
     favoritedPlace: "В любими",

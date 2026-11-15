@@ -37,9 +37,16 @@ describe("plan checklist", () => {
       "TR",
     ]);
     expect(checklist.documents.map((item) => item.id)).toEqual(
-      expect.arrayContaining(["tr-documents", "pet-passport", "child-seat", "mfa-advice"])
+      expect.arrayContaining([
+        "tr-documents",
+        "pet-passport",
+        "child-seat",
+        "mfa-advice",
+      ])
     );
-    expect(checklist.documents.find((item) => item.id === "mfa-advice")).toMatchObject({
+    expect(
+      checklist.documents.find((item) => item.id === "mfa-advice")
+    ).toMatchObject({
       href: "https://www.mfa.bg/bg/uslugi-patuvania/konsulski-uslugi/patuvane-chujbina",
       link_label: "Съвети за пътуване",
     });
@@ -72,5 +79,47 @@ describe("plan checklist", () => {
     expect(
       checklist.winter.find((item) => item.country_code === "BG")?.detail
     ).toContain("Извън обичайния сезон");
+  });
+
+  it("shows the Bulgaria safety block only when the route enters Bulgaria", () => {
+    const through = buildChecklist({
+      countries: ["DE", "BG"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [],
+    });
+    expect(
+      through.safety.filter((item) => item.kind === "law").length
+    ).toBeGreaterThan(0);
+    expect(
+      through.safety
+        .filter((item) => item.kind === "advice")
+        .map((item) => item.detail)
+    ).toEqual(["Почивайте около всеки 2 часа."]);
+    expect(through.safety_closing).toBe("Пазете себе си и другите на пътя.");
+    expect(through.safety.map((item) => item.detail).join(" ")).toContain(
+      "0,5‰"
+    );
+    expect(through.safety.map((item) => item.detail).join(" ")).toContain(
+      "150 см"
+    );
+    expect(through.bg_links.map((item) => item.href)).toEqual([
+      "https://www.sars.gov.bg/uchastatsi-s-kontsentratsia-na-patnotransportni-proizshestvia-ukptp/",
+      "https://traffic.api.bg/",
+    ]);
+
+    const abroad = buildChecklist({
+      countries: ["DE", "AT"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [],
+    });
+    expect(abroad.safety).toEqual([]);
+    expect(abroad.safety_closing).toBeNull();
+    expect(abroad.bg_links).toEqual([]);
   });
 });

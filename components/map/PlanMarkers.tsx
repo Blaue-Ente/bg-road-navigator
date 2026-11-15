@@ -4,10 +4,19 @@ import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
+import { DATEX_ATTRIBUTION, formatHazardUntil } from "@/lib/hazards/present";
+import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
 import { messages as m } from "@/lib/i18n";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useRouteStore } from "@/lib/stores/route.store";
 import type { PlanStop, StopKind } from "@/lib/planner/types";
+
+const HAZARD_COLOR: Record<RoadHazardKind, string> = {
+  roadworks: "#d97706",
+  closed: "#b91c1c",
+  danger: "#c2410c",
+  conditions: "#1d4ed8",
+};
 
 const KIND_COLOR: Record<StopKind, string> = {
   overnight: "#6d28d9",
@@ -41,6 +50,9 @@ export function PlanMarkers({ map }: { map: Map | null }) {
         )
       );
     }
+    for (const hazard of plan.road_hazards ?? []) {
+      markers.push(hazardMarker(map, hazard));
+    }
     const border = plan.border.chosen;
     if (border) {
       markers.push(
@@ -65,6 +77,47 @@ export function PlanMarkers({ map }: { map: Map | null }) {
   }, [map, plan, focusedStopId]);
 
   return null;
+}
+
+function hazardMarker(map: Map, hazard: RoadHazard): maplibregl.Marker {
+  const where = hazard.road_km_bg
+    ? `${hazard.label_bg} · ${hazard.road_km_bg}`
+    : hazard.label_bg;
+  const until = formatHazardUntil(hazard.valid_until);
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "flex h-8 w-8 items-center justify-center";
+  el.setAttribute("aria-label", `${where}. ${hazard.text_bg}`);
+  const diamond = document.createElement("span");
+  diamond.className = "block h-3 w-3 rotate-45 border-2 border-white shadow";
+  diamond.style.background = HAZARD_COLOR[hazard.kind];
+  el.append(diamond);
+
+  const popup = document.createElement("div");
+  popup.className = "max-w-xs text-sm";
+  const title = document.createElement("p");
+  title.className = "font-semibold";
+  title.textContent = where;
+  const body = document.createElement("p");
+  body.textContent = hazard.text_bg;
+  popup.append(title, body);
+  if (until) {
+    const line = document.createElement("p");
+    line.textContent = `${m.sheet.hazardsUntil} ${until}`;
+    popup.append(line);
+  }
+  const source = document.createElement("p");
+  source.textContent = DATEX_ATTRIBUTION;
+  popup.append(source);
+
+  return new maplibregl.Marker({ element: el })
+    .setLngLat([hazard.lng, hazard.lat])
+    .setPopup(
+      new maplibregl.Popup({ offset: 16, closeButton: true }).setDOMContent(
+        popup
+      )
+    )
+    .addTo(map);
 }
 
 function colorFor(stop: PlanStop): string {

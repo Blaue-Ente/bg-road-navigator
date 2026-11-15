@@ -1,5 +1,7 @@
 import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
 import { fillLiters } from "@/lib/fuel-prices/advice";
+import { DATEX_ATTRIBUTION } from "@/lib/hazards/present";
+import type { RoadHazard } from "@/lib/hazards/types";
 import { presentFuelStop, type KnownAverage } from "@/lib/fuel-prices/present";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import { buildMapsHandoff, type MapStop } from "@/lib/utils/maps-handoff";
@@ -63,6 +65,7 @@ export interface AssembleInput {
   checklist: PlanChecklist;
   weather: RouteWeather;
   why: WhyReason[];
+  roadHazards?: RoadHazard[];
   sights?: StopAttachment[];
   fuelAverages: FuelCountryAverage[];
   countryAt: (lng: number, lat: number) => string | null;
@@ -164,6 +167,9 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     checklist: input.checklist,
     weather: input.weather,
     why_this_route: input.why,
+    road_hazards: input.roadHazards ?? [],
+    road_hazard_attribution:
+      (input.roadHazards?.length ?? 0) > 0 ? DATEX_ATTRIBUTION : null,
     recommended_fuel: recommended,
   };
 }
@@ -198,8 +204,12 @@ function borderNote(borders: ScoredBorder[]): string {
   if (borders.length === 0) {
     return "Няма български граничен пункт между тези две точки. Маршрутът е директният.";
   }
-  const extra = borders.find((border) => border.reasonCode === "serbia_hungary");
-  const compared = borders.filter((border) => border.reasonCode !== "serbia_hungary");
+  const extra = borders.find(
+    (border) => border.reasonCode === "serbia_hungary"
+  );
+  const compared = borders.filter(
+    (border) => border.reasonCode !== "serbia_hungary"
+  );
   if (
     compared.length > 0 &&
     compared.every((border) => isHungarySerbiaPlannerId(border.borderId))

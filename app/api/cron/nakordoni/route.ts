@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { loadHatarinfo } from "@/lib/borders/hatarinfo";
+import { loadDatexSnapshot } from "@/lib/hazards/datex";
 import { refreshNakordoniCache } from "@/lib/nakordoni/refresh";
 import { authorizeCron } from "@/lib/server/cron-auth";
 
@@ -25,18 +26,34 @@ async function handle(request: Request) {
     );
   }
   const hatarinfoPromise = refreshHatarinfo();
+  const datexPromise = refreshDatex();
   try {
     const report = await refreshNakordoniCache();
-    const hatarinfo = await hatarinfoPromise;
+    const [hatarinfo, datex] = await Promise.all([
+      hatarinfoPromise,
+      datexPromise,
+    ]);
     const status = report.skipped === "migration_required" ? 503 : 200;
-    return NextResponse.json({ ...report, hatarinfo }, { status });
+    return NextResponse.json({ ...report, hatarinfo, datex }, { status });
   } catch (error) {
-    await hatarinfoPromise;
+    await Promise.all([hatarinfoPromise, datexPromise]);
     console.error("Nakordoni refresh failed:", error);
     return NextResponse.json(
       { error: "Nakordoni refresh failed", code: "NAKORDONI_REFRESH_FAILED" },
       { status: 500 }
     );
+  }
+}
+
+async function refreshDatex(): Promise<{ ok: boolean; situations: number }> {
+  try {
+    const snapshot = await loadDatexSnapshot();
+    return {
+      ok: snapshot != null,
+      situations: snapshot?.situations.length ?? 0,
+    };
+  } catch {
+    return { ok: false, situations: 0 };
   }
 }
 

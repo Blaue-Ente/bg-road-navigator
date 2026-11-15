@@ -119,7 +119,12 @@ function fakePlan(): TripPlannerResult {
       documents: [],
       winter: [],
       kit: [],
+      safety: [],
+      safety_closing: null,
+      bg_links: [],
     },
+    road_hazards: [],
+    road_hazard_attribution: null,
     weather: { segments: [], warnings: [], attribution: "" },
     why_this_route: [
       {

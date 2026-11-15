@@ -9,6 +9,7 @@ import { PlanChecklist } from "@/components/plan/PlanChecklist";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
+import { formatHazardUntil, hazardsForSheet } from "@/lib/hazards/present";
 import { messages as m } from "@/lib/i18n";
 import {
   checklistStorageKey,
@@ -213,6 +214,50 @@ export function PlanDetailSheet() {
   );
 }
 
+function RoadHazards({ plan }: { plan: TripPlannerResult }) {
+  const hazards = hazardsForSheet(plan.road_hazards ?? []);
+  if (hazards.length === 0) return null;
+  return (
+    <section aria-labelledby="plan-hazards">
+      <h3
+        id="plan-hazards"
+        className="text-base font-semibold text-[var(--waze-text)]"
+      >
+        {m.sheet.hazards}
+      </h3>
+      <ul className="mt-2 space-y-2">
+        {hazards.map((hazard) => {
+          const until = formatHazardUntil(hazard.valid_until);
+          return (
+            <li
+              key={hazard.id}
+              className="rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm text-[var(--waze-text)]"
+            >
+              <p className="font-medium">
+                {hazard.label_bg}
+                {hazard.road_km_bg ? ` · ${hazard.road_km_bg}` : ""}
+              </p>
+              <p className="mt-0.5 text-[var(--waze-text-secondary)]">
+                {hazard.text_bg}
+              </p>
+              {until && (
+                <p className="mt-1 text-[11px] text-[var(--waze-text-muted)]">
+                  {m.sheet.hazardsUntil} {until}
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {plan.road_hazard_attribution && (
+        <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
+          {plan.road_hazard_attribution}
+        </p>
+      )}
+    </section>
+  );
+}
+
 function DetailBody({
   plan,
   summary,
@@ -313,6 +358,8 @@ function DetailBody({
           </p>
         )}
       </section>
+
+      <RoadHazards plan={plan} />
 
       <section aria-labelledby="plan-border">
         <h3

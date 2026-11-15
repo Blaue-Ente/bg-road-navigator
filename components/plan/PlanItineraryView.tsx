@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
+import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
 import { messages as m } from "@/lib/i18n";
 import {
   borderWaitView,
@@ -293,12 +294,21 @@ function borderShareLine(plan: TripPlannerResult): string {
 }
 
 function checklistItems(plan: TripPlannerResult): ChecklistItem[] {
+  const safety = (plan.checklist.safety ?? []).map((item) => ({
+    id: item.id,
+    title: `${item.kind === "law" ? BG_ROAD_SAFETY.law_label : BG_ROAD_SAFETY.advice_label}: ${item.title}`,
+    detail: item.detail,
+    country_code: "BG" as const,
+    href: null,
+  }));
   return [
     ...plan.checklist.vignettes,
     ...plan.checklist.toll_sections,
     ...plan.checklist.documents,
     ...plan.checklist.winter,
     ...plan.checklist.kit,
+    ...safety,
+    ...(plan.checklist.bg_links ?? []),
   ];
 }
 
