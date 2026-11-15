@@ -6,6 +6,8 @@ import { useUserStore } from "@/lib/stores/user.store";
 import type { Profile } from "@/types/profile.types";
 import { authClient } from "@/lib/auth-client";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { LocaleProvider } from "@/components/i18n/LocaleProvider";
+import type { Locale } from "@/lib/i18n/locale";
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const setSession = useUserStore((s) => s.setSession);
@@ -51,12 +53,20 @@ const queryClient = new QueryClient({
   },
 });
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthInitializer>{children}</AuthInitializer>
-      </ThemeProvider>
+      <LocaleProvider initialLocale={initialLocale}>
+        <ThemeProvider>
+          <AuthInitializer>{children}</AuthInitializer>
+        </ThemeProvider>
+      </LocaleProvider>
     </QueryClientProvider>
   );
 }

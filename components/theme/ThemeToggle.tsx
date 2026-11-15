@@ -1,15 +1,15 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useThemeStore } from "@/lib/stores/theme.store";
 
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const scheme = useThemeStore((s) => s.scheme);
   const toggleScheme = useThemeStore((s) => s.toggleScheme);
+  const m = useMessages();
   const isDark = scheme === "dark";
-  const ariaLabel = isDark
-    ? "Сега: тъмна. Превключи към светла"
-    : "Сега: светла. Превключи към тъмна";
+  const ariaLabel = isDark ? m.theme.toLight : m.theme.toDark;
 
   return (
     <button

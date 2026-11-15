@@ -29,7 +29,7 @@ import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
-import { messages as m } from "@/lib/i18n";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { committedPlace } from "@/lib/route/place-commit";
 import { applyPlanRouteOptions } from "@/components/plan/RouteChoiceCards";
 import type { TripPlannerResult } from "@/lib/planner/types";
@@ -71,6 +71,7 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 }
 
 export default function RoutePage() {
+  const m = useMessages();
   const router = useRouter();
   const {
     activeRoute,
