@@ -96,6 +96,26 @@ describe("runTripPlan", () => {
     expect(plan?.checklist.safety_closing).toBe(
       "Пазете себе си и другите на пътя."
     );
+
+    const trPlan = await runTripPlan({
+      origin: { label: "София", coords: SOFIA, countryCode: "BG" },
+      destination: { label: "Пловдив", coords: PLOVDIV, countryCode: "BG" },
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      vehicle: resolveVehicle({ fuel_type: "diesel" }),
+      fromProfile: false,
+      preferences: { ...DEFAULT_TRIP_PREFERENCES, avoid_motorways: true },
+      locale: "tr",
+    });
+    expect(
+      trPlan?.why_this_route.some(
+        (r) =>
+          r.code === "preference" &&
+          (r.title.includes("Otoyolsuz") || r.detail.includes("Otoyolsuz"))
+      )
+    ).toBe(true);
+    expect(trPlan?.checklist.safety_closing).not.toBe(
+      "Пазете себе си и другите на пътя."
+    );
     expect(plan?.checklist.safety.some((item) => item.kind === "law")).toBe(
       true
     );
@@ -108,6 +128,6 @@ describe("runTripPlan", () => {
     expect(seen.some((url) => url.includes("police.hu"))).toBe(false);
     expect(
       seen.filter((url) => url.includes("/route/v1/driving/"))
-    ).toHaveLength(1);
+    ).toHaveLength(2);
   });
 });

@@ -16,6 +16,8 @@ import type {
   RoadRoute,
   RoadRouteAlternative,
 } from "@/lib/api-clients/road-route";
+import type { Locale } from "@/lib/i18n/locale";
+import { valhallaLanguage } from "@/lib/i18n/locale";
 import { maneuverInstructionBg } from "@/lib/utils/maneuvers";
 import type { RouteManeuver } from "@/types/route.types";
 
@@ -103,7 +105,8 @@ export interface ValhallaCosting {
 
 export function buildValhallaRouteBody(
   coords: Array<{ lng: number; lat: number; type?: "break" | "through" }>,
-  costing?: ValhallaCosting
+  costing?: ValhallaCosting,
+  locale: Locale = "bg"
 ): Record<string, unknown> {
   const body: Record<string, unknown> = {
     locations: coords.map((point) => ({
@@ -113,7 +116,7 @@ export function buildValhallaRouteBody(
     })),
     costing: "auto",
     units: "kilometers",
-    language: "bg-BG",
+    language: valhallaLanguage(locale),
   };
   const auto: Record<string, number> = {};
   if (costing?.useHighways === false) auto.use_highways = 0;
@@ -126,13 +129,16 @@ export function buildValhallaRouteBody(
   return body;
 }
 
-export function mapValhallaResponse(payload: unknown): RoadRoute | null {
+export function mapValhallaResponse(
+  payload: unknown,
+  locale: Locale = "bg"
+): RoadRoute | null {
   if (!payload || typeof payload !== "object") return null;
   const data = payload as ValhallaResponse;
-  const primary = mapTrip(data.trip);
+  const primary = mapTrip(data.trip, locale);
   if (!primary) return null;
   const alternatives = (data.alternates ?? [])
-    .map((item) => mapTrip(unwrapTrip(item)))
+    .map((item) => mapTrip(unwrapTrip(item), locale))
     .filter((route): route is RoadRoute => route != null)
     .slice(0, MAX_ALTERNATES)
     .map((route, index) => toAlternative(route, index));
@@ -142,7 +148,8 @@ export function mapValhallaResponse(payload: unknown): RoadRoute | null {
 export async function fetchValhallaRoute(
   coords: Array<{ lng: number; lat: number }>,
   config: OciGeoConfig,
-  costing?: ValhallaCosting
+  costing?: ValhallaCosting,
+  locale: Locale = "bg"
 ): Promise<ValhallaAttempt | ValhallaMiss> {
   if (coords.length < 2) return { ok: false, outcome: "empty" };
   const url = `${config.baseUrl}/valhalla/route`;
@@ -153,7 +160,7 @@ export async function fetchValhallaRoute(
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildValhallaRouteBody(coords, costing)),
+        body: JSON.stringify(buildValhallaRouteBody(coords, costing, locale)),
         next: { revalidate: 0 },
       },
       VALHALLA_TIMEOUT_MS
@@ -161,7 +168,7 @@ export async function fetchValhallaRoute(
     if (!response.ok || response.status >= 300) {
       return { ok: false, outcome: failureFromStatus(response.status) };
     }
-    const route = mapValhallaResponse(await response.json());
+    const route = mapValhallaResponse(await response.json(), locale);
     if (!route) return { ok: false, outcome: "empty" };
     return { ok: true, route };
   } catch (error) {
@@ -177,7 +184,10 @@ function unwrapTrip(item: unknown): ValhallaTrip | undefined {
   return undefined;
 }
 
-function mapTrip(trip: ValhallaTrip | undefined): RoadRoute | null {
+function mapTrip(
+  trip: ValhallaTrip | undefined,
+  locale: Locale = "bg"
+): RoadRoute | null {
   if (!trip) return null;
   if (typeof trip.status === "number" && trip.status !== 0) return null;
   const legs = trip.legs ?? [];
@@ -193,7 +203,7 @@ function mapTrip(trip: ValhallaTrip | undefined): RoadRoute | null {
     appendShape(coordinates, shape);
     if (maneuvers.length >= MAX_MANEUVERS) continue;
     for (const maneuver of leg.maneuvers ?? []) {
-      const mapped = toManeuver(maneuver, shape, toKm);
+      const mapped = toManeuver(maneuver, shape, toKm, locale);
       if (!mapped) continue;
       maneuvers.push(mapped);
       if (maneuvers.length >= MAX_MANEUVERS) break;
@@ -233,7 +243,8 @@ function toAlternative(route: RoadRoute, index: number): RoadRouteAlternative {
 function toManeuver(
   maneuver: ValhallaManeuver,
   shape: Array<[number, number]>,
-  toKm: (length: number) => number
+  toKm: (length: number) => number,
+  locale: Locale = "bg"
 ): RouteManeuver | null {
   const index = maneuver.begin_shape_index ?? 0;
   const point = shape[index] ?? shape[0];
@@ -248,10 +259,13 @@ function toManeuver(
     name: street,
     maneuver: { type: mapped.type, modifier: mapped.modifier, exit },
   });
+  const valhallaText = maneuver.instruction?.trim();
   const instruction =
-    mapped.type === "notification" && maneuver.instruction?.trim()
-      ? maneuver.instruction.trim()
-      : built;
+    locale !== "bg" && valhallaText
+      ? valhallaText
+      : mapped.type === "notification" && valhallaText
+        ? valhallaText
+        : built;
   return {
     instruction_bg: instruction,
     type: mapped.type,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { WeatherCard } from "./WeatherCard";
 import type { WeatherPoint } from "@/types/weather.types";
@@ -27,7 +28,10 @@ export function RouteWeatherTimeline({
         {weatherPoints.map((point, idx) => {
           const eta =
             typeof point.eta_min === "number"
-              ? `+${Math.floor(point.eta_min / 60)}ч ${point.eta_min % 60}м`
+              ? formatTemplate(m.weather.etaFromStart, {
+                  hours: Math.floor(point.eta_min / 60),
+                  minutes: point.eta_min % 60,
+                })
               : (point.label ?? m.weather.msg09ccbaca32);
 
           return (
@@ -35,7 +39,9 @@ export function RouteWeatherTimeline({
               <div className="mb-1 text-xs font-medium text-[var(--waze-text-muted)]">
                 {eta}
                 {typeof point.distance_from_origin_km === "number"
-                  ? ` · ${point.distance_from_origin_km} км`
+                  ? formatTemplate(m.weather.kmFromOrigin, {
+                      km: point.distance_from_origin_km,
+                    })
                   : ""}
               </div>
               <WeatherCard weather={point} />

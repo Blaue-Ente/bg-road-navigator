@@ -4,6 +4,7 @@ export interface BorderStatus {
   crossing_id: string;
   name_bg: string;
   name_en: string;
+  name_i18n?: Partial<Record<"bg" | "en" | "tr" | "ro", string>>;
   country_pair: string;
   coords?: GeoPoint;
   wait_time_cars: number;

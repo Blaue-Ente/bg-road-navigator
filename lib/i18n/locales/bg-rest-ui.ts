@@ -1,8 +1,11 @@
 /** UI strings merged into bg */
 export const bgRestUi = {
   bordersPage: {
+    tabBulgaria: "България",
+    tabEurope: "Европа",
     msg7870710a01: "България",
     msg7b9a5a3f3b: "Европа",
+    tabOnRoute: "По маршрута",
     msgb962f0c0d8: "По маршрута",
     msgf071ab10f5: "Гранични пролази",
     msgdf64f77529: "България, Европа и граници по вашия маршрут",
@@ -115,6 +118,12 @@ export const bgRestUi = {
     msg47b672a489: "Планирай нов маршрут",
   },
   routePage: {
+    maneuversEmpty:
+      "Списъкът с маневри се появява след изчисляване по реални пътища. Жива навигация в приложението още не е включена — стартирайте Google Maps или Apple Maps.",
+    maneuversTitle: "Маневри ({count})",
+    maneuversHint:
+      "Преглед на завоите. За жива навигация използвайте Google Maps или Apple Maps.",
+    meterShort: "м",
     msg9cdf228300: "по пътищата",
     msga2f81ebcc5: "приблизителна оценка",
     msg5957d3869f: "всички",
@@ -203,6 +212,10 @@ export const bgRestUi = {
     openMeteo3c2f: "Текущи условия (Open-Meteo), не почасова прогноза за ETA. Часовете са",
     msg09bc96ca8e: "оценка според разстоянието по маршрута.",
   },
+  ui: {
+    countryFallback: "държава",
+    defaultLoading: "Зареждане",
+  },
   misc: {
     msg2e63176344: "Нещо се обърка",
     msg859ea41011: "Страницата не е намерена",
@@ -232,6 +245,11 @@ export const bgRestUi = {
     hasAccount: "Вече имате акаунт?",
   },
   borders: {
+    workingHours: "Работи:",
+    documents: "Документи:",
+    waitMinutesSuffix: "мин",
+    peakWait: "Пик около {hour}:00 — {minutes} мин",
+    hourWaitTooltip: "{hour}:00 — {minutes} мин",
     msg38f8659f01: "< 30 мин",
     msg27d10f0144: "30-60 мин",
     msg9541950749: "60-120 мин",
@@ -513,11 +531,6 @@ export const bgRestUi = {
     accountDatabaseHint:
       "За акаунти задайте DATABASE_URL и приложете {migration} веднъж в Neon. Стъпките са в docs/SETUP.md.",
   },
-  ui: {
-    msgf8f4b05b10: "държава",
-    msgbf664a43da: "Зареждане",
-    msg87b6d05132: "Опитай пак",
-  },
   vignettes: {
     msg82c840e11a: "Официални винетки и тол",
     msgb601ae0e79: "Само официални портали. Купувайте директно от държавата или концесионера. „Тол на км“ не е винетка — плаща се по изминато разстояние.",
@@ -526,6 +539,8 @@ export const bgRestUi = {
     msg725f5ff905: "Тол на км",
   },
   weather: {
+    etaFromStart: "+{hours}ч {minutes}м",
+    kmFromOrigin: " · {km} км",
     msg09ccbaca32: "точка",
     mathFloorPointedec: "+${Math.floor(point.eta_min / 60)}ч ${point.eta_min % 60}м",
     pointDistanceFromcaf7: " · ${point.distance_from_origin_km} км",

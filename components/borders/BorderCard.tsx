@@ -1,6 +1,8 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { pickI18nText } from "@/lib/i18n/localized-field";
+import { borderCrossingI18n } from "@/lib/constants/border-crossings";
 
 import type { BorderStatus } from "@/types/border.types";
 import { officialLinksForCrossing } from "@/lib/constants/border-official-links";
@@ -13,6 +15,16 @@ interface BorderCardProps {
 
 export function BorderCard({ border, onComment }: BorderCardProps) {
   const m = useMessages();
+  const locale = useLocale();
+  const displayName = pickI18nText(locale, {
+    bg: border.name_bg,
+    en: border.name_en,
+    i18n: {
+      en: border.name_en,
+      ...borderCrossingI18n(border.crossing_id),
+      ...border.name_i18n,
+    },
+  });
   const getStatusColor = (status: string) => {
     switch (status) {
       case "green":
@@ -32,7 +44,7 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
     <div className={`waze-panel p-4 ${getStatusColor(border.status)}`}>
       <div className="mb-3 flex items-start justify-between gap-2">
         <h3 className="text-lg font-semibold text-[var(--waze-text)]">
-          {border.name_bg}
+          {displayName}
         </h3>
         <span
           className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -69,14 +81,14 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
           >
             <span className="text-[var(--waze-text-muted)]">{row.label}</span>
             <span className="font-semibold text-[var(--waze-text)]">
-              {row.value} мин
+              {row.value} {m.borders.waitMinutesSuffix}
             </span>
           </span>
         ))}
       </div>
 
       <div className="mb-3 text-xs text-[var(--waze-text-muted)]">
-        Работи: {border.working_hours}
+        {m.borders.workingHours} {border.working_hours}
         {border.derived_heavy_wait && (
           <span>{m.borders.msg016e5a38cf}</span>
         )}
@@ -84,7 +96,7 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
 
       {border.accepted_documents && border.accepted_documents.length > 0 && (
         <p className="mb-2 text-xs text-[var(--waze-text-secondary)]">
-          Документи: {border.accepted_documents.join(", ")}
+          {m.borders.documents} {border.accepted_documents.join(", ")}
         </p>
       )}
       {border.notes_bg && (
@@ -101,7 +113,7 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
       <div className="flex flex-wrap items-center gap-2">
         {border.coords && (
           <FavoritePlaceButton
-            label={border.name_bg}
+            label={displayName}
             category="border"
             place={{
               coords: border.coords,

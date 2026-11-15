@@ -10,7 +10,10 @@ import {
   getCrossingsForCorridor,
   type EuropeanBorderRegion,
 } from "@/lib/constants/european-borders";
-import type { BorderCrossing } from "@/lib/constants/border-crossings";
+import {
+  borderCrossingI18n,
+  type BorderCrossing,
+} from "@/lib/constants/border-crossings";
 import {
   fetchNakordoniQueues,
   type NakordoniQueueData,
@@ -225,6 +228,10 @@ function buildStatus(
     crossing_id: crossing.id,
     name_bg: crossing.name_bg,
     name_en: crossing.name_en,
+    name_i18n: {
+      en: crossing.name_en,
+      ...borderCrossingI18n(crossing.id),
+    },
     country_pair: crossing.country_pair,
     coords: crossing.coords,
     wait_time_cars: waitCars,

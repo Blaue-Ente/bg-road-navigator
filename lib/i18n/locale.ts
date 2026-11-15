@@ -2,7 +2,7 @@ import { bg } from "@/lib/i18n/locales/bg";
 import { en } from "@/lib/i18n/locales/en";
 import { ro } from "@/lib/i18n/locales/ro";
 import { tr } from "@/lib/i18n/locales/tr";
-import type { Messages } from "@/lib/i18n/locales/bg";
+import type { MessageCatalog, Messages } from "@/lib/i18n/locales/bg";
 
 export const LOCALES = ["bg", "en", "tr", "ro"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -10,7 +10,7 @@ export type Locale = (typeof LOCALES)[number];
 export const LOCALE_STORAGE_KEY = "bg-road-locale";
 export const LOCALE_COOKIE = "bg-road-locale";
 
-const catalogs: Record<Locale, Messages> = { bg, en, tr, ro };
+const catalogs: Record<Locale, MessageCatalog> = { bg, en, tr, ro };
 
 type MessageTree = { [key: string]: string | MessageTree };
 
@@ -38,9 +38,9 @@ export function parseLocale(value: unknown): Locale {
   return value === "en" || value === "tr" || value === "ro" ? value : "bg";
 }
 
-export function catalog(locale: Locale): Messages {
+export function catalog(locale: Locale): MessageCatalog {
   if (locale === "bg") return catalogs.bg;
-  return mergeWithBg(catalogs.bg, catalogs[locale]) as Messages;
+  return mergeWithBg(catalogs.bg, catalogs[locale]) as MessageCatalog;
 }
 
 const LOCALE_TAGS: Record<Locale, string> = {
@@ -51,6 +51,11 @@ const LOCALE_TAGS: Record<Locale, string> = {
 };
 
 export function localeTag(locale: Locale): string {
+  return LOCALE_TAGS[locale];
+}
+
+/** BCP-47 tag for Valhalla turn-by-turn language. */
+export function valhallaLanguage(locale: Locale): string {
   return LOCALE_TAGS[locale];
 }
 

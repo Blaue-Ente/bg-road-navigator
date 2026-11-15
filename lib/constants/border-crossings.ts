@@ -3,10 +3,15 @@
  * Bulgarian border crossings + metadata for pan-European routing
  */
 
+import type { Locale } from "@/lib/i18n/locale";
+import type { LocalizedMap } from "@/lib/i18n/localized-field";
+import { pickI18nText } from "@/lib/i18n/localized-field";
+
 export interface BorderCrossing {
   id: string;
   name_bg: string;
   name_en: string;
+  name_i18n?: LocalizedMap;
   country_pair: string;
   region?: string;
   coords: { lng: number; lat: number };
@@ -227,3 +232,47 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
     notes_bg: "Нова граница с Турция. Добра алтернатива на Капитан Андреево.",
   },
 ];
+
+const BORDER_NAME_I18N: Record<string, LocalizedMap> = {
+  kalotina: { tr: "Kalotina", ro: "Kalotina" },
+  kulata: { tr: "Kulata", ro: "Kulata" },
+  "kapitan-andreevo": {
+    tr: "Kapıkule",
+    ro: "Kapitan Andreevo",
+  },
+  "danube-bridge-vidin": {
+    tr: "Vidin–Calafat",
+    ro: "Calafat–Vidin",
+  },
+  "danube-bridge-ruse": {
+    tr: "Ruse–Giurgiu",
+    ro: "Giurgiu–Ruse",
+  },
+  gyueshevo: { tr: "Güleburun", ro: "Gjorče Petrov" },
+  zlatarevo: { tr: "İbrice", ro: "Zlatarevo" },
+  ilinden: { tr: "İlinden", ro: "Ilinden" },
+  promachon: { tr: "Promah", ro: "Promachon" },
+  makaza: { tr: "Makaza", ro: "Makaza" },
+  "malko-tarnovo": { tr: "Dereköy", ro: "Malko Tarnovo" },
+  lesovo: { tr: "Hamzabeyli", ro: "Lesovo" },
+};
+
+export function borderCrossingName(
+  crossing: Pick<BorderCrossing, "id" | "name_bg" | "name_en" | "name_i18n">,
+  locale: Locale
+): string {
+  const merged: LocalizedMap = {
+    en: crossing.name_en,
+    ...BORDER_NAME_I18N[crossing.id],
+    ...crossing.name_i18n,
+  };
+  return pickI18nText(locale, {
+    bg: crossing.name_bg,
+    en: crossing.name_en,
+    i18n: merged,
+  });
+}
+
+export function borderCrossingI18n(id: string): LocalizedMap | undefined {
+  return BORDER_NAME_I18N[id];
+}

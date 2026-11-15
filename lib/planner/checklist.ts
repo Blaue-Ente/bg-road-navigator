@@ -281,10 +281,10 @@ function safetyBlock(countries: string[], locale: Locale): {
       kind: "advice" as const,
     })),
   ];
-  void locale;
+  const closing = catalog(locale).planner.checklist.safetyClosing;
   return {
     safety,
-    safety_closing: BG_ROAD_SAFETY.closing,
+    safety_closing: closing,
     bg_links: BG_ROAD_SAFETY.links.map((link) => ({
       id: link.id,
       title: link.title,

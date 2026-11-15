@@ -38,7 +38,7 @@ import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import type { GeoPoint } from "@/types/route.types";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
-import type { Messages } from "@/lib/i18n/locales/bg";
+import type { MessageCatalog } from "@/lib/i18n/locales/bg";
 
 export interface StopAttachment {
   etaMin: number;
@@ -90,7 +90,7 @@ export interface AssembleInput {
   locale?: Locale;
 }
 
-type PlannerCopy = Messages["planner"];
+type PlannerCopy = MessageCatalog["planner"];
 
 export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
   const p = catalog(input.locale ?? "bg").planner;

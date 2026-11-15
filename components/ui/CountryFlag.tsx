@@ -1,3 +1,7 @@
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 interface CountryFlagProps {
   code?: string;
   className?: string;
@@ -206,6 +210,7 @@ function SpecialFlag({ code }: { code: string }) {
 }
 
 export function CountryFlag({ code, className = "h-4 w-5" }: CountryFlagProps) {
+  const m = useMessages();
   const normalized = (code ?? "").trim().toUpperCase();
   const bands = FLAG[normalized];
   const special = SpecialFlag({ code: normalized });
@@ -213,7 +218,7 @@ export function CountryFlag({ code, className = "h-4 w-5" }: CountryFlagProps) {
   return (
     <span
       className={`inline-flex shrink-0 overflow-hidden rounded-[3px] ring-1 ring-black/15 ${className}`}
-      title={normalized || "държава"}
+      title={normalized || m.ui.countryFallback}
       aria-hidden
     >
       <svg

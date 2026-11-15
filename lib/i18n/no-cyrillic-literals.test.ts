@@ -12,18 +12,6 @@ const ROOT = path.resolve(__dirname, "../..");
  */
 const ALLOWLIST = new Set([
   "components/location/TripProximity.test.tsx",
-  "components/ui/CountryFlag.tsx",
-  /**
-   * Interpolated handoff / weather / save-route strings — catalog keys exist but
-   * templates stay inline until PR 10b.
-   */
-  "components/route/MapsHandoffButtons.tsx",
-  "components/route/SaveRouteButton.tsx",
-  "components/route/ManeuverList.tsx",
-  "components/weather/RouteWeatherTimeline.tsx",
-  "components/borders/BorderCard.tsx",
-  "components/borders/BorderStatsChart.tsx",
-  "components/ui/PageSkeleton.tsx",
 ]);
 
 function collectTsx(dir: string, acc: string[] = []): string[] {

@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Messages } from "@/lib/i18n/locales/bg";
+import type { MessageCatalog } from "@/lib/i18n/locales/bg";
 import {
   catalog,
   LOCALE_STORAGE_KEY,
@@ -21,7 +21,7 @@ import {
 interface LocaleContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  messages: Messages;
+  messages: MessageCatalog;
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -89,7 +89,7 @@ export function useLocale(): Locale {
   return ctx.locale;
 }
 
-export function useMessages(): Messages {
+export function useMessages(): MessageCatalog {
   const ctx = useContext(LocaleContext);
   if (!ctx) {
     throw new Error("useMessages requires LocaleProvider");

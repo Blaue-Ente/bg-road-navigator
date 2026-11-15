@@ -1,0 +1,1 @@
+export const CYRILLIC = /[\u0400-\u04FF]/;

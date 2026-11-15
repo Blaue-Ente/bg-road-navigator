@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 interface BorderStatsChartProps {
   hourlyData: number[];
@@ -20,7 +21,10 @@ export function BorderStatsChart({
     <div className="rounded-lg border border-gray-800 bg-gray-900 p-3">
       <h4 className="mb-1 text-sm font-medium">{resolvedTitle}</h4>
       <p className="mb-3 text-xs text-gray-400">
-        Пик около {peakHour}:00 — {Math.round(hourlyData[peakHour])} мин
+        {formatTemplate(m.borders.peakWait, {
+          hour: peakHour,
+          minutes: Math.round(hourlyData[peakHour]),
+        })}
       </p>
       <div className="flex h-24 items-end gap-0.5">
         {hourlyData.map((wait, hour) => {
@@ -30,7 +34,10 @@ export function BorderStatsChart({
             <div
               key={hour}
               className="group relative flex-1"
-              title={`${hour}:00 — ${Math.round(wait)} мин`}
+              title={formatTemplate(m.borders.hourWaitTooltip, {
+                hour,
+                minutes: Math.round(wait),
+              })}
             >
               <div
                 className={`w-full rounded-t transition-colors ${
