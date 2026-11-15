@@ -33,6 +33,21 @@ describe("proximity alerts", () => {
     expect(again.fresh).toEqual([]);
   });
 
+  it("speaks for a DATEX hazard and a hotspot in the same look-ahead", () => {
+    const alerts = alertsAhead({
+      line,
+      position: { lng: 20, lat: 44 },
+      aheadM: 1000,
+      targets: [
+        { id: "hz", lng: 20, lat: 44.004, kind: "hazard" },
+        { id: "hot-1", lng: 20, lat: 44.0072, kind: "hotspot" },
+      ],
+    });
+    expect(alerts.map((alert) => alert.kind)).toEqual(["hazard", "hotspot"]);
+    expect(alerts[0]?.text).toContain("опасност по пътя");
+    expect(alerts[1]?.text).toContain("участък с чести катастрофи");
+  });
+
   it("stays quiet when the look-ahead is shorter than the gap", () => {
     const alerts = alertsAhead({
       line,

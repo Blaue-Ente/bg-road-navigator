@@ -1,10 +1,9 @@
 /**
- * Historical crash layer. The Cherna pista files are not downloadable, so this
- * only accepts a GeoJSON string the caller already has. The flag defaults off
- * and the function then returns no features.
+ * Optional raw GeoJSON overlay. Clustered Bulgarian hotspots come from the
+ * Cherna Pista snapshot in lib/hotspots/data and do not use this flag.
  */
 export const CHERNA_PISTA_ATTRIBUTION =
-  "Данни: Черна писта, chernapista.com, CC BY 4.0, по данни на МВР";
+  "Данни: Черна писта, chernapista.com, CC BY 4.0, по данни на МВР; данните са обработени";
 
 export interface ChernaPistaLayer {
   enabled: boolean;

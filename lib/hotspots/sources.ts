@@ -6,7 +6,7 @@ export interface HotspotSource {
   label_bg: string;
   /** Shown in the map credits and on the plan. */
   attribution: string;
-  /** Cherna pista stays configured and empty until a file is supplied. */
+  /** A pending source stays out of the credits until its file is ingested. */
   pending: boolean;
 }
 
@@ -57,7 +57,7 @@ export const HOTSPOT_SOURCES: HotspotSource[] = [
     country: "BG",
     label_bg: "Черна писта",
     attribution: CHERNA_PISTA_ATTRIBUTION,
-    pending: true,
+    pending: false,
   },
 ];
 

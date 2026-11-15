@@ -19,6 +19,8 @@ describe("hotspot attribution", () => {
       "Datenquelle: Statistik Austria — data.statistik.gv.at"
     );
     expect(text).toContain("Zdroj: Policie ČR");
-    expect(text).toContain("Черна писта");
+    expect(text).toContain(
+      "Данни: Черна писта, chernapista.com, CC BY 4.0, по данни на МВР; данните са обработени"
+    );
   });
 });

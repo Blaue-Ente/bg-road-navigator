@@ -1,0 +1,21 @@
+{
+  "file": "MVR_database.zip",
+  "inner_file": "mrv_database_done.csv",
+  "sha256": "172926bfc0d0de1688ad5d0fba67df9217fd2119b52385b3c6ca1ebbdfafdca4",
+  "bytes": 2030006,
+  "retrieved_on": "2026-11-15",
+  "archive_timestamp": "20250529213038",
+  "retrieved_from": "https://web.archive.org/web/20250529213038id_/https://chernapista.com/wp-content/uploads/2025/05/MVR_database.zip",
+  "upstream_file": "https://chernapista.com/wp-content/uploads/2025/05/MVR_database.zip",
+  "upstream_page": "https://chernapista.com/data/",
+  "wayback_page": "https://web.archive.org/web/20250529213022/https://chernapista.com/data/",
+  "licence": "CC BY 4.0",
+  "period_in_file": "2021-01-01 to 2025-04-13",
+  "publisher_period": "2021 to 14 Apr 2025",
+  "rows": 253674,
+  "injury_or_fatal_with_coordinates": 25732,
+  "corridor_points": 10650,
+  "hotspots": 526,
+  "attribution": "Данни: Черна писта, chernapista.com, CC BY 4.0, по данни на МВР; данните са обработени",
+  "refresh": "Replace MVR_database.zip with a newer Cherna Pista export, then run: npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts"
+}

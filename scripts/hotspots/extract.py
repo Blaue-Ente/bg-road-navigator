@@ -3,6 +3,7 @@
 
 import sys
 import csv
+import io
 import json
 import math
 import os
@@ -40,9 +41,7 @@ def main():
         hungary(lines)
         czechia(lines)
     austria(lines)
-    notes.append(
-        "Bulgaria: Cherna pista slot stays empty. CHERNA_PISTA_LAYER is off and no file was fetched."
-    )
+    bulgaria(lines)
     notes.append("Romania stays a link-out. No accident archive was downloaded.")
     (ROOT / "extract-report.json").write_text(
         json.dumps({"counts": counts, "notes": notes}, ensure_ascii=False, indent=2)
@@ -342,6 +341,46 @@ def feature_info(year, lng, lat):
     except Exception as error:
         print("austria miss", year, round(lng, 2), error, flush=True)
         return None
+
+
+def bulgaria(lines):
+    """Same row rules as lib/hotspots/cherna.ts. Full extracts keep BG in the JSONL."""
+    archive_path = (
+        Path(__file__).resolve().parents[2]
+        / "lib/hotspots/data/cherna/MVR_database.zip"
+    )
+    if not archive_path.exists():
+        notes.append(
+            "Bulgaria: Cherna Pista snapshot missing at lib/hotspots/data/cherna/MVR_database.zip."
+        )
+        return
+    with zipfile.ZipFile(archive_path) as archive:
+        name = next(item for item in archive.namelist() if item.endswith(".csv"))
+        text = archive.read(name).decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(text), delimiter=";")
+    for row in reader:
+        died = (row.get("died") or "").strip().lower()
+        injured = (row.get("injured") or "").strip().lower()
+        if died == "да":
+            kind = "fatal"
+        elif injured == "да":
+            kind = "slight"
+        else:
+            continue
+        try:
+            lat = float((row.get("y") or "").replace(",", "."))
+            lng = float((row.get("x") or "").replace(",", "."))
+            year = int(row.get("year") or 0)
+        except ValueError:
+            continue
+        if not (40 <= lat <= 47 and 21 <= lng <= 30):
+            continue
+        emit("BG", lng, lat, year, kind, "bg-cherna", lines)
+    notes.append(
+        "Bulgaria: Cherna Pista MVR_database.zip (CC BY 4.0, MVR 2021 to 14 Apr 2025). "
+        "died=да is fatal, injured=да is slight. Property-only rows were dropped. "
+        "Refresh: npx vite-node --config vitest.config.ts scripts/hotspots/refresh-cherna.ts"
+    )
 
 
 def xlsx_rows(path):
