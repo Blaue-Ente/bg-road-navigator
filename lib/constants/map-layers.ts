@@ -20,7 +20,7 @@ export interface MapLayer {
 }
 
 export const MAP_LAYERS: MapLayer[] = [
-  { key: "traffic", label_bg: "Инциденти", visible: true, toggleable: true },
+  { key: "traffic", label_bg: "Инциденти", visible: false, toggleable: true },
   {
     key: "hotspots",
     label_bg: "Повишено внимание",
@@ -36,7 +36,7 @@ export const MAP_LAYERS: MapLayer[] = [
 ];
 
 export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {
-  traffic: true,
+  traffic: false,
   community: true,
   borders: false,
   fuel: false,
