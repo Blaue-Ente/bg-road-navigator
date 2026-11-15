@@ -429,9 +429,14 @@ export function searchCuratedCities(query: string, limit = 6): EuropeanCity[] {
     return { city, score };
   }).filter((entry) => entry.score > 0);
 
-  scored.sort(
-    (a, b) =>
-      b.score - a.score || a.city.label.localeCompare(b.city.label, "bg")
-  );
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (a.score >= 3 && b.score >= 3) {
+      const aBg = a.city.countryCode === "BG" ? 1 : 0;
+      const bBg = b.city.countryCode === "BG" ? 1 : 0;
+      if (bBg !== aBg) return bBg - aBg;
+    }
+    return a.city.label.localeCompare(b.city.label, "bg");
+  });
   return scored.slice(0, limit).map((entry) => entry.city);
 }

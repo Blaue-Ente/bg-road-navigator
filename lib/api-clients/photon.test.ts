@@ -190,6 +190,31 @@ describe("house numbers", () => {
     expect(firstLabel("Plovdiv", plovdivFeatures())).toBe("Пловдив");
   });
 
+  it("ranks BG Sofia above MD Sofia on an exact name match", () => {
+    const features: PhotonFeature[] = [
+      place({
+        name: "Sofia",
+        osm_value: "village",
+        osm_key: "place",
+        countrycode: "MD",
+        coordinates: [28.21, 46.45],
+        extent: [28.2, 46.46, 28.22, 46.44],
+      }),
+      place({
+        name: "София",
+        osm_value: "city",
+        osm_key: "place",
+        countrycode: "BG",
+        coordinates: [23.3219, 42.6977],
+        extent: [23.2, 42.8, 23.5, 42.6],
+      }),
+    ];
+    features[0]!.properties!.importance = 0.9;
+    features[1]!.properties!.importance = 0.2;
+    expect(firstCountry("Sofia", features)).toBe("BG");
+    expect(firstLabel("Sofia", features)).toBe("София");
+  });
+
   it("uses a longer Photon timeout only until the process has heard back", () => {
     clearPhotonCacheForTests();
     expect(photonRequestTimeout(1_000)).toBe(PHOTON_COLD_TIMEOUT_MS);

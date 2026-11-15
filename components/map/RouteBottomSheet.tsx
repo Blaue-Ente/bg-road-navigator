@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BedDouble, ChevronUp, CloudSun, Fuel, Landmark } from "lucide-react";
 import type { Route } from "@/types/route.types";
-import { formatDuration } from "@/lib/utils/route-planner";
+import { formatClockDuration } from "@/lib/planner/itinerary";
 import { isRoadRoute } from "@/lib/utils/route-builder";
 import { messages as m } from "@/lib/i18n";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -19,14 +19,11 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   const tripPlan = useRouteStore((s) => s.tripPlan);
   const setPlanDetailOpen = useRouteStore((s) => s.setPlanDetailOpen);
 
+  const durationLabel = formatClockDuration(route.duration_min);
   const hours = Math.floor(route.duration_min / 60);
   const mins = route.duration_min % 60;
-  const etaDisplay =
-    hours >= 24
-      ? formatDuration(route.duration_min)
-      : mins > 0
-        ? `${hours}ч ${mins}м`
-        : `${hours}ч`;
+  const badgePrimary = hours > 0 ? hours : mins;
+  const badgeUnit = hours > 0 ? "часа" : "мин";
 
   return (
     <div className="pointer-events-none absolute left-0 z-20 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]">
@@ -39,10 +36,10 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
         >
           <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--waze-accent-muted)]">
             <span className="text-lg font-bold leading-none text-[var(--waze-accent-text)]">
-              {hours > 0 ? hours : mins}
+              {badgePrimary}
             </span>
             <span className="text-xs font-medium text-[var(--waze-accent-text)]">
-              {hours > 0 ? "часа" : "мин"}
+              {badgeUnit}
             </span>
           </div>
 
@@ -51,7 +48,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
               {route.destination.label}
             </p>
             <p className="text-sm text-[var(--waze-text-secondary)]">
-              {etaDisplay} · {route.distance_km} км
+              {durationLabel} · {route.distance_km} км
               {isRoadRoute(route.routing_source) && (
                 <span className="ml-1 text-[var(--waze-accent-text)]">
                   · по пътищата

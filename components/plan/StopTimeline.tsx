@@ -13,7 +13,7 @@ import {
 import type { PlanStop, StopKind } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore } from "@/lib/stores/user.store";
-import { formatDuration } from "@/lib/utils/route-planner";
+import { formatClockDuration } from "@/lib/planner/itinerary";
 
 const KIND_COLOR: Record<StopKind, string> = {
   fuel: "#b45309",
@@ -88,7 +88,7 @@ export function StopTimeline({
                       </p>
                       <p className="text-sm text-[var(--waze-text-secondary)]">
                         {stop.distance_from_start_km} {m.planning.km} ·{" "}
-                        {formatDuration(stop.driving_min)} ·{" "}
+                        {formatClockDuration(stop.driving_min)} ·{" "}
                         {formatWhen(stop.eta)}
                       </p>
                       <p className="mt-1 text-sm text-[var(--waze-text)]">
@@ -157,11 +157,6 @@ export function StopTimeline({
                             : m.sheet.favoritePlace}
                         </button>
                       </div>
-                      {!stop.place_id && (
-                        <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
-                          {m.sheet.flagNeedsPlace}
-                        </p>
-                      )}
                       {flagFor === stop.id && stop.place_id && (
                         <FlagForm
                           onSubmit={(flag) => void submitFlag(stop, flag)}
@@ -281,18 +276,6 @@ function HotelBlock({ stop }: { stop: PlanStop }) {
       </p>
       <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
         {m.hotel.reason}: {stop.lodging_note ?? stop.reason}
-      </p>
-      <button
-        type="button"
-        disabled
-        aria-disabled="true"
-        title={m.hotel.reserveHint}
-        className="waze-btn-secondary mt-3 cursor-not-allowed px-3 py-1.5 text-xs opacity-60"
-      >
-        {m.hotel.reserve}
-      </button>
-      <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
-        {m.hotel.reserveHint}
       </p>
     </div>
   );

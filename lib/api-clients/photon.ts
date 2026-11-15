@@ -495,6 +495,33 @@ function housenumbersEqual(
   );
 }
 
+const CORRIDOR_COUNTRY_CODES = new Set([
+  "BG",
+  "TR",
+  "DE",
+  "AT",
+  "RO",
+  "RS",
+  "HU",
+  "HR",
+  "SI",
+  "SK",
+  "CZ",
+  "GR",
+  "MK",
+  "CH",
+  "NL",
+  "BE",
+  "FR",
+  "IT",
+  "ES",
+  "GB",
+]);
+
+function isCorridorCountry(code: string): boolean {
+  return CORRIDOR_COUNTRY_CODES.has(code);
+}
+
 function scoreFeature(
   feature: PhotonFeature,
   query: string,
@@ -520,6 +547,13 @@ function scoreFeature(
   if (flags.shortCity) {
     score += MAJOR_PLACE[value] ?? 0;
     if (MINOR_PLACE.has(value)) score -= 8;
+    const cc = (props.countrycode ?? "").toUpperCase();
+    if (
+      nameScore(props.name ?? "", query) >= 6 &&
+      isCorridorCountry(cc)
+    ) {
+      score += 40;
+    }
     const area = extentAreaKm2(props.extent);
     if (area != null) score += Math.min(8, Math.log10(area + 1) * 3);
   }

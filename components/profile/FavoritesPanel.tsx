@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { WazeCard } from "@/components/ui/WazeCard";
@@ -32,6 +32,7 @@ export function FavoritesPanel() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const setReplanDraft = useRouteStore((state) => state.setReplanDraft);
+  const replanToken = useRef(0);
   const routes = useQuery({
     queryKey: ["favorite-routes"],
     queryFn: () => readList<FavoriteRoute>("/api/favorites/routes", "routes"),
@@ -45,7 +46,7 @@ export function FavoritesPanel() {
     const stored = readFavoriteEnvelope(route.plan);
     const via = stored.inputs?.via[0];
     setReplanDraft({
-      token: Date.now(),
+      token: ++replanToken.current,
       origin: toPoint("origin", route.origin),
       destination: toPoint("destination", route.destination),
       via: via ? toPoint("via", via) : null,

@@ -56,15 +56,17 @@ export function PlanDetailSheet() {
   useEffect(() => {
     const current = useRouteStore.getState().tripPlan;
     if (!current) return;
-    setView("detail");
-    setSnapshot(null);
-    setIncluded(defaultIncludedStops(current.stops));
-    setChecks(readChecks(checklistStorageKey(current)));
-    setMinimized(false);
+    queueMicrotask(() => {
+      setView("detail");
+      setSnapshot(null);
+      setIncluded(defaultIncludedStops(current.stops));
+      setChecks(readChecks(checklistStorageKey(current)));
+      setMinimized(false);
+    });
   }, [stamp]);
 
   useEffect(() => {
-    if (focusedStopId) setMinimized(false);
+    if (focusedStopId) queueMicrotask(() => setMinimized(false));
   }, [focusedStopId]);
 
   useEffect(() => {

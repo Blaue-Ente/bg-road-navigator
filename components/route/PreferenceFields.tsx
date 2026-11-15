@@ -283,7 +283,7 @@ function Choice({
 }) {
   return (
     <label
-      className={`waze-chip cursor-pointer ${checked ? "waze-chip-active" : ""}`}
+      className={`waze-chip min-h-11 cursor-pointer text-sm ${checked ? "waze-chip-active" : ""}`}
     >
       <input
         type="radio"

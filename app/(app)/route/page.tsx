@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { getCityById } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { toDatetimeLocalValue } from "@/lib/planner/form-preferences";
+import { proposedDepartLocalValue } from "@/lib/planner/proposed-depart";
+import { formatClockDuration } from "@/lib/planner/itinerary";
 import {
   createPlannerDraft,
   patchPlannerDraft,
@@ -18,11 +20,7 @@ import {
 } from "@/lib/stores/planner-draft.store";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore } from "@/lib/stores/user.store";
-import {
-  estimateRestStops,
-  formatDuration,
-  isLongHaul,
-} from "@/lib/utils/route-planner";
+import { estimateRestStops, isLongHaul } from "@/lib/utils/route-planner";
 import { isRoadRoute } from "@/lib/utils/route-builder";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
@@ -108,7 +106,9 @@ export default function RoutePage() {
           ? { ...activeRoute.destination, source: "user" }
           : null,
         preferences: resolveTripPreferences(undefined, profilePrefs),
-        departLocal: toDatetimeLocalValue(profilePrefs?.depart_at),
+        departLocal:
+          toDatetimeLocalValue(profilePrefs?.depart_at) ||
+          proposedDepartLocalValue(),
       }),
     [activeRoute, profilePrefs]
   );
@@ -118,7 +118,7 @@ export default function RoutePage() {
 
   useEffect(() => {
     hydratePlannerDraft();
-    setReady(true);
+    queueMicrotask(() => setReady(true));
   }, []);
 
   useEffect(() => {
@@ -150,7 +150,9 @@ export default function RoutePage() {
     setStoredDraft(
       createPlannerDraft({
         preferences: resolveTripPreferences(undefined, profilePrefs),
-        departLocal: toDatetimeLocalValue(profilePrefs?.depart_at),
+        departLocal:
+          toDatetimeLocalValue(profilePrefs?.depart_at) ||
+          proposedDepartLocalValue(),
       })
     );
   };
@@ -306,26 +308,6 @@ export default function RoutePage() {
       <div className="mx-auto max-w-2xl">
         <PageHeader title={m.planning.title} subtitle={m.planning.subtitle} />
 
-        <section className="mb-6">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--waze-text-muted)]">
-            {m.planning.corridors} ({TRAVEL_CORRIDORS.length})
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {TRAVEL_CORRIDORS.map((corridor) => (
-              <button
-                key={corridor.id}
-                onClick={() => handleCorridorSelect(corridor.id)}
-                className={`waze-chip ${
-                  selectedCorridor === corridor.id ? "waze-chip-active" : ""
-                }`}
-              >
-                {corridor.label} · ~{corridor.estimatedHours}
-                {m.planning.hoursShort}
-              </button>
-            ))}
-          </div>
-        </section>
-
         <PlanningForm
           draft={draft}
           onChange={commit}
@@ -339,6 +321,26 @@ export default function RoutePage() {
           onDestinationQueryChange={setDestinationQuery}
           onViaQueryChange={setViaQuery}
         />
+
+        <details className="mb-6">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--waze-text)]">
+            {m.planning.corridors} ({TRAVEL_CORRIDORS.length})
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {TRAVEL_CORRIDORS.map((corridor) => (
+              <button
+                key={corridor.id}
+                type="button"
+                onClick={() => handleCorridorSelect(corridor.id)}
+                className={`waze-chip min-h-11 text-sm ${
+                  selectedCorridor === corridor.id ? "waze-chip-active" : ""
+                }`}
+              >
+                {corridor.label}
+              </button>
+            ))}
+          </div>
+        </details>
 
         {activeRoute && (
           <div className="mt-6 space-y-4">
@@ -359,7 +361,7 @@ export default function RoutePage() {
                   {activeRoute.distance_km} км
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
-                  {formatDuration(activeRoute.duration_min)}
+                  {formatClockDuration(activeRoute.duration_min)}
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
                   {isRoadRoute(activeRoute.routing_source)
@@ -451,7 +453,7 @@ export default function RoutePage() {
                       className="waze-chip"
                     >
                       Вариант {index + 1}: {alt.distance_km} км ·{" "}
-                      {formatDuration(alt.duration_min)}
+                      {formatClockDuration(alt.duration_min)}
                     </button>
                   ))}
                 </div>

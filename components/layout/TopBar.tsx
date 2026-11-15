@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { MenuIcon } from "@/components/icons/NavIcons";
 import { useMenu } from "@/components/layout/MenuContext";
 import { PRODUCT_NAME } from "@/lib/constants/brand";
+import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
 
 interface TopBarProps {
   user: { id: string; email: string } | undefined;
@@ -27,10 +28,14 @@ const PAGE_TITLES: Record<string, string> = {
 export function TopBar({ user }: TopBarProps) {
   const pathname = usePathname();
   const { open, openMenu } = useMenu();
+  const { enabled: operatorSetup } = useOperatorMode();
 
   if (pathname === "/") return null;
 
-  const title = PAGE_TITLES[pathname] ?? PRODUCT_NAME;
+  let title = PAGE_TITLES[pathname] ?? PRODUCT_NAME;
+  if (pathname === "/setup" && !operatorSetup) {
+    title = "Услуги";
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--waze-border)] bg-[var(--waze-surface)]">
