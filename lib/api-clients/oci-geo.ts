@@ -5,7 +5,10 @@
  */
 
 export const VALHALLA_TIMEOUT_MS = 6_000;
-export const PHOTON_TIMEOUT_MS = 4_000;
+/** Warm Photon search. A cold JVM uses PHOTON_COLD_TIMEOUT_MS instead. */
+export const PHOTON_TIMEOUT_MS = 7_000;
+/** First Photon call after the process has been idle. A timeout is a ceiling. */
+export const PHOTON_COLD_TIMEOUT_MS = 12_000;
 
 export type OciGeoEnvState = "ready" | "absent" | "incomplete";
 

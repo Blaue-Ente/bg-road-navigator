@@ -2,12 +2,15 @@
  * Photon 1.3 forward and reverse geocoding.
  * Results are mapped onto the same RoutePoint shape Nominatim already returns.
  * Location bias plus a light re-rank keep major cities ahead of same-name villages.
+ * A query that includes a house number promotes the feature whose street and
+ * housenumber match it, ahead of Photon's own order.
  */
 
 import {
   failureFromError,
   failureFromStatus,
   ociFetch,
+  PHOTON_COLD_TIMEOUT_MS,
   PHOTON_TIMEOUT_MS,
   type OciGeoConfig,
   type UpstreamFailure,
@@ -21,8 +24,13 @@ const EUROPE_BOUNDS = {
   maxLng: 45,
 };
 const RESULT_LIMIT = 7;
-const CANDIDATE_LIMIT = 15;
+const CANDIDATE_LIMIT = 30;
+const STRUCTURED_LIMIT = 5;
+const STRUCTURED_TIMEOUT_MS = 4_000;
 const CACHE_TTL_MS = 10 * 60 * 1000;
+/** This isolate treats Photon as cold again after eight quiet minutes. */
+const PHOTON_COLD_AFTER_MS = 8 * 60 * 1000;
+const EXACT_ADDRESS_BOOST = 120;
 const PHOTON_LANGS = new Set(["de", "bg", "el", "en", "ro", "tr", "sr"]);
 const DEFAULT_BIAS = { lat: 42.6977, lon: 23.3219, zoom: 7 };
 
@@ -52,6 +60,25 @@ const STATION_TOKENS = new Set([
   "gara",
   "вокзал",
   "гара",
+]);
+const STREET_PREFIX =
+  /^(?:булевард|бул|улица|ул|ulitsa|ulica|ul|boulevard|bulevard|blvd|площад|пл|piazza|platz|via)\.?\s+/iu;
+const PREFIX_TOKENS = new Set([
+  "булевард",
+  "бул",
+  "улица",
+  "ул",
+  "ulitsa",
+  "ulica",
+  "ul",
+  "boulevard",
+  "bulevard",
+  "blvd",
+  "площад",
+  "пл",
+  "piazza",
+  "platz",
+  "via",
 ]);
 
 export interface PhotonProperties {
@@ -87,6 +114,12 @@ export interface GeocodeContext {
   lang?: string;
 }
 
+export interface ParsedAddressQuery {
+  housenumber: string;
+  street: string;
+  city?: string;
+}
+
 interface GeocodeBias {
   lat: number;
   lon: number;
@@ -97,9 +130,52 @@ const resultCache = new Map<
   string,
   { expiresAt: number; places: RoutePoint[] }
 >();
+let lastPhotonSuccessAt = 0;
 
 export function clearPhotonCacheForTests() {
   resultCache.clear();
+  lastPhotonSuccessAt = 0;
+}
+
+/** 7s once this process has heard from Photon recently; 12s after a cold gap. */
+export function photonRequestTimeout(now = Date.now()): number {
+  if (
+    lastPhotonSuccessAt === 0 ||
+    now - lastPhotonSuccessAt >= PHOTON_COLD_AFTER_MS
+  ) {
+    return PHOTON_COLD_TIMEOUT_MS;
+  }
+  return PHOTON_TIMEOUT_MS;
+}
+
+export function notePhotonSuccess(now = Date.now()) {
+  lastPhotonSuccessAt = now;
+}
+
+/**
+ * House number from "Street 1" or "1 Street", with or without a city after a comma.
+ * Street prefixes (бул., ул., ulitsa) are ignored. City-only text returns null.
+ */
+export function parseAddressQuery(query: string): ParsedAddressQuery | null {
+  const trimmed = query.trim();
+  if (!trimmed || !/\d/u.test(trimmed)) return null;
+  const parts = trimmed
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  let streetPart: string | undefined;
+  let extracted: { housenumber: string; street: string } | null = null;
+  for (const part of parts) {
+    const candidate = extractStreetAndNumber(part);
+    if (candidate) {
+      streetPart = part;
+      extracted = candidate;
+      break;
+    }
+  }
+  if (!extracted || !streetPart) return null;
+  const city = parts.find((part) => part !== streetPart);
+  return city ? { ...extracted, city } : extracted;
 }
 
 export function photonLanguage(lang: string | undefined): string {
@@ -142,6 +218,7 @@ export function rankPhotonFeatures(
 ): PhotonFeature[] {
   const shortCity = isShortCityQuery(query);
   const stationQuery = mentionsStation(query);
+  const address = parseAddressQuery(query);
   return features
     .map((feature, index) => ({
       feature,
@@ -149,6 +226,7 @@ export function rankPhotonFeatures(
       score: scoreFeature(feature, query, index, features.length, {
         shortCity,
         stationQuery,
+        address,
       }),
     }))
     .sort((a, b) => b.score - a.score || a.index - b.index)
@@ -227,22 +305,32 @@ export async function searchPhoton(
     location_bias_scale: String(locationBiasScale(bias.zoom)),
   });
 
-  try {
-    const response = await ociFetch(
-      `${config.baseUrl}/photon/api?${params}`,
-      config.apiKey,
-      { method: "GET", next: { revalidate: 0 } },
-      PHOTON_TIMEOUT_MS
+  const free = await fetchPhotonFeatures(
+    `${config.baseUrl}/photon/api?${params}`,
+    config,
+    photonRequestTimeout()
+  );
+  if (!free.ok) return free;
+
+  let features = free.features;
+  const address = parseAddressQuery(trimmed);
+  if (address && !features.some((feature) => exactAddress(feature, address))) {
+    const structured = await fetchPhotonFeatures(
+      `${config.baseUrl}/photon/structured?${structuredSearchParams(address, bias, lang)}`,
+      config,
+      STRUCTURED_TIMEOUT_MS
     );
-    if (!response.ok || response.status >= 300) {
-      return { ok: false, outcome: failureFromStatus(response.status) };
+    if (structured.ok) {
+      features = dedupeFeatures([...structured.features, ...features]);
     }
-    const places = mapPhotonCollection(await response.json(), trimmed);
-    remember(cacheKey, places);
-    return { ok: true, places };
-  } catch (error) {
-    return { ok: false, outcome: failureFromError(error) };
   }
+
+  const places = rankPhotonFeatures(features, trimmed)
+    .map(photonFeatureToPlace)
+    .filter((place): place is RoutePoint => place != null)
+    .slice(0, RESULT_LIMIT);
+  remember(cacheKey, places);
+  return { ok: true, places };
 }
 
 export async function reversePhoton(
@@ -261,21 +349,17 @@ export async function reversePhoton(
     lang: photonLanguage(context?.lang),
     limit: "1",
   });
-  try {
-    const response = await ociFetch(
-      `${config.baseUrl}/photon/reverse?${params}`,
-      config.apiKey,
-      { method: "GET", next: { revalidate: 0 } },
-      PHOTON_TIMEOUT_MS
-    );
-    if (!response.ok || response.status >= 300) {
-      return { ok: false, outcome: failureFromStatus(response.status) };
-    }
-    const place = mapPhotonCollection(await response.json(), "")[0] ?? null;
-    return { ok: true, place };
-  } catch (error) {
-    return { ok: false, outcome: failureFromError(error) };
-  }
+  const response = await fetchPhotonFeatures(
+    `${config.baseUrl}/photon/reverse?${params}`,
+    config,
+    photonRequestTimeout()
+  );
+  if (!response.ok) return response;
+  const place =
+    rankPhotonFeatures(response.features, "")
+      .map(photonFeatureToPlace)
+      .find((item): item is RoutePoint => item != null) ?? null;
+  return { ok: true, place };
 }
 
 function remember(key: string, places: RoutePoint[]) {
@@ -295,12 +379,174 @@ function readFeatures(payload: unknown): PhotonFeature[] {
   );
 }
 
+async function fetchPhotonFeatures(
+  url: string,
+  config: OciGeoConfig,
+  timeoutMs: number
+): Promise<
+  | { ok: true; features: PhotonFeature[] }
+  | { ok: false; outcome: UpstreamFailure }
+> {
+  try {
+    const response = await ociFetch(
+      url,
+      config.apiKey,
+      { method: "GET", next: { revalidate: 0 } },
+      timeoutMs
+    );
+    if (!response.ok || response.status >= 300) {
+      return { ok: false, outcome: failureFromStatus(response.status) };
+    }
+    const features = readFeatures(await response.json());
+    notePhotonSuccess();
+    return { ok: true, features };
+  } catch (error) {
+    return { ok: false, outcome: failureFromError(error) };
+  }
+}
+
+function structuredSearchParams(
+  address: ParsedAddressQuery,
+  bias: GeocodeBias,
+  lang: string
+): URLSearchParams {
+  const params = new URLSearchParams({
+    street: address.street,
+    housenumber: address.housenumber,
+    limit: String(STRUCTURED_LIMIT),
+    lang,
+    lat: bias.lat.toFixed(5),
+    lon: bias.lon.toFixed(5),
+    zoom: String(bias.zoom),
+    location_bias_scale: String(locationBiasScale(bias.zoom)),
+  });
+  if (address.city) params.set("city", address.city);
+  return params;
+}
+
+function dedupeFeatures(features: PhotonFeature[]): PhotonFeature[] {
+  const seen = new Set<string>();
+  const unique: PhotonFeature[] = [];
+  for (const feature of features) {
+    const props = feature.properties ?? {};
+    const key = [
+      props.osm_type ?? "",
+      props.osm_id ?? "",
+      props.housenumber ?? "",
+      props.street ?? "",
+      props.name ?? "",
+    ].join(":");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(feature);
+  }
+  return unique;
+}
+
+function extractStreetAndNumber(
+  raw: string
+): { housenumber: string; street: string } | null {
+  const rest = stripRawPrefixes(raw);
+  const trailing = rest.match(/^(.+?)\s+(\d{1,4}[a-zа-я]?)$/iu);
+  const leading = rest.match(/^(\d{1,4}[a-zа-я]?)\s+(.+)$/iu);
+  let housenumber: string | undefined;
+  let street: string | undefined;
+  if (trailing?.[1] && trailing[2] && hasStreetWord(trailing[1])) {
+    housenumber = trailing[2];
+    street = trailing[1];
+  } else if (leading?.[1] && leading[2] && hasStreetWord(leading[2])) {
+    housenumber = leading[1];
+    street = leading[2];
+  }
+  if (!housenumber || !street) return null;
+  street = stripRawPrefixes(street);
+  if (streetKey(street).length < 3) return null;
+  return {
+    housenumber: housenumber.toLocaleLowerCase("bg-BG"),
+    street,
+  };
+}
+
+function hasStreetWord(value: string): boolean {
+  return /\p{L}{2,}/u.test(value);
+}
+
+function stripRawPrefixes(value: string): string {
+  let rest = value.trim();
+  for (let guard = 0; guard < 4; guard += 1) {
+    const next = rest.replace(STREET_PREFIX, "").trim();
+    if (next === rest) break;
+    rest = next;
+  }
+  return rest;
+}
+
+function exactAddress(
+  feature: PhotonFeature,
+  address: ParsedAddressQuery
+): boolean {
+  const props = feature.properties ?? {};
+  if (!streetsMatch(address.street, props)) return false;
+  return housenumbersEqual(featureHouseNumber(props), address.housenumber);
+}
+
+function streetsMatch(wanted: string, props: PhotonProperties): boolean {
+  const want = streetKey(wanted);
+  if (want.length < 3) return false;
+  const candidates = [props.street, props.name]
+    .filter((value): value is string => Boolean(value?.trim()))
+    .map(streetKey);
+  return candidates.some((candidate) => {
+    if (!candidate) return false;
+    if (candidate === want || candidate.includes(want)) return true;
+    return want.includes(candidate) && candidate.length >= 4;
+  });
+}
+
+function streetKey(value: string): string {
+  const text = expandStreetAbbrev(normalize(value))
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const tokens = text.split(" ").filter(Boolean);
+  while (tokens.length > 1 && PREFIX_TOKENS.has(tokens[0] ?? "")) {
+    tokens.shift();
+  }
+  return tokens.join(" ");
+}
+
+function expandStreetAbbrev(value: string): string {
+  return value.replace(/\bstr\./g, "strasse").replace(/\bstr\b/g, "strasse");
+}
+
+function featureHouseNumber(props: PhotonProperties): string | undefined {
+  const direct = props.housenumber?.trim();
+  if (direct) return direct.toLocaleLowerCase("bg-BG").replace(/\s+/g, "");
+  const fromName = props.name?.match(/(?:^|\s)(\d{1,4}[a-zа-я]?)$/iu)?.[1];
+  return fromName?.toLocaleLowerCase("bg-BG");
+}
+
+function housenumbersEqual(
+  featureNumber: string | undefined,
+  wanted: string
+): boolean {
+  if (!featureNumber) return false;
+  return (
+    featureNumber.replace(/\s+/g, "") ===
+    wanted.trim().toLocaleLowerCase("bg-BG").replace(/\s+/g, "")
+  );
+}
+
 function scoreFeature(
   feature: PhotonFeature,
   query: string,
   index: number,
   total: number,
-  flags: { shortCity: boolean; stationQuery: boolean }
+  flags: {
+    shortCity: boolean;
+    stationQuery: boolean;
+    address: ParsedAddressQuery | null;
+  }
 ): number {
   const props = feature.properties ?? {};
   const value = (props.osm_value ?? props.type ?? "").toLowerCase();
@@ -324,6 +570,9 @@ function scoreFeature(
     (value === "station" || value === "halt" || key === "railway")
   ) {
     score += 12;
+  }
+  if (flags.address && exactAddress(feature, flags.address)) {
+    score += EXACT_ADDRESS_BOOST;
   }
   return score;
 }

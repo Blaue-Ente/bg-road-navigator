@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/nakordoni",
       "schedule": "20 5 * * *"
+    },
+    {
+      "path": "/api/cron/warm-geo",
+      "schedule": "0 8 * * *"
     }
   ]
 }

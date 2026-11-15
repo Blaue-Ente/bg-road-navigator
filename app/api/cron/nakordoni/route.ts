@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { refreshNakordoniCache } from "@/lib/nakordoni/refresh";
+import { authorizeCron } from "@/lib/server/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+/**
+ * Same bearer / x-cron-secret check as warm-geo. This route spends the Nakordoni
+ * quota, so production stays closed until CRON_SECRET is set. Warm-geo stays open
+ * without a secret because it only pings Valhalla and Photon.
+ */
 function authorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
-  const header = request.headers.get("authorization");
   if (!secret) return process.env.NODE_ENV !== "production";
-  return header === `Bearer ${secret}`;
+  return authorizeCron(request);
 }
 
 async function handle(request: Request) {

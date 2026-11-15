@@ -19,6 +19,7 @@ export type ServiceId =
   | "osrm_custom"
   | "geocoding_custom"
   | "oci_geo"
+  | "cron_warm"
   | "app_url";
 
 export interface ServiceStatusItem {
@@ -187,6 +188,15 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       cost: "self_host",
       priority: "optional",
       env_vars: ["OCI_GEO_BASE_URL", "OCI_GEO_API_KEY"],
+    },
+    {
+      id: "cron_warm",
+      label: "Подгряване на Valhalla и Photon",
+      unlocks: "Защитен cron ping, за да не изтича първото търсене след пауза",
+      configured: hasEnv("CRON_SECRET"),
+      cost: "self_host",
+      priority: "optional",
+      env_vars: ["CRON_SECRET"],
     },
   ];
 }
