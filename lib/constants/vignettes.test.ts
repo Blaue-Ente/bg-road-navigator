@@ -16,10 +16,15 @@ describe("official vignette links", () => {
     }
   });
 
-  it("points Romania, Hungary and Switzerland at the official sellers", () => {
-    expect(getVignetteByCountryCode("RO")?.official_url).toBe(
-      "https://etoll.ro"
+  it("points Bulgaria and Romania at the official purchase pages", () => {
+    expect(getVignetteByCountryCode("BG")?.official_url).toBe(
+      "https://web.bgtoll.bg/"
     );
+    expect(getVignetteByCountryCode("BG")?.link_role).toBe("shop");
+    expect(getVignetteByCountryCode("RO")?.official_url).toBe(
+      "https://portal.etoll.ro/vinieta-ro"
+    );
+    expect(getVignetteByCountryCode("RO")?.link_role).toBe("shop");
     expect(getVignetteByCountryCode("RO")?.official_url).not.toContain(
       "roviniete"
     );
@@ -38,6 +43,14 @@ describe("official vignette links", () => {
       expect(link?.official_url.startsWith("https://")).toBe(true);
     }
     expect(getVignetteByCountryCode("BG")?.kind).toBe("vignette");
+    expect(getVignetteByCountryCode("RS")?.link_role).toBe("info");
+    expect(getVignetteByCountryCode("HR")?.link_role).toBe("info");
+  });
+
+  it("labels every official link as shop or info", () => {
+    for (const link of OFFICIAL_VIGNETTE_LINKS) {
+      expect(link.link_role === "shop" || link.link_role === "info").toBe(true);
+    }
   });
 
   it("resolves country codes and pairs", () => {

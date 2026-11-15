@@ -6,6 +6,7 @@ import {
 } from "@/lib/constants/vignettes";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { messages as m } from "@/lib/i18n";
 
 interface VignetteLinksProps {
   links?: VignetteLink[];
@@ -60,7 +61,9 @@ export function VignetteLinks({
                 )}
               </div>
               <span className="shrink-0 text-xs text-[var(--waze-accent-text)]">
-                Отвори
+                {link.link_role === "info"
+                  ? m.checklist.officialInfo
+                  : m.checklist.officialShop}
               </span>
             </a>
           </li>

@@ -49,6 +49,12 @@ export function buildChecklist(input: {
       detail: link.notes_bg ?? link.name_en,
       country_code: link.country_code,
       href: link.official_url,
+      link_role: link.link_role,
+      charge_kind: link.kind,
+      link_label:
+        link.link_role === "info"
+          ? "Официална информация"
+          : "Официален магазин",
     };
     if (link.kind === "distance_toll") tolls.push(item);
     else vignettes.push(item);

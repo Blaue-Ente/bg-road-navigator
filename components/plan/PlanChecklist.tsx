@@ -18,13 +18,16 @@ export function PlanChecklist({
   checks: Record<string, boolean>;
   onToggle: (id: string, checked: boolean) => void;
 }) {
+  const routeCharges: ChecklistItem[] = [
+    ...checklist.vignettes,
+    ...checklist.toll_sections,
+  ];
   const groups: Array<{ id: string; title: string; items: ChecklistItem[] }> = [
     {
-      id: "vignettes",
-      title: m.checklist.vignettes,
-      items: checklist.vignettes,
+      id: "route-charges",
+      title: m.checklist.vignettesAndTolls,
+      items: routeCharges,
     },
-    { id: "tolls", title: m.checklist.tolls, items: checklist.toll_sections },
     {
       id: "documents",
       title: m.checklist.documents,
@@ -74,6 +77,13 @@ export function PlanChecklist({
                     />
                     <span>
                       <span className="font-medium">{item.title}</span>
+                      {item.charge_kind && (
+                        <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
+                          {item.charge_kind === "distance_toll"
+                            ? "Тол на км"
+                            : "Винетка"}
+                        </span>
+                      )}
                       <span className="mt-0.5 block text-[var(--waze-text-secondary)]">
                         {item.detail}
                       </span>
@@ -86,7 +96,7 @@ export function PlanChecklist({
                       rel="noopener noreferrer"
                       className="mt-2 inline-block pl-7 text-sm text-[var(--waze-accent-text)] underline"
                     >
-                      {item.link_label ?? m.checklist.official}
+                      {checklistOfficialLinkLabel(item)}
                     </a>
                   )}
                 </li>
@@ -170,7 +180,7 @@ export function PlanSafetyBlock({
                   rel="noopener noreferrer"
                   className="mt-2 inline-block text-sm text-[var(--waze-accent-text)] underline"
                 >
-                  {item.link_label ?? m.checklist.official}
+                  {checklistOfficialLinkLabel(item)}
                 </a>
               )}
             </li>
@@ -179,6 +189,13 @@ export function PlanSafetyBlock({
       )}
     </div>
   );
+}
+
+function checklistOfficialLinkLabel(item: ChecklistItem): string {
+  if (item.link_label) return item.link_label;
+  if (item.link_role === "info") return m.checklist.officialInfo;
+  if (item.link_role === "shop") return m.checklist.officialShop;
+  return m.checklist.officialShop;
 }
 
 function SafetyGroup({

@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { buildChecklist } from "@/lib/planner/checklist";
-import type { VignetteLink } from "@/lib/constants/vignettes";
+import {
+  getVignetteByCountryCode,
+  type VignetteLink,
+} from "@/lib/constants/vignettes";
 
 const bg: VignetteLink = {
   country_code: "BG",
   kind: "vignette",
   name_bg: "България — електронна винетка",
   name_en: "Bulgaria",
-  official_url: "https://www.bgtoll.bg/",
+  official_url: "https://web.bgtoll.bg/",
+  link_role: "shop",
   notes_bg: "BGTOLL",
 };
 
@@ -17,6 +21,7 @@ const tr: VignetteLink = {
   name_bg: "Турция — HGS",
   name_en: "Turkey",
   official_url: "https://hgsmusteri.ptt.gov.tr/",
+  link_role: "shop",
   notes_bg: "HGS",
 };
 
@@ -31,8 +36,10 @@ describe("plan checklist", () => {
       tolls: [bg, tr],
     });
     expect(checklist.vignettes.map((item) => item.href)).toEqual([
-      "https://www.bgtoll.bg/",
+      "https://web.bgtoll.bg/",
     ]);
+    expect(checklist.vignettes[0]?.link_role).toBe("shop");
+    expect(checklist.vignettes[0]?.link_label).toBe("Официален магазин");
     expect(checklist.toll_sections.map((item) => item.country_code)).toEqual([
       "TR",
     ]);
@@ -121,5 +128,34 @@ describe("plan checklist", () => {
     expect(abroad.safety).toEqual([]);
     expect(abroad.safety_closing).toBeNull();
     expect(abroad.bg_links).toEqual([]);
+  });
+
+  it("builds checklist rows for every charge on a long Europe corridor", () => {
+    const codes = ["AT", "SI", "BG", "HR", "RS", "TR"] as const;
+    const tolls = codes.map((code) => getVignetteByCountryCode(code)!);
+    const checklist = buildChecklist({
+      countries: [...codes],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls,
+    });
+    const combined = [...checklist.vignettes, ...checklist.toll_sections];
+    expect(combined).toHaveLength(6);
+    expect(combined.map((item) => item.country_code).sort()).toEqual([
+      "AT",
+      "BG",
+      "HR",
+      "RS",
+      "SI",
+      "TR",
+    ]);
+    expect(
+      combined.find((item) => item.country_code === "RS")?.link_label
+    ).toBe("Официална информация");
+    expect(
+      combined.find((item) => item.country_code === "AT")?.link_label
+    ).toBe("Официален магазин");
   });
 });
