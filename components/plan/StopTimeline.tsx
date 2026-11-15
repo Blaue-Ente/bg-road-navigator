@@ -91,9 +91,13 @@ export function StopTimeline({
                         {formatClockDuration(stop.driving_min)} ·{" "}
                         {formatWhen(stop.eta)}
                       </p>
-                      <p className="mt-1 text-sm text-[var(--waze-text)]">
-                        {stop.reason}
-                      </p>
+                      {stop.reason &&
+                      (index === 0 ||
+                        stop.reason !== stops[index - 1]?.reason) ? (
+                        <p className="mt-1 text-sm text-[var(--waze-text)]">
+                          {stop.reason}
+                        </p>
+                      ) : null}
                       {stop.detour_km != null && (
                         <p className="text-xs text-[var(--waze-text-muted)]">
                           {stop.detour_km} {m.planning.km} {m.sheet.detour}

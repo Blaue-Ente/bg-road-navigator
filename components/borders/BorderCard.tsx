@@ -52,19 +52,24 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
         </span>
       </div>
 
-      <div className="mb-3 grid grid-cols-3 gap-3">
-        <div className="text-center">
-          <div className="text-xl font-bold">{border.wait_time_cars}</div>
-          <div className="text-xs text-[var(--waze-text-muted)]">Машини</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xl font-bold">{border.wait_time_trucks}</div>
-          <div className="text-xs text-[var(--waze-text-muted)]">Камиони</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xl font-bold">{border.wait_time_buses}</div>
-          <div className="text-xs text-[var(--waze-text-muted)]">Автобуси</div>
-        </div>
+      <div className="mb-3 flex flex-wrap gap-2">
+        {(
+          [
+            { label: "Коли", value: border.wait_time_cars },
+            { label: "Камиони", value: border.wait_time_trucks },
+            { label: "Автобуси", value: border.wait_time_buses },
+          ] as const
+        ).map((row) => (
+          <span
+            key={row.label}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--waze-surface-elevated)] px-2.5 py-1 text-sm ring-1 ring-[var(--waze-border)]"
+          >
+            <span className="text-[var(--waze-text-muted)]">{row.label}</span>
+            <span className="font-semibold text-[var(--waze-text)]">
+              {row.value} мин
+            </span>
+          </span>
+        ))}
       </div>
 
       <div className="mb-3 text-xs text-[var(--waze-text-muted)]">

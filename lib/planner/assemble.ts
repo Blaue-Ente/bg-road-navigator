@@ -168,7 +168,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     preferences: input.preferences,
     attribution: OSM_ATTRIBUTION,
     checklist: input.checklist,
-    weather: input.weather,
+    weather: normalizeWeatherSummaries(input.weather),
     why_this_route: input.why,
     road_hazards: input.roadHazards ?? [],
     road_hazard_attribution:
@@ -431,4 +431,17 @@ function exportStops(input: AssembleInput, stops: PlanStop[]): MapStop[] {
       label: input.destination.label,
     },
   ];
+}
+
+const HOURLY_WEATHER_EMPTY = "Няма почасова прогноза за този час.";
+
+function normalizeWeatherSummaries(weather: RouteWeather): RouteWeather {
+  return {
+    ...weather,
+    segments: weather.segments.map((segment) =>
+      segment.summary_bg === HOURLY_WEATHER_EMPTY
+        ? { ...segment, summary_bg: "" }
+        : segment
+    ),
+  };
 }

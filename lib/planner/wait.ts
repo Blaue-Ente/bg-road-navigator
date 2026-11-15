@@ -131,13 +131,16 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
 
   if (input.hatarinfo) return hatarinfoWait(input);
 
-  const hour = zonedHour(input.eta, input.timeZone ?? "Europe/Sofia");
-  const local = input.localTypical?.[hour];
-  if (typeof local === "number") {
+  const local = localTypicalMinutes(
+    input.localTypical,
+    input.eta,
+    input.timeZone ?? "Europe/Sofia"
+  );
+  if (local != null) {
     return {
       source: "local_typical",
       estimate: true,
-      minutes: Math.round(local),
+      minutes: local,
       metric: "wait_min",
       quality: null,
       queue_now: null,
@@ -194,8 +197,11 @@ function trafficDelay(input: ExpectedWaitInput): number | null {
 }
 
 function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
-  const hour = zonedHour(input.eta, input.timeZone ?? "Europe/Sofia");
-  const local = input.localTypical?.[hour];
+  const local = localTypicalMinutes(
+    input.localTypical,
+    input.eta,
+    input.timeZone ?? "Europe/Sofia"
+  );
   const traffic =
     input.trafficDelayMin != null && input.trafficDelayMin > 0
       ? Math.round(input.trafficDelayMin)
@@ -204,11 +210,11 @@ function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
     traffic == null
       ? ""
       : ` TomTom отчита около ${traffic} мин задръстване наблизо.`;
-  if (typeof local === "number") {
+  if (local != null) {
     return {
       source: "local_typical",
       estimate: true,
-      minutes: Math.round(local),
+      minutes: local,
       metric: "wait_min",
       quality: null,
       queue_now: null,
@@ -332,6 +338,31 @@ const WEEKDAYS: Record<string, number> = {
   Sat: 5,
   Sun: 6,
 };
+
+/** Local-hour index into `typical_wait_minutes`, Europe/Sofia by default. */
+export function localTypicalMinutes(
+  table: number[] | null,
+  at: Date,
+  timeZone = "Europe/Sofia"
+): number | null {
+  if (!table || table.length < 24) return null;
+  const hour = zonedParts(at, timeZone)?.hour;
+  if (hour == null) return null;
+  const value = table[hour];
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.round(value)
+    : null;
+}
+
+/** Rounded local hour label for wait subtitles (e.g. 14:00). */
+export function formatZonedHourLabel(
+  at: Date,
+  timeZone = "Europe/Sofia"
+): string {
+  const hour = zonedParts(at, timeZone)?.hour;
+  if (hour == null) return "";
+  return `${String(hour).padStart(2, "0")}:00`;
+}
 
 export function zonedParts(
   date: Date,
