@@ -20,7 +20,12 @@ import {
 } from "@/lib/planner/proposed-depart";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore, type Profile } from "@/lib/stores/user.store";
-import { messages as m } from "@/lib/i18n";
+import type { Messages } from "@/lib/i18n/locales/bg";
+import { localeTag } from "@/lib/i18n/locale";
+import {
+  useLocale,
+  useMessages,
+} from "@/components/i18n/LocaleProvider";
 import { committedPlace } from "@/lib/route/place-commit";
 import { hasAdvancedPlannerOptions } from "@/lib/route/planner-advanced";
 
@@ -55,6 +60,8 @@ export function PlanningForm({
   onDestinationQueryChange: (query: string) => void;
   onViaQueryChange: (query: string) => void;
 }) {
+  const m = useMessages();
+  const locale = useLocale();
   const profile = useUserStore((state) => state.profile);
   const session = useUserStore((state) => state.session);
   const setProfile = useUserStore((state) => state.setProfile);
@@ -194,7 +201,10 @@ export function PlanningForm({
       committedOrigin.id === committedDestination.id
   );
 
-  const departDisplay = formatDepartLocaleDisplay(depart || proposedDepart);
+  const departDisplay = formatDepartLocaleDisplay(
+    depart || proposedDepart,
+    localeTag(locale)
+  );
 
   return (
     <WazeCard className="space-y-4">
@@ -223,7 +233,7 @@ export function PlanningForm({
         <input
           id="depart-at"
           type="datetime-local"
-          lang="bg"
+          lang={locale}
           value={depart || proposedDepart}
           onChange={(event) => onChange({ departLocal: event.target.value })}
           className="mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
@@ -325,7 +335,7 @@ export function PlanningForm({
                 {m.planning.car}
               </h2>
               <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-                {carSummary(profile)}
+                {carSummary(profile, m)}
               </p>
               {profile && (
                 <p className="mt-1 text-xs text-[var(--waze-accent-text)]">
@@ -412,7 +422,7 @@ export function PlanningForm({
   );
 }
 
-function carSummary(profile: Profile | null): string {
+function carSummary(profile: Profile | null, m: Messages): string {
   if (!profile) return m.planning.carGuest;
   const name = profile.car?.trim() || m.vehicle[profile.vehicle_type];
   const fuel = m.fuel[profile.fuel_type];

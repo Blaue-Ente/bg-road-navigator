@@ -4,11 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SocialSignIn } from "@/components/auth/SocialSignIn";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderId } from "@/lib/auth/config";
 import { PRODUCT_NAME } from "@/lib/constants/brand";
 
 export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
+  const m = useMessages();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,14 +29,14 @@ export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
         password,
       });
       if (authError) {
-        setError("Неправилен имейл или парола");
+        setError(m.login.badCredentials);
         return;
       }
       router.push("/");
       router.refresh();
       return;
     } catch {
-      setError("Грешка при влизане");
+      setError(m.login.error);
     } finally {
       setLoading(false);
     }
@@ -42,18 +45,20 @@ export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--waze-bg)] p-4">
       <div className="waze-panel w-full max-w-md p-6 text-[var(--waze-text)]">
+        <div className="mb-4 flex justify-center">
+          <LocaleSwitcher />
+        </div>
         <h1 className="mb-2 text-center text-2xl font-bold text-[var(--waze-accent-text)]">
-          Вход
+          {m.login.title}
         </h1>
         <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">
-          {PRODUCT_NAME} — входът отключва любими места, общност и запазени
-          маршрути
+          {PRODUCT_NAME} {m.login.subtitle}
         </p>
         <SocialSignIn providers={providers} />
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium" htmlFor="email">
-              Имейл
+              {m.login.email}
             </label>
             <input
               id="email"
@@ -70,7 +75,7 @@ export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
               className="mb-1 block text-sm font-medium"
               htmlFor="password"
             >
-              Парола
+              {m.login.password}
             </label>
             <input
               id="password"
@@ -86,23 +91,23 @@ export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
           <button
             type="submit"
             disabled={loading}
-            className="waze-btn-primary w-full py-2.5 disabled:opacity-50"
+            className="min-h-11 w-full waze-btn-primary py-2.5 disabled:opacity-50"
           >
-            {loading ? "Влизане..." : "Влез"}
+            {loading ? m.login.submitting : m.login.submit}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-[var(--waze-text-muted)]">
-          Нямате акаунт?{" "}
+          {m.login.noAccount}{" "}
           <Link
             href="/register"
             className="text-[var(--waze-accent-text)] hover:underline"
           >
-            Регистрация
+            {m.login.register}
           </Link>
         </p>
         <p className="mt-3 text-center text-xs text-[var(--waze-text-muted)]">
           <Link href="/" className="hover:text-[var(--waze-text-secondary)]">
-            Продължи без вход — картата и маршрутите са свободни
+            {m.login.continueGuest}
           </Link>
         </p>
       </div>

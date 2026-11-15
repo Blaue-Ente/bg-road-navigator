@@ -1,7 +1,7 @@
 "use client";
 
 import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
-import { messages as m } from "@/lib/i18n";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { TripPreferences } from "@/lib/planner/preferences";
 
 export function PreferenceFields({
@@ -11,6 +11,7 @@ export function PreferenceFields({
   value: TripPreferences;
   onChange: (next: TripPreferences) => void;
 }) {
+  const m = useMessages();
   const patch = (partial: Partial<TripPreferences>) =>
     onChange({ ...value, ...partial });
 

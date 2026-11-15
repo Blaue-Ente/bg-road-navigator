@@ -280,6 +280,8 @@ describe("photon bias", () => {
     expect(locationBiasScale(14)).toBeLessThan(locationBiasScale(7));
     expect(photonLanguage(undefined)).toBe("bg");
     expect(photonLanguage("en-US")).toBe("en");
+    // Geocoder language follows document lang (also tr/ro for the locale switch).
+    expect(photonLanguage("tr")).toBe("tr");
     expect(photonLanguage("fr")).toBe("bg");
   });
 });

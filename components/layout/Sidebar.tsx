@@ -18,40 +18,35 @@ import {
   VignetteIcon,
   WeatherNavIcon,
 } from "@/components/icons/NavIcons";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useMenu } from "@/components/layout/MenuContext";
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
-
-const PRIMARY_ITEMS: Array<{
-  href: string;
-  label: string;
-  Icon: ComponentType<{ className?: string; size?: number }>;
-}> = [
-  { href: "/", label: "Карта", Icon: MapIcon },
-  { href: "/route", label: "Маршрут", Icon: RouteIcon },
-  { href: "/borders", label: "Граници", Icon: BorderIcon },
-];
-
-const MORE_ITEMS: Array<{
-  href: string;
-  label: string;
-  Icon: ComponentType<{ className?: string; size?: number }>;
-}> = [
-  { href: "/fuel", label: "Гориво", Icon: FuelIcon },
-  { href: "/vignettes", label: "Винетки", Icon: VignetteIcon },
-  { href: "/emergency", label: "Спешно", Icon: EmergencyIcon },
-  { href: "/community", label: "Общност", Icon: CommunityIcon },
-  { href: "/weather", label: "Време", Icon: WeatherNavIcon },
-  { href: "/hotels", label: "Почивки", Icon: RestIcon },
-  { href: "/tips", label: "Съвети", Icon: TipsIcon },
-  { href: "/profile", label: "Профил", Icon: UserIcon },
-];
 
 export function Sidebar() {
   const { open, closeMenu } = useMenu();
   const { enabled: isOperator } = useOperatorMode();
   const pathname = usePathname();
   const closeRef = useRef<HTMLButtonElement>(null);
+  const m = useMessages();
+
+  const primaryItems = [
+    { href: "/", label: m.nav.map, Icon: MapIcon },
+    { href: "/route", label: m.nav.route, Icon: RouteIcon },
+    { href: "/borders", label: m.nav.borders, Icon: BorderIcon },
+  ] as const;
+
+  const moreItems = [
+    { href: "/fuel", label: m.nav.fuel, Icon: FuelIcon },
+    { href: "/vignettes", label: m.nav.vignettes, Icon: VignetteIcon },
+    { href: "/emergency", label: m.nav.emergency, Icon: EmergencyIcon },
+    { href: "/community", label: m.nav.community, Icon: CommunityIcon },
+    { href: "/weather", label: m.nav.weather, Icon: WeatherNavIcon },
+    { href: "/hotels", label: m.nav.hotels, Icon: RestIcon },
+    { href: "/tips", label: m.nav.tips, Icon: TipsIcon },
+    { href: "/profile", label: m.nav.profilePage, Icon: UserIcon },
+  ] as const;
 
   useEffect(() => {
     if (!open) return;
@@ -71,7 +66,7 @@ export function Sidebar() {
         type="button"
         className="fixed inset-0 z-50 bg-black/50"
         onClick={closeMenu}
-        aria-label="Затвори"
+        aria-label={m.nav.close}
       />
       <aside
         id="app-menu"
@@ -86,26 +81,30 @@ export function Sidebar() {
             id="app-menu-title"
             className="text-lg font-bold text-[var(--waze-text)]"
           >
-            Още
+            {m.nav.more}
           </h2>
           <button
             ref={closeRef}
             type="button"
             onClick={closeMenu}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)]"
-            aria-label="Затвори меню"
+            aria-label={m.nav.closeMenu}
           >
             <CloseIcon size={20} />
           </button>
         </div>
 
         <p className="mb-4 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
-          Гориво, винетки, спешни номера, общност и прогноза са тук.
+          {m.nav.moreBlurb}
         </p>
+
+        <div className="mb-4">
+          <LocaleSwitcher className="w-full [&_select]:w-full" />
+        </div>
 
         <nav className="grid gap-1">
           <div className="mb-2 hidden md:grid">
-            {PRIMARY_ITEMS.map((item) => (
+            {primaryItems.map((item) => (
               <MenuLink
                 key={item.href}
                 href={item.href}
@@ -116,7 +115,7 @@ export function Sidebar() {
               />
             ))}
           </div>
-          {MORE_ITEMS.map((item) => (
+          {moreItems.map((item) => (
             <MenuLink
               key={item.href}
               href={item.href}
@@ -129,7 +128,7 @@ export function Sidebar() {
           {isOperator && (
             <MenuLink
               href="/setup"
-              label="Настройка"
+              label={m.nav.setup}
               Icon={SettingsIcon}
               active={pathname === "/setup"}
               onNavigate={closeMenu}

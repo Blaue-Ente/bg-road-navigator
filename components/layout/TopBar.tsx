@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "@/components/icons/NavIcons";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useMenu } from "@/components/layout/MenuContext";
 import { PRODUCT_NAME } from "@/lib/constants/brand";
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
@@ -11,31 +13,29 @@ interface TopBarProps {
   user: { id: string; email: string } | undefined;
 }
 
-const PAGE_TITLES: Record<string, string> = {
-  "/route": "Маршрут",
-  "/borders": "Граници",
-  "/fuel": "Гориво",
-  "/emergency": "Спешно",
-  "/weather": "Време",
-  "/community": "Общност",
-  "/hotels": "Почивки",
-  "/tips": "Съвети",
-  "/profile": "Профил",
-  "/vignettes": "Винетки",
-  "/setup": "Настройка",
-};
-
 export function TopBar({ user }: TopBarProps) {
   const pathname = usePathname();
   const { open, openMenu } = useMenu();
   const { enabled: operatorSetup } = useOperatorMode();
+  const m = useMessages();
 
   if (pathname === "/") return null;
 
-  let title = PAGE_TITLES[pathname] ?? PRODUCT_NAME;
-  if (pathname === "/setup" && !operatorSetup) {
-    title = "Услуги";
-  }
+  const titleByPath: Record<string, string> = {
+    "/route": m.nav.route,
+    "/borders": m.nav.borders,
+    "/fuel": m.nav.fuel,
+    "/emergency": m.nav.emergency,
+    "/weather": m.nav.weather,
+    "/community": m.nav.community,
+    "/hotels": m.nav.hotels,
+    "/tips": m.nav.tips,
+    "/profile": m.nav.profilePage,
+    "/vignettes": m.nav.vignettes,
+    "/setup": operatorSetup ? m.nav.setup : m.nav.services,
+  };
+
+  const title = titleByPath[pathname] ?? PRODUCT_NAME;
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--waze-border)] bg-[var(--waze-surface)]">
@@ -47,7 +47,7 @@ export function TopBar({ user }: TopBarProps) {
           type="button"
           onClick={openMenu}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--waze-text)]"
-          aria-label="Отвори меню"
+          aria-label={m.nav.openMenu}
           aria-expanded={open}
           aria-controls="app-menu"
         >
@@ -58,11 +58,13 @@ export function TopBar({ user }: TopBarProps) {
           {title}
         </h1>
 
+        <LocaleSwitcher className="shrink-0" />
+
         {user ? (
           <Link
             href="/profile"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--waze-accent)] text-sm font-bold text-white"
-            aria-label="Профил"
+            aria-label={m.nav.profile}
           >
             {user.email.charAt(0).toUpperCase()}
           </Link>
@@ -71,7 +73,7 @@ export function TopBar({ user }: TopBarProps) {
             href="/login"
             className="shrink-0 px-2 text-sm font-medium text-[var(--waze-accent-text)]"
           >
-            Влез
+            {m.nav.signIn}
           </Link>
         )}
       </div>
