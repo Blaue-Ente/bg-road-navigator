@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  formatVignetteValidity,
   OFFICIAL_VIGNETTE_LINKS,
   type VignetteLink,
 } from "@/lib/constants/vignettes";
@@ -36,7 +37,9 @@ export function VignetteLinks({
       </h2>
       <p className="mb-3 text-xs text-[var(--waze-text-muted)]">{intro}</p>
       <ul className="space-y-2">
-        {links.map((link) => (
+        {links.map((link) => {
+          const validityLine = formatVignetteValidity(link);
+          return (
           <li key={link.country_code}>
             <a
               href={link.official_url}
@@ -59,6 +62,11 @@ export function VignetteLinks({
                     {link.notes_bg}
                   </p>
                 )}
+                {validityLine && !compact && (
+                  <p className="mt-0.5 text-xs text-[var(--waze-text-secondary)]">
+                    {validityLine}
+                  </p>
+                )}
               </div>
               <span className="shrink-0 text-xs text-[var(--waze-accent-text)]">
                 {link.link_role === "info"
@@ -67,7 +75,8 @@ export function VignetteLinks({
               </span>
             </a>
           </li>
-        ))}
+        );
+        })}
       </ul>
     </WazeCard>
   );

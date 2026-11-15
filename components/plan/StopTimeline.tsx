@@ -16,6 +16,7 @@ import type { PlanStop, StopKind } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore } from "@/lib/stores/user.store";
 import { formatClockDuration } from "@/lib/planner/itinerary";
+import { stopPriceCopy } from "@/lib/planner/stop-price";
 
 const KIND_COLOR: Record<StopKind, string> = {
   fuel: "#b45309",
@@ -308,7 +309,15 @@ function markerColor(stop: PlanStop): string {
 }
 
 function PriceLine({ stop }: { stop: PlanStop }) {
+  const mode = stopPriceCopy(stop);
   if (stop.kinds.includes("fuel")) {
+    if (mode === "unknown") {
+      return (
+        <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
+          {m.sheet.priceUnknown}
+        </p>
+      );
+    }
     const tint =
       stop.price_band && stop.price_band !== "grey"
         ? PRICE_BAND_COLOR[stop.price_band]
@@ -318,11 +327,6 @@ function PriceLine({ stop }: { stop: PlanStop }) {
         className="mt-2 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2.5 py-2"
         style={tint ? { borderColor: tint } : undefined}
       >
-        {stop.average_label_bg && (
-          <p className="text-sm text-[var(--waze-text)]">
-            {stop.average_label_bg}
-          </p>
-        )}
         {stop.price_label_bg ? (
           <p
             className="text-sm font-medium"

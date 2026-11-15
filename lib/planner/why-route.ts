@@ -29,7 +29,7 @@ export function whyThisRoute(input: {
     reasons.push({
       code: "border_wait",
       title: `През ${chosen.nameBg}`,
-      detail: `През ${chosen.nameBg}: с ${Math.abs(delta)} мин ${delta >= 0 ? "по-малко" : "повече"} общо време от ${alternative.nameBg}. Чакане ${chosen.waitMinutes} мин срещу ${alternative.waitMinutes} мин.`,
+      detail: borderChoiceDetail(chosen, alternative, delta),
       delta_min: delta,
       delta_km: Math.round(alternative.distanceKm - chosen.distanceKm),
     });
@@ -91,6 +91,27 @@ export function whyThisRoute(input: {
     reasons.push(preference("Двама шофьори", "Дневният лимит за шофиране е по-дълъг."));
   }
   return reasons;
+}
+
+function borderChoiceDetail(
+  chosen: WhyBorder,
+  alternative: WhyBorder,
+  delta: number
+): string {
+  const overall =
+    delta >= 0
+      ? `През ${chosen.nameBg} пътят е с около ${Math.abs(delta)} мин по-малко общо време от ${alternative.nameBg}.`
+      : `През ${chosen.nameBg} пътят е с около ${Math.abs(delta)} мин повече общо време от ${alternative.nameBg}.`;
+  const waitDelta = alternative.waitMinutes - chosen.waitMinutes;
+  let wait: string;
+  if (waitDelta > 0) {
+    wait = `По-кратко чакане на границата: около ${chosen.waitMinutes} мин вместо ${alternative.waitMinutes} мин.`;
+  } else if (waitDelta < 0) {
+    wait = `По-дълго чакане на границата: около ${chosen.waitMinutes} мин вместо ${alternative.waitMinutes} мин.`;
+  } else {
+    wait = `Чакане на границата: около ${chosen.waitMinutes} мин и при двата варианта.`;
+  }
+  return `${overall} ${wait}`;
 }
 
 function preference(title: string, detail: string): WhyReason {

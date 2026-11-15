@@ -187,7 +187,12 @@ describe("house numbers", () => {
 
   it("keeps a city query on the city ranking when there is no house number", () => {
     expect(firstLabel("Sofia", sofiaFeatures())).toBe("София");
+    expect(firstLabel("София", sofiaStreetFeatures())).toBe("София");
     expect(firstLabel("Plovdiv", plovdivFeatures())).toBe("Пловдив");
+    const berlin = berlinFeatures();
+    berlin[0]!.properties!.importance = 0.95;
+    berlin[1]!.properties!.importance = 0.4;
+    expect(firstLabel("Berlin", berlin)).toBe("Berlin");
   });
 
   it("ranks BG Sofia above MD Sofia on an exact name match", () => {
@@ -310,6 +315,50 @@ function sofiaFeatures(): PhotonFeature[] {
       countrycode: "MD",
       coordinates: [28.4, 47.1],
       extent: [28.39, 47.11, 28.41, 47.09],
+    }),
+    place({
+      name: "София",
+      osm_value: "city",
+      osm_key: "place",
+      countrycode: "BG",
+      coordinates: [23.3219, 42.6977],
+      extent: [23.2, 42.8, 23.5, 42.6],
+    }),
+  ];
+}
+
+function berlinFeatures(): PhotonFeature[] {
+  return [
+    place({
+      name: "Tauentzienstraße",
+      street: "Tauentzienstraße",
+      osm_value: "primary",
+      osm_key: "highway",
+      countrycode: "DE",
+      city: "Berlin",
+      coordinates: [13.344, 52.502],
+    }),
+    place({
+      name: "Berlin",
+      osm_value: "city",
+      osm_key: "place",
+      countrycode: "DE",
+      coordinates: [13.405, 52.52],
+      extent: [13.08, 52.67, 13.76, 52.33],
+    }),
+  ];
+}
+
+function sofiaStreetFeatures(): PhotonFeature[] {
+  return [
+    place({
+      name: "булевард Витоша",
+      street: "булевард Витоша",
+      osm_value: "primary",
+      osm_key: "highway",
+      countrycode: "BG",
+      city: "София",
+      coordinates: [23.322, 42.692],
     }),
     place({
       name: "София",
@@ -555,6 +604,7 @@ function place(input: {
   coordinates: [number, number];
   extent?: number[];
   city?: string;
+  street?: string;
 }): PhotonFeature {
   return {
     type: "Feature",
@@ -567,6 +617,7 @@ function place(input: {
       osm_value: input.osm_value,
       countrycode: input.countrycode,
       city: input.city,
+      street: input.street,
       extent: input.extent,
     },
   };

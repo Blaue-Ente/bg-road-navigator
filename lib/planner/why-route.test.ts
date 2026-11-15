@@ -37,6 +37,8 @@ describe("whyThisRoute", () => {
     const border = reasons.find((reason) => reason.code === "border_wait");
     expect(border?.delta_min).toBe(60);
     expect(border?.detail).toContain("Калотина");
+    expect(border?.detail).toMatch(/По-кратко чакане на границата/);
+    expect(border?.detail).not.toMatch(/срещу/);
     expect(reasons.some((reason) => reason.code === "incident")).toBe(true);
     expect(reasons.some((reason) => reason.code === "time_delta")).toBe(true);
     expect(

@@ -53,6 +53,13 @@ describe("official vignette links", () => {
     }
   });
 
+  it("shows validity text only when copied from an official page", () => {
+    const cz = getVignetteByCountryCode("CZ");
+    expect(cz?.validity_bg).toBeTruthy();
+    expect(cz?.checked_on).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(getVignetteByCountryCode("BG")?.validity_bg).toBeUndefined();
+  });
+
   it("resolves country codes and pairs", () => {
     expect(getVignetteByCountryCode("at")?.country_code).toBe("AT");
     expect(getVignetteByCountryCode("Austria")?.country_code).toBe("AT");
