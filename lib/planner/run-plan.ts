@@ -1,11 +1,15 @@
 import { getEVStations } from "@/lib/api-clients/opencharge";
-import { countryCodeAtPoint, countriesAlongRoute } from "@/lib/geo/countries-along-route";
+import {
+  countryCodeAtPoint,
+  countriesAlongRoute,
+} from "@/lib/geo/countries-along-route";
 import { haversineKm } from "@/lib/geo/haversine";
 import { listPins } from "@/lib/db/community";
 import { isDatabaseConfigured } from "@/lib/db";
 import { listValidFuelReports } from "@/lib/db/fuel-reports";
 import { listPlaceFlags } from "@/lib/db/place-flags";
-import { readLatestAverages } from "@/lib/fuel-prices/national-store";
+import { readLatestAverageDetails } from "@/lib/fuel-prices/national-store";
+import { fuelAveragesForCountries } from "@/lib/fuel-prices/present";
 import { resolveStationPrice } from "@/lib/fuel-prices/resolve";
 import type { KnownPrice } from "@/lib/fuel-prices/types";
 import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
@@ -91,7 +95,9 @@ export async function runTripPlan(input: TripPlanRequest) {
     destinationCountry,
   }).filter((candidate) => allowsBorder(candidate.id, prefs));
 
-  const viaCoords = (input.via ?? []).slice(0, MAX_VIA).map((point) => point.coords);
+  const viaCoords = (input.via ?? [])
+    .slice(0, MAX_VIA)
+    .map((point) => point.coords);
   const [direct, viaList, pins, waits, traffic] = await Promise.all([
     viaCoords.length === 0
       ? fetchDirectRoute(input.origin.coords, input.destination.coords, costing)
@@ -160,7 +166,9 @@ export async function runTripPlan(input: TripPlanRequest) {
       routed.distance_km > 0
         ? Math.min(1, along.alongKm / Math.max(lineLengthKm(line), 1))
         : 0;
-    const eta = new Date(input.departAt.getTime() + fraction * driveMin * 60_000);
+    const eta = new Date(
+      input.departAt.getTime() + fraction * driveMin * 60_000
+    );
     const cached = candidate.ppid ? waits.get(candidate.ppid) : undefined;
     const community = communityAlongRoute(line, pins, now.getTime());
     scoreInputs.push({
@@ -194,12 +202,16 @@ export async function runTripPlan(input: TripPlanRequest) {
     chosen && !onPath.has(chosen.borderId) && viaRoutes.get(chosen.borderId)
       ? viaRoutes.get(chosen.borderId)!
       : direct;
-  const chosenLine = chosenRoute.geometry.coordinates as Array<[number, number]>;
+  const chosenLine = chosenRoute.geometry.coordinates as Array<
+    [number, number]
+  >;
   const roadKm = chosenRoute.distance_km;
   const geometryKm = Math.max(1, lineLengthKm(chosenLine));
   const community = communityAlongRoute(chosenLine, pins, now.getTime());
   const borderAlong =
-    chosen == null ? null : distanceToPolylineKm(chosenLine, chosen.coords).alongKm;
+    chosen == null
+      ? null
+      : distanceToPolylineKm(chosenLine, chosen.coords).alongKm;
   const countries = countriesAlongRoute({
     geometry: chosenRoute.geometry,
     origin: { coords: input.origin.coords },
@@ -210,7 +222,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       ? input.vehicle.fuel_type
       : null;
 
-  const [corridor, weather, averages, chargers] = await Promise.all([
+  const [corridor, weather, averageDetails, chargers] = await Promise.all([
     loadCorridorPlaces({
       line: chosenLine,
       extraTypes: [...scenicTypes(prefs), ...childAmenityTypes(prefs)],
@@ -222,17 +234,19 @@ export async function runTripPlan(input: TripPlanRequest) {
       distanceKm: roadKm,
     }),
     bulletinFuel
-      ? readLatestAverages(countries, bulletinFuel)
-      : Promise.resolve(new Map<string, number>()),
+      ? readLatestAverageDetails(countries, bulletinFuel)
+      : Promise.resolve(
+          new Map<
+            string,
+            { price: number; week: string; source: "ec-oil-bulletin" }
+          >()
+        ),
     input.vehicle.energy === "charge"
       ? chargersAlong(chosenLine, geometryKm)
       : Promise.resolve([] as CorridorPlace[]),
   ]);
 
-  const places = dedupeChargers(
-    [...corridor.places, ...chargers],
-    chosenLine
-  );
+  const places = dedupeChargers([...corridor.places, ...chargers], chosenLine);
   const [flagRows, reportRows, officialPrices] = await Promise.all([
     safeFlags(places.map((place) => place.id)),
     safeReports(
@@ -249,14 +263,17 @@ export async function runTripPlan(input: TripPlanRequest) {
   const fuelStops: FuelTimedStop[] = windows.map((window) => ({
     kind: input.vehicle.energy === "charge" ? "charge" : "fuel",
     distanceKm: window.windowEndKm,
-    etaMin: (window.windowEndKm / Math.max(roadKm, 1)) * chosenRoute.duration_min,
+    etaMin:
+      (window.windowEndKm / Math.max(roadKm, 1)) * chosenRoute.duration_min,
   }));
   const merged = mergeDrivingBreaks({
     driveMin: chosenRoute.duration_min,
     distanceKm: roadKm,
     breakEveryMin: effectiveBreakEveryMin(prefs),
     mergeWithinMin: 30,
-    overnightAfterMin: day.overnight ? day.overnightAfterMin : chosenRoute.duration_min + 1,
+    overnightAfterMin: day.overnight
+      ? day.overnightAfterMin
+      : chosenRoute.duration_min + 1,
     overnightAtMin: day.overnightAtMin,
     fuelStops,
   });
@@ -272,7 +289,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     driveMin: chosenRoute.duration_min,
     distanceKm: roadKm,
     countryAt: (lat, lng) => countryCodeAtPoint(lng, lat),
-    averagePerLitre: (country) => averages.get(country) ?? null,
+    averagePerLitre: (country) => averageDetails.get(country)?.price ?? null,
   });
 
   const warnings: string[] = [];
@@ -331,6 +348,16 @@ export async function runTripPlan(input: TripPlanRequest) {
       tolls,
     }),
     weather,
+    fuelAverages: fuelAveragesForCountries({
+      countries,
+      fuel: input.vehicle.fuel_type,
+      known: averageDetails,
+    }),
+    countryAt: (lng, lat) => countryCodeAtPoint(lng, lat),
+    averageFor: (country) => {
+      const row = averageDetails.get(country);
+      return row ? { price: row.price, week: row.week } : null;
+    },
     why: whyThisRoute({
       borders: borders.map((border) => ({
         chosen: border.chosen,
@@ -359,17 +386,6 @@ function applyPrice(
   reports: Map<string, { amount: number; at: string }>,
   flagWeights: Record<string, number> | undefined
 ): AnnotatedPlace {
-  const known = official.get(place.id);
-  if (known) {
-    return {
-      ...place,
-      flagWeights,
-      priceAmount: known.amount,
-      priceBasis: "official",
-      priceSource: known.source,
-      observedAt: known.observedAt,
-    };
-  }
   const report = reports.get(place.id);
   if (report) {
     return {
@@ -379,6 +395,17 @@ function applyPrice(
       priceBasis: "community",
       priceSource: "community",
       observedAt: report.at,
+    };
+  }
+  const known = official.get(place.id);
+  if (known) {
+    return {
+      ...place,
+      flagWeights,
+      priceAmount: known.amount,
+      priceBasis: "official",
+      priceSource: known.source,
+      observedAt: known.observedAt,
     };
   }
   return { ...place, flagWeights };

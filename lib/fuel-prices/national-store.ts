@@ -2,9 +2,16 @@ import { and, eq, inArray } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { fuelNationalAverages } from "@/lib/db/schema";
 import type { BulletinPrice } from "@/lib/fuel-prices/oil-bulletin";
+import { OIL_BULLETIN_SOURCE } from "@/lib/fuel-prices/present";
 
-const SOURCE = "ec-oil-bulletin";
+const SOURCE = OIL_BULLETIN_SOURCE;
 const memory = new Map<string, { week: string; price: number }>();
+
+export interface StoredAverage {
+  price: number;
+  week: string;
+  source: typeof OIL_BULLETIN_SOURCE;
+}
 
 export function clearAveragesForTests() {
   memory.clear();
@@ -47,10 +54,10 @@ export async function upsertNationalAverages(
   return rows.length;
 }
 
-export async function readLatestAverages(
+export async function readLatestAverageDetails(
   countries: string[],
   fuel: "petrol" | "diesel"
-): Promise<Map<string, number>> {
+): Promise<Map<string, StoredAverage>> {
   const wanted = [...new Set(countries.map((code) => code.toUpperCase()))];
   const best = new Map<string, { week: string; price: number }>();
   for (const country of wanted) {
@@ -83,11 +90,25 @@ export async function readLatestAverages(
       // The in-memory copy still answers this process.
     }
   }
-  const prices = new Map<string, number>();
+  const details = new Map<string, StoredAverage>();
   for (const [country, value] of best) {
     memory.set(`${country}:${fuel}`, value);
-    prices.set(country, value.price);
+    details.set(country, {
+      price: value.price,
+      week: value.week,
+      source: SOURCE,
+    });
   }
+  return details;
+}
+
+export async function readLatestAverages(
+  countries: string[],
+  fuel: "petrol" | "diesel"
+): Promise<Map<string, number>> {
+  const details = await readLatestAverageDetails(countries, fuel);
+  const prices = new Map<string, number>();
+  for (const [country, value] of details) prices.set(country, value.price);
   return prices;
 }
 

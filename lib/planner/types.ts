@@ -1,4 +1,5 @@
 import type { VignetteLink } from "@/lib/constants/vignettes";
+import type { PriceBand } from "@/lib/fuel-prices/bands";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { GeoPoint } from "@/types/route.types";
 
@@ -9,6 +10,21 @@ export type WaitSource =
 export type StopKind = "fuel" | "charge" | "rest" | "overnight" | "sight";
 
 export type PlanPriceSource = "e-control" | "tankerkoenig" | "community";
+
+export type { PriceBand };
+
+/** National Weekly Oil Bulletin figure for one country on this route. */
+export interface FuelCountryAverage {
+  country_code: string;
+  country_name_bg: string;
+  fuel: "diesel" | "petrol" | "lpg" | "electric";
+  price_eur_per_l: number | null;
+  week: string | null;
+  week_label_bg: string | null;
+  source: "ec-oil-bulletin" | null;
+  source_label_bg: string;
+  label_bg: string;
+}
 
 export interface FuelAdvice {
   cheaper_than_avg_per_l: number;
@@ -68,11 +84,7 @@ export interface RouteWeather {
 
 export interface WhyReason {
   code:
-    | "border_wait"
-    | "time_delta"
-    | "distance_delta"
-    | "incident"
-    | "preference";
+    "border_wait" | "time_delta" | "distance_delta" | "incident" | "preference";
   title: string;
   detail: string;
   delta_min: number | null;
@@ -153,6 +165,13 @@ export interface PlanStop {
   place_source: "osm" | "openstreetmap" | "openchargemap" | "calculated";
   price: PlanPrice | null;
   advice: FuelAdvice | null;
+  /** Null when the stop is not a fuel stop. Grey means no station price. */
+  price_band: PriceBand | null;
+  /** National average for this stop's country, e.g. "България: дизел ср. 1,90 €/л". */
+  average_label_bg: string | null;
+  price_label_bg: string | null;
+  price_delta_label_bg: string | null;
+  price_source_label_bg: string | null;
   flags: PlaceFlagSummary[];
   /** Scenic sights are optional and can be skipped. */
   optional: boolean;
@@ -204,6 +223,8 @@ export interface TripPlannerResult {
     note: string;
   };
   stops: PlanStop[];
+  /** One row per country the route crosses, in travel order. */
+  fuel_averages: FuelCountryAverage[];
   community: {
     penalty_min: number;
     notes: CommunityNote[];

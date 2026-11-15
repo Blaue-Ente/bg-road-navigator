@@ -55,6 +55,7 @@ export async function listValidFuelReports(
       and(
         inArray(fuelPriceReports.stationId, stationIds.slice(0, 200)),
         eq(fuelPriceReports.fuelType, fuelType),
+        eq(fuelPriceReports.currency, "EUR"),
         gt(fuelPriceReports.expiresAt, now)
       )
     );

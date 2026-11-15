@@ -1,10 +1,19 @@
 import type { StopAttachment } from "@/lib/planner/assemble";
 import type { TimedStop } from "@/lib/planner/breaks";
 import { buildFuelAdvice, fillLiters } from "@/lib/fuel-prices/advice";
-import { isNamedPlace, pickPlace, pickSights, type AnnotatedPlace } from "@/lib/planner/pick-place";
+import {
+  isNamedPlace,
+  pickPlace,
+  pickSights,
+  type AnnotatedPlace,
+} from "@/lib/planner/pick-place";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import { starsFromTags } from "@/lib/planner/stars";
-import type { FuelAdvice, PlaceFlagSummary, PlanPrice } from "@/lib/planner/types";
+import type {
+  FuelAdvice,
+  PlaceFlagSummary,
+  PlanPrice,
+} from "@/lib/planner/types";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 
 const FUEL_LOOKBACK_KM = 40;
@@ -20,7 +29,8 @@ export function attachStops(input: {
   averagePerLitre: (country: string) => number | null;
 }): { attachments: StopAttachment[]; sights: StopAttachment[] } {
   const liters = fillLiters(input.vehicle);
-  const fuel = input.vehicle.fuel_type === "electric" ? null : input.vehicle.fuel_type;
+  const fuel =
+    input.vehicle.fuel_type === "electric" ? null : input.vehicle.fuel_type;
   const priced = input.places.map((place) =>
     withSavings(place, input, fuel, liters)
   );
@@ -105,17 +115,27 @@ function withSavings(
   fuel: "diesel" | "petrol" | "lpg" | null,
   liters: number
 ): AnnotatedPlace {
-  if (place.kind !== "fuel" || place.priceAmount == null || !fuel) return place;
+  if (place.kind !== "fuel" || !fuel) return place;
   const country = input.countryAt(place.lat, place.lng);
   const average = country ? input.averagePerLitre(country) : null;
-  if (average == null) return place;
+  if (
+    place.priceAmount == null ||
+    average == null ||
+    place.priceBasis == null
+  ) {
+    return { ...place, nationalAvgPerL: average };
+  }
   const advice = buildFuelAdvice({
     stationPerL: place.priceAmount,
     nationalAvgPerL: average,
     liters,
-    basis: place.priceBasis === "community" ? "community" : "official",
+    basis: place.priceBasis,
   });
-  return { ...place, savingsEur: advice?.est_savings_eur ?? null };
+  return {
+    ...place,
+    nationalAvgPerL: average,
+    savingsEur: advice?.est_savings_eur ?? null,
+  };
 }
 
 function toAttachment(
@@ -137,7 +157,7 @@ function toAttachment(
   return {
     etaMin: stop.etaMin,
     distanceKm: stop.distanceKm,
-    name: place && isNamedPlace(place) ? place.name : place?.name ?? null,
+    name: place && isNamedPlace(place) ? place.name : (place?.name ?? null),
     brand: place?.brand ?? null,
     coords: place ? { lng: place.lng, lat: place.lat } : null,
     detourKm: place ? Math.round(place.detourKm * 10) / 10 : null,
@@ -181,7 +201,8 @@ function adviceFor(
 }
 
 function priceFor(place: AnnotatedPlace | null): PlanPrice | null {
-  if (!place || place.priceAmount == null || place.priceSource == null) return null;
+  if (!place || place.priceAmount == null || place.priceSource == null)
+    return null;
   return {
     amount: place.priceAmount,
     currency: "EUR",

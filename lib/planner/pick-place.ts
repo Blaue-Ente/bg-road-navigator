@@ -1,3 +1,4 @@
+import { compareFuelStops } from "@/lib/fuel-prices/bands";
 import { distanceToPolylineKm, lineLengthKm } from "@/lib/planner/line";
 import { flagBias } from "@/lib/planner/flag-score";
 import {
@@ -22,6 +23,8 @@ export interface AnnotatedPlace extends CorridorPlace {
   alongKm: number;
   detourKm: number;
   priceAmount: number | null;
+  /** National average used to colour this station. Null when the bulletin has no row. */
+  nationalAvgPerL: number | null;
   priceBasis: "official" | "community" | null;
   priceSource: "e-control" | "tankerkoenig" | "community" | null;
   observedAt: string | null;
@@ -47,9 +50,9 @@ export function annotatePlaces(
         place.alongM == null
           ? along.alongKm * scale
           : (place.alongM / 1000) * scale,
-      detourKm:
-        place.distM == null ? along.distanceKm : place.distM / 1000,
+      detourKm: place.distM == null ? along.distanceKm : place.distM / 1000,
       priceAmount: null,
+      nationalAvgPerL: null,
       priceBasis: null,
       priceSource: null,
       observedAt: null,
@@ -83,7 +86,13 @@ export function pickPlace(
     )
     .filter((place) => place.detourKm <= limit)
     .map((place) => ({ place, score: scorePlace(place, prefs) }));
-  ranked.sort((a, b) => b.score - a.score);
+  const fuelOnly =
+    options.kinds.length > 0 && options.kinds.every((kind) => kind === "fuel");
+  ranked.sort((a, b) =>
+    fuelOnly
+      ? compareFuelStops(a.place, a.score, b.place, b.score)
+      : b.score - a.score
+  );
   return ranked[0]?.place ?? null;
 }
 

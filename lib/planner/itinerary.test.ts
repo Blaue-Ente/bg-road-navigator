@@ -131,6 +131,7 @@ function fakePlan(): TripPlannerResult {
       },
     ],
     recommended_fuel: null,
+    fuel_averages: [],
   };
 }
 
@@ -152,6 +153,11 @@ function stop(id: string, optional: boolean, lng: number): PlanStop {
     place_source: "osm",
     price: null,
     advice: null,
+    price_band: optional ? null : "grey",
+    average_label_bg: optional ? null : "България: няма средна цена",
+    price_label_bg: null,
+    price_delta_label_bg: null,
+    price_source_label_bg: null,
     flags: [],
     optional,
     price_note: null,

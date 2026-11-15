@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
+import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { messages as m } from "@/lib/i18n";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -26,21 +27,35 @@ export function PlanMarkers({ map }: { map: Map | null }) {
 
     for (const stop of plan.stops) {
       markers.push(
-        marker(map, stop.coords.lng, stop.coords.lat, colorFor(stop), labelFor(stop), {
-          focused: stop.id === focusedStopId,
-          flags: stop.flags.length,
-          onSelect: () => useRouteStore.getState().setFocusedStopId(stop.id),
-        })
+        marker(
+          map,
+          stop.coords.lng,
+          stop.coords.lat,
+          colorFor(stop),
+          labelFor(stop),
+          {
+            focused: stop.id === focusedStopId,
+            flags: stop.flags.length,
+            onSelect: () => useRouteStore.getState().setFocusedStopId(stop.id),
+          }
+        )
       );
     }
     const border = plan.border.chosen;
     if (border) {
       markers.push(
-        marker(map, border.coords.lng, border.coords.lat, "#b91c1c", border.name_bg, {
-          focused: false,
-          flags: 0,
-          onSelect: () => useRouteStore.getState().setPlanDetailOpen(true),
-        })
+        marker(
+          map,
+          border.coords.lng,
+          border.coords.lat,
+          "#b91c1c",
+          border.name_bg,
+          {
+            focused: false,
+            flags: 0,
+            onSelect: () => useRouteStore.getState().setPlanDetailOpen(true),
+          }
+        )
       );
     }
 
@@ -53,6 +68,9 @@ export function PlanMarkers({ map }: { map: Map | null }) {
 }
 
 function colorFor(stop: PlanStop): string {
+  if (stop.kinds.includes("fuel") && stop.price_band) {
+    return PRICE_BAND_COLOR[stop.price_band];
+  }
   if (stop.kinds.includes("overnight")) return KIND_COLOR.overnight;
   if (stop.kinds.includes("charge")) return KIND_COLOR.charge;
   if (stop.kinds.includes("fuel")) return KIND_COLOR.fuel;
@@ -60,11 +78,19 @@ function colorFor(stop: PlanStop): string {
   return KIND_COLOR.rest;
 }
 
+const BAND_LABEL = {
+  green: m.sheet.bandGreen,
+  yellow: m.sheet.bandYellow,
+  red: m.sheet.bandRed,
+  grey: m.sheet.bandGrey,
+} as const;
+
 function labelFor(stop: PlanStop): string {
   const kinds = stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(", ");
-  const flags =
-    stop.flags.length > 0 ? `, ${stop.flags.length}` : "";
-  return `${stop.place_name ?? stop.title}. ${kinds}${flags}`;
+  const flags = stop.flags.length > 0 ? `, ${stop.flags.length}` : "";
+  const price = stop.average_label_bg ? `. ${stop.average_label_bg}` : "";
+  const band = stop.price_band ? `. ${BAND_LABEL[stop.price_band]}` : "";
+  return `${stop.place_name ?? stop.title}. ${kinds}${flags}${price}${band}`;
 }
 
 function marker(
@@ -101,5 +127,7 @@ function marker(
     el.append(badge);
   }
 
-  return new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
+  return new maplibregl.Marker({ element: el })
+    .setLngLat([lng, lat])
+    .addTo(map);
 }
