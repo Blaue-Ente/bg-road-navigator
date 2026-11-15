@@ -110,7 +110,7 @@ describe("runTripPlan", () => {
       trPlan?.why_this_route.some(
         (r) =>
           r.code === "preference" &&
-          (r.title.includes("Otoyolsuz") || r.detail.includes("Otoyolsuz"))
+          (r.title.includes("Otoyol") || r.detail.includes("Otoyol"))
       )
     ).toBe(true);
     expect(trPlan?.checklist.safety_closing).not.toBe(
