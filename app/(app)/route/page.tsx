@@ -32,6 +32,7 @@ import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
 import { messages as m } from "@/lib/i18n";
+import { committedPlace } from "@/lib/route/place-commit";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { ManeuverList } from "@/components/route/ManeuverList";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
@@ -92,6 +93,9 @@ export default function RoutePage() {
   const [calculating, setCalculating] = useState(false);
   const [routeBorders, setRouteBorders] = useState<string[]>([]);
   const [routeError, setRouteError] = useState<string | null>(null);
+  const [originQuery, setOriginQuery] = useState("");
+  const [destinationQuery, setDestinationQuery] = useState("");
+  const [viaQuery, setViaQuery] = useState("");
   const appliedReplan = useRef(0);
 
   const blank = useMemo(
@@ -99,10 +103,10 @@ export default function RoutePage() {
       createPlannerDraft({
         origin: activeRoute
           ? { ...activeRoute.origin, source: "user" }
-          : toRoutePoint("london"),
+          : null,
         destination: activeRoute
           ? { ...activeRoute.destination, source: "user" }
-          : toRoutePoint("sofia"),
+          : null,
         preferences: resolveTripPreferences(undefined, profilePrefs),
         departLocal: toDatetimeLocalValue(profilePrefs?.depart_at),
       }),
@@ -205,11 +209,18 @@ export default function RoutePage() {
     setCalculating(true);
     setRouteError(null);
 
-    if (!origin || !destination || origin.id === destination.id) {
+    const committedOrigin = committedPlace(origin, originQuery);
+    const committedDestination = committedPlace(destination, destinationQuery);
+    const committedVia = via ? committedPlace(via, viaQuery) : null;
+
+    if (!committedOrigin || !committedDestination) {
       setCalculating(false);
-      setRouteError(
-        !origin || !destination ? m.planning.missingEnds : m.planning.sameEnds
-      );
+      setRouteError(m.planning.pickFromList);
+      return;
+    }
+    if (committedOrigin.id === committedDestination.id) {
+      setCalculating(false);
+      setRouteError(m.planning.sameEnds);
       return;
     }
     setPlanDetailOpen(false);
@@ -223,10 +234,15 @@ export default function RoutePage() {
 
     const points = corridorId
       ? undefined
-      : via
-        ? [origin!, via, destination!]
-        : [origin!, destination!];
-    const planPromise = postPlan(origin!, destination!, via, submitted);
+      : committedVia
+        ? [committedOrigin, committedVia, committedDestination]
+        : [committedOrigin, committedDestination];
+    const planPromise = postPlan(
+      committedOrigin,
+      committedDestination,
+      committedVia,
+      submitted
+    );
     const route = await fetchRoute({
       corridorId: corridorId ?? undefined,
       points,
@@ -240,15 +256,19 @@ export default function RoutePage() {
     }
 
     if (corridor) setRouteBorders(corridor.borderIds);
-    const base = route ?? shellRoute(origin!, destination!);
-    const next = plan ? routeFromPlan(base, plan, via) : base;
+    const base = route ?? shellRoute(committedOrigin, committedDestination);
+    const next = plan ? routeFromPlan(base, plan, committedVia) : base;
     const keepAlternatives =
       Boolean(route) &&
       !submitted.preferences.avoid_motorways &&
       !submitted.preferences.avoid_tolls;
     setPlanningVia(
-      via
-        ? { label: via.label, lng: via.coords.lng, lat: via.coords.lat }
+      committedVia
+        ? {
+            label: committedVia.label,
+            lng: committedVia.coords.lng,
+            lat: committedVia.coords.lat,
+          }
         : null
     );
     setTripPlan(plan);
@@ -313,6 +333,11 @@ export default function RoutePage() {
           calculating={calculating}
           error={routeError}
           onSubmit={(submitted) => void runCalculation(selectedCorridor, submitted)}
+          originQuery={originQuery}
+          destinationQuery={destinationQuery}
+          onOriginQueryChange={setOriginQuery}
+          onDestinationQueryChange={setDestinationQuery}
+          onViaQueryChange={setViaQuery}
         />
 
         {activeRoute && (
