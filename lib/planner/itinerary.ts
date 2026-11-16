@@ -1,6 +1,9 @@
 import { haversineKm } from "@/lib/geo/haversine";
+import { BG_UNITS, type DurationUnits } from "@/lib/i18n/units";
 import type { PlanStop, TripPlannerResult, WhyReason } from "@/lib/planner/types";
 import type { MapStop } from "@/lib/utils/maps-handoff";
+
+export { BG_UNITS, type DurationUnits };
 
 export interface LabeledPoint {
   label: string;
@@ -112,15 +115,18 @@ export function checklistStorageKey(
 }
 
 /** Hours and minutes, including the day, so a border wait stays visible. */
-export function formatClockDuration(minutes: number): string {
+export function formatClockDuration(
+  minutes: number,
+  units: DurationUnits = BG_UNITS
+): string {
   const total = Math.max(0, Math.round(minutes));
   const days = Math.floor(total / 1440);
   const hours = Math.floor((total % 1440) / 60);
   const mins = total % 60;
   const parts: string[] = [];
-  if (days > 0) parts.push(`${days} д`);
-  if (hours > 0) parts.push(`${hours} ч`);
-  if (mins > 0 || parts.length === 0) parts.push(`${mins} мин`);
+  if (days > 0) parts.push(`${days} ${units.day}`);
+  if (hours > 0) parts.push(`${hours} ${units.hour}`);
+  if (mins > 0 || parts.length === 0) parts.push(`${mins} ${units.min}`);
   return parts.join(" ");
 }
 

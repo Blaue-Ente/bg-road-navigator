@@ -8,6 +8,7 @@ import {
 } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { haversineKm } from "@/lib/geo/haversine";
+import { BG_UNITS, type DurationUnits } from "@/lib/i18n/units";
 import type { Route, RouteWaypoint } from "@/types/route.types";
 
 export { haversineKm };
@@ -15,17 +16,22 @@ export { haversineKm };
 const ROAD_FACTOR = 1.28;
 const AVG_SPEED_KMH = 85;
 
-export function formatDuration(minutes: number): string {
-  if (minutes < 60) return `~${minutes} мин`;
+export function formatDuration(
+  minutes: number,
+  units: DurationUnits = BG_UNITS
+): string {
+  if (minutes < 60) return `~${minutes} ${units.min}`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   if (hours < 24) {
-    return mins > 0 ? `~${hours} ч ${mins} мин` : `~${hours} ч`;
+    return mins > 0
+      ? `~${hours} ${units.hour} ${mins} ${units.min}`
+      : `~${hours} ${units.hour}`;
   }
   const days = Math.floor(hours / 24);
   const remainingHours = hours % 24;
-  if (remainingHours === 0) return `~${days} д`;
-  return `~${days} д ${remainingHours} ч`;
+  if (remainingHours === 0) return `~${days} ${units.day}`;
+  return `~${days} ${units.day} ${remainingHours} ${units.hour}`;
 }
 
 export function isLongHaul(minutes: number): boolean {

@@ -5,6 +5,9 @@ import { mergeMessageTrees } from "@/lib/i18n/merge-messages";
 
 /** Bulgarian message catalog (default locale). */
 const bgCore = {
+  brand: {
+    tagline: "Пътен помощник за българи в Европа",
+  },
   planning: {
     title: "Планиране на маршрут",
     subtitle: "Въведете град, адрес, хотел или друга точка в Европа",
@@ -163,6 +166,7 @@ const bgCore = {
     hazardsEmpty: "Няма активни събития от АПИ в момента",
     hazardsUntil: "Валидно до",
     attention: "Участък за повишено внимание",
+    attentionMore: "Още {count} участъка по маршрута.",
     onTrip: "На път",
     endTrip: "Край на пътуването",
     tripNeedsLocation:
@@ -340,6 +344,11 @@ const bgCore = {
   },
   map: {
     legend: "Легенда",
+    viaStops: "През: {stops}",
+    borderWaitCars: "{minutes} {minUnit} · {cars}",
+    cars: "коли",
+    cameraMarker: "Камера · {name}",
+    trafficDelay: "Задържане: {minutes} {minUnit}.",
     routeChosen: "Избран маршрут",
     routeAlt: "Друг маршрут",
     trafficCritical: "Тежък инцидент",
@@ -374,10 +383,33 @@ const bgCore = {
     retrying: "Зареждане…",
     emptyEv: "Списъкът със зарядни не отговори за този район.",
     suspense: "Зареждане...",
+    sectionHeading: "{label} ({count})",
   },
   fuelEstimate: {
     title: "Оценка на разход",
     disclaimer: "Оценка на разхода, не оферта за гориво.",
+    costLine: "{amount} {unit} · ≈ {cost} {currency}",
+    consumptionLine: "{consumption} {unit}/100 {km} · {priceLabel} {price}",
+  },
+  route: {
+    fxTitle: "Курс (1 EUR, {date})",
+  },
+  routePage: {
+    viaStops: "През: {stops}",
+    restStopsRecommended: "{count} почивки препоръчани",
+    distanceBadge: "{km} {kmUnit}",
+  },
+  weatherPage: {
+    forecastFrom: "Прогноза от",
+  },
+  community: {
+    stillThere: "Още е там {count}",
+    stillThereParen: "Още е там ({count})",
+  },
+  bordersUi: {
+    waitLessThanCurrent: "~{minutes} {minUnit} по-малко от текущия",
+    cameraTitle: "Камера {name}",
+    liveCamera: "Жива камера — {name}",
   },
   routeChoice: {
     tollMark: " · тол",
@@ -397,6 +429,10 @@ const bgCore = {
     lvPerKwh: "лв/kWh",
     hoursShort: "ч",
     minutesShort: "м",
+    min: "мин",
+    hour: "ч",
+    day: "д",
+    litre: "л",
   },
 } as const;
 

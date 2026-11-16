@@ -15,12 +15,14 @@ import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
 import { UserServicesPanel } from "@/components/setup/UserServicesPanel";
 import { LocationSettings } from "@/components/location/LocationSettings";
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
-import { PRODUCT_NAME } from "@/lib/constants/brand";
+import { productName } from "@/lib/constants/brand";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import { signOut } from "@/lib/auth/sign-out";
 import { useState } from "react";
 
 export default function ProfilePage() {
   const m = useMessages();
+  const locale = useLocale();
   const session = useUserStore((s) => s.session);
   const profile = useUserStore((s) => s.profile);
   const router = useRouter();
@@ -86,7 +88,7 @@ export default function ProfilePage() {
               onClick={handleBrandTap}
               className="text-[11px] text-[var(--waze-text-muted)]"
             >
-              {isOperator ? m.profilePage.msgab940809f0 : PRODUCT_NAME}
+              {isOperator ? m.profilePage.msgab940809f0 : productName(locale)}
             </button>
           </p>
         </RequireAuth>

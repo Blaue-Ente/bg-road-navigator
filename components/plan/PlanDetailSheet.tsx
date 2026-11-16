@@ -20,8 +20,9 @@ import {
   locationPreferenceSnapshot,
   subscribeLocationPreference,
 } from "@/lib/location/browser-pref";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import { unitsFrom } from "@/lib/i18n/units";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
-import { messages as m } from "@/lib/i18n";
 import {
   checklistStorageKey,
   defaultIncludedStops,
@@ -37,6 +38,8 @@ import { useRouteStore } from "@/lib/stores/route.store";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
 
 export function PlanDetailSheet() {
+  const m = useMessages();
+  const units = unitsFrom(m);
   const open = useRouteStore((state) => state.planDetailOpen);
   const plan = useRouteStore((state) => state.tripPlan);
   const via = useRouteStore((state) => state.planningVia);
@@ -169,11 +172,11 @@ export function PlanDetailSheet() {
             />
             <Stat
               label={m.sheet.driving}
-              value={formatClockDuration(plan.route.duration_min)}
+              value={formatClockDuration(plan.route.duration_min, units)}
             />
             <Stat
               label={m.sheet.total}
-              value={formatClockDuration(plan.route.total_min)}
+              value={formatClockDuration(plan.route.total_min, units)}
             />
             <Stat
               label={m.sheet.eta}
@@ -183,7 +186,7 @@ export function PlanDetailSheet() {
           {hasOvernightSleep ? (
             <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
               {m.sheet.includesOvernight}{" "}
-              {formatClockDuration(plan.route.duration_min)}.
+              {formatClockDuration(plan.route.duration_min, units)}.
             </p>
           ) : plan.preferences.overnight ? (
             <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
@@ -259,6 +262,7 @@ export function PlanDetailSheet() {
 }
 
 function TripMode() {
+  const m = useMessages();
   const active = useTripSessionStore((state) => state.active);
   const start = useTripSessionStore((state) => state.start);
   const stop = useTripSessionStore((state) => state.stop);
@@ -305,6 +309,7 @@ function DetailBody({
   onToggleCheck: (id: string, checked: boolean) => void;
   onCreate: () => void;
 }) {
+  const m = useMessages();
   const chosen = plan.border.chosen;
   return (
     <>

@@ -6,9 +6,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { BedDouble, ChevronUp, CloudSun, Fuel, Landmark } from "lucide-react";
 import type { Route } from "@/types/route.types";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { unitsFrom } from "@/lib/i18n/units";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { isRoadRoute } from "@/lib/utils/route-builder";
-import { messages as m } from "@/lib/i18n";
 import { useRouteStore } from "@/lib/stores/route.store";
 
 interface RouteBottomSheetProps {
@@ -17,12 +18,13 @@ interface RouteBottomSheetProps {
 
 export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   const m = useMessages();
+  const units = unitsFrom(m);
   const [expanded, setExpanded] = useState(false);
   const clearRoute = useRouteStore((s) => s.clearRoute);
   const tripPlan = useRouteStore((s) => s.tripPlan);
   const setPlanDetailOpen = useRouteStore((s) => s.setPlanDetailOpen);
 
-  const durationLabel = formatClockDuration(route.duration_min);
+  const durationLabel = formatClockDuration(route.duration_min, units);
   const hours = Math.floor(route.duration_min / 60);
   const mins = route.duration_min % 60;
   const badgePrimary = hours > 0 ? hours : mins;
@@ -51,7 +53,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
               {route.destination.label}
             </p>
             <p className="text-sm text-[var(--waze-text-secondary)]">
-              {durationLabel} · {route.distance_km} км
+              {durationLabel} · {route.distance_km} {m.units.km}
               {isRoadRoute(route.routing_source) && (
                 <span className="ml-1 text-[var(--waze-accent-text)]">{m.map.msg0287d9cf5d}</span>
               )}
@@ -75,7 +77,9 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             </p>
             {route.waypoints.length > 0 && (
               <p className="mt-1 text-xs text-[var(--waze-text-secondary)]">
-                През: {route.waypoints.map((w) => w.label).join(" → ")}
+                {formatTemplate(m.map.viaStops, {
+                  stops: route.waypoints.map((w) => w.label).join(" → "),
+                })}
               </p>
             )}
 

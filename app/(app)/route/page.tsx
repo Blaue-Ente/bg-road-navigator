@@ -7,6 +7,8 @@ import { getCityById } from "@/lib/constants/european-cities";
 import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
 import { toDatetimeLocalValue } from "@/lib/planner/form-preferences";
 import { proposedDepartLocalValue } from "@/lib/planner/proposed-depart";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { unitsFrom } from "@/lib/i18n/units";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import {
   createPlannerDraft,
@@ -30,7 +32,6 @@ import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { formatTemplate } from "@/lib/i18n/format-template";
 import { committedPlace } from "@/lib/route/place-commit";
 import { applyPlanRouteOptions } from "@/components/plan/RouteChoiceCards";
 import type { TripPlannerResult } from "@/lib/planner/types";
@@ -73,6 +74,7 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 
 export default function RoutePage() {
   const m = useMessages();
+  const units = unitsFrom(m);
   const router = useRouter();
   const {
     activeRoute,
@@ -340,15 +342,20 @@ export default function RoutePage() {
               </p>
               {activeRoute.waypoints.length > 0 && (
                 <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-                  През: {activeRoute.waypoints.map((w) => w.label).join(" → ")}
+                  {formatTemplate(m.routePage.viaStops, {
+                    stops: activeRoute.waypoints.map((w) => w.label).join(" → "),
+                  })}
                 </p>
               )}
               <div className="mt-3 flex flex-wrap gap-3 text-sm text-[var(--waze-text-secondary)]">
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
-                  {activeRoute.distance_km} км
+                  {formatTemplate(m.routePage.distanceBadge, {
+                    km: String(activeRoute.distance_km),
+                    kmUnit: m.units.km,
+                  })}
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1">
-                  {formatClockDuration(activeRoute.duration_min)}
+                  {formatClockDuration(activeRoute.duration_min, units)}
                 </span>
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-3 py-1 text-xs">
                   {isRoadRoute(activeRoute.routing_source)
@@ -357,7 +364,9 @@ export default function RoutePage() {
                 </span>
                 {longHaul && (
                   <span className="rounded-full bg-amber-500/15 px-3 py-1 text-[var(--waze-warning)]">
-                    {restStops + 1} почивки препоръчани
+                    {formatTemplate(m.routePage.restStopsRecommended, {
+                      count: String(restStops + 1),
+                    })}
                   </span>
                 )}
               </div>
@@ -434,7 +443,7 @@ export default function RoutePage() {
                       {formatTemplate(m.routePage.alternativeVariant, {
                         index: index + 1,
                         distance: alt.distance_km,
-                        duration: formatClockDuration(alt.duration_min),
+                        duration: formatClockDuration(alt.duration_min, units),
                       })}
                     </button>
                   ))}

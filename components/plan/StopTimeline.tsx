@@ -6,8 +6,10 @@ import { Star } from "lucide-react";
 import { readApiError } from "@/lib/client/read-api-error";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { wakeAt, formatWakeLabel } from "@/lib/planner/breaks";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { timeZoneLabelBg } from "@/lib/geo/country-timezone";
-import { messages as m } from "@/lib/i18n";
+import { unitsFrom } from "@/lib/i18n/units";
+import type { MessageCatalog } from "@/lib/i18n";
 import {
   PLACE_FLAG_VALUES,
   type PlaceFlagKind,
@@ -37,6 +39,8 @@ export function StopTimeline({
   onToggle: (id: string, included: boolean) => void;
   focusedStopId: string | null;
 }) {
+  const m = useMessages();
+  const units = unitsFrom(m);
   const session = useUserStore((state) => state.session);
   const addLocalFlag = useRouteStore((state) => state.addLocalFlag);
   const [flagFor, setFlagFor] = useState<string | null>(null);
@@ -91,7 +95,7 @@ export function StopTimeline({
                       </p>
                       <p className="text-sm text-[var(--waze-text-secondary)]">
                         {stop.distance_from_start_km} {m.planning.km} ·{" "}
-                        {formatClockDuration(stop.driving_min)} ·{" "}
+                        {formatClockDuration(stop.driving_min, units)} ·{" "}
                         {formatWhen(stop.eta)}
                       </p>
                       {stop.sleep_min != null && stop.sleep_min > 0 ? (
@@ -127,8 +131,8 @@ export function StopTimeline({
                           {stop.brand}
                         </p>
                       )}
-                      <PriceLine stop={stop} />
-                      {hotel && <HotelBlock stop={stop} />}
+                      <PriceLine stop={stop} m={m} />
+                      {hotel && <HotelBlock stop={stop} m={m} />}
                       {stop.flags.length > 0 && (
                         <ul className="mt-2 flex flex-wrap gap-1">
                           {stop.flags.map((flag) => (
@@ -136,7 +140,7 @@ export function StopTimeline({
                               key={flag.flag}
                               className="rounded-full bg-[var(--waze-accent-muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--waze-accent-text)]"
                             >
-                              {flagLabel(flag.flag)}
+                              {flagLabel(flag.flag, m)}
                             </li>
                           ))}
                         </ul>
@@ -180,6 +184,7 @@ export function StopTimeline({
                       {flagFor === stop.id && stop.place_id && (
                         <FlagForm
                           onSubmit={(flag) => void submitFlag(stop, flag)}
+                          m={m}
                         />
                       )}
                       {status[stop.id] && (
@@ -276,7 +281,13 @@ export function StopTimeline({
   }
 }
 
-function HotelBlock({ stop }: { stop: PlanStop }) {
+function HotelBlock({
+  stop,
+  m,
+}: {
+  stop: PlanStop;
+  m: MessageCatalog;
+}) {
   return (
     <div className="mt-2 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
@@ -308,7 +319,13 @@ function markerColor(stop: PlanStop): string {
   return KIND_COLOR[primaryKind(stop)] ?? KIND_COLOR.rest;
 }
 
-function PriceLine({ stop }: { stop: PlanStop }) {
+function PriceLine({
+  stop,
+  m,
+}: {
+  stop: PlanStop;
+  m: MessageCatalog;
+}) {
   const mode = stopPriceCopy(stop);
   if (stop.kinds.includes("fuel")) {
     if (mode === "unknown") {
@@ -371,7 +388,13 @@ function PriceLine({ stop }: { stop: PlanStop }) {
   return null;
 }
 
-function FlagForm({ onSubmit }: { onSubmit: (flag: string) => void }) {
+function FlagForm({
+  onSubmit,
+  m,
+}: {
+  onSubmit: (flag: string) => void;
+  m: MessageCatalog;
+}) {
   const [flag, setFlag] = useState<string>(PLACE_FLAG_VALUES[0]);
   return (
     <form
@@ -390,7 +413,7 @@ function FlagForm({ onSubmit }: { onSubmit: (flag: string) => void }) {
         >
           {PLACE_FLAG_VALUES.map((value) => (
             <option key={value} value={value}>
-              {flagLabel(value)}
+              {flagLabel(value, m)}
             </option>
           ))}
         </select>
@@ -427,7 +450,7 @@ function favoriteKind(
   return "custom";
 }
 
-function flagLabel(flag: string): string {
+function flagLabel(flag: string, m: MessageCatalog): string {
   if (flag in m.flags) return m.flags[flag as keyof typeof m.flags];
   return flag;
 }

@@ -3,6 +3,7 @@
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 import { useQuery } from "@tanstack/react-query";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import type { FxQuote } from "@/lib/api-clients/frankfurter";
 
 const SHOW = ["BGN", "USD", "GBP", "CHF", "TRY", "RON", "HUF"] as const;
@@ -33,7 +34,7 @@ export function FxRatesCard() {
   return (
     <div>
       <h3 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">
-        Курс (1 EUR, {data.date})
+        {formatTemplate(m.route.fxTitle, { date: data.date })}
       </h3>
       <div className="grid grid-cols-2 gap-2 text-sm">
         {SHOW.filter((code) => data.rates[code] != null).map((code) => (

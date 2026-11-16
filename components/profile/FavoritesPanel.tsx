@@ -4,7 +4,8 @@ import { useRef, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { WazeCard } from "@/components/ui/WazeCard";
-import { messages as m } from "@/lib/i18n";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import type { MessageCatalog } from "@/lib/i18n";
 import { readFavoriteEnvelope } from "@/lib/planner/favorite-envelope";
 import { resolveTripPreferences, type TripPreferences } from "@/lib/planner/preferences";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -29,6 +30,7 @@ interface FavoritePlace {
 }
 
 export function FavoritesPanel() {
+  const m = useMessages();
   const router = useRouter();
   const queryClient = useQueryClient();
   const setReplanDraft = useRouteStore((state) => state.setReplanDraft);
@@ -71,6 +73,7 @@ export function FavoritesPanel() {
         {m.favorites.title}
       </h2>
       <FavoriteBlock
+        m={m}
         title={m.favorites.routes}
         loading={routes.isLoading}
         failed={routes.isError}
@@ -109,6 +112,7 @@ export function FavoritesPanel() {
         </ul>
       </FavoriteBlock>
       <FavoriteBlock
+        m={m}
         title={m.favorites.places}
         loading={places.isLoading}
         failed={places.isError}
@@ -124,7 +128,7 @@ export function FavoritesPanel() {
             >
               <p className="font-medium text-[var(--waze-text)]">{place.name}</p>
               <p className="text-sm text-[var(--waze-text-secondary)]">
-                {placeKind(place.kind)}
+                {placeKind(place.kind, m)}
                 {place.note ? ` · ${place.note}` : ""}
               </p>
               <button
@@ -143,6 +147,7 @@ export function FavoritesPanel() {
 }
 
 function FavoriteBlock({
+  m,
   title,
   loading,
   failed,
@@ -151,6 +156,7 @@ function FavoriteBlock({
   count,
   children,
 }: {
+  m: MessageCatalog;
   title: string;
   loading: boolean;
   failed: boolean;
@@ -207,7 +213,7 @@ function toPoint(
   };
 }
 
-function placeKind(kind: string): string {
+function placeKind(kind: string, m: MessageCatalog): string {
   if (kind in m.favorites.kinds) {
     return m.favorites.kinds[kind as keyof typeof m.favorites.kinds];
   }

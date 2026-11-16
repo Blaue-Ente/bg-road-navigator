@@ -8,10 +8,12 @@ import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderId } from "@/lib/auth/config";
-import { PRODUCT_NAME } from "@/lib/constants/brand";
+import { productName } from "@/lib/constants/brand";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 
 export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
   const m = useMessages();
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -52,7 +54,7 @@ export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
           {m.login.title}
         </h1>
         <p className="mb-6 text-center text-sm text-[var(--waze-text-muted)]">
-          {PRODUCT_NAME} {m.login.subtitle}
+          {productName(locale)} {m.login.subtitle}
         </p>
         <SocialSignIn providers={providers} />
         <form onSubmit={handleSubmit} className="space-y-4">

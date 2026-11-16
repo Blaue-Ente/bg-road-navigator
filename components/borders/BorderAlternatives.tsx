@@ -3,6 +3,7 @@
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 import Link from "next/link";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import type { BorderStatus } from "@/types/border.types";
 import { rankBorderAlternatives } from "@/lib/utils/border-alternatives";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
@@ -38,7 +39,10 @@ export function BorderAlternatives({
               </p>
               {wait_delta_min > 0 && (
                 <p className="text-[11px] text-[var(--waze-text-muted)]">
-                  ~{wait_delta_min} мин по-малко от текущия
+                  {formatTemplate(m.bordersUi.waitLessThanCurrent, {
+                    minutes: String(wait_delta_min),
+                    minUnit: m.units.min,
+                  })}
                 </p>
               )}
             </div>
