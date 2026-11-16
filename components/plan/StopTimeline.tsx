@@ -6,8 +6,8 @@ import { Star } from "lucide-react";
 import { readApiError } from "@/lib/client/read-api-error";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { wakeAt, formatWakeLabel } from "@/lib/planner/breaks";
-import { useMessages } from "@/components/i18n/LocaleProvider";
-import { timeZoneLabelBg } from "@/lib/geo/country-timezone";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { timeZoneLabel } from "@/lib/geo/country-timezone";
 import { unitsFrom } from "@/lib/i18n/units";
 import type { MessageCatalog } from "@/lib/i18n";
 import {
@@ -40,6 +40,7 @@ export function StopTimeline({
   focusedStopId: string | null;
 }) {
   const m = useMessages();
+  const locale = useLocale();
   const units = unitsFrom(m);
   const session = useUserStore((state) => state.session);
   const addLocalFlag = useRouteStore((state) => state.addLocalFlag);
@@ -108,7 +109,7 @@ export function StopTimeline({
                             ),
                             stop.wake_time_zone ?? "Europe/Sofia"
                           )}{" "}
-                          ({timeZoneLabelBg(stop.wake_time_zone ?? "Europe/Sofia")})
+                          ({timeZoneLabel(stop.wake_time_zone ?? "Europe/Sofia", locale)})
                         </p>
                       ) : null}
                       {stop.reason &&

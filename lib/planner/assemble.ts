@@ -1,3 +1,4 @@
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
 import { fillLiters } from "@/lib/fuel-prices/advice";
 import { DATEX_ATTRIBUTION } from "@/lib/hazards/present";
@@ -15,8 +16,9 @@ import {
 } from "@/lib/planner/breaks";
 import {
   timeZoneForCountry,
-  timeZoneLabelBg,
+  timeZoneLabel,
 } from "@/lib/geo/country-timezone";
+import { unitsFrom } from "@/lib/i18n/units";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { lineLengthKm, pointAtDistance } from "@/lib/planner/line";
 import type { CommunityScore } from "@/lib/planner/community";
@@ -170,7 +172,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     border: {
       chosen: chosen ? toChoice(chosen) : null,
       alternatives: input.borders.map(toChoice),
-      note: borderNote(input.borders, p.border),
+      note: borderNote(input.borders, p.border, input.locale ?? "bg"),
     },
     stops,
     fuel_averages: input.fuelAverages,
@@ -232,7 +234,8 @@ function geometryKmAt(input: AssembleInput, roadKm: number): number {
 
 function borderNote(
   borders: ScoredBorder[],
-  copy: PlannerCopy["border"]
+  copy: PlannerCopy["border"],
+  locale: Locale
 ): string {
   if (borders.length === 0) {
     return copy.noBgBorder;
@@ -251,7 +254,13 @@ function borderNote(
   }
   const base = copy.bgCompared;
   if (!extra) return base;
-  return `${base} ${formatTemplate(copy.viaAfter, { name: extra.nameBg })}`;
+  return `${base} ${formatTemplate(copy.viaAfter, {
+    name: borderDisplayName(locale, {
+      id: extra.borderId,
+      name_bg: extra.nameBg,
+      name_en: extra.nameEn,
+    }),
+  })}`;
 }
 
 function toPlanStop(
@@ -308,7 +317,8 @@ function toPlanStop(
       sleepMin,
       eta,
       wakeZone,
-      p.stops
+      p.stops,
+      input.locale ?? "bg"
     ),
     coords,
     distance_from_start_km: Math.round(stop.distanceKm),
@@ -459,7 +469,8 @@ function reasonFor(
   sleepMin: number | null,
   arrivalIso: string,
   wakeTimeZone: string | null,
-  stops: PlannerCopy["stops"]
+  stops: PlannerCopy["stops"],
+  locale: Locale
 ): string {
   const parts: string[] = [];
   if (kinds.includes("fuel") || kinds.includes("charge")) {
@@ -482,13 +493,13 @@ function reasonFor(
     const zone = wakeTimeZone ?? "Europe/Sofia";
     const wake = wakeAt(new Date(arrivalIso), zone);
     const wakeLabel = formatWakeLabel(wake, zone);
-    const place = timeZoneLabelBg(zone);
+    const place = timeZoneLabel(zone, locale);
     const remaining = Math.max(0, totalDriveMin - drivingMin);
     parts.push(
       formatTemplate(stops.overnightWake, {
         wake: wakeLabel,
         place,
-        remaining: formatClockDuration(remaining),
+        remaining: formatClockDuration(remaining, unitsFrom(catalog(locale))),
       })
     );
   } else if (kinds.includes("overnight")) {

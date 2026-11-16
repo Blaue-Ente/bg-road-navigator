@@ -353,22 +353,22 @@ const BORDER_NAME_I18N: Record<string, LocalizedMap> = {
   kulata: { tr: "Kulata", ro: "Kulata" },
   "kapitan-andreevo": {
     tr: "Kapıkule",
-    ro: "Kapitan Andreevo",
+    ro: "Capitan Andreevo",
   },
   "danube-bridge-vidin": {
-    tr: "Vidin–Calafat",
-    ro: "Calafat–Vidin",
+    tr: "Tuna Köprüsü Vidin–Calafat",
+    ro: "Podul Dunărea Vidin–Calafat",
   },
   "danube-bridge-ruse": {
-    tr: "Ruse–Giurgiu",
-    ro: "Giurgiu–Ruse",
+    tr: "Tuna Köprüsü Ruse–Giurgiu",
+    ro: "Podul Dunărea Ruse–Giurgiu",
   },
   gyueshevo: { tr: "Güleburun", ro: "Gjorče Petrov" },
   zlatarevo: { tr: "İbrice", ro: "Zlatarevo" },
   ilinden: { tr: "İlinden", ro: "Ilinden" },
   promachon: { tr: "Promah", ro: "Promachon" },
   makaza: { tr: "Makaza", ro: "Makaza" },
-  "malko-tarnovo": { tr: "Dereköy", ro: "Malko Tarnovo" },
+  "malko-tarnovo": { tr: "Dereköy", ro: "Malko Târnovo" },
   lesovo: { tr: "Hamzabeyli", ro: "Lesovo" },
 };
 

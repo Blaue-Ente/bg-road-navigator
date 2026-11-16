@@ -35,6 +35,8 @@ import {
   localTypicalMinutes,
   type CurrentQueue,
 } from "@/lib/planner/wait";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import type { WaitSource } from "@/lib/planner/types";
 import type { BorderStatus } from "@/types/border.types";
 
@@ -43,6 +45,7 @@ export interface BorderFetchOptions {
   region?: EuropeanBorderRegion;
   corridorId?: string;
   borderIds?: string[];
+  locale?: Locale;
 }
 
 function waitToStatus(waitMinutes: number): BorderStatus["status"] {
@@ -197,6 +200,7 @@ function buildStatus(
       band: "under_15" | "measured";
       observedAt: string;
     } | null;
+    locale: Locale;
   }
 ): BorderStatus {
   const current = input.licensed
@@ -206,6 +210,7 @@ function buildStatus(
   const wait = expectedWait({
     eta: input.now,
     now: input.now,
+    locale: input.locale,
     forecast: input.licensed ? input.cached?.forecast ?? null : null,
     dayStats: input.licensed ? input.cached?.dayStats ?? null : null,
     current,
@@ -259,6 +264,7 @@ function buildStatus(
 export async function fetchBorderStatus(
   options: BorderFetchOptions = {}
 ): Promise<BorderStatus[]> {
+  const locale = options.locale ?? "bg";
   const crossings = resolveCrossings(options);
   const now = new Date();
   const ppids = [
@@ -303,11 +309,12 @@ export async function fetchBorderStatus(
       cached,
       live,
       hatarinfoMinutes,
+      locale,
     });
     if (!reading || !hatarinfo || status.data_source !== "hatarinfo") {
       return status;
     }
-    return applyHatarinfoNotes(status, reading);
+    return applyHatarinfoNotes(status, reading, locale);
   });
 }
 
@@ -336,18 +343,30 @@ function hatarinfoFromPanel(
 
 function applyHatarinfoNotes(
   status: BorderStatus,
-  reading: HatarinfoPanel
+  reading: HatarinfoPanel,
+  locale: Locale
 ): BorderStatus {
   const sides = [reading.out, reading.in].filter(
     (side): side is NonNullable<typeof side> => side != null
   );
   if (sides.length === 0) return status;
+  const w = catalog(locale).planner.wait;
   const phrase = (minutes: number, band: "under_15" | "measured") =>
-    band === "under_15" ? "няма чакане над 15 мин" : `${minutes} мин`;
+    band === "under_15"
+      ? w.hatarinfoPhraseUnder15
+      : formatTemplate(w.hatarinfoPhraseMinutes, { minutes: String(minutes) });
   const note = [
-    "Hárinfó, леки коли.",
-    reading.out ? `От Унгария: ${phrase(reading.out.minutes, reading.out.band)}.` : null,
-    reading.in ? `Към Унгария: ${phrase(reading.in.minutes, reading.in.band)}.` : null,
+    w.hatarinfoNoteTitle,
+    reading.out
+      ? formatTemplate(w.hatarinfoFromHungary, {
+          phrase: phrase(reading.out.minutes, reading.out.band),
+        })
+      : null,
+    reading.in
+      ? formatTemplate(w.hatarinfoToHungary, {
+          phrase: phrase(reading.in.minutes, reading.in.band),
+        })
+      : null,
     HATARINFO_ATTRIBUTION_TEXT,
   ]
     .filter(Boolean)

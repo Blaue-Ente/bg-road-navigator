@@ -8,7 +8,9 @@ describe("whyThisRoute", () => {
       borders: [
         {
           chosen: true,
+          borderId: "kalotina",
           nameBg: "Калотина",
+          nameEn: "Kalotina",
           totalMin: 200,
           waitMinutes: 20,
           driveMin: 180,
@@ -16,7 +18,9 @@ describe("whyThisRoute", () => {
         },
         {
           chosen: false,
-          nameBg: "Стрезимировци",
+          borderId: "gyueshevo",
+          nameBg: "Гюешево",
+          nameEn: "Gyueshevo",
           totalMin: 260,
           waitMinutes: 70,
           driveMin: 190,

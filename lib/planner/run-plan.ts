@@ -47,7 +47,9 @@ import {
 import { buildChecklist } from "@/lib/planner/checklist";
 import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import {
   hatarinfoReading,
   hungarySerbiaDirection,
@@ -214,7 +216,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       input.departAt.getTime() + fraction * driveMin * 60_000
     );
     const cached = candidate.ppid ? waits.get(candidate.ppid) : undefined;
-    const community = communityAlongRoute(line, pins, now.getTime());
+    const community = communityAlongRoute(line, pins, now.getTime(), locale);
     scoreInputs.push({
       borderId: candidate.id,
       nameBg: candidate.nameBg,
@@ -226,6 +228,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       wait: expectedWait({
         eta,
         now,
+        locale,
         forecast: cached?.forecast ?? null,
         dayStats: cached?.dayStats ?? null,
         current: cached?.current ?? null,
@@ -250,8 +253,9 @@ export async function runTripPlan(input: TripPlanRequest) {
       ? input.routeChoice.border_id
       : prefs.preferred_border;
   let borders: ScoredBorder[] = applyPreferredBorder(
-    scoreBorderOptions(scoreInputs),
-    preferredBorder
+    scoreBorderOptions(scoreInputs, locale),
+    preferredBorder,
+    locale
   );
   let chosen = borders.find((border) => border.chosen) ?? null;
   let chosenRoute: ProvidedRoadRoute = direct;
@@ -288,7 +292,13 @@ export async function runTripPlan(input: TripPlanRequest) {
             : border.reasonCode,
         reason:
           border.borderId === onAlt[0]!.borderId
-            ? `Избран е алтернативният път покрай ${border.nameBg}.`
+            ? formatTemplate(plannerCopy.border.pickedAlternate, {
+                name: borderDisplayName(locale, {
+                  id: border.borderId,
+                  name_bg: border.nameBg,
+                  name_en: border.nameEn,
+                }),
+              })
             : border.reason,
       }));
     }
@@ -311,6 +321,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       now,
       driveMin: chosenRoute.duration_min,
       distanceKm: chosenRoute.distance_km,
+      locale,
     });
     if (
       attached &&
@@ -321,7 +332,7 @@ export async function runTripPlan(input: TripPlanRequest) {
   }
   const roadKm = chosenRoute.distance_km;
   const geometryKm = Math.max(1, lineLengthKm(chosenLine));
-  const community = communityAlongRoute(chosenLine, pins, now.getTime());
+  const community = communityAlongRoute(chosenLine, pins, now.getTime(), locale);
   const borderAlong =
     chosen == null
       ? null
@@ -397,6 +408,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     candidates,
     waits,
     traffic,
+    locale,
   });
   const chosenBorder = borders.find((border) => border.chosen) ?? null;
   const borderWaitForWeather = chosenBorder?.wait.minutes ?? 0;
@@ -489,7 +501,9 @@ export async function runTripPlan(input: TripPlanRequest) {
       .filter((border) => border.reasonCode !== "serbia_hungary")
       .map((border) => ({
         chosen: border.chosen,
+        borderId: border.borderId,
         nameBg: border.nameBg,
+        nameEn: border.nameEn,
         totalMin: border.totalMin,
         waitMinutes: border.wait.minutes,
         driveMin: border.driveMin,
@@ -572,6 +586,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     chosenBorder,
     preferences: prefs,
     activeChoice: input.routeChoice,
+    locale,
   });
 
   return { ...plan, route_options };
@@ -837,6 +852,7 @@ function refreshBorderWaits(input: {
   candidates: BorderCandidate[];
   waits: Awaited<ReturnType<typeof loadWaits>>;
   traffic: Map<string, number | null>;
+  locale: Locale;
 }): ScoredBorder[] {
   if (!input.chosenId || input.borderRoadKm == null) return input.borders;
   const candidate = input.candidates.find((row) => row.id === input.chosenId);
@@ -851,6 +867,7 @@ function refreshBorderWaits(input: {
   const wait = expectedWait({
     eta,
     now: input.now,
+    locale: input.locale,
     forecast: cached?.forecast ?? null,
     dayStats: cached?.dayStats ?? null,
     current: cached?.current ?? null,
@@ -904,6 +921,7 @@ async function serbiaHungaryOnRoute(input: {
   now: Date;
   driveMin: number;
   distanceKm: number;
+  locale: Locale;
 }): Promise<ScoredBorder | null> {
   const near = nearestHungarySerbiaCrossing(input.line);
   if (!near) return null;
@@ -914,6 +932,7 @@ async function serbiaHungaryOnRoute(input: {
   const wait = expectedWait({
     eta: input.now,
     now: input.now,
+    locale: input.locale,
     forecast: null,
     dayStats: null,
     current: null,
@@ -927,6 +946,7 @@ async function serbiaHungaryOnRoute(input: {
       input.destination
     ),
   });
+  const borderCopy = catalog(input.locale).planner.border;
   return {
     borderId: near.id,
     nameBg: near.nameBg,
@@ -940,7 +960,13 @@ async function serbiaHungaryOnRoute(input: {
     totalMin: input.driveMin + wait.minutes,
     chosen: false,
     reasonCode: "serbia_hungary",
-    reason: `Маршрутът минава през ${near.nameBg}. Чакането е отделно от избора на български пункт.`,
+    reason: formatTemplate(borderCopy.onRouteHuRs, {
+      name: borderDisplayName(input.locale, {
+        id: near.id,
+        name_bg: near.nameBg,
+        name_en: near.nameEn,
+      }),
+    }),
   };
 }
 

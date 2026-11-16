@@ -1,3 +1,4 @@
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { TripPreferences } from "@/lib/planner/preferences";
@@ -5,11 +6,21 @@ import type { WhyReason } from "@/lib/planner/types";
 
 export interface WhyBorder {
   chosen: boolean;
+  borderId: string;
   nameBg: string;
+  nameEn: string;
   totalMin: number;
   waitMinutes: number;
   driveMin: number;
   distanceKm: number;
+}
+
+function crossingLabel(locale: Locale, border: WhyBorder): string {
+  return borderDisplayName(locale, {
+    id: border.borderId,
+    name_bg: border.nameBg,
+    name_en: border.nameEn,
+  });
 }
 
 export function whyThisRoute(input: {
@@ -33,8 +44,16 @@ export function whyThisRoute(input: {
     const delta = alternative.totalMin - chosen.totalMin;
     reasons.push({
       code: "border_wait",
-      title: formatTemplate(p.viaBorder, { name: chosen.nameBg }),
-      detail: borderChoiceDetail(chosen, alternative, delta, p),
+      title: formatTemplate(p.viaBorder, {
+        name: crossingLabel(input.locale ?? "bg", chosen),
+      }),
+      detail: borderChoiceDetail(
+        chosen,
+        alternative,
+        delta,
+        p,
+        input.locale ?? "bg"
+      ),
       delta_min: delta,
       delta_km: Math.round(alternative.distanceKm - chosen.distanceKm),
     });
@@ -103,18 +122,21 @@ function borderChoiceDetail(
   chosen: WhyBorder,
   alternative: WhyBorder,
   delta: number,
-  p: ReturnType<typeof catalog>["planner"]["why"]
+  p: ReturnType<typeof catalog>["planner"]["why"],
+  locale: Locale
 ): string {
+  const chosenName = crossingLabel(locale, chosen);
+  const otherName = crossingLabel(locale, alternative);
   const overall =
     delta >= 0
       ? formatTemplate(p.borderFaster, {
-          chosen: chosen.nameBg,
-          other: alternative.nameBg,
+          chosen: chosenName,
+          other: otherName,
           delta: String(Math.abs(delta)),
         })
       : formatTemplate(p.borderSlower, {
-          chosen: chosen.nameBg,
-          other: alternative.nameBg,
+          chosen: chosenName,
+          other: otherName,
           delta: String(Math.abs(delta)),
         });
   const waitDelta = alternative.waitMinutes - chosen.waitMinutes;

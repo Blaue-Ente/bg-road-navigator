@@ -21,6 +21,62 @@ export const bgRestPlanner = {
       bgCompared:
         "Сравнени са българските пунктове по направлението. Чакането е оценка, не официално време.",
       viaAfter: "По пътя след това е {name}.",
+      slowerThanBest:
+        "С {delta} мин повече от {name}: {drive} мин път и {wait} мин {waitKind} ({waitLabel}).",
+      preferred: "Предпочитан граничен пункт: {name}.",
+      lowestTotal:
+        "Най-малко общо време през {name}: {drive} мин път и {wait} мин {waitKind}.{penalty}",
+      communityPenalty: " Сигнали по пътя добавят {minutes} мин.",
+      pickedAlternate: "Избран е алтернативният път покрай {name}.",
+      onRouteHuRs:
+        "Маршрутът минава през {name}. Чакането е отделно от избора на български пункт.",
+    },
+    routeLabel: {
+      via: "През {name}",
+      direct: "Директен път",
+      alternative: "Алтернативен път",
+    },
+    wait: {
+      forecastArrival: "прогноза за часа на пристигане",
+      dayStatsLow: "типична медиана за този час, моделирана оценка",
+      dayStats: "типична медиана за този ден и час",
+      currentLow: "текуща опашка, моделирана оценка",
+      currentCache: "текуща опашка от кеша",
+      noNakordoniObservation: "няма наблюдение от nakordoni",
+      localTypical:
+        "местна типична оценка, не е от nakordoni",
+      unlicensedTable:
+        "Типично чакане от нашата таблица. Пунктът е извън лицензираните пазари на Nakordoni.{traffic}",
+      unlicensedNoData:
+        "Няма данни за чакане. Пунктът е извън лицензираните пазари на Nakordoni.{traffic}",
+      tomtomDelay: " TomTom отчита около {minutes} мин задръстване наблизо.",
+      noData: "няма данни",
+      noWaitData: "няма данни за чакане",
+      hatarinfoUnder15: "Няма чакане над 15 мин за лек автомобил.",
+      hatarinfoMinutes: "Около {minutes} мин за лек автомобил.",
+      hatarinfoDisclaimer: " Показанието е ориентировъчно.",
+      metricTypicalQueue: "типична опашка",
+      metricNoData: "без данни за чакане",
+      metricWait: "чакане",
+      hatarinfoNoteTitle: "Hárinfó, леки коли.",
+      hatarinfoFromHungary: "От Унгария: {phrase}.",
+      hatarinfoToHungary: "Към Унгария: {phrase}.",
+      hatarinfoPhraseUnder15: "няма чакане над 15 мин",
+      hatarinfoPhraseMinutes: "{minutes} мин",
+    },
+    timeZone: {
+      local: "местно време",
+    },
+    age: {
+      unknown: "времето на наблюдение е неизвестно",
+      under2: "наблюдение преди по-малко от 2 мин",
+      minutes: "наблюдение преди {minutes} мин",
+      hours: "наблюдение преди {hours} ч",
+      days: "наблюдение преди {days} д",
+      pinJustNow: "току-що",
+      pinMinutes: "преди {minutes} мин",
+      pinHours: "преди {hours} ч",
+      pinDays: "преди {days} д",
     },
     stops: {
       sight: "Забележителност",

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { fetchBorderStatus } from "@/lib/api-clients/border-scraper";
+import { LOCALE_COOKIE, parseLocale } from "@/lib/i18n/locale";
 
 const BorderQuerySchema = z.object({
   crossing_id: z.string().optional(),
@@ -42,6 +43,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const locale = parseLocale(request.cookies.get(LOCALE_COOKIE)?.value);
     const borderStatus = await fetchBorderStatus({
       crossingId: parsed.data.crossing_id,
       region: parsed.data.region,
@@ -49,6 +51,7 @@ export async function GET(request: NextRequest) {
       borderIds: parsed.data.border_ids
         ? parsed.data.border_ids.split(",").filter(Boolean)
         : undefined,
+      locale,
     });
 
     return NextResponse.json(borderStatus);
