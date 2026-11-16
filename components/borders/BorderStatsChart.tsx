@@ -18,9 +18,11 @@ export function BorderStatsChart({
   const peakHour = hourlyData.indexOf(Math.max(...hourlyData));
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 p-3">
-      <h4 className="mb-1 text-sm font-medium">{resolvedTitle}</h4>
-      <p className="mb-3 text-xs text-gray-400">
+    <div className="rounded-lg border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] p-3">
+      <h4 className="mb-1 text-sm font-medium text-[var(--waze-text)]">
+        {resolvedTitle}
+      </h4>
+      <p className="mb-3 text-xs text-[var(--waze-text-secondary)]">
         {formatTemplate(m.borders.peakWait, {
           hour: peakHour,
           minutes: Math.round(hourlyData[peakHour]),
