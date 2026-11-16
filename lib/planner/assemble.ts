@@ -1,5 +1,7 @@
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
+import { countriesAlongRoute } from "@/lib/geo/countries-along-route";
+import { countryName } from "@/lib/geo/country-name";
 import { fillLiters } from "@/lib/fuel-prices/advice";
 import { datexAttribution } from "@/lib/hazards/present";
 import type { RoadHazard } from "@/lib/hazards/types";
@@ -131,6 +133,23 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
   }
 
   const planLocale = input.locale ?? "bg";
+  const routeCountries = countriesAlongRoute({
+    geometry: input.geometry,
+    origin: { coords: input.origin.coords },
+    destination: { coords: input.destination.coords },
+  });
+  const schengen = schengenBorderNote(
+    routeCountries,
+    chosen,
+    p.border,
+    planLocale
+  );
+  const borderNoteText = [
+    borderNote(input.borders, p.border, planLocale),
+    schengen,
+  ]
+    .filter(Boolean)
+    .join(" ");
   return {
     generated_at: input.now.toISOString(),
     planner: "deterministic",
@@ -174,7 +193,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     border: {
       chosen: chosen ? toChoice(chosen) : null,
       alternatives: input.borders.map(toChoice),
-      note: borderNote(input.borders, p.border, input.locale ?? "bg"),
+      note: borderNoteText,
     },
     stops,
     fuel_averages: input.fuelAverages,
@@ -236,6 +255,28 @@ function geometryKmAt(input: AssembleInput, roadKm: number): number {
   return (roadKm / input.distanceKm) * length;
 }
 
+function schengenBorderNote(
+  countries: string[],
+  chosen: ScoredBorder | null,
+  copy: PlannerCopy["border"],
+  locale: Locale
+): string {
+  if (chosen) return "";
+  const huRo = countries.includes("HU") && countries.includes("RO");
+  const roBg = countries.includes("RO") && countries.includes("BG");
+  if (!huRo && !roBg) return "";
+  if (huRo) {
+    return formatTemplate(copy.schengenInternal, {
+      a: countryName("HU", locale),
+      b: countryName("RO", locale),
+    });
+  }
+  return formatTemplate(copy.schengenInternal, {
+    a: countryName("RO", locale),
+    b: countryName("BG", locale),
+  });
+}
+
 function borderNote(
   borders: ScoredBorder[],
   copy: PlannerCopy["border"],
@@ -248,8 +289,21 @@ function borderNote(
     (border) => border.reasonCode === "serbia_hungary"
   );
   const compared = borders.filter(
-    (border) => border.reasonCode !== "serbia_hungary"
+    (border) =>
+      border.reasonCode !== "serbia_hungary" &&
+      border.reasonCode !== "on_path"
   );
+  if (compared.length === 0) {
+    const onPath = borders.find((border) => border.reasonCode === "on_path");
+    if (onPath) return onPath.reason;
+    if (
+      borders.length > 0 &&
+      borders.every((border) => isHungarySerbiaPlannerId(border.borderId))
+    ) {
+      return copy.serbiaHungary;
+    }
+    return copy.noBgBorder;
+  }
   if (
     compared.length > 0 &&
     compared.every((border) => isHungarySerbiaPlannerId(border.borderId))

@@ -3,6 +3,7 @@
  * Links only: nothing here fetches AMSS, UND, or MUP images.
  */
 
+import type { Locale } from "@/lib/i18n/locale";
 import type { Localized } from "@/lib/i18n/localized-field";
 
 export const RS_BORDER_CAMERAS_URL =
@@ -16,6 +17,108 @@ export const RO_BORDER_TRAFFIC_URL =
 
 export const MFA_TRAVEL_ADVICE_URL =
   "https://www.mfa.bg/bg/uslugi-patuvania/konsulski-uslugi/patuvane-chujbina";
+
+/** HU–RO posts offered in preferences; no Nakordoni waits. */
+export const HU_ROMANIA_PREFERENCE_IDS = ["nadlac", "bors"] as const;
+
+export function isHuRomaniaPreferenceId(id: string): boolean {
+  return (HU_ROMANIA_PREFERENCE_IDS as readonly string[]).includes(id);
+}
+
+export interface TravelAdviceLink {
+  href: string;
+  title: Localized;
+  detail: Localized;
+  link_label: Localized;
+}
+
+/** Consular / official travel guidance per UI locale (roots when deep pages are unverified). */
+export const TRAVEL_ADVICE_BY_LOCALE: Record<Locale, TravelAdviceLink> = {
+  bg: {
+    href: MFA_TRAVEL_ADVICE_URL,
+    title: {
+      bg: "Съвети на МВнР за пътуване в чужбина",
+      en: "Bulgarian MFA travel advice",
+      tr: "Bulgaristan Dışişleri seyahat önerileri",
+      ro: "Sfaturi de călătorie MAE Bulgaria",
+    },
+    detail: {
+      bg: "Официални консулски указания преди пътуване извън България.",
+      en: "Official consular guidance before travel abroad.",
+      tr: "Yurtdışına çıkmadan önce resmî konsolosluk yönlendirmeleri.",
+      ro: "Ghid oficial consular înainte de călătorie în străinătate.",
+    },
+    link_label: {
+      bg: "Съвети за пътуване",
+      en: "Travel advice",
+      tr: "Seyahat önerileri",
+      ro: "Sfaturi de călătorie",
+    },
+  },
+  en: {
+    href: "https://europa.eu/youreurope/",
+    title: {
+      bg: "Your Europe — пътуване",
+      en: "Your Europe — travel documents",
+      tr: "Your Europe — seyahat belgeleri",
+      ro: "Your Europe — documente de călătorie",
+    },
+    detail: {
+      bg: "ЕС страница за документи и права при пътуване в ЕС.",
+      en: "EU guidance on travel documents and rights in the EU.",
+      tr: "AB'de seyahat belgeleri ve hakları hakkında AB rehberi.",
+      ro: "Ghid UE privind documentele și drepturile la călătorie în UE.",
+    },
+    link_label: {
+      bg: "Your Europe",
+      en: "Your Europe",
+      tr: "Your Europe",
+      ro: "Your Europe",
+    },
+  },
+  tr: {
+    href: "https://www.mfa.gov.tr/",
+    title: {
+      bg: "Турско МВнР",
+      en: "Türkiye Ministry of Foreign Affairs",
+      tr: "Türkiye Dışişleri Bakanlığı seyahat bilgileri",
+      ro: "Ministerul de Externe al Turciei",
+    },
+    detail: {
+      bg: "Официален портал на турското външно министерство.",
+      en: "Official portal of the Turkish Ministry of Foreign Affairs.",
+      tr: "Türkiye Dışişleri Bakanlığı resmî portalı.",
+      ro: "Portalul oficial al Ministerului de Externe al Turciei.",
+    },
+    link_label: {
+      bg: "mfa.gov.tr",
+      en: "mfa.gov.tr",
+      tr: "mfa.gov.tr",
+      ro: "mfa.gov.tr",
+    },
+  },
+  ro: {
+    href: "https://www.mae.ro/",
+    title: {
+      bg: "Румънско МВнР",
+      en: "Romanian MFA travel advice",
+      tr: "Romanya Dışişleri seyahat önerileri",
+      ro: "Sfaturi de călătorie MAE România",
+    },
+    detail: {
+      bg: "Официален портал на румънското външно министерство.",
+      en: "Official portal of the Romanian Ministry of Foreign Affairs.",
+      tr: "Romanya Dışişleri Bakanlığı resmî portalı.",
+      ro: "Portalul oficial al Ministerului Afacerilor Externe al României.",
+    },
+    link_label: {
+      bg: "mae.ro",
+      en: "mae.ro",
+      tr: "mae.ro",
+      ro: "mae.ro",
+    },
+  },
+};
 
 export const HATARINFO_PAGE_URL =
   "https://www.police.hu/hu/hirek-es-informaciok/hatarinfo?field_hat_rszakasz_value=szerb%20hat%C3%A1rszakasz";

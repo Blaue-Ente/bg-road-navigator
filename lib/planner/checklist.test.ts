@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildChecklist } from "@/lib/planner/checklist";
+import { TRAVEL_ADVICE_BY_LOCALE } from "@/lib/constants/border-official-links";
 import { ROAD_SAFETY_ITEM_IDS, roadSafetyCopy } from "@/lib/i18n/road-safety";
 import {
   getVignetteByCountryCode,
@@ -186,6 +187,53 @@ describe("plan checklist", () => {
     expect(
       checklist.safety.find((item) => item.kind === "law")?.title
     ).toBeTruthy();
+  });
+
+  it("links locale-specific consular travel advice", () => {
+    const en = buildChecklist({
+      locale: "en",
+      countries: ["DE", "AT"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [],
+    });
+    expect(
+      en.documents.find((item) => item.id === "mfa-advice")
+    ).toMatchObject({
+      href: TRAVEL_ADVICE_BY_LOCALE.en.href,
+      title: "Your Europe — travel documents",
+    });
+    const ro = buildChecklist({
+      locale: "ro",
+      countries: ["DE", "RO"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [],
+    });
+    expect(
+      ro.documents.find((item) => item.id === "mfa-advice")
+    ).toMatchObject({
+      href: TRAVEL_ADVICE_BY_LOCALE.ro.href,
+      title: "Sfaturi de călătorie MAE România",
+    });
+  });
+
+  it("lists the Hungarian e-vignette on an Austria–Hungary–Romania corridor", () => {
+    const checklist = buildChecklist({
+      countries: ["DE", "AT", "HU", "RO"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [getVignetteByCountryCode("HU")!],
+    });
+    expect(
+      checklist.vignettes.some((item) => item.country_code === "HU")
+    ).toBe(true);
   });
 
   it("builds checklist rows for every charge on a long Europe corridor", () => {

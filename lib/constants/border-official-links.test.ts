@@ -4,6 +4,7 @@ import {
   crossingIdForHatarinfoName,
   HATARINFO_ATTRIBUTION_TEXT,
   MFA_TRAVEL_ADVICE_URL,
+  TRAVEL_ADVICE_BY_LOCALE,
   MUP_CAMERA_CROSSING_IDS,
   officialLinksForCrossing,
   OFFICIAL_LINK_LABELS,
@@ -62,6 +63,13 @@ describe("official border links", () => {
     expect(
       officialLinksForCrossing({ id: "gorican", country_pair: "HR - HU" })
     ).toEqual([]);
+  });
+
+  it("exposes consular travel links per locale", () => {
+    expect(TRAVEL_ADVICE_BY_LOCALE.bg.href).toBe(MFA_TRAVEL_ADVICE_URL);
+    expect(TRAVEL_ADVICE_BY_LOCALE.en.href).toBe("https://europa.eu/youreurope/");
+    expect(TRAVEL_ADVICE_BY_LOCALE.ro.href).toBe("https://www.mae.ro/");
+    expect(TRAVEL_ADVICE_BY_LOCALE.tr.href).toBe("https://www.mfa.gov.tr/");
   });
 
   it("keeps the MFA advice URL and the Hárinfó attribution string", () => {

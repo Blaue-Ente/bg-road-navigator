@@ -28,10 +28,14 @@ import { attachStops } from "@/lib/planner/attach-stops";
 import {
   applyPreferredBorder,
   nearestHungarySerbiaCrossing,
+  onPathBulgarianCrossing,
+  preferenceBorderCandidate,
   selectCandidateBorders,
   selectHungarySerbiaBorders,
   scoreBorderOptions,
+  tripMayCrossBulgaria,
   tripMayCrossHungarySerbia,
+  tripMustForceHungarySerbiaBorderChoice,
   type BorderCandidate,
   type BorderScoreInput,
   type ScoredBorder,
@@ -48,7 +52,10 @@ import { buildChecklist } from "@/lib/planner/checklist";
 import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
-import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
+import {
+  isHuRomaniaPreferenceId,
+  isHungarySerbiaPlannerId,
+} from "@/lib/constants/border-official-links";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import {
   hatarinfoReading,
@@ -129,16 +136,35 @@ export async function runTripPlan(input: TripPlanRequest) {
     originCountry,
     destinationCountry,
   };
-  const bgCandidates = selectCandidateBorders(borderEnds).filter((candidate) =>
+  const mayCrossBg = tripMayCrossBulgaria(originCountry, destinationCountry);
+  let bgCandidates = selectCandidateBorders(borderEnds).filter((candidate) =>
     allowsBorder(candidate.id, prefs)
   );
+  if (!mayCrossBg) bgCandidates = [];
   const crossesHuRs = tripMayCrossHungarySerbia(borderEnds);
-  const huRsIsRouteChoice = bgCandidates.length === 0 && crossesHuRs;
-  const candidates = huRsIsRouteChoice
+  const huRsIsRouteChoice =
+    bgCandidates.length === 0 &&
+    crossesHuRs &&
+    tripMustForceHungarySerbiaBorderChoice(borderEnds);
+  const baseCandidates = huRsIsRouteChoice
     ? selectHungarySerbiaBorders(borderEnds).filter((candidate) =>
         allowsBorder(candidate.id, prefs)
       )
     : bgCandidates;
+  const candidateIds = new Set(baseCandidates.map((row) => row.id));
+  const preferredExtra =
+    prefs.preferred_border &&
+    allowsBorder(prefs.preferred_border, prefs) &&
+    !candidateIds.has(prefs.preferred_border)
+      ? preferenceBorderCandidate(
+          prefs.preferred_border,
+          input.origin.coords,
+          input.destination.coords
+        )
+      : null;
+  const candidates = preferredExtra
+    ? [...baseCandidates, preferredExtra]
+  : baseCandidates;
 
   const viaCoords = (input.via ?? [])
     .slice(0, MAX_VIA)
@@ -232,10 +258,14 @@ export async function runTripPlan(input: TripPlanRequest) {
         forecast: cached?.forecast ?? null,
         dayStats: cached?.dayStats ?? null,
         current: cached?.current ?? null,
-        localTypical: candidate.localTypicalMinutes,
-        licensed: isHungarySerbiaPlannerId(candidate.id)
-          ? false
-          : isCrossingLicensed(candidate.id),
+        localTypical: isHuRomaniaPreferenceId(candidate.id)
+          ? []
+          : candidate.localTypicalMinutes,
+        licensed:
+          isHungarySerbiaPlannerId(candidate.id) ||
+          isHuRomaniaPreferenceId(candidate.id)
+            ? false
+            : isCrossingLicensed(candidate.id),
         trafficDelayMin: traffic.get(candidate.id) ?? null,
         hatarinfo: hatarinfoFor(
           hatarinfo,
@@ -312,6 +342,26 @@ export async function runTripPlan(input: TripPlanRequest) {
   const chosenLine = chosenRoute.geometry.coordinates as Array<
     [number, number]
   >;
+  if (!mayCrossBg) {
+    const onPathBg = onPathBulgarianCrossing(chosenLine);
+    if (
+      onPathBg &&
+      !borders.some((border) => border.borderId === onPathBg.id)
+    ) {
+      const attached = await onPathBulgarianBorderInfo({
+        crossing: onPathBg,
+        line: chosenLine,
+        departAt: input.departAt,
+        driveMin: chosenRoute.duration_min,
+        distanceKm: chosenRoute.distance_km,
+        now,
+        locale,
+        waits,
+        traffic: traffic.get(onPathBg.id) ?? null,
+      });
+      if (attached) borders = [...borders, attached];
+    }
+  }
   if (!huRsIsRouteChoice && crossesHuRs) {
     const attached = await serbiaHungaryOnRoute({
       line: chosenLine,
@@ -499,7 +549,11 @@ export async function runTripPlan(input: TripPlanRequest) {
   const why = whyThisRoute({
     locale,
     borders: borders
-      .filter((border) => border.reasonCode !== "serbia_hungary")
+      .filter(
+        (border) =>
+          border.reasonCode !== "serbia_hungary" &&
+          border.reasonCode !== "on_path"
+      )
       .map((border) => ({
         chosen: border.chosen,
         borderId: border.borderId,
@@ -588,6 +642,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     chosenBorder,
     preferences: prefs,
     activeChoice: input.routeChoice,
+    via: input.via,
     locale,
   });
 
@@ -873,10 +928,14 @@ function refreshBorderWaits(input: {
     forecast: cached?.forecast ?? null,
     dayStats: cached?.dayStats ?? null,
     current: cached?.current ?? null,
-    localTypical: candidate.localTypicalMinutes,
-    licensed: isHungarySerbiaPlannerId(candidate.id)
-      ? false
-      : isCrossingLicensed(candidate.id),
+    localTypical: isHuRomaniaPreferenceId(candidate.id)
+      ? []
+      : candidate.localTypicalMinutes,
+    licensed:
+      isHungarySerbiaPlannerId(candidate.id) ||
+      isHuRomaniaPreferenceId(candidate.id)
+        ? false
+        : isCrossingLicensed(candidate.id),
     trafficDelayMin: input.traffic.get(candidate.id) ?? null,
     hatarinfo: hatarinfoFor(
       input.hatarinfo,
@@ -912,6 +971,64 @@ function hatarinfoFor(
     minutes: reading.minutes,
     band: reading.band,
     observedAt: reading.observedAt,
+  };
+}
+
+async function onPathBulgarianBorderInfo(input: {
+  crossing: BorderCandidate;
+  line: Array<[number, number]>;
+  departAt: Date;
+  driveMin: number;
+  distanceKm: number;
+  now: Date;
+  locale: Locale;
+  waits: Map<string, CachedWait>;
+  traffic: number | null;
+}): Promise<ScoredBorder | null> {
+  const along = distanceToPolylineKm(input.line, input.crossing.coords);
+  const fraction =
+    input.distanceKm > 0
+      ? Math.min(1, along.alongKm / Math.max(lineLengthKm(input.line), 1))
+      : 0;
+  const eta = new Date(
+    input.departAt.getTime() + fraction * input.driveMin * 60_000
+  );
+  const cached = input.crossing.ppid
+    ? input.waits.get(input.crossing.ppid)
+    : undefined;
+  const wait = expectedWait({
+    eta,
+    now: input.now,
+    locale: input.locale,
+    forecast: cached?.forecast ?? null,
+    dayStats: cached?.dayStats ?? null,
+    current: cached?.current ?? null,
+    localTypical: input.crossing.localTypicalMinutes,
+    licensed: isCrossingLicensed(input.crossing.id),
+    trafficDelayMin: input.traffic,
+    hatarinfo: null,
+  });
+  const borderCopy = catalog(input.locale).planner.border;
+  return {
+    borderId: input.crossing.id,
+    nameBg: input.crossing.nameBg,
+    nameEn: input.crossing.nameEn,
+    coords: input.crossing.coords,
+    ppid: input.crossing.ppid,
+    driveMin: input.driveMin,
+    distanceKm: input.distanceKm,
+    wait,
+    communityPenaltyMin: 0,
+    totalMin: input.driveMin + wait.minutes,
+    chosen: false,
+    reasonCode: "on_path",
+    reason: formatTemplate(borderCopy.onPathBg, {
+      name: borderDisplayName(input.locale, {
+        id: input.crossing.id,
+        name_bg: input.crossing.nameBg,
+        name_en: input.crossing.nameEn,
+      }),
+    }),
   };
 }
 

@@ -123,6 +123,28 @@ describe("route divergence", () => {
     expect(options.alternative?.border_id).toBe("vidin");
   });
 
+  it("labels the primary route from the via point when no border is chosen", () => {
+    const coords = line(11.58, 48.13, 20.75, 46.07, 30);
+    const direct = routeFrom(coords, 900, 520);
+    const options = buildRouteOptions({
+      origin: { lng: 11.58, lat: 48.13 },
+      destination: { lng: 26.1, lat: 44.43 },
+      originCountry: "DE",
+      destinationCountry: "RO",
+      direct,
+      viaRoutes: new Map(),
+      onPath: new Set(),
+      borders: [],
+      chosenRoute: direct,
+      chosenBorder: null,
+      via: [{ label: "Nădlac", coords: { lng: 20.75, lat: 46.07 } }],
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      locale: "ro",
+    });
+    expect(options.primary.label).toBe("Prin Nădlac");
+    expect(options.primary.source).toBe("direct");
+  });
+
   it("returns same_country when ends share a country", () => {
     const options = buildRouteOptions({
       origin: { lng: 23.2, lat: 42.7 },
