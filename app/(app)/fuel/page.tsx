@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { PageSkeleton, ErrorState } from "@/components/ui/PageSkeleton";
 import { sampleRouteCoordinates } from "@/lib/utils/route-fuel-sample";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { FuelEstimateCard } from "@/components/route/FuelEstimateCard";
 
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
@@ -93,9 +94,11 @@ function FuelPageContent() {
 
         <div className="grid grid-cols-1 gap-8">
           <section>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.fuelPage.stations}<span className="ml-2 text-[var(--waze-text-muted)]">
-                ({data.fuelStations.length})
-              </span>
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
+              {formatTemplate(m.fuelPage.sectionHeading, {
+                label: m.fuelPage.stations,
+                count: String(data.fuelStations.length),
+              })}
             </h2>
             <div className="space-y-3">
               {data.fuelStations.length === 0 ? (
@@ -121,9 +124,11 @@ function FuelPageContent() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">{m.fuelPage.ev}<span className="ml-2 text-[var(--waze-text-muted)]">
-                ({data.evStations.length})
-              </span>
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
+              {formatTemplate(m.fuelPage.sectionHeading, {
+                label: m.fuelPage.ev,
+                count: String(data.evStations.length),
+              })}
             </h2>
             <div className="space-y-3">
               {data.evStations.length === 0 ? (

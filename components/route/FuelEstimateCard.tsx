@@ -2,6 +2,7 @@
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { estimateRouteFuel } from "@/lib/utils/fuel-estimate";
 import { useUserStore } from "@/lib/stores/user.store";
 
@@ -17,11 +18,21 @@ export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
       <h3 className="mb-1 text-sm font-semibold text-[var(--waze-text)]">{m.fuelEstimate.title}</h3>
       <p className="mb-2 text-xs text-[var(--waze-text-muted)]">{m.fuelEstimate.disclaimer}</p>
       <p className="text-lg font-semibold text-[var(--waze-text)]">
-        {estimate.fuel_needed} {estimate.unit} · ≈ {estimate.cost_bgn} лв
+        {formatTemplate(m.fuelEstimate.costLine, {
+          amount: String(estimate.fuel_needed),
+          unit: estimate.unit,
+          cost: String(estimate.cost_bgn),
+          currency: m.units.lv,
+        })}
       </p>
       <p className="mt-1 text-xs text-[var(--waze-text-secondary)]">
-        {estimate.consumption_per_100} {estimate.unit}/100 км ·{" "}
-        {estimate.price_label} {estimate.price_per_unit.toFixed(2)}
+        {formatTemplate(m.fuelEstimate.consumptionLine, {
+          consumption: String(estimate.consumption_per_100),
+          unit: estimate.unit,
+          km: m.units.km,
+          priceLabel: estimate.price_label,
+          price: estimate.price_per_unit.toFixed(2),
+        })}
       </p>
       <p className="mt-2 text-xs text-[var(--waze-text-muted)]">
         {estimate.disclaimer_bg}

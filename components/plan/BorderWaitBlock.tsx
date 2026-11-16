@@ -1,5 +1,8 @@
-import { messages as m } from "@/lib/i18n";
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { borderWaitView } from "@/lib/planner/border-wait-view";
+import type { MessageCatalog } from "@/lib/i18n";
 import { formatZonedHourLabel } from "@/lib/planner/wait";
 import type { BorderChoice, WaitSource } from "@/lib/planner/types";
 
@@ -10,18 +13,21 @@ export function BorderWaitBlock({
   chosen: BorderChoice;
   arrivalAt?: Date | string | null;
 }) {
+  const m = useMessages();
   const view = borderWaitView(chosen.wait);
   return (
     <div className="mt-2 rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm">
       <p className="font-medium text-[var(--waze-text)]">{chosen.name_bg}</p>
       <p className="text-[var(--waze-text-secondary)]">{chosen.reason}</p>
       {view.unlicensed ? (
-        <p className="mt-1 font-medium text-[var(--waze-text)]">{m.sheet.borderUnlicensed}</p>
+        <p className="mt-1 font-medium text-[var(--waze-text)]">
+          {m.sheet.borderUnlicensed}
+        </p>
       ) : null}
       <p className="mt-1 text-[var(--waze-text)]">
         {m.sheet.borderWait}
         {arrivalAt
-          ? ` при пристигане · ${formatZonedHourLabel(new Date(arrivalAt))}`
+          ? `${m.sheet.arrivalPrefix} ${formatZonedHourLabel(new Date(arrivalAt))}`
           : ""}
         : {view.minutes} {m.prefs.minutes}
       </p>
@@ -33,7 +39,7 @@ export function BorderWaitBlock({
       {view.unlicensed ? null : (
         <>
           <p className="text-[var(--waze-text-secondary)]">
-            {m.sheet.borderSource}: {waitSource(view.source)}
+            {m.sheet.borderSource}: {waitSourceLabel(view.source, m)}
             {view.detail ? ` · ${view.detail}` : ""}
           </p>
           {view.ageLabel ? (
@@ -60,6 +66,6 @@ export function BorderWaitBlock({
   );
 }
 
-function waitSource(source: WaitSource): string {
+function waitSourceLabel(source: WaitSource, m: MessageCatalog): string {
   return m.waitSource[source] ?? source;
 }

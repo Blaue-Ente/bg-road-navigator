@@ -1,3 +1,7 @@
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
+
 interface BorderWaitBadgeProps {
   waitMinutes: number;
   label?: string;
@@ -12,6 +16,7 @@ export function BorderWaitBadge({
   caption,
   compact,
 }: BorderWaitBadgeProps) {
+  const m = useMessages();
   const getStyles = (wait: number) => {
     if (wait < 30)
       return "bg-emerald-500/15 text-[var(--waze-ok)] ring-[var(--waze-ok)]/30";
@@ -33,7 +38,7 @@ export function BorderWaitBadge({
         <span
           className={`inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-bold ring-1 ${getStyles(waitMinutes)}`}
         >
-          {waitMinutes} мин
+          {waitMinutes} {m.units.min}
         </span>
       </span>
     );
@@ -50,7 +55,9 @@ export function BorderWaitBadge({
         className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-sm font-semibold ring-1 ${getStyles(waitMinutes)}`}
       >
         {label && <span className="font-medium opacity-80">{label}</span>}
-        <span>{waitMinutes} мин</span>
+        <span>
+          {waitMinutes} {m.units.min}
+        </span>
       </div>
     </div>
   );

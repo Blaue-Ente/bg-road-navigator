@@ -6,7 +6,8 @@ import type { Map } from "maplibre-gl";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { DATEX_ATTRIBUTION, formatHazardUntil } from "@/lib/hazards/present";
 import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
-import { messages as m } from "@/lib/i18n";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import type { MessageCatalog } from "@/lib/i18n";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useRouteStore } from "@/lib/stores/route.store";
 import type { PlanStop, StopKind } from "@/lib/planner/types";
@@ -27,6 +28,7 @@ const KIND_COLOR: Record<StopKind, string> = {
 };
 
 export function PlanMarkers({ map }: { map: Map | null }) {
+  const m = useMessages();
   const plan = useRouteStore((state) => state.tripPlan);
   const focusedStopId = useRouteStore((state) => state.focusedStopId);
 
@@ -41,7 +43,7 @@ export function PlanMarkers({ map }: { map: Map | null }) {
           stop.coords.lng,
           stop.coords.lat,
           colorFor(stop),
-          labelFor(stop),
+          labelFor(stop, m),
           {
             focused: stop.id === focusedStopId,
             flags: stop.flags.length,
@@ -51,7 +53,7 @@ export function PlanMarkers({ map }: { map: Map | null }) {
       );
     }
     for (const hazard of plan.road_hazards ?? []) {
-      markers.push(hazardMarker(map, hazard));
+      markers.push(hazardMarker(map, hazard, m));
     }
     const border = plan.border.chosen;
     if (border) {
@@ -74,12 +76,16 @@ export function PlanMarkers({ map }: { map: Map | null }) {
     return () => {
       for (const item of markers) item.remove();
     };
-  }, [map, plan, focusedStopId]);
+  }, [map, plan, focusedStopId, m]);
 
   return null;
 }
 
-function hazardMarker(map: Map, hazard: RoadHazard): maplibregl.Marker {
+function hazardMarker(
+  map: Map,
+  hazard: RoadHazard,
+  m: MessageCatalog
+): maplibregl.Marker {
   const where = hazard.road_km_bg
     ? `${hazard.label_bg} · ${hazard.road_km_bg}`
     : hazard.label_bg;
@@ -131,18 +137,17 @@ function colorFor(stop: PlanStop): string {
   return KIND_COLOR.rest;
 }
 
-const BAND_LABEL = {
-  green: m.sheet.bandGreen,
-  yellow: m.sheet.bandYellow,
-  red: m.sheet.bandRed,
-  grey: m.sheet.bandGrey,
-} as const;
-
-function labelFor(stop: PlanStop): string {
+function labelFor(stop: PlanStop, m: MessageCatalog): string {
+  const bandLabel = {
+    green: m.sheet.bandGreen,
+    yellow: m.sheet.bandYellow,
+    red: m.sheet.bandRed,
+    grey: m.sheet.bandGrey,
+  } as const;
   const kinds = stop.kinds.map((kind) => m.kinds[kind] ?? kind).join(", ");
   const flags = stop.flags.length > 0 ? `, ${stop.flags.length}` : "";
   const price = stop.average_label_bg ? `. ${stop.average_label_bg}` : "";
-  const band = stop.price_band ? `. ${BAND_LABEL[stop.price_band]}` : "";
+  const band = stop.price_band ? `. ${bandLabel[stop.price_band]}` : "";
   return `${stop.place_name ?? stop.title}. ${kinds}${flags}${price}${band}`;
 }
 

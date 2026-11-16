@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { useEffect, useState } from "react";
 import type { BorderWebcamFeed } from "@/types/border.types";
@@ -21,6 +22,8 @@ export function BorderWebcam({
   nakordoniUrl,
 }: BorderWebcamProps) {
   const m = useMessages();
+  const cameraTitle = formatTemplate(m.bordersUi.cameraTitle, { name: label });
+  const liveCameraLine = formatTemplate(m.bordersUi.liveCamera, { name: label });
   const [feed, setFeed] = useState<BorderWebcamFeed | null>(null);
   const [error, setError] = useState(false);
   const [imageKey, setImageKey] = useState(0);
@@ -67,7 +70,7 @@ export function BorderWebcam({
       <div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
         <iframe
           src={playerUrl}
-          title={`Камера ${label}`}
+          title={cameraTitle}
           className="h-48 w-full border-0"
           loading="lazy"
           sandbox="allow-scripts allow-same-origin allow-presentation"
@@ -84,7 +87,7 @@ export function BorderWebcam({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
-          alt={`Камера ${label}`}
+          alt={cameraTitle}
           className="h-48 w-full object-cover"
           onError={() => setError(true)}
         />
@@ -100,7 +103,7 @@ export function BorderWebcam({
         strokeWidth={2}
         aria-hidden
       />
-      <p className="text-sm text-gray-300">Жива камера — {label}</p>
+      <p className="text-sm text-gray-300">{liveCameraLine}</p>
       {livePageUrl ? (
         <a
           href={livePageUrl}

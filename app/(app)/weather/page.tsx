@@ -96,7 +96,7 @@ export default function WeatherPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
-          Прогноза от{" "}
+          {m.weatherPage.forecastFrom}{" "}
           <a
             href="https://open-meteo.com/"
             target="_blank"

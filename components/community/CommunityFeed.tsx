@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { useState } from "react";
 import { useCommunityStore } from "@/lib/stores/community.store";
@@ -110,7 +111,9 @@ export function CommunityFeed({
                   aria-label={m.community.msg6bfaef0a25}
                 >
                   <ThumbsUp className="h-3.5 w-3.5" strokeWidth={2} />
-                  Още е там {pin.upvotes}
+                  {formatTemplate(m.community.stillThere, {
+                    count: String(pin.upvotes),
+                  })}
                 </button>
                 <button
                   type="button"
@@ -184,7 +187,9 @@ export function CommunityFeed({
                 onClick={() => void confirmPin(selectedPin.id, "still_there")}
                 className="waze-btn-primary flex-1 py-2.5 text-sm"
               >
-                Още е там ({selectedPin.upvotes})
+                {formatTemplate(m.community.stillThereParen, {
+                  count: String(selectedPin.upvotes),
+                })}
               </button>
               <button
                 type="button"
