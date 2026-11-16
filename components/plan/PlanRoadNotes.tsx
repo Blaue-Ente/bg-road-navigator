@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
-import { formatTemplate } from "@/lib/i18n/format-template";
+import { showAllRoadNotesLabel } from "@/lib/i18n/show-all-labels";
 import {
   formatHazardUntil,
   hazardLabel,
@@ -89,13 +89,14 @@ export function PlanRoadNotes({ plan }: { plan: TripPlannerResult }) {
       <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
         {view.summary}
       </p>
-      <ul className="mt-2 space-y-2">{view.top.map((item) => renderItem(item))}</ul>
-      {view.rest.length > 0 ? (
+      <ul className="mt-2 space-y-2">
+        {view.top.map((item) => renderItem(item))}
+        {view.rest.length === 1 ? view.rest.map((item) => renderItem(item)) : null}
+      </ul>
+      {view.rest.length > 1 ? (
         <details className="mt-2">
           <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-[var(--waze-accent-text)]">
-            {formatTemplate(m.sheet.showAllCount, {
-              count: String(view.rest.length),
-            })}
+            {showAllRoadNotesLabel(view.rest.length, locale)}
           </summary>
           <ul className="mt-2 space-y-2">
             {view.rest.map((item) => renderItem(item))}

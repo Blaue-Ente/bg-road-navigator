@@ -13,6 +13,7 @@ import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
 import { weatherSegmentsForDisplay } from "@/lib/planner/road-notes-view";
 import { formatTemplate } from "@/lib/i18n/format-template";
+import { showAllWeatherLabel } from "@/lib/i18n/show-all-labels";
 import {
   currentLocationPreference,
   locationPreferenceServerSnapshot,
@@ -477,6 +478,7 @@ function WeatherSegmentRow({
 
 function PlanWeatherSection({ plan }: { plan: TripPlannerResult }) {
   const m = useMessages();
+  const locale = useLocale();
   const { featured, rest } = weatherSegmentsForDisplay(plan.weather.segments);
   return (
     <section aria-labelledby="plan-weather">
@@ -516,13 +518,14 @@ function PlanWeatherSection({ plan }: { plan: TripPlannerResult }) {
             {featured.map((segment) => (
               <WeatherSegmentRow key={`w-${segment.eta}-${segment.distance_from_start_km}`} segment={segment} />
             ))}
+            {rest.length === 1 ? (
+              <WeatherSegmentRow segment={rest[0]!} />
+            ) : null}
           </ul>
-          {rest.length > 0 ? (
+          {rest.length > 1 ? (
             <details className="mt-2">
               <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-[var(--waze-accent-text)]">
-                {formatTemplate(m.sheet.showAllWeatherCount, {
-                  count: String(rest.length),
-                })}
+                {showAllWeatherLabel(rest.length, locale)}
               </summary>
               <ul className="mt-2 space-y-2">
                 {rest.map((segment) => (
