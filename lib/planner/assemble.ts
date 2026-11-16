@@ -1,3 +1,4 @@
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
 import { fillLiters } from "@/lib/fuel-prices/advice";
 import { DATEX_ATTRIBUTION } from "@/lib/hazards/present";
@@ -171,7 +172,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     border: {
       chosen: chosen ? toChoice(chosen) : null,
       alternatives: input.borders.map(toChoice),
-      note: borderNote(input.borders, p.border),
+      note: borderNote(input.borders, p.border, input.locale ?? "bg"),
     },
     stops,
     fuel_averages: input.fuelAverages,
@@ -233,7 +234,8 @@ function geometryKmAt(input: AssembleInput, roadKm: number): number {
 
 function borderNote(
   borders: ScoredBorder[],
-  copy: PlannerCopy["border"]
+  copy: PlannerCopy["border"],
+  locale: Locale
 ): string {
   if (borders.length === 0) {
     return copy.noBgBorder;
@@ -252,7 +254,13 @@ function borderNote(
   }
   const base = copy.bgCompared;
   if (!extra) return base;
-  return `${base} ${formatTemplate(copy.viaAfter, { name: extra.nameBg })}`;
+  return `${base} ${formatTemplate(copy.viaAfter, {
+    name: borderDisplayName(locale, {
+      id: extra.borderId,
+      name_bg: extra.nameBg,
+      name_en: extra.nameEn,
+    }),
+  })}`;
 }
 
 function toPlanStop(

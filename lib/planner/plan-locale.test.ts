@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import {
+  BORDER_CROSSINGS,
+  borderDisplayName,
+} from "@/lib/constants/border-crossings";
 import { DEFAULT_TRIP_PREFERENCES } from "@/lib/planner/preferences";
 import {
   collectStrings,
@@ -18,6 +22,7 @@ import { NAKORDONI_ATTRIBUTION } from "@/lib/planner/wait";
 import type { Locale } from "@/lib/i18n/locale";
 
 const SKIP = ["name_bg", "nameBg", "nameEn", "label_bg_source"];
+const ENGLISH_BORDER_WORDS = /\b(Bridge|Danube)\b/i;
 
 function expectNoCyrillic(locale: Locale, value: unknown) {
   const bad = stringsWithoutCyrillic(collectStrings(value, { skipKeys: SKIP }));
@@ -41,12 +46,20 @@ const waitFixture: WaitEstimate = {
 describe("plan locale outputs", () => {
   for (const locale of ["en", "tr", "ro"] as const) {
     it(`whyThisRoute has no Cyrillic for ${locale}`, () => {
+      const kapitan = BORDER_CROSSINGS.find(
+        (row) => row.id === "kapitan-andreevo"
+      )!;
+      const vidin = BORDER_CROSSINGS.find(
+        (row) => row.id === "danube-bridge-vidin"
+      )!;
       const reasons = whyThisRoute({
         locale,
         borders: [
           {
             chosen: true,
-            name: "Kapitan Andreevo",
+            borderId: kapitan.id,
+            nameBg: kapitan.name_bg,
+            nameEn: kapitan.name_en,
             totalMin: 200,
             waitMinutes: 20,
             driveMin: 180,
@@ -54,7 +67,9 @@ describe("plan locale outputs", () => {
           },
           {
             chosen: false,
-            name: "Danube Bridge Vidin–Calafat",
+            borderId: vidin.id,
+            nameBg: vidin.name_bg,
+            nameEn: vidin.name_en,
             totalMin: 260,
             waitMinutes: 70,
             driveMin: 190,
@@ -69,7 +84,10 @@ describe("plan locale outputs", () => {
         preferences: DEFAULT_TRIP_PREFERENCES,
       });
       expectNoCyrillic(locale, reasons);
-      expect(reasons[0]?.title).toContain("Kapitan Andreevo");
+      const title = reasons[0]?.title ?? "";
+      if (locale === "tr") expect(title).toBe("Kapıkule üzerinden");
+      else if (locale === "ro") expect(title).toBe("Prin Capitan Andreevo");
+      else expect(title).toBe("Via Kapitan Andreevo");
     });
 
     it(`scoreBorderOptions has no Cyrillic for ${locale}`, () => {
@@ -211,6 +229,60 @@ describe("plan locale outputs", () => {
     });
     expect(options.primary.label).toBe("Via Kapitan Andreevo");
   });
+
+  for (const locale of ["tr", "ro"] as const) {
+    it(`whyThisRoute names match borderDisplayName for every crossing (${locale})`, () => {
+      for (const chosenRow of BORDER_CROSSINGS) {
+        const otherRow =
+          BORDER_CROSSINGS.find((row) => row.id !== chosenRow.id) ??
+          BORDER_CROSSINGS[0]!;
+        const reasons = whyThisRoute({
+          locale,
+          borders: [
+            {
+              chosen: true,
+              borderId: chosenRow.id,
+              nameBg: chosenRow.name_bg,
+              nameEn: chosenRow.name_en,
+              totalMin: 200,
+              waitMinutes: 20,
+              driveMin: 180,
+              distanceKm: 320,
+            },
+            {
+              chosen: false,
+              borderId: otherRow.id,
+              nameBg: otherRow.name_bg,
+              nameEn: otherRow.name_en,
+              totalMin: 280,
+              waitMinutes: 50,
+              driveMin: 190,
+              distanceKm: 340,
+            },
+          ],
+          directDurationMin: 240,
+          directDistanceKm: 360,
+          chosenDurationMin: 180,
+          chosenDistanceKm: 320,
+          incidents: [],
+          preferences: DEFAULT_TRIP_PREFERENCES,
+        });
+        const borderWhy = reasons.find((reason) => reason.code === "border_wait");
+        expect(borderWhy).toBeDefined();
+        const blob = `${borderWhy!.title} ${borderWhy!.detail}`;
+        const chosenName = borderDisplayName(locale, chosenRow);
+        const otherName = borderDisplayName(locale, otherRow);
+        expect(blob).toContain(chosenName);
+        expect(blob).toContain(otherName);
+        expect(blob).not.toMatch(ENGLISH_BORDER_WORDS);
+        for (const row of [chosenRow, otherRow]) {
+          if (ENGLISH_BORDER_WORDS.test(row.name_en)) {
+            expect(blob).not.toContain(row.name_en);
+          }
+        }
+      }
+    });
+  }
 
   it("applyPreferredBorder localizes preferred reason", () => {
     const scored = applyPreferredBorder(

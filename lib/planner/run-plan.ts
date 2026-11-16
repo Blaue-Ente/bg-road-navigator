@@ -501,12 +501,9 @@ export async function runTripPlan(input: TripPlanRequest) {
       .filter((border) => border.reasonCode !== "serbia_hungary")
       .map((border) => ({
         chosen: border.chosen,
-        name: borderDisplayName(locale, {
-          id: border.borderId,
-          name_bg: border.nameBg,
-          name_en: border.nameEn,
-        }),
+        borderId: border.borderId,
         nameBg: border.nameBg,
+        nameEn: border.nameEn,
         totalMin: border.totalMin,
         waitMinutes: border.wait.minutes,
         driveMin: border.driveMin,

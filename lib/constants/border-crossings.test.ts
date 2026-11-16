@@ -30,7 +30,17 @@ describe("BORDER_CROSSINGS", () => {
   it("shows Kapıkule in Turkish for Kapitan Andreevo", () => {
     const row = BORDER_CROSSINGS.find((row) => row.id === "kapitan-andreevo");
     expect(borderDisplayName("tr", row!)).toBe("Kapıkule");
-    expect(borderDisplayName("ro", row!)).toBe("Kapitan Andreevo");
+    expect(borderDisplayName("ro", row!)).toBe("Capitan Andreevo");
+  });
+
+  it("localizes Danube bridges in Turkish and Romanian", () => {
+    const vidin = BORDER_CROSSINGS.find((row) => row.id === "danube-bridge-vidin");
+    expect(borderDisplayName("tr", vidin!)).toBe("Tuna Köprüsü Vidin–Calafat");
+    expect(borderDisplayName("ro", vidin!)).toBe("Podul Dunărea Vidin–Calafat");
+    expect(borderDisplayName("tr", vidin!)).not.toMatch(/\b(Danube|Bridge)\b/i);
+    const ruse = BORDER_CROSSINGS.find((row) => row.id === "danube-bridge-ruse");
+    expect(borderDisplayName("tr", ruse!)).toBe("Tuna Köprüsü Ruse–Giurgiu");
+    expect(borderDisplayName("ro", ruse!)).toBe("Podul Dunărea Ruse–Giurgiu");
   });
 
   it("keeps Bulgarian notes as the source of truth", () => {
