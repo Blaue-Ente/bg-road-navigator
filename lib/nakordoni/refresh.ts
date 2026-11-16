@@ -46,7 +46,6 @@ const CACHE_TTL_MS = {
   border: 23 * 60 * 60 * 1000,
 } as const;
 
-const PACE_MS = 600;
 const RUN_BUDGET_MS = 45_000;
 
 export interface RefreshReport {
@@ -65,7 +64,6 @@ export interface RefreshReport {
 export interface NakordoniRefreshDeps {
   apiKey?: string | null;
   databaseConfigured?: boolean;
-  paceMs?: number;
   get?: (path: string) => Promise<NakordoniCallResult>;
   readCache?: (
     keys: string[]
@@ -99,7 +97,6 @@ export async function refreshNakordoniCache(
   const readBudget = deps.readBudget ?? readNakordoniBudget;
   const addBudget = deps.addBudget ?? addNakordoniBudget;
   const get = deps.get ?? ((path: string) => nakordoniGet(path));
-  const paceMs = deps.paceMs ?? PACE_MS;
 
   try {
     const day = now.toISOString().slice(0, 10);
@@ -134,7 +131,6 @@ export async function refreshNakordoniCache(
     let heavy = 0;
     let cheap = 0;
     let stopped = false;
-    let first = true;
     const errorsByStatus: Record<string, number> = {};
 
     for (const call of planned) {
@@ -142,8 +138,6 @@ export async function refreshNakordoniCache(
         stopped = true;
         break;
       }
-      if (!first) await sleep(paceMs);
-      first = false;
       const outcome = await fetchOne(call, now, get, writeCache);
       if (outcome.kind === "ok") {
         fetched += 1;
@@ -285,6 +279,3 @@ function emptyReport(skipped: string): RefreshReport {
   };
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}

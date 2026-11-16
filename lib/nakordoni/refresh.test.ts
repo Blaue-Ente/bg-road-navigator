@@ -12,7 +12,6 @@ describe("Nakordoni refresh backoff", () => {
     const deps = {
       apiKey: "test-key",
       databaseConfigured: true,
-      paceMs: 0,
       readCache: async (keys: string[]) =>
         keys.flatMap((key) => {
           const row = store.get(key);

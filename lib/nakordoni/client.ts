@@ -1,40 +1,24 @@
+import {
+  nakordoniMeteredFetch,
+  type NakordoniMeteredResult,
+} from "@/lib/api-clients/nakordoni";
+
 export interface NakordoniCallResult {
   ok: boolean;
   status: number;
   json: unknown;
 }
 
-const DATA_ROOT = "https://nakordoni.eu";
+export type { NakordoniMeteredResult };
 
-/** One metered GET. Callers pace requests; this function does not retry. */
+/** One metered GET — pacing, dedupe, and 429 handling live in nakordoni.ts. */
 export async function nakordoniGet(
   path: string,
-  fetcher: typeof fetch = fetch
+  _fetcher: typeof fetch = fetch
 ): Promise<NakordoniCallResult> {
-  const apiKey = process.env.NAKORDONI_API_KEY?.trim();
-  if (!apiKey) return { ok: false, status: 0, json: null };
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 12_000);
-  try {
-    const response = await fetcher(`${DATA_ROOT}${path}`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      signal: controller.signal,
-      cache: "no-store",
-    });
-    const json = (await response.json().catch(() => null)) as unknown;
-    const bodyOk =
-      Boolean(json) &&
-      typeof json === "object" &&
-      (json as { ok?: boolean }).ok !== false;
-    return { ok: response.ok && bodyOk, status: response.status, json };
-  } catch {
-    return { ok: false, status: 0, json: null };
-  } finally {
-    clearTimeout(timer);
-  }
+  void _fetcher;
+  const result = await nakordoniMeteredFetch(path);
+  return { ok: result.ok, status: result.status, json: result.json };
 }
 
 export function nakordoniPath(kind: string, key: string): string | null {
