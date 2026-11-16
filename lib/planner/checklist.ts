@@ -1,7 +1,11 @@
 import { MFA_TRAVEL_ADVICE_URL } from "@/lib/constants/border-official-links";
 import {
   WINTER_RULES,
-  WINTER_RULES_DISCLAIMER_BG,
+  WINTER_RULES_DISCLAIMER,
+  winterRuleChains,
+  winterRuleName,
+  winterRulePeriod,
+  winterRuleSummary,
 } from "@/lib/constants/winter-rules";
 import {
   formatVignetteValidity,
@@ -9,8 +13,8 @@ import {
 } from "@/lib/constants/vignettes";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
-import { pickI18nText, pickText } from "@/lib/i18n/localized-field";
-import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
+import { pickText } from "@/lib/i18n/localized-field";
+import { roadSafetyCopy } from "@/lib/i18n/road-safety";
 import type {
   ChecklistItem,
   PlanChecklist,
@@ -193,22 +197,22 @@ export function buildChecklist(input: {
     const rule = WINTER_RULES.find((item) => item.country_code === code);
     if (!rule) continue;
     const active = inSeason(code, month);
-    const ruleName = pickI18nText(locale, {
-      i18n: rule.name_i18n,
-      bg: rule.name_bg,
-    });
+    const ruleName = winterRuleName(locale, rule);
+    const summary = winterRuleSummary(locale, rule);
+    const period = winterRulePeriod(locale, rule);
+    const chains = winterRuleChains(locale, rule);
     winter.push({
       id: `winter-${code}`,
       title: formatTemplate(c.winterTitle, { rule: ruleName }),
       detail: active
         ? formatTemplate(c.winterInSeason, {
-            summary: rule.summary_bg,
-            period: rule.period_bg,
-            chains: rule.chains_bg,
+            summary,
+            period,
+            chains,
           })
         : formatTemplate(c.winterOffSeason, {
-            period: rule.period_bg,
-            summary: rule.summary_bg,
+            period,
+            summary,
           }),
       country_code: code,
       href: null,
@@ -218,7 +222,7 @@ export function buildChecklist(input: {
     winter.push({
       id: "winter-disclaimer",
       title: c.winterDisclaimerTitle,
-      detail: WINTER_RULES_DISCLAIMER_BG,
+      detail: pickText(locale, WINTER_RULES_DISCLAIMER),
       country_code: null,
       href: null,
     });
@@ -268,18 +272,18 @@ function safetyBlock(countries: string[], locale: Locale): {
   if (!countries.includes("BG")) {
     return { safety: [], safety_closing: null, bg_links: [] };
   }
+  const block = roadSafetyCopy(locale);
   const safety: SafetyNote[] = [
-    ...BG_ROAD_SAFETY.law.map((item) => ({ ...item, kind: "law" as const })),
-    ...BG_ROAD_SAFETY.advice.map((item) => ({
+    ...block.law.map((item) => ({ ...item, kind: "law" as const })),
+    ...block.advice.map((item) => ({
       ...item,
       kind: "advice" as const,
     })),
   ];
-  const closing = catalog(locale).planner.checklist.safetyClosing;
   return {
     safety,
-    safety_closing: closing,
-    bg_links: BG_ROAD_SAFETY.links.map((link) => ({
+    safety_closing: block.closing,
+    bg_links: block.links.map((link) => ({
       id: link.id,
       title: link.title,
       detail: link.detail,
