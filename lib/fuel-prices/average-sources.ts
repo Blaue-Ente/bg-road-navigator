@@ -2,7 +2,7 @@ import {
   readLatestAverageDetails,
   type StoredAverage,
 } from "@/lib/fuel-prices/national-store";
-import { readFueloAverage } from "@/lib/fuel-prices/fuelo-cache";
+import { readFueloAverageCached } from "@/lib/fuel-prices/fuelo-data-cache";
 import { FUELO_AVERAGE_SOURCE } from "@/lib/fuel-prices/present";
 import type { FueloFuel } from "@/lib/fuel-prices/fuelo";
 
@@ -11,7 +11,7 @@ const bulletinFuelToFuelo: Record<"petrol" | "diesel", FueloFuel> = {
   diesel: "diesel",
 };
 
-/** EC bulletin first; Fuelo in-memory cache fills gaps (see Fuelo ToS — no DB persist). */
+/** EC bulletin first; Fuelo shared data cache fills gaps for corridor countries. */
 export async function readMergedAverageDetails(
   countries: string[],
   fuel: "petrol" | "diesel"
@@ -28,7 +28,7 @@ export async function readMergedAverageDetails(
   for (const code of countries) {
     const cc = code.toUpperCase();
     if (merged.has(cc)) continue;
-    const fuelo = readFueloAverage(cc, fueloFuel);
+    const fuelo = await readFueloAverageCached(cc, fueloFuel);
     if (!fuelo) continue;
     merged.set(cc, {
       price: fuelo.price,

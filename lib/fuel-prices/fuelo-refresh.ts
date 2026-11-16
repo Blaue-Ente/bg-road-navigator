@@ -1,21 +1,10 @@
+import type { FueloFuel } from "@/lib/fuel-prices/fuelo";
 import {
-  fetchFueloAverage,
-  type FueloFuel,
-} from "@/lib/fuel-prices/fuelo";
-import { writeFueloAverage } from "@/lib/fuel-prices/fuelo-cache";
+  FUELO_CRON_COUNTRIES,
+  fetchFueloAverageCached,
+} from "@/lib/fuel-prices/fuelo-data-cache";
 
-/** Corridor countries — diesel + petrol ≈ 10 calls/day on the free plan. */
-export const FUELO_CRON_COUNTRIES = [
-  "bg",
-  "de",
-  "at",
-  "hu",
-  "ro",
-  "gr",
-  "rs",
-  "tr",
-  "mk",
-] as const;
+export { FUELO_CRON_COUNTRIES } from "@/lib/fuel-prices/fuelo-data-cache";
 
 export const FUELO_MIN_GAP_MS = 13_000;
 
@@ -27,10 +16,10 @@ export interface FueloRefreshReport {
   errors: number;
 }
 
+/** Warms Next.js data-cache entries (same URLs readers use). */
 export async function refreshFueloAverages(deps?: {
   fetchImpl?: typeof fetch;
   apiKey?: string;
-  now?: Date;
   sleep?: (ms: number) => Promise<void>;
   countries?: readonly string[];
 }): Promise<FueloRefreshReport> {
@@ -48,16 +37,12 @@ export async function refreshFueloAverages(deps?: {
     for (const fuel of fuels) {
       if (requests > 0) await sleep(FUELO_MIN_GAP_MS);
       requests += 1;
-      const result = await fetchFueloAverage(country, fuel, {
+      const row = await fetchFueloAverageCached(country, fuel, {
         fetchImpl: deps?.fetchImpl,
         apiKey,
       });
-      if (result.ok && result.data) {
-        writeFueloAverage(result.data, fuel, deps?.now?.getTime());
-        stored += 1;
-      } else {
-        errors += 1;
-      }
+      if (row) stored += 1;
+      else errors += 1;
     }
   }
   return {

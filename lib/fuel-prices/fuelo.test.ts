@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fetchFueloAverage, parseFueloAverage } from "@/lib/fuel-prices/fuelo";
 import { refreshFueloAverages, FUELO_MIN_GAP_MS } from "@/lib/fuel-prices/fuelo-refresh";
-import { clearFueloCacheForTests, readFueloAverage } from "@/lib/fuel-prices/fuelo-cache";
 
 describe("fuelo average", () => {
   it("parses a valid payload", () => {
@@ -27,10 +26,9 @@ describe("fuelo average", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("serializes cron calls at least 13s apart", async () => {
-    clearFueloCacheForTests();
+  it("serializes cron calls at least 13s apart and warms data cache", async () => {
     const fetchImpl = vi.fn(
-      async () =>
+      async (_url: RequestInfo | URL, _init?: RequestInit) =>
         new Response(
           JSON.stringify({
             data: {
@@ -46,17 +44,22 @@ describe("fuelo average", () => {
         )
     );
     const sleeps: number[] = [];
-    await refreshFueloAverages({
+    const report = await refreshFueloAverages({
       apiKey: "fk_test",
       fetchImpl,
       countries: ["bg", "de"],
       sleep: async (ms) => {
         sleeps.push(ms);
       },
-      now: new Date("2026-11-16T08:00:00.000Z"),
     });
     expect(sleeps.length).toBeGreaterThan(0);
     expect(sleeps.every((ms) => ms >= FUELO_MIN_GAP_MS)).toBe(true);
-    expect(readFueloAverage("BG", "diesel")).toMatchObject({ price: 1.8 });
+    expect(report.stored).toBe(4);
+    const call = fetchImpl.mock.calls[0];
+    expect(call).toBeDefined();
+    const init = call![1] as RequestInit & {
+      next?: { revalidate: number };
+    };
+    expect(init.next?.revalidate).toBe(86_400);
   });
 });
