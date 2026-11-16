@@ -2,9 +2,16 @@
   "home": {
     "waitNow": "Şimdiki bekleme"
   },
+  "planning": {
+    "departYourTime": "{datetime} — sizin saatiniz ({zone})",
+    "departOriginTime": "{place} için bu saat {time}."
+  },
   "sheet": {
     "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",
-    "waitNowLine": "Şimdi: {minutes} dk"
+    "waitNowLine": "Şimdi: {minutes} dk",
+    "arrivalIncludes": "{breaks} mola ve bir gece konaklaması dahil.",
+    "arrivalIncludesBreaksOnly": "Yolda {breaks} mola dahil.",
+    "arrivalIncludesOvernightOnly": "Gece konaklaması dahil."
   },
   "routeChoice": {
     "waitSuffix": "dk bekleme",
@@ -71,6 +78,12 @@
       "hotspotAhead":
         "{meters} m sonra: sık kaza olan bir kesim. Dikkatli sürün.",
       "hazardAhead": "{meters} m sonra: yolda tehlike. Dikkatli sürün."
+    },
+    "why": {
+      "twoDriversDay":
+        "İki sürücüyle günde {hours} saate kadar sürebiliriz; bu yüzden gece konaklaması yolun ilerisindedir ve sabaha daha az yol kalır.",
+      "childrenBreaks":
+        "Çocuklarla molalar her {minutes} dk’da bir olur ve {dwell} dk sürer; bu yaklaşık {total} dk ekler."
     },
     "fuel": {
       "diesel": "dizel",

@@ -14,7 +14,10 @@ import {
 } from "@/lib/planner/form-preferences";
 import type { PlannerDraft } from "@/lib/planner/planner-draft";
 import type { TripPreferences } from "@/lib/planner/preferences";
+import { timeZoneForCountry, timeZoneLabel } from "@/lib/geo/country-timezone";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import {
+  formatDepartInTimeZone,
   formatDepartLocaleDisplay,
   proposedDepartLocalValue,
 } from "@/lib/planner/proposed-depart";
@@ -201,10 +204,36 @@ export function PlanningForm({
       committedOrigin.id === committedDestination.id
   );
 
-  const departDisplay = formatDepartLocaleDisplay(
-    depart || proposedDepart,
-    localeTag(locale)
+  const departValue = depart || proposedDepart;
+  const deviceTimeZone = useMemo(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+    []
   );
+  const departDisplay = formatDepartLocaleDisplay(departValue, localeTag(locale));
+  const departYourLine =
+    departDisplay &&
+    formatTemplate(m.planning.departYourTime, {
+      datetime: departDisplay,
+      zone: timeZoneLabel(deviceTimeZone, locale),
+    });
+  const originForZone = committedOrigin;
+  const originTimeZone = originForZone?.countryCode
+    ? timeZoneForCountry(originForZone.countryCode)
+    : null;
+  const originDepartLine =
+    originTimeZone &&
+    originTimeZone !== deviceTimeZone &&
+    originForZone
+      ? formatTemplate(m.planning.departOriginTime, {
+          place: originForZone.label.split(",")[0]?.trim() || originForZone.label,
+          time:
+            formatDepartInTimeZone(
+              departValue,
+              localeTag(locale),
+              originTimeZone
+            ) ?? departDisplay ?? "",
+        })
+      : null;
 
   return (
     <WazeCard className="space-y-4">
@@ -239,11 +268,14 @@ export function PlanningForm({
           className="mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
         />
       </label>
-      {departDisplay && (
+      {departYourLine ? (
         <p className="text-sm text-[var(--waze-text-secondary)]">
-          {departDisplay}
+          {departYourLine}
         </p>
-      )}
+      ) : null}
+      {originDepartLine ? (
+        <p className="text-xs text-[var(--waze-text-muted)]">{originDepartLine}</p>
+      ) : null}
       <p className="text-xs text-[var(--waze-text-muted)]">
         {m.planning.departProposed}
       </p>

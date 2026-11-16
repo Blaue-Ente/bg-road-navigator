@@ -43,10 +43,13 @@ import {
   type ScoredBorder,
 } from "@/lib/planner/borders";
 import {
+  dwellMinutesBefore,
   mergeDrivingBreaks,
+  totalDwellMinutes,
   resolveSleepShifts,
   sleepMinutesBefore,
   sleepShifts,
+  type BreakKind,
   type FuelTimedStop,
   type SleepShift,
 } from "@/lib/planner/breaks";
@@ -428,6 +431,10 @@ export async function runTripPlan(input: TripPlanRequest) {
       : chosenRoute.duration_min + 1,
     overnightAtMin: day.overnightAtMin,
   });
+  const breakStops = merged.map((stop) => ({
+    etaMin: stop.etaMin,
+    kinds: stop.kinds,
+  }));
   const sleepResolved = resolveSleepShifts({
     departAt: input.departAt,
     shifts: sleepAnchor,
@@ -444,6 +451,8 @@ export async function runTripPlan(input: TripPlanRequest) {
       const country = countryCodeAtPoint(point.lng, point.lat);
       return timeZoneForCountry(country);
     },
+    breakStops,
+    withChildren: prefs.with_children,
   });
   borders = refreshBorderWaits({
     borders,
@@ -454,6 +463,8 @@ export async function runTripPlan(input: TripPlanRequest) {
     driveMin: chosenRoute.duration_min,
     roadKm,
     sleepShifts: sleepResolved,
+    breakStops,
+    withChildren: prefs.with_children,
     now,
     hatarinfo,
     origin: input.origin.coords,
@@ -482,6 +493,8 @@ export async function runTripPlan(input: TripPlanRequest) {
         borderAlongKm: borderRoadKm,
         borderWaitMin: borderWaitForWeather,
         sleepShifts: sleepResolved,
+        breakStops,
+        withChildren: prefs.with_children,
       }),
       bulletinFuel
         ? readLatestAverageDetails(countries, bulletinFuel)
@@ -550,6 +563,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     origin: { coords: input.origin.coords },
     destination: { coords: input.destination.coords },
   });
+  const breaksMinTotal = totalDwellMinutes(breakStops, prefs.with_children);
   const why = whyThisRoute({
     locale,
     borders: borders
@@ -577,6 +591,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       penaltyMin: note.penalty_min,
     })),
     preferences: prefs,
+    breaksMin: breaksMinTotal,
   });
   const hazard = hazardReason(roadHazards, locale);
   if (hazard) why.push(hazard);
@@ -906,6 +921,8 @@ function refreshBorderWaits(input: {
   driveMin: number;
   roadKm: number;
   sleepShifts: SleepShift[];
+  breakStops: Array<{ etaMin: number; kinds: BreakKind[] }>;
+  withChildren: boolean;
   now: Date;
   hatarinfo: HatarinfoSnapshot | null;
   origin: GeoPoint;
@@ -921,8 +938,14 @@ function refreshBorderWaits(input: {
   const borderDrivingMin =
     (input.borderRoadKm / Math.max(input.roadKm, 1)) * input.driveMin;
   const sleepBefore = sleepMinutesBefore(borderDrivingMin, input.sleepShifts);
+  const dwellBefore = dwellMinutesBefore(
+    borderDrivingMin,
+    input.breakStops,
+    input.withChildren
+  );
   const eta = new Date(
-    input.departAt.getTime() + (borderDrivingMin + sleepBefore) * 60_000
+    input.departAt.getTime() +
+      (borderDrivingMin + sleepBefore + dwellBefore) * 60_000
   );
   const cached = candidate.ppid ? input.waits.get(candidate.ppid) : undefined;
   const wait = expectedWait({

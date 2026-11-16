@@ -26,6 +26,8 @@ const bgCore = {
     departHint: "Празно означава „сега“.",
     departProposed:
       "Предложено е 08:00. Сменете часа, ако тръгвате по друго време.",
+    departYourTime: "{datetime} — по вашия часовник ({zone})",
+    departOriginTime: "В {place} това е {time}.",
     moreOptions: "Още опции",
     moreOptionsActive: "Има избрани настройки извън основните",
     calculatingStatus:
@@ -119,6 +121,9 @@ const bgCore = {
     eta: "Пристигане",
     fitsOneDay: "Пътят се събира в един ден на шофиране.",
     includesOvernight: "Включва нощувка. Шофирането е",
+    arrivalIncludes: "Включва {breaks} почивки и нощувка.",
+    arrivalIncludesBreaksOnly: "Включва {breaks} почивки по пътя.",
+    arrivalIncludesOvernightOnly: "Включва нощувка.",
     stopWake: "Събуждане в",
     routeChoice: "Избор на маршрут",
     oneRoute: "За тези две точки няма втори смислен път.",

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { BreakKind } from "@/lib/planner/breaks";
 import {
+  dwellMinutesBefore,
   mergeDrivingBreaks,
   resolveSleepShifts,
   sleepMinutesBefore,
@@ -127,6 +129,57 @@ describe("wakeAt", () => {
         hourCycle: "h23",
       }).format(wakeBudapest)
     ).toBe("08:00");
+  });
+});
+
+describe("dwell and wallClockEta", () => {
+  it("overnight anchor ETA is 20:15 not 19:00 with four rests and one fuel", () => {
+    const depart = new Date(2026, 10, 16, 7, 0, 0);
+    const stops: Array<{ etaMin: number; kinds: BreakKind[] }> = [
+      { etaMin: 135, kinds: ["rest"] },
+      { etaMin: 270, kinds: ["rest"] },
+      { etaMin: 405, kinds: ["rest"] },
+      { etaMin: 540, kinds: ["rest"] },
+      { etaMin: 600, kinds: ["fuel"] },
+    ];
+    const drivingMin = 720;
+    const dwell = dwellMinutesBefore(drivingMin, stops, false);
+    expect(dwell).toBe(75);
+    const eta = wallClockEta({
+      departAt: depart,
+      drivingMin,
+      extraWaitMin: 0,
+      sleepShifts: [],
+      dwellMin: dwell,
+    });
+    expect(eta.getHours()).toBe(20);
+    expect(eta.getMinutes()).toBe(15);
+  });
+
+  it("with children uses longer rest dwell (monotonic at equal day limit)", () => {
+    const depart = new Date(2026, 10, 16, 7, 0, 0);
+    const stops: Array<{ etaMin: number; kinds: BreakKind[] }> = [
+      { etaMin: 135, kinds: ["rest"] },
+      { etaMin: 270, kinds: ["rest"] },
+      { etaMin: 405, kinds: ["rest"] },
+      { etaMin: 540, kinds: ["rest"] },
+    ];
+    const drivingMin = 600;
+    const withoutChildren = wallClockEta({
+      departAt: depart,
+      drivingMin,
+      extraWaitMin: 0,
+      sleepShifts: [],
+      dwellMin: dwellMinutesBefore(drivingMin, stops, false),
+    });
+    const withChildren = wallClockEta({
+      departAt: depart,
+      drivingMin,
+      extraWaitMin: 0,
+      sleepShifts: [],
+      dwellMin: dwellMinutesBefore(drivingMin, stops, true),
+    });
+    expect(withChildren.getTime()).toBeGreaterThanOrEqual(withoutChildren.getTime());
   });
 });
 

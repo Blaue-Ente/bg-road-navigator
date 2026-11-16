@@ -18,6 +18,7 @@ import type { PlanStop, StopKind } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore } from "@/lib/stores/user.store";
 import { formatClockDuration } from "@/lib/planner/itinerary";
+import { formatPlanInstant } from "@/lib/planner/plan-time";
 import { stopPriceCopy } from "@/lib/planner/stop-price";
 
 const KIND_COLOR: Record<StopKind, string> = {
@@ -97,7 +98,14 @@ export function StopTimeline({
                       <p className="text-sm text-[var(--waze-text-secondary)]">
                         {stop.distance_from_start_km} {m.planning.km} ·{" "}
                         {formatClockDuration(stop.driving_min, units)} ·{" "}
-                        {formatWhen(stop.eta)}
+                        {formatPlanInstant(
+                          stop.eta,
+                          locale,
+                          index === 0 ||
+                            stop.time_zone !== stops[index - 1]?.time_zone
+                            ? stop.time_zone
+                            : undefined
+                        )}
                       </p>
                       {stop.sleep_min != null && stop.sleep_min > 0 ? (
                         <p className="text-sm font-medium text-[var(--waze-text)]">

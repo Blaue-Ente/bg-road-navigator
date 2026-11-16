@@ -234,6 +234,10 @@ export interface PlanStop {
   sleep_min?: number | null;
   /** IANA zone for the 08:00 wake after this overnight stop. */
   wake_time_zone?: string | null;
+  /** Minutes spent at this stop off the driving clock. */
+  dwell_min?: number | null;
+  /** IANA zone at this stop for display. */
+  time_zone?: string | null;
 }
 
 export interface CommunityNote {
@@ -298,9 +302,21 @@ export interface TripPlannerResult {
     total_min: number;
     /** Wall-clock arrival at destination, including overnight sleep. */
     arrive_at?: string;
+    /** Sum of stop dwell minutes on the route. */
+    breaks_min?: number;
     routing_source: "valhalla" | "osrm";
-    origin: { label: string; lng: number; lat: number };
-    destination: { label: string; lng: number; lat: number };
+    origin: {
+      label: string;
+      lng: number;
+      lat: number;
+      time_zone?: string;
+    };
+    destination: {
+      label: string;
+      lng: number;
+      lat: number;
+      time_zone?: string;
+    };
     geometry: GeoJSON.LineString;
     border_waypoint: { label: string; lng: number; lat: number } | null;
   };

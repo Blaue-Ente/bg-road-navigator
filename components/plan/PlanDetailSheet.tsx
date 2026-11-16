@@ -20,21 +20,24 @@ import {
   locationPreferenceSnapshot,
   subscribeLocationPreference,
 } from "@/lib/location/browser-pref";
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { unitsFrom } from "@/lib/i18n/units";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
+import { arrivalIncludesMessage } from "@/lib/planner/arrival-subline";
 import {
   checklistStorageKey,
   defaultIncludedStops,
   formatClockDuration,
   whySummary,
 } from "@/lib/planner/itinerary";
+import { formatPlanInstant } from "@/lib/planner/plan-time";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
 
 export function PlanDetailSheet() {
   const m = useMessages();
+  const locale = useLocale();
   const units = unitsFrom(m);
   const open = useRouteStore((state) => state.planDetailOpen);
   const plan = useRouteStore((state) => state.tripPlan);
@@ -110,6 +113,7 @@ export function PlanDetailSheet() {
   const hasOvernightSleep = plan.stops.some(
     (stop) => stop.sleep_min != null && stop.sleep_min > 0
   );
+  const arrivalSubline = arrivalIncludesMessage(plan, m.sheet, units);
   const summary = whySummary(plan.why_this_route);
 
   const toggleCheck = (id: string, checked: boolean) => {
@@ -176,9 +180,18 @@ export function PlanDetailSheet() {
             />
             <Stat
               label={m.sheet.eta}
-              value={formatWhen(arrival.toISOString())}
+              value={formatPlanInstant(
+                arrival.toISOString(),
+                locale,
+                plan.route.destination.time_zone
+              )}
             />
           </dl>
+          {arrivalSubline ? (
+            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+              {arrivalSubline}
+            </p>
+          ) : null}
           {hasOvernightSleep ? (
             <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
               {m.sheet.includesOvernight}{" "}
