@@ -3,6 +3,8 @@
  * Links only: nothing here fetches AMSS, UND, or MUP images.
  */
 
+import type { Localized } from "@/lib/i18n/localized-field";
+
 export const RS_BORDER_CAMERAS_URL =
   "https://www.mup.gov.rs/wps/portal/sr/kamere";
 
@@ -21,22 +23,46 @@ export const HATARINFO_PAGE_URL =
 export const HATARINFO_ATTRIBUTION_TEXT =
   "Източник: Унгарска полиция (Hárinfó)";
 
+export const HATARINFO_ATTRIBUTION_LABEL: Localized = {
+  bg: HATARINFO_ATTRIBUTION_TEXT,
+  en: "Source: Hungarian Police (Hárinfó)",
+  tr: "Kaynak: Macar Polisi (Hárinfó)",
+  ro: "Sursă: Poliția maghiară (Hárinfó)",
+};
+
 export const HATARINFO_ATTRIBUTION = {
   text: HATARINFO_ATTRIBUTION_TEXT,
+  label: HATARINFO_ATTRIBUTION_LABEL,
   href: HATARINFO_PAGE_URL,
   terms: "https://www.police.hu/",
 } as const;
 
 export const OFFICIAL_LINK_LABELS = {
-  cameras: "Виж камерите",
-  bulletin: "Бюлетин на Гранична полиция",
-  romania: "Трафик онлайн",
-} as const;
+  cameras: {
+    bg: "Виж камерите",
+    en: "View cameras",
+    tr: "Kameraları gör",
+    ro: "Vezi camerele",
+  },
+  bulletin: {
+    bg: "Бюлетин на Гранична полиция",
+    en: "Border Police bulletin (in Bulgarian)",
+    tr: "Sınır Polisi bülteni (Bulgarca)",
+    ro: "Buletinul Poliției de Frontieră (în bulgară)",
+  },
+  romania: {
+    bg: "Трафик онлайн",
+    en: "Traffic online",
+    tr: "Canlı trafik",
+    ro: "Trafic online",
+  },
+} satisfies Record<"cameras" | "bulletin" | "romania", Localized>;
 
 export interface OfficialBorderLink {
   kind: "cameras" | "bulletin" | "romania";
   href: string;
   label_bg: string;
+  label: Localized;
 }
 
 /**
@@ -113,6 +139,19 @@ export function crossingIdForHatarinfoName(name: string): string | null {
   return null;
 }
 
+function linkRecord(
+  kind: OfficialBorderLink["kind"],
+  href: string
+): OfficialBorderLink {
+  const label = OFFICIAL_LINK_LABELS[kind];
+  return {
+    kind,
+    href,
+    label_bg: label.bg,
+    label,
+  };
+}
+
 export function officialLinksForCrossing(crossing: {
   id: string;
   country_pair: string;
@@ -123,25 +162,13 @@ export function officialLinksForCrossing(crossing: {
     .filter(Boolean);
   const links: OfficialBorderLink[] = [];
   if (sides.includes("RS")) {
-    links.push({
-      kind: "cameras",
-      href: RS_BORDER_CAMERAS_URL,
-      label_bg: OFFICIAL_LINK_LABELS.cameras,
-    });
+    links.push(linkRecord("cameras", RS_BORDER_CAMERAS_URL));
   }
   if (sides.includes("BG")) {
-    links.push({
-      kind: "bulletin",
-      href: BG_BORDER_BULLETIN_URL,
-      label_bg: OFFICIAL_LINK_LABELS.bulletin,
-    });
+    links.push(linkRecord("bulletin", BG_BORDER_BULLETIN_URL));
   }
   if (sides.includes("RO")) {
-    links.push({
-      kind: "romania",
-      href: RO_BORDER_TRAFFIC_URL,
-      label_bg: OFFICIAL_LINK_LABELS.romania,
-    });
+    links.push(linkRecord("romania", RO_BORDER_TRAFFIC_URL));
   }
   return links;
 }
