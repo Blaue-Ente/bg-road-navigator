@@ -25,6 +25,27 @@ import {
 } from "@/lib/constants/emergency-numbers";
 import { countryName } from "@/lib/geo/country-name";
 import { pickText } from "@/lib/i18n/localized-field";
+import {
+  CATEGORY_LABELS,
+  LONG_HAUL_TIPS,
+  categoryLabel,
+  tipBody,
+  tipTitle,
+} from "@/lib/constants/travel-tips";
+import {
+  WINTER_RULES,
+  WINTER_RULES_DISCLAIMER,
+  winterRuleChains,
+  winterRulePeriod,
+  winterRuleSummary,
+} from "@/lib/constants/winter-rules";
+import { ROAD_SAFETY } from "@/lib/i18n/road-safety";
+import {
+  EUROPEAN_REST_AREAS,
+  restAreaLocation,
+  restAreaName,
+  restAreaNotes,
+} from "@/lib/constants/rest-areas";
 
 const NON_BG: Locale[] = ["en", "tr", "ro"];
 
@@ -98,6 +119,59 @@ describe("localized border and map data", () => {
         strings.push(emergencyRoadsideName(locale, row));
       }
       expectNoCyrillic(`emergency (${locale})`, strings);
+    });
+
+    it(`${locale}: travel tips have no Cyrillic`, () => {
+      const strings: string[] = [];
+      for (const tip of LONG_HAUL_TIPS) {
+        strings.push(tipTitle(locale, tip), tipBody(locale, tip));
+      }
+      for (const cat of Object.keys(CATEGORY_LABELS) as Array<
+        keyof typeof CATEGORY_LABELS
+      >) {
+        strings.push(categoryLabel(locale, cat));
+      }
+      expectNoCyrillic(`travel tips (${locale})`, strings);
+    });
+
+    it(`${locale}: winter rules have no Cyrillic`, () => {
+      const strings: string[] = [pickText(locale, WINTER_RULES_DISCLAIMER)];
+      for (const rule of WINTER_RULES) {
+        strings.push(
+          winterRuleSummary(locale, rule),
+          winterRulePeriod(locale, rule),
+          winterRuleChains(locale, rule)
+        );
+      }
+      expectNoCyrillic(`winter rules (${locale})`, strings);
+    });
+
+    it(`${locale}: Bulgaria road-safety copy has no Cyrillic`, () => {
+      const block = ROAD_SAFETY[locale];
+      const strings = [
+        block.title,
+        block.law_label,
+        block.advice_label,
+        block.closing,
+        ...block.law.flatMap((item) => [item.title, item.detail]),
+        ...block.advice.flatMap((item) => [item.title, item.detail]),
+        ...block.links.flatMap((item) => [
+          item.title,
+          item.detail,
+          item.link_label,
+        ]),
+      ];
+      expectNoCyrillic(`road safety (${locale})`, strings);
+    });
+
+    it(`${locale}: rest areas have no Cyrillic`, () => {
+      const strings: string[] = [];
+      for (const area of EUROPEAN_REST_AREAS) {
+        strings.push(restAreaName(locale, area), restAreaLocation(locale, area));
+        const notes = restAreaNotes(locale, area);
+        if (notes) strings.push(notes);
+      }
+      expectNoCyrillic(`rest areas (${locale})`, strings);
     });
   }
 });

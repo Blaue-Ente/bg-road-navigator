@@ -10,7 +10,11 @@ import { useMapStore } from "@/lib/stores/map.store";
 import { useFuelStations } from "@/lib/hooks/useFuelStations";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { ClusteredPoiLayer } from "@/components/map/ClusteredPoiLayer";
-import { EUROPEAN_REST_AREAS } from "@/lib/constants/rest-areas";
+import {
+  EUROPEAN_REST_AREAS,
+  restAreaLocation,
+  restAreaName,
+} from "@/lib/constants/rest-areas";
 import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
 
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
@@ -83,10 +87,10 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
         id: area.id,
         lng: area.coords.lng,
         lat: area.coords.lat,
-        title: area.name,
-        subtitle: area.location,
+        title: restAreaName(locale, area),
+        subtitle: restAreaLocation(locale, area),
       })),
-    []
+    [locale]
   );
 
   const cameraPoints = useMemo(
