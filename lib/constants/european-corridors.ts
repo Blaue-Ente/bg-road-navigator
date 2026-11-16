@@ -4,6 +4,7 @@
 
 import type { Locale } from "@/lib/i18n/locale";
 import { catalog } from "@/lib/i18n/locale";
+import { bucharestSofiaCorridorDescription } from "@/lib/constants/border-crossings";
 
 export interface TravelCorridor {
   id: string;
@@ -256,6 +257,9 @@ export function corridorDescription(
   corridorId: string,
   locale: Locale = "bg"
 ): string {
+  if (corridorId === "bucharest-sofia" && locale !== "bg") {
+    return bucharestSofiaCorridorDescription(locale);
+  }
   const block = catalog(locale).corridors[corridorId as CorridorCopyKey];
   return block?.description ?? "";
 }

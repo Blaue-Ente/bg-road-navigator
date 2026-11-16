@@ -1,4 +1,5 @@
 import type { Localized } from "@/lib/i18n/localized-field";
+import { danubeBridgeShortNote } from "@/lib/constants/border-crossings";
 
 /** Localized crossing notes for pan-European borders (non-Bulgarian rows). */
 export const EUROPEAN_BORDER_NOTES: Record<string, Localized> = {
@@ -129,10 +130,10 @@ export const EUROPEAN_BORDER_NOTES: Record<string, Localized> = {
     ro: "Frontieră Serbia–Macedonia de Nord.",
   },
   liubotenet: {
-    bg: "Дунав мост Калafat — Видин.",
-    en: "Danube bridge Calafat–Vidin.",
-    tr: "Tuna köprüsü Calafat–Vidin.",
-    ro: "Pod Dunărea Calafat–Vidin.",
+    bg: "Дунав мост Видин — Калафат.",
+    en: danubeBridgeShortNote("danube-bridge-vidin", "en"),
+    tr: danubeBridgeShortNote("danube-bridge-vidin", "tr"),
+    ro: danubeBridgeShortNote("danube-bridge-vidin", "ro"),
   },
   krakovets: {
     bg: "Граница Украйна — Полша. Дълги опашки.",

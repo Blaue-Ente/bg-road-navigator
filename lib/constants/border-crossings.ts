@@ -52,13 +52,13 @@ const BORDER_NOTES: Record<string, Localized> = {
   "danube-bridge-vidin": {
     bg: "Мост над Дунав към Румъния. Важна връзка с Централна Европа.",
     en: "Danube bridge into Romania. A key link to Central Europe.",
-    tr: "Romanya'ya giden Tuna köprüsü. Orta Avrupa için önemli bir bağlantı.",
+    tr: "Romanya'ya giden Tuna Köprüsü. Orta Avrupa için önemli bir bağlantı.",
     ro: "Pod peste Dunăre spre România. Legătură importantă cu Europa Centrală.",
   },
   "danube-bridge-ruse": {
     bg: "Вторият мост над Дунав. Свързва Русе с Джурджу.",
     en: "The second Danube bridge. Connects Ruse with Giurgiu.",
-    tr: "İkinci Tuna köprüsü. Ruse ile Giurgiu'yu birbirine bağlar.",
+    tr: "İkinci Tuna Köprüsü. Ruse ile Giurgiu'yu birbirine bağlar.",
     ro: "Al doilea pod peste Dunăre. Leagă Ruse de Giurgiu.",
   },
   gyueshevo: {
@@ -356,10 +356,12 @@ const BORDER_NAME_I18N: Record<string, LocalizedMap> = {
     ro: "Capitan Andreevo",
   },
   "danube-bridge-vidin": {
+    en: "Danube Bridge Vidin–Calafat",
     tr: "Tuna Köprüsü Vidin–Calafat",
     ro: "Podul Dunărea Vidin–Calafat",
   },
   "danube-bridge-ruse": {
+    en: "Danube Bridge Ruse–Giurgiu",
     tr: "Tuna Köprüsü Ruse–Giurgiu",
     ro: "Podul Dunărea Ruse–Giurgiu",
   },
@@ -427,4 +429,31 @@ export function borderNotesText(
 ): string {
   if (crossing.notes) return pickText(locale, crossing.notes);
   return crossing.notes_bg;
+}
+
+export type DanubeBridgeId = "danube-bridge-vidin" | "danube-bridge-ruse";
+
+function danubeBridgeRow(id: DanubeBridgeId): BorderCrossing {
+  const row = BORDER_CROSSINGS.find((c) => c.id === id);
+  if (!row) throw new Error(`Missing border crossing: ${id}`);
+  return row;
+}
+
+/** Canonical Vidin–Calafat / Ruse–Giurgiu labels (same as `borderDisplayName`). */
+export function danubeBridgeDisplayName(id: DanubeBridgeId, locale: Locale): string {
+  return borderDisplayName(locale, danubeBridgeRow(id));
+}
+
+/** Single-sentence note naming the bridge only (e.g. Liubotenet EU row). */
+export function danubeBridgeShortNote(id: DanubeBridgeId, locale: Locale): string {
+  return `${danubeBridgeDisplayName(id, locale)}.`;
+}
+
+/** Bucharest → Sofia corridor copy for non-Bulgarian locales. */
+export function bucharestSofiaCorridorDescription(locale: Exclude<Locale, "bg">): string {
+  const vidin = danubeBridgeDisplayName("danube-bridge-vidin", locale);
+  const ruse = danubeBridgeDisplayName("danube-bridge-ruse", locale);
+  if (locale === "en") return `Via ${vidin} or ${ruse}`;
+  if (locale === "tr") return `${vidin} veya ${ruse} üzerinden`;
+  return `Prin ${vidin} sau ${ruse}`;
 }
