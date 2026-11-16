@@ -340,6 +340,7 @@ const bgCore = {
     setup: "Настройка",
   },
   home: {
+    title: "Карта и граници",
     whereTo: "Къде отивате?",
     start: "Тръгни",
     change: "Промени",
@@ -371,6 +372,9 @@ const bgCore = {
   },
   map: {
     legend: "Легенда",
+    groupSections: "Повишено внимание",
+    groupIncidents: "Пътни инциденти",
+    groupHazards: "Опасности по маршрута",
     viaStops: "През: {stops}",
     borderWaitCars: "{minutes} {minUnit} · {cars}",
     cars: "коли",

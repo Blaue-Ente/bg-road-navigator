@@ -70,7 +70,7 @@ export function TravelerPreferenceFields({
                       next[index] = Number(event.target.value);
                       patch({ children_ages: next });
                     }}
-                    className="mt-1 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+                    className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
                   />
                 </label>
                 <button
@@ -120,7 +120,7 @@ export function TravelerPreferenceFields({
           id="drivers"
           value={value.drivers}
           onChange={(event) => patch({ drivers: Number(event.target.value) })}
-          className="mt-1 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+          className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
         >
           {[1, 2, 3, 4].map((count) => (
             <option key={count} value={count}>
@@ -321,7 +321,7 @@ export function BorderPreferenceFields({
               avoid_borders: value.avoid_borders.filter((id) => id !== next),
             });
           }}
-          className="mt-1 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+          className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
         >
           <option value="">{m.prefs.noPreferred}</option>
           {borderOptions.map((border) => (

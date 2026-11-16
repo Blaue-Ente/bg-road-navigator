@@ -1,5 +1,6 @@
 {
   "home": {
+    "title": "Map and borders",
     "waitNow": "Wait now"
   },
   "planning": {
@@ -336,6 +337,9 @@
   },
   "map": {
     "osmAttributionShort": "© OpenStreetMap",
-    "attributionDataFrom": "Data from"
+    "attributionDataFrom": "Data from",
+    "groupSections": "High-attention sections",
+    "groupIncidents": "Road incidents",
+    "groupHazards": "Hazards on your route"
   }
 }

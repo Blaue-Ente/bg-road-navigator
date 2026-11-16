@@ -1,5 +1,6 @@
 {
   "home": {
+    "title": "Harita ve sınır kapıları",
     "waitNow": "Şimdiki bekleme"
   },
   "planning": {
@@ -339,6 +340,9 @@
   },
   "map": {
     "osmAttributionShort": "© OpenStreetMap",
-    "attributionDataFrom": "Veri kaynağı:"
+    "attributionDataFrom": "Veri kaynağı:",
+    "groupSections": "Dikkat gereken bölümler",
+    "groupIncidents": "Yol olayları",
+    "groupHazards": "Güzergâhtaki tehlikeler"
   }
 }

@@ -36,13 +36,11 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
       className="pointer-events-none w-full max-w-[min(22rem,calc(100vw-1.5rem))] md:max-w-[21rem]"
     >
       <div className="pointer-events-auto overflow-hidden rounded-2xl waze-panel transition-all">
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="flex w-full items-center gap-4 px-4 py-3 text-left"
-          aria-expanded={expanded}
-        >
-          <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--waze-accent-muted)]">
+        <div className="flex w-full items-start gap-3 px-4 py-3">
+          <div
+            className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--waze-accent-muted)]"
+            aria-hidden
+          >
             <span className="text-lg font-bold leading-none text-[var(--waze-accent-text)]">
               {badgePrimary}
             </span>
@@ -52,25 +50,52 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-base font-semibold text-[var(--waze-text)]">
-              {route.destination.label}
-            </p>
-            <p className="text-sm text-[var(--waze-text-secondary)]">
-              {durationLabel} · {route.distance_km} {m.units.km}
-              {isRoadRoute(route.routing_source) && (
-                <span className="ml-1 text-[var(--waze-accent-text)]">{m.map.msg0287d9cf5d}</span>
-              )}
-            </p>
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="w-full text-left"
+              aria-expanded={expanded}
+            >
+              <p className="truncate text-base font-semibold text-[var(--waze-text)]">
+                {route.destination.label}
+              </p>
+              <p className="mt-0.5 text-sm leading-snug text-[var(--waze-text-secondary)]">
+                {durationLabel} · {route.distance_km} {m.units.km}
+                {isRoadRoute(route.routing_source) && (
+                  <span className="ml-1 text-[var(--waze-accent-text)]">
+                    {m.map.msg0287d9cf5d}
+                  </span>
+                )}
+              </p>
+            </button>
+            {tripPlan && !expanded && (
+              <button
+                type="button"
+                data-tap="home-show-plan"
+                onClick={() => setPlanDetailOpen(true)}
+                className="waze-btn-primary mt-2 inline-flex min-h-11 w-full max-w-full items-center justify-center px-3 py-2 text-xs font-semibold sm:text-sm"
+              >
+                {m.sheet.showPlan}
+              </button>
+            )}
           </div>
 
-          <ChevronUp
-            className={`h-5 w-5 shrink-0 text-[var(--waze-text-muted)] transition-transform ${
-              expanded ? "rotate-180" : ""
-            }`}
-            strokeWidth={2}
-            aria-hidden
-          />
-        </button>
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--waze-text-muted)]"
+            aria-expanded={expanded}
+            aria-label={m.sheet.showPlan}
+          >
+            <ChevronUp
+              className={`h-5 w-5 transition-transform ${
+                expanded ? "rotate-180" : ""
+              }`}
+              strokeWidth={2}
+              aria-hidden
+            />
+          </button>
+        </div>
 
         {expanded && (
           <div className="border-t border-[var(--waze-border)] px-4 pb-4 pt-3">

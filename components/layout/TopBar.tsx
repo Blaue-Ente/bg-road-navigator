@@ -56,9 +56,9 @@ export function TopBar({ user }: TopBarProps) {
           <MenuIcon size={20} />
         </button>
 
-        <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--waze-text)]">
+        <p className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--waze-text)]">
           {title}
-        </h1>
+        </p>
 
         <LocaleSwitcher className="shrink-0" />
 

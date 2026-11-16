@@ -270,7 +270,7 @@ export function PlanningForm({
           lang={locale}
           value={depart || proposedDepart}
           onChange={(event) => onChange({ departLocal: event.target.value })}
-          className="mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
+          className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
         />
       </label>
       {departYourLine ? (
@@ -413,7 +413,7 @@ export function PlanningForm({
             )}
 
             <details className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)]">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center px-3 text-sm font-medium text-[var(--waze-text)] [&::-webkit-details-marker]:hidden">
+              <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center rounded-md px-3 text-sm font-medium text-[var(--waze-text)] [&::-webkit-details-marker]:hidden">
                 {m.prefs.preferredBorder}
               </summary>
               <div className="border-t border-[var(--waze-border)] px-3 py-3">
