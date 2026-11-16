@@ -13,7 +13,6 @@ import {
 } from "@/lib/hooks/useCommunityPins";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
-import { formatZonedHourLabel } from "@/lib/planner/wait";
 import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
 import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
@@ -147,7 +146,6 @@ export default function MapPage() {
               <BorderWaitBadge
                 waitMinutes={border.wait_time_cars}
                 compact
-                caption={formatZonedHourLabel(new Date())}
               />
             </Link>
           ))}

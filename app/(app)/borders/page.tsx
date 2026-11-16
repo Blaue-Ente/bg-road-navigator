@@ -10,7 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { BorderCard } from "@/components/borders/BorderCard";
 import { BorderWaitBadge } from "@/components/borders/BorderWaitBadge";
-import { formatZonedHourLabel } from "@/lib/planner/wait";
+import { formatZonedDateTimeLabel } from "@/lib/planner/border-wait-view";
 import { BorderWebcam } from "@/components/borders/BorderWebcam";
 import { BorderStatsChart } from "@/components/borders/BorderStatsChart";
 import { BorderAlternatives } from "@/components/borders/BorderAlternatives";
@@ -208,7 +208,13 @@ function BorderPageContent() {
                     <BorderWaitBadge
                       waitMinutes={border.wait_time_cars}
                       label={m.bordersPage.msg6a2c5dc8ec}
-                      caption={formatZonedHourLabel(new Date())}
+                      caption={formatTemplate(m.borders.asOf, {
+                        time: formatZonedDateTimeLabel(
+                          new Date(),
+                          locale,
+                          "Europe/Sofia"
+                        ),
+                      })}
                     />
                     {border.data_source === "nakordoni" && (
                       <span className="text-xs font-medium text-[var(--waze-ok)]">{m.bordersPage.msg868089045f}</span>

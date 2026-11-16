@@ -1,15 +1,16 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { MessageCatalog } from "@/lib/i18n";
 import { useState } from "react";
 import { unitsFrom } from "@/lib/i18n/units";
+import { routeChoiceWaitLine } from "@/lib/planner/border-wait-view";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { replanTrip } from "@/lib/planner/replan-trip";
 import {
   routeChoiceFromAlternative,
 } from "@/lib/planner/route-options";
-import type { RouteOptionSummary } from "@/lib/planner/types";
+import type { RouteOptionSummary, WaitEstimate } from "@/lib/planner/types";
 import type { RouteOptionsBlock, TripPlannerResult } from "@/lib/planner/types";
 import { getVignetteByCountryCode } from "@/lib/constants/vignettes";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -44,15 +45,24 @@ function RouteChoiceCard({
   pressed,
   disabled,
   onPick,
+  wait,
   m,
+  locale,
 }: {
   option: RouteOptionSummary;
   pressed: boolean;
   disabled: boolean;
   onPick: () => void;
+  wait: WaitEstimate | null;
   m: MessageCatalog;
+  locale: ReturnType<typeof useLocale>;
 }) {
   const units = unitsFrom(m);
+  const waitLabel = wait
+    ? routeChoiceWaitLine(wait, locale)
+    : option.wait_min > 0
+      ? `${option.wait_min} ${m.routeChoice.waitSuffix}`
+      : m.prefs.borderNoWaitData;
   return (
     <button
       type="button"
@@ -81,9 +91,7 @@ function RouteChoiceCard({
         </div>
         <div>
           <dt className="text-xs uppercase tracking-wide">{m.sheet.borderWait}</dt>
-          <dd className="font-medium text-[var(--waze-text)]">
-            {option.wait_min} {m.routeChoice.waitSuffix}
-          </dd>
+          <dd className="font-medium text-[var(--waze-text)]">{waitLabel}</dd>
         </div>
         <div>
           <dt className="text-xs uppercase tracking-wide">{m.sheet.total}</dt>
@@ -158,8 +166,24 @@ export function applyPlanRouteOptions(
   setAlternativeRoutes([routeFromPlanOption(activeRoute, plan, alt, 0)]);
 }
 
+function waitForOption(
+  plan: TripPlannerResult,
+  option: RouteOptionSummary
+): WaitEstimate | null {
+  if (!option.border_id) return null;
+  if (plan.border.chosen?.border_id === option.border_id) {
+    return plan.border.chosen.wait;
+  }
+  return (
+    plan.border.alternatives.find(
+      (row) => row.border_id === option.border_id
+    )?.wait ?? null
+  );
+}
+
 export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
   const m = useMessages();
+  const locale = useLocale();
   const options: RouteOptionsBlock | undefined = plan.route_options;
   const via = useRouteStore((s) => s.planningVia);
   const activeRoute = useRouteStore((s) => s.activeRoute);
@@ -227,7 +251,9 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
           pressed
           disabled={busy}
           onPick={() => {}}
+          wait={waitForOption(plan, options.primary)}
           m={m}
+          locale={locale}
         />
         {options.alternative ? (
           <RouteChoiceCard
@@ -235,7 +261,9 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
             pressed={false}
             disabled={busy}
             onPick={() => void pick(options.alternative!)}
+            wait={waitForOption(plan, options.alternative)}
             m={m}
+            locale={locale}
           />
         ) : null}
       </div>

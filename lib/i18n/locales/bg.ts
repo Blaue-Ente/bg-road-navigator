@@ -139,6 +139,9 @@ const bgCore = {
     borderSource: "Източник",
     borderAge: "Възраст на данните",
     estimate: "Оценка, не официално време.",
+    waitAtArrival:
+      "При пристигане (~{time}, {place}): {minutes} мин",
+    waitNowLine: "Сега: {minutes} мин",
     arrivalPrefix: " при пристигане ·",
     stops: "Спирки",
     stopsEmpty: "Няма нужда от спирка преди края.",
@@ -318,7 +321,7 @@ const bgCore = {
     dropPin: "Докоснете картата за позиция на сигнала",
     incidents: "инцидента",
     signals: "сигнала",
-    waitNow: "изчакване сега",
+    waitNow: "Чакане сега",
   },
   login: {
     title: "Вход",
@@ -412,7 +415,8 @@ const bgCore = {
   },
   routeChoice: {
     tollMark: " · тол",
-    waitSuffix: "мин изчакване",
+    waitSuffix: "мин чакане",
+    waitAtArrival: "{minutes} мин при пристигане",
   },
   weatherLabels: {
     wind: "Вятър",

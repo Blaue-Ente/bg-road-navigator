@@ -108,7 +108,7 @@ describe("locale catalogs", () => {
     expect(tr.locale.switch).toBe("Dil");
     expect(ro.locale.switch).toBe("Limbă");
     expect(en.home.waitNow).toBe("Wait now");
-    expect(tr.home.waitNow).toBe("Şu anki bekleme");
+    expect(tr.home.waitNow).toBe("Şimdiki bekleme");
     expect(ro.home.waitNow).toBe("Așteptare acum");
     expect(tr.map.legend).toBe("Harita açıklaması");
     expect(tr.planning.via).toBe("Ara nokta (isteğe bağlı)");
