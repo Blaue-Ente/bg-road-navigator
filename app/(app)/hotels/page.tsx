@@ -1,6 +1,6 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -9,6 +9,10 @@ import { RestAreaCard } from "@/components/hotels/RestAreaCard";
 import {
   EUROPEAN_REST_AREAS,
   getRestAreasForCorridor,
+  restAreaCountry,
+  restAreaLocation,
+  restAreaName,
+  restAreaNotes,
 } from "@/lib/constants/rest-areas";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { haversineKm } from "@/lib/geo/haversine";
@@ -29,6 +33,7 @@ export default function HotelsPage() {
 
 function HotelsPageContent() {
   const m = useMessages();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const corridorFromUrl = searchParams.get("corridor");
   const userLocation = useMapStore((s) => s.userLocation);
@@ -59,17 +64,17 @@ function HotelsPageContent() {
             areas.map((area) => (
               <div key={area.id}>
                 <RestAreaCard
-                  name={area.name}
-                  location={`${area.location} · ${area.country}`}
+                  name={restAreaName(locale, area)}
+                  location={`${restAreaLocation(locale, area)} · ${restAreaCountry(locale, area)}`}
                   facilities={area.facilities}
                   distanceKm={
                     userLocation ? haversineKm(userLocation, area.coords) : 0
                   }
                   coords={area.coords}
                 />
-                {area.notes && (
+                {restAreaNotes(locale, area) && (
                   <p className="mt-1 px-1 text-xs text-[var(--waze-text-muted)]">
-                    {area.notes}
+                    {restAreaNotes(locale, area)}
                   </p>
                 )}
               </div>

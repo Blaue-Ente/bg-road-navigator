@@ -2,5 +2,8 @@
   "nav": {
     "weather": "Hava durumu",
     "hotels": "Dinlenme yerleri"
+  },
+  "tipsPage": {
+    "msg343e2ece52": "Önemli"
   }
 }

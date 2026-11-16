@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildChecklist } from "@/lib/planner/checklist";
+import { ROAD_SAFETY_ITEM_IDS, roadSafetyCopy } from "@/lib/i18n/road-safety";
 import {
   getVignetteByCountryCode,
   type VignetteLink,
@@ -164,6 +165,27 @@ describe("plan checklist", () => {
     expect(citizenship?.detail).not.toMatch(/ЕС граждани/);
     const blob = checklist.documents.map((item) => item.detail).join(" ");
     expect(blob).not.toMatch(/ЕС граждани/);
+  });
+
+  it("returns Romanian safety block title and stable law item ids", () => {
+    const checklist = buildChecklist({
+      locale: "ro",
+      countries: ["DE", "BG"],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      withPet: false,
+      withChildren: false,
+      childrenAges: [],
+      tolls: [],
+    });
+    expect(roadSafetyCopy("ro").title).toBe("Siguranța în Bulgaria");
+    expect(checklist.safety_closing).toBe("Aveți grijă de dvs. și de ceilalți pe drum.");
+    const lawIds = checklist.safety
+      .filter((item) => item.kind === "law")
+      .map((item) => item.id);
+    expect(lawIds).toEqual([...ROAD_SAFETY_ITEM_IDS.law]);
+    expect(
+      checklist.safety.find((item) => item.kind === "law")?.title
+    ).toBeTruthy();
   });
 
   it("builds checklist rows for every charge on a long Europe corridor", () => {

@@ -6,16 +6,28 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   LONG_HAUL_TIPS,
-  CATEGORY_LABELS,
+  categoryLabel,
+  tipBody,
+  tipTitle,
   type TravelTip,
 } from "@/lib/constants/travel-tips";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as TravelTip["category"][];
+const CATEGORIES: TravelTip["category"][] = [
+  "safety",
+  "borders",
+  "fuel",
+  "rest",
+  "weather",
+  "documents",
+  "ev",
+];
 
 export default function TipsPage() {
   const m = useMessages();
+  const locale = useLocale();
   const [filter, setFilter] = useState<TravelTip["category"] | "all">("all");
 
   const tips =
@@ -59,7 +71,7 @@ export default function TipsPage() {
               onClick={() => setFilter(cat)}
               className={`waze-chip ${filter === cat ? "waze-chip-active" : ""}`}
             >
-              {CATEGORY_LABELS[cat]}
+              {categoryLabel(locale, cat)}
             </button>
           ))}
         </div>
@@ -72,17 +84,19 @@ export default function TipsPage() {
             >
               <div className="mb-1 flex items-center gap-2">
                 <span className="text-xs text-[var(--waze-text-muted)]">
-                  {CATEGORY_LABELS[tip.category]}
+                  {categoryLabel(locale, tip.category)}
                 </span>
                 {tip.priority === "high" && (
-                  <span className="text-[10px] font-semibold uppercase text-[var(--waze-danger)]">{m.tipsPage.msg343e2ece52}</span>
+                  <span className="text-[10px] font-semibold text-[var(--waze-danger)]">
+                    {m.tipsPage.msg343e2ece52}
+                  </span>
                 )}
               </div>
               <h2 className="font-semibold text-[var(--waze-text)]">
-                {tip.title}
+                {tipTitle(locale, tip)}
               </h2>
               <p className="mt-1.5 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
-                {tip.body}
+                {tipBody(locale, tip)}
               </p>
             </WazeCard>
           ))}
