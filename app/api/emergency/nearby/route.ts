@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchNearbyEmergencyPlaces } from "@/lib/api-clients/overpass";
 import { haversineKm } from "@/lib/geo/haversine";
+import { catalog, LOCALE_COOKIE, parseLocale } from "@/lib/i18n/locale";
 import { EuropePointSchema } from "@/lib/server/geo-schema";
 
 export async function GET(request: NextRequest) {
@@ -27,12 +28,14 @@ export async function GET(request: NextRequest) {
     }))
     .sort((a, b) => (a.distance_km ?? 0) - (b.distance_km ?? 0));
 
+  const locale = parseLocale(request.cookies.get(LOCALE_COOKIE)?.value);
+  const disclaimer = catalog(locale).emergencyPage.openstreetmap2608;
+
   return NextResponse.json({
     origin: parsed.data,
     places: withDistance,
     degraded: withDistance.length === 0,
     source: "openstreetmap-overpass",
-    disclaimer_bg:
-      "Данни от OpenStreetMap — може да не са пълни или в реално време.",
+    disclaimer,
   });
 }

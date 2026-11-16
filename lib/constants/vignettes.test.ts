@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatVignetteValidity,
   getVignetteByCountryCode,
   OFFICIAL_VIGNETTE_LINKS,
   vignettesForCountryPairs,
@@ -58,6 +59,22 @@ describe("official vignette links", () => {
     expect(cz?.validity_bg).toBeTruthy();
     expect(cz?.checked_on).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(getVignetteByCountryCode("BG")?.validity_bg).toBeUndefined();
+  });
+
+  it("keeps Localized maps aligned with legacy *_bg fields", () => {
+    for (const link of OFFICIAL_VIGNETTE_LINKS) {
+      expect(link.name.bg).toBe(link.name_bg);
+      if (link.notes) expect(link.notes.bg).toBe(link.notes_bg);
+      if (link.validity) expect(link.validity.bg).toBe(link.validity_bg);
+    }
+  });
+
+  it("formats validity in the request locale", () => {
+    const cz = getVignetteByCountryCode("CZ");
+    expect(cz).toBeTruthy();
+    const enLine = formatVignetteValidity(cz!, "en");
+    expect(enLine).toMatch(/annual, monthly, or 10-day/);
+    expect(enLine).not.toMatch(/[А-Яа-яЁё]/);
   });
 
   it("resolves country codes and pairs", () => {

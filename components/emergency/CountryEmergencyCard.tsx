@@ -1,14 +1,23 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
-import type { EmergencyData } from "@/lib/constants/emergency-numbers";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import {
+  emergencyNotesText,
+  emergencyRoadsideName,
+  type EmergencyData,
+} from "@/lib/constants/emergency-numbers";
+import { countryName } from "@/lib/geo/country-name";
 
 interface CountryEmergencyCardProps {
   country: EmergencyData;
 }
 
 export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
+  const locale = useLocale();
   const m = useMessages();
+  const displayCountry = countryName(country.country_code, locale);
+  const notes = emergencyNotesText(locale, country);
+  const roadsideLabel = emergencyRoadsideName(locale, country);
   const numbers = [
     { label: m.emergency.msg8e8ced3019, value: country.police || "112" },
     { label: m.emergency.msg991c9096ff, value: country.ambulance || "112" },
@@ -23,9 +32,12 @@ export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
     <div className="waze-panel p-4">
       <div className="mb-3 flex items-center gap-3">
         <span className="text-2xl">{country.flag}</span>
-        <h3 className="text-lg font-semibold text-[var(--waze-text)]">
-          {country.country_bg}
-        </h3>
+        <div className="min-w-0">
+          <h3 className="text-lg font-semibold text-[var(--waze-text)]">
+            {displayCountry}
+          </h3>
+          <p className="text-xs text-[var(--waze-text-muted)]">{roadsideLabel}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -40,6 +52,9 @@ export function CountryEmergencyCard({ country }: CountryEmergencyCardProps) {
           </a>
         ))}
       </div>
+      {notes ? (
+        <p className="mt-3 text-xs text-[var(--waze-text-secondary)]">{notes}</p>
+      ) : null}
     </div>
   );
 }

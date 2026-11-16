@@ -8,20 +8,34 @@ import {
 const bg: VignetteLink = {
   country_code: "BG",
   kind: "vignette",
+  name: {
+    bg: "България — електронна винетка",
+    en: "Bulgaria",
+    tr: "Bulgaristan",
+    ro: "Bulgaria",
+  },
   name_bg: "България — електронна винетка",
   name_en: "Bulgaria",
   official_url: "https://web.bgtoll.bg/",
   link_role: "shop",
+  notes: { bg: "BGTOLL", en: "BGTOLL", tr: "BGTOLL", ro: "BGTOLL" },
   notes_bg: "BGTOLL",
 };
 
 const tr: VignetteLink = {
   country_code: "TR",
   kind: "distance_toll",
+  name: {
+    bg: "Турция — HGS",
+    en: "Turkey",
+    tr: "Türkiye HGS",
+    ro: "Turcia HGS",
+  },
   name_bg: "Турция — HGS",
   name_en: "Turkey",
   official_url: "https://hgsmusteri.ptt.gov.tr/",
   link_role: "shop",
+  notes: { bg: "HGS", en: "HGS", tr: "HGS", ro: "HGS" },
   notes_bg: "HGS",
 };
 

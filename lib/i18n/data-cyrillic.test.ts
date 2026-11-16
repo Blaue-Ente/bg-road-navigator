@@ -14,6 +14,17 @@ import {
   HATARINFO_ATTRIBUTION_LABEL,
 } from "@/lib/constants/border-official-links";
 import { catalog } from "@/lib/i18n/locale";
+import {
+  OFFICIAL_VIGNETTE_LINKS,
+  formatVignetteValidity,
+} from "@/lib/constants/vignettes";
+import {
+  EMERGENCY_DATA,
+  emergencyNotesText,
+  emergencyRoadsideName,
+} from "@/lib/constants/emergency-numbers";
+import { countryName } from "@/lib/geo/country-name";
+import { pickText } from "@/lib/i18n/localized-field";
 
 const NON_BG: Locale[] = ["en", "tr", "ro"];
 
@@ -65,6 +76,28 @@ describe("localized border and map data", () => {
         HATARINFO_ATTRIBUTION_LABEL[locale],
       ];
       expectNoCyrillic(`official links (${locale})`, labels);
+    });
+
+    it(`${locale}: vignette names, notes and validity have no Cyrillic`, () => {
+      const strings: string[] = [];
+      for (const link of OFFICIAL_VIGNETTE_LINKS) {
+        strings.push(pickText(locale, link.name));
+        if (link.notes) strings.push(pickText(locale, link.notes));
+        if (link.validity) strings.push(pickText(locale, link.validity));
+        const line = formatVignetteValidity(link, locale);
+        if (line) strings.push(line);
+      }
+      expectNoCyrillic(`vignettes (${locale})`, strings);
+    });
+
+    it(`${locale}: emergency country names, notes and roadside labels have no Cyrillic`, () => {
+      const strings: string[] = [];
+      for (const row of EMERGENCY_DATA) {
+        strings.push(countryName(row.country_code, locale));
+        strings.push(emergencyNotesText(locale, row));
+        strings.push(emergencyRoadsideName(locale, row));
+      }
+      expectNoCyrillic(`emergency (${locale})`, strings);
     });
   }
 });
