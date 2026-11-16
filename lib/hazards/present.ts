@@ -66,8 +66,13 @@ function hazardLine(hazard: RoadHazard, locale: Locale): string {
   const road = roadKmDisplay(hazard.road_km_bg, hazard.text_bg, locale);
   let line = `${label}: ${road ?? h.agencyDetailsOnly}`;
   if (untilPart) {
-    const gap = untilPart.startsWith(" ") ? untilPart : ` ${untilPart}`;
-    line += gap;
+    const validity =
+      untilPart.startsWith(" ") ? untilPart.trimStart() : untilPart;
+    if (road) {
+      line += `. ${validity}`;
+    } else {
+      line += ` ${validity}`;
+    }
   }
   return line.trim();
 }
