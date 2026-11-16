@@ -109,6 +109,7 @@ export function BorderWebcam({
           href={livePageUrl}
           target="_blank"
           rel="noopener noreferrer"
+          data-tap="border-live"
           className="inline-flex min-h-11 items-center rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
         >{m.borders.msga9c0e3df40}</a>
       ) : (
@@ -142,6 +143,7 @@ function WebcamFooter({
             href={livePageUrl}
             target="_blank"
             rel="noopener noreferrer"
+            data-tap="border-live"
             className="inline-flex min-h-11 items-center text-blue-200 hover:text-blue-100"
           >{m.borders.msg4ad10631ba}</a>
         )}

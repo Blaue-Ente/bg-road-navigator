@@ -339,5 +339,8 @@
   },
   "vignetteFormat": {
     "validityTemplate": "Valabilitate (verificată la {checked}): {validity}"
+  },
+  "map": {
+    "osmAttributionShort": "© OSM"
   }
 }

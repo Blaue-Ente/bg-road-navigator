@@ -73,7 +73,8 @@ export function TopBar({ user }: TopBarProps) {
         ) : (
           <Link
             href="/login"
-            className="shrink-0 px-2 text-sm font-medium text-[var(--waze-accent-text)]"
+            data-tap="sign-in"
+            className="inline-flex min-h-11 shrink-0 items-center px-3 text-sm font-medium text-[var(--waze-accent-text)]"
           >
             {m.nav.signIn}
           </Link>

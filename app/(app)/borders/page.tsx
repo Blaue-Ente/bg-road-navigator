@@ -126,9 +126,11 @@ function BorderPageContent() {
         <div className="mb-6 flex gap-2">
           {tabs.map((tab) => (
             <button
+              type="button"
               key={tab.id}
+              data-tap="borders-tab"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition ${
+              className={`inline-flex min-h-11 flex-1 items-center justify-center rounded-xl py-2.5 text-sm font-medium transition ${
                 activeTab === tab.id
                   ? "bg-[var(--waze-accent-muted)] text-[var(--waze-accent-text)] ring-1 ring-[var(--waze-accent)]/40"
                   : "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)]"

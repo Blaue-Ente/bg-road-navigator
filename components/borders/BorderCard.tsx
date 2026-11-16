@@ -185,7 +185,18 @@ function OfficialBorderLinks({
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-[var(--waze-accent-text)] underline"
+          data-tap={
+            link.kind === "bulletin"
+              ? "border-link-bulletin"
+              : link.kind === "cameras"
+                ? "border-link-cameras"
+                : undefined
+          }
+          className={`block text-sm text-[var(--waze-accent-text)] underline ${
+            link.kind === "bulletin" || link.kind === "cameras"
+              ? "min-h-11 py-3"
+              : "py-2"
+          }`}
         >
           {pickText(locale, link.label)}
         </a>

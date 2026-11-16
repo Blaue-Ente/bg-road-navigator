@@ -333,5 +333,8 @@
   },
   "vignetteFormat": {
     "validityTemplate": "Validity (checked {checked}): {validity}"
+  },
+  "map": {
+    "osmAttributionShort": "© OSM"
   }
 }
