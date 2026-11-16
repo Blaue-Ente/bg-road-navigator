@@ -1,5 +1,6 @@
-import { formatPinAge } from "@/lib/constants/community-pins";
 import { distanceToPolylineKm } from "@/lib/planner/line";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import type { CommunityNote } from "@/lib/planner/types";
 import type { CommunityPin } from "@/types/community.types";
 
@@ -22,7 +23,8 @@ export interface CommunityScore {
 export function communityAlongRoute(
   coordinates: Array<[number, number]>,
   pins: CommunityPin[],
-  now = Date.now()
+  now = Date.now(),
+  locale: Locale = "bg"
 ): CommunityScore {
   const notes: CommunityNote[] = [];
   for (const pin of pins) {
@@ -35,7 +37,9 @@ export function communityAlongRoute(
       title: pin.title,
       penalty_min: penalty,
       distance_km: Math.round(approach.distanceKm * 10) / 10,
-      age_label: formatPinAge(pin.created_at) || ageFrom(pin.created_at, now),
+      age_label:
+        formatCommunityPinAge(pin.created_at, locale) ||
+        ageFrom(pin.created_at, now, locale),
     });
   }
   notes.sort((a, b) => b.penalty_min - a.penalty_min);
@@ -46,10 +50,36 @@ export function communityAlongRoute(
   };
 }
 
-function ageFrom(createdAt: string, now: number): string {
+export function formatCommunityPinAge(
+  createdAt: string | null | undefined,
+  locale: Locale = "bg"
+): string {
+  if (!createdAt) return "";
+  const ms = Date.now() - new Date(createdAt).getTime();
+  if (Number.isNaN(ms) || ms < 60_000) {
+    return catalog(locale).planner.age.pinJustNow;
+  }
+  const a = catalog(locale).planner.age;
+  const minutes = Math.round(ms / 60_000);
+  if (minutes < 60) {
+    return formatTemplate(a.pinMinutes, { minutes: String(minutes) });
+  }
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) {
+    return formatTemplate(a.pinHours, { hours: String(hours) });
+  }
+  const days = Math.round(hours / 24);
+  return formatTemplate(a.pinDays, { days: String(days) });
+}
+
+function ageFrom(createdAt: string, now: number, locale: Locale): string {
   const ms = now - new Date(createdAt).getTime();
   if (!Number.isFinite(ms) || ms < 0) return "";
+  const a = catalog(locale).planner.age;
   const minutes = Math.round(ms / 60_000);
-  if (minutes < 60) return `преди ${minutes} мин`;
-  return `преди ${Math.round(minutes / 60)} ч`;
+  if (minutes < 60) {
+    return formatTemplate(a.pinMinutes, { minutes: String(minutes) });
+  }
+  const hours = Math.round(minutes / 60);
+  return formatTemplate(a.pinHours, { hours: String(hours) });
 }

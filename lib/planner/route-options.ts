@@ -1,5 +1,8 @@
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { haversineKm } from "@/lib/geo/haversine";
 import type { ProvidedRoadRoute } from "@/lib/api-clients/road-route";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import { countriesAlongRoute } from "@/lib/geo/countries-along-route";
 import type { ScoredBorder } from "@/lib/planner/borders";
 import {
@@ -105,11 +108,14 @@ export interface BuildRouteOptionsInput {
   chosenBorder: ScoredBorder | null;
   preferences: TripPreferences;
   activeChoice?: RouteChoice | null;
+  locale?: Locale;
 }
 
 export function buildRouteOptions(
   input: BuildRouteOptionsInput
 ): RouteOptionsBlock {
+  const locale = input.locale ?? "bg";
+  const labels = catalog(locale).planner.routeLabel;
   const primaryLine = input.chosenRoute.geometry.coordinates as Array<
     [number, number]
   >;
@@ -120,8 +126,14 @@ export function buildRouteOptions(
     input.chosenRoute.duration_min + primaryWait + primaryCommunity;
 
   const primaryLabel = input.chosenBorder
-    ? `През ${input.chosenBorder.nameBg}`
-    : "Директен път";
+    ? formatTemplate(labels.via, {
+        name: borderDisplayName(locale, {
+          id: input.chosenBorder.borderId,
+          name_bg: input.chosenBorder.nameBg,
+          name_en: input.chosenBorder.nameEn,
+        }),
+      })
+    : labels.direct;
 
   const primaryCharges = chargeCodes(input.chosenRoute.geometry, {
     origin: input.origin,
@@ -152,7 +164,7 @@ export function buildRouteOptions(
   const avoidCosting =
     input.preferences.avoid_motorways || input.preferences.avoid_tolls;
 
-  const borderAlt = pickBorderAlternative(input, primaryLine, chosenId);
+  const borderAlt = pickBorderAlternative(input, primaryLine, chosenId, locale);
   if (borderAlt) {
     return {
       primary,
@@ -165,7 +177,7 @@ export function buildRouteOptions(
     return { primary, alternative: null, unavailable_reason: "constraints" };
   }
 
-  const valhallaAlt = pickValhallaAlternative(input, primaryLine, chosenId);
+  const valhallaAlt = pickValhallaAlternative(input, primaryLine, chosenId, locale);
   if (valhallaAlt) {
     return { primary, alternative: valhallaAlt, unavailable_reason: null };
   }
@@ -192,8 +204,10 @@ function resolveUnavailableReason(
 function pickBorderAlternative(
   input: BuildRouteOptionsInput,
   primaryLine: Array<[number, number]>,
-  chosenId: string | null
+  chosenId: string | null,
+  locale: Locale
 ): RouteOptionSummary | null {
+  const labels = catalog(locale).planner.routeLabel;
   const losers = input.borders
     .filter((border) => border.borderId !== chosenId)
     .sort((a, b) => a.totalMin - b.totalMin || a.driveMin - b.driveMin);
@@ -223,7 +237,13 @@ function pickBorderAlternative(
       role: "alternative",
       source: "border",
       border_id: border.borderId,
-      label: `През ${border.nameBg}`,
+      label: formatTemplate(labels.via, {
+        name: borderDisplayName(locale, {
+          id: border.borderId,
+          name_bg: border.nameBg,
+          name_en: border.nameEn,
+        }),
+      }),
       distance_km: Math.round(routed.distance_km),
       drive_min: Math.round(routed.duration_min),
       wait_min: border.wait.minutes,
@@ -240,8 +260,10 @@ function pickBorderAlternative(
 function pickValhallaAlternative(
   input: BuildRouteOptionsInput,
   primaryLine: Array<[number, number]>,
-  chosenId: string | null
+  chosenId: string | null,
+  locale: Locale
 ): RouteOptionSummary | null {
+  const labels = catalog(locale).planner.routeLabel;
   const alt = input.direct.alternatives[0];
   if (!alt) return null;
   const line = alt.geometry.coordinates as Array<[number, number]>;
@@ -257,14 +279,20 @@ function pickValhallaAlternative(
   }
 
   let waitMin = 0;
-  let label = "Алтернативен път";
+  let label = labels.alternative;
   let borderId: string | null = null;
   for (const border of input.borders) {
     const near = distanceToPolylineKm(line, border.coords).distanceKm;
     if (near <= ON_PATH_KM) {
       waitMin = border.wait.minutes;
       borderId = border.borderId;
-      label = `През ${border.nameBg}`;
+      label = formatTemplate(labels.via, {
+        name: borderDisplayName(locale, {
+          id: border.borderId,
+          name_bg: border.nameBg,
+          name_en: border.nameEn,
+        }),
+      });
       break;
     }
   }

@@ -1,4 +1,6 @@
 import { HATARINFO_ATTRIBUTION } from "@/lib/constants/border-official-links";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import type {
   NakordoniAttribution,
   WaitEstimate,
@@ -59,6 +61,7 @@ export interface ExpectedWaitInput {
     band: "under_15" | "measured";
     observedAt: string | null;
   } | null;
+  locale?: Locale;
 }
 
 const FORECAST_WINDOW_MS = 75 * 60 * 1000;
@@ -69,43 +72,50 @@ const FORECAST_WINDOW_MS = 75 * 60 * 1000;
  * then the local table. Missing data stays zero and says so.
  */
 export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
+  const locale = input.locale ?? "bg";
   if (input.licensed === false) {
-    if (input.hatarinfo) return hatarinfoWait(input);
-    return unlicensedWait(input);
+    if (input.hatarinfo) return hatarinfoWait(input, locale);
+    return unlicensedWait(input, locale);
   }
   const forecast = matchForecast(
     input.forecast,
     input.eta,
     input.timeZone ?? "Europe/Sofia"
   );
+  const w = catalog(locale).planner.wait;
+
   if (forecast) {
-    return finish({
-      source: "forecast",
-      minutes: forecast.minutes,
-      metric: "wait_min",
-      quality: null,
-      queueNow: forecast.queue,
-      observedAt: forecast.at,
-      ageMin: ageMinutes(forecast.at, input.now),
-      labelBg: "прогноза за часа на пристигане",
-    });
+    return finish(
+      {
+        source: "forecast",
+        minutes: forecast.minutes,
+        metric: "wait_min",
+        quality: null,
+        queueNow: forecast.queue,
+        observedAt: forecast.at,
+        ageMin: ageMinutes(forecast.at, input.now),
+        label: w.forecastArrival,
+      },
+      locale
+    );
   }
 
   const typical = matchDayStats(input.dayStats, input.eta);
   if (typical != null) {
-    return finish({
-      source: "day_stats",
-      minutes: typical.minutes,
-      metric: "typical_queue",
-      quality: input.dayStats?.quality ?? null,
-      queueNow: null,
-      observedAt: input.dayStats?.generatedAt ?? null,
-      ageMin: ageMinutes(input.dayStats?.generatedAt ?? null, input.now),
-      labelBg:
-        input.dayStats?.quality === "low"
-          ? "типична медиана за този час, моделирана оценка"
-          : "типична медиана за този ден и час",
-    });
+    return finish(
+      {
+        source: "day_stats",
+        minutes: typical.minutes,
+        metric: "typical_queue",
+        quality: input.dayStats?.quality ?? null,
+        queueNow: null,
+        observedAt: input.dayStats?.generatedAt ?? null,
+        ageMin: ageMinutes(input.dayStats?.generatedAt ?? null, input.now),
+        label:
+          input.dayStats?.quality === "low" ? w.dayStatsLow : w.dayStats,
+      },
+      locale
+    );
   }
 
   if (
@@ -113,23 +123,25 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     (input.current.waitMin != null || input.current.queueNow != null)
   ) {
     const minutes = input.current.waitMin ?? input.current.queueNow ?? 0;
-    return finish({
-      source: "current",
-      minutes,
-      metric: input.current.waitMin != null ? "wait_min" : "typical_queue",
-      quality: input.current.quality,
-      queueNow: input.current.queueNow,
-      observedAt: input.current.observedAt,
-      ageMin:
-        input.current.ageMin ?? ageMinutes(input.current.observedAt, input.now),
-      labelBg:
-        input.current.quality === "low"
-          ? "текуща опашка, моделирана оценка"
-          : "текуща опашка от кеша",
-    });
+    return finish(
+      {
+        source: "current",
+        minutes,
+        metric: input.current.waitMin != null ? "wait_min" : "typical_queue",
+        quality: input.current.quality,
+        queueNow: input.current.queueNow,
+        observedAt: input.current.observedAt,
+        ageMin:
+          input.current.ageMin ??
+          ageMinutes(input.current.observedAt, input.now),
+        label:
+          input.current.quality === "low" ? w.currentLow : w.currentCache,
+      },
+      locale
+    );
   }
 
-  if (input.hatarinfo) return hatarinfoWait(input);
+  if (input.hatarinfo) return hatarinfoWait(input, locale);
 
   const local = localTypicalMinutes(
     input.localTypical,
@@ -146,8 +158,8 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
       queue_now: null,
       observed_at: null,
       age_min: null,
-      age_label: "няма наблюдение от nakordoni",
-      label_bg: "местна типична оценка, не е от nakordoni",
+      age_label: formatAge(null, locale),
+      label_bg: w.localTypical,
       attribution: null,
     };
   }
@@ -161,19 +173,22 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     queue_now: null,
     observed_at: null,
     age_min: null,
-    age_label: "няма данни",
-    label_bg: "няма данни за чакане",
+    age_label: formatAge(null, locale, w.noData),
+    label_bg: w.noWaitData,
     attribution: null,
   };
 }
 
-function hatarinfoWait(input: ExpectedWaitInput): WaitEstimate {
+function hatarinfoWait(input: ExpectedWaitInput, locale: Locale): WaitEstimate {
+  const w = catalog(locale).planner.wait;
   const reading = input.hatarinfo!;
   const traffic = trafficDelay(input);
   const band =
     reading.band === "under_15"
-      ? "Няма чакане над 15 мин за лек автомобил."
-      : `Около ${Math.round(reading.minutes)} мин за лек автомобил.`;
+      ? w.hatarinfoUnder15
+      : formatTemplate(w.hatarinfoMinutes, {
+          minutes: String(Math.round(reading.minutes)),
+        });
   const age = ageMinutes(reading.observedAt, input.now);
   return {
     source: "hatarinfo",
@@ -184,8 +199,8 @@ function hatarinfoWait(input: ExpectedWaitInput): WaitEstimate {
     queue_now: null,
     observed_at: reading.observedAt,
     age_min: age,
-    age_label: formatAge(age),
-    label_bg: `${band} Показанието е ориентировъчно.`,
+    age_label: formatAge(age, locale),
+    label_bg: `${band}${w.hatarinfoDisclaimer}`,
     attribution: HATARINFO_ATTRIBUTION,
     traffic_delay_min: traffic,
   };
@@ -196,7 +211,8 @@ function trafficDelay(input: ExpectedWaitInput): number | null {
   return Math.round(input.trafficDelayMin);
 }
 
-function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
+function unlicensedWait(input: ExpectedWaitInput, locale: Locale): WaitEstimate {
+  const w = catalog(locale).planner.wait;
   const local = localTypicalMinutes(
     input.localTypical,
     input.eta,
@@ -209,7 +225,7 @@ function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
   const trafficNote =
     traffic == null
       ? ""
-      : ` TomTom отчита около ${traffic} мин задръстване наблизо.`;
+      : formatTemplate(w.tomtomDelay, { minutes: String(traffic) });
   if (local != null) {
     return {
       source: "local_typical",
@@ -220,8 +236,8 @@ function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
       queue_now: null,
       observed_at: null,
       age_min: null,
-      age_label: "няма наблюдение от nakordoni",
-      label_bg: `Типично чакане от нашата таблица. Пунктът е извън лицензираните пазари на Nakordoni.${trafficNote}`,
+      age_label: formatAge(null, locale, w.noNakordoniObservation),
+      label_bg: formatTemplate(w.unlicensedTable, { traffic: trafficNote }),
       attribution: null,
       unlicensed_market: true,
       traffic_delay_min: traffic,
@@ -236,24 +252,27 @@ function unlicensedWait(input: ExpectedWaitInput): WaitEstimate {
     queue_now: null,
     observed_at: null,
     age_min: null,
-    age_label: "няма данни",
-    label_bg: `Няма данни за чакане. Пунктът е извън лицензираните пазари на Nakordoni.${trafficNote}`,
+    age_label: formatAge(null, locale, w.noData),
+    label_bg: formatTemplate(w.unlicensedNoData, { traffic: trafficNote }),
     attribution: null,
     unlicensed_market: true,
     traffic_delay_min: traffic,
   };
 }
 
-function finish(input: {
-  source: WaitSource;
-  minutes: number;
-  metric: WaitEstimate["metric"];
-  quality: "high" | "low" | null;
-  queueNow: number | null;
-  observedAt: string | null;
-  ageMin: number | null;
-  labelBg: string;
-}): WaitEstimate {
+function finish(
+  input: {
+    source: WaitSource;
+    minutes: number;
+    metric: WaitEstimate["metric"];
+    quality: "high" | "low" | null;
+    queueNow: number | null;
+    observedAt: string | null;
+    ageMin: number | null;
+    label: string;
+  },
+  locale: Locale
+): WaitEstimate {
   const age =
     input.ageMin == null ? null : Math.max(0, Math.round(input.ageMin));
   return {
@@ -265,19 +284,29 @@ function finish(input: {
     queue_now: input.queueNow == null ? null : Math.round(input.queueNow),
     observed_at: input.observedAt,
     age_min: age,
-    age_label: formatAge(age),
-    label_bg: input.labelBg,
+    age_label: formatAge(age, locale),
+    label_bg: input.label,
     attribution: NAKORDONI_ATTRIBUTION,
   };
 }
 
-export function formatAge(ageMin: number | null): string {
-  if (ageMin == null) return "времето на наблюдение е неизвестно";
-  if (ageMin < 2) return "наблюдение преди по-малко от 2 мин";
-  if (ageMin < 60) return `наблюдение преди ${ageMin} мин`;
+export function formatAge(
+  ageMin: number | null,
+  locale: Locale = "bg",
+  unknownOverride?: string
+): string {
+  const a = catalog(locale).planner.age;
+  if (ageMin == null) return unknownOverride ?? a.unknown;
+  if (ageMin < 2) return a.under2;
+  if (ageMin < 60) {
+    return formatTemplate(a.minutes, { minutes: String(ageMin) });
+  }
   const hours = Math.round(ageMin / 60);
-  if (hours < 48) return `наблюдение преди ${hours} ч`;
-  return `наблюдение преди ${Math.round(hours / 24)} д`;
+  if (hours < 48) {
+    return formatTemplate(a.hours, { hours: String(hours) });
+  }
+  const days = Math.round(hours / 24);
+  return formatTemplate(a.days, { days: String(days) });
 }
 
 function matchForecast(

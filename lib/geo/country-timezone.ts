@@ -1,4 +1,8 @@
 /** IANA zone for overnight wake (08:00 local). Fallback is Sofia. */
+import type { Localized } from "@/lib/i18n/localized-field";
+import { pickText } from "@/lib/i18n/localized-field";
+import { catalog, type Locale } from "@/lib/i18n/locale";
+
 const COUNTRY_TIME_ZONE: Record<string, string> = {
   AT: "Europe/Vienna",
   BE: "Europe/Brussels",
@@ -32,7 +36,160 @@ export function timeZoneForCountry(code: string | null | undefined): string {
   return COUNTRY_TIME_ZONE[code.toUpperCase()] ?? DEFAULT_TZ;
 }
 
-const ZONE_LABEL_BG: Record<string, string> = {
+const ZONE_LABEL: Record<string, Localized> = {
+  "Europe/Sofia": {
+    bg: "София",
+    en: "Sofia",
+    tr: "Sofya",
+    ro: "Sofia",
+  },
+  "Europe/Budapest": {
+    bg: "Будапеща",
+    en: "Budapest",
+    tr: "Budapeşte",
+    ro: "Budapesta",
+  },
+  "Europe/Vienna": {
+    bg: "Виена",
+    en: "Vienna",
+    tr: "Viyana",
+    ro: "Viena",
+  },
+  "Europe/Belgrade": {
+    bg: "Белград",
+    en: "Belgrade",
+    tr: "Belgrad",
+    ro: "Belgrad",
+  },
+  "Europe/Istanbul": {
+    bg: "Истанбул",
+    en: "Istanbul",
+    tr: "İstanbul",
+    ro: "Istanbul",
+  },
+  "Europe/Berlin": {
+    bg: "Мюнхен/Берлин",
+    en: "Munich/Berlin",
+    tr: "Münih/Berlin",
+    ro: "München/Berlin",
+  },
+  "Europe/Paris": {
+    bg: "Париж",
+    en: "Paris",
+    tr: "Paris",
+    ro: "Paris",
+  },
+  "Europe/Bucharest": {
+    bg: "Букурещ",
+    en: "Bucharest",
+    tr: "Bükreş",
+    ro: "București",
+  },
+  "Europe/Athens": {
+    bg: "Атина",
+    en: "Athens",
+    tr: "Atina",
+    ro: "Atena",
+  },
+  "Europe/Zagreb": {
+    bg: "Загреб",
+    en: "Zagreb",
+    tr: "Zagreb",
+    ro: "Zagreb",
+  },
+  "Europe/Bratislava": {
+    bg: "Братислава",
+    en: "Bratislava",
+    tr: "Bratislava",
+    ro: "Bratislava",
+  },
+  "Europe/Prague": {
+    bg: "Прага",
+    en: "Prague",
+    tr: "Prag",
+    ro: "Praga",
+  },
+  "Europe/Warsaw": {
+    bg: "Варшава",
+    en: "Warsaw",
+    tr: "Varşova",
+    ro: "Varșovia",
+  },
+  "Europe/Rome": {
+    bg: "Рим",
+    en: "Rome",
+    tr: "Roma",
+    ro: "Roma",
+  },
+  "Europe/Amsterdam": {
+    bg: "Амстердам",
+    en: "Amsterdam",
+    tr: "Amsterdam",
+    ro: "Amsterdam",
+  },
+  "Europe/Brussels": {
+    bg: "Брюксел",
+    en: "Brussels",
+    tr: "Brüksel",
+    ro: "Bruxelles",
+  },
+  "Europe/Zurich": {
+    bg: "Цюрих",
+    en: "Zurich",
+    tr: "Zürih",
+    ro: "Zürich",
+  },
+  "Europe/Ljubljana": {
+    bg: "Любляна",
+    en: "Ljubljana",
+    tr: "Ljubljana",
+    ro: "Ljubljana",
+  },
+  "Europe/Skopje": {
+    bg: "Скопие",
+    en: "Skopje",
+    tr: "Üsküp",
+    ro: "Skopje",
+  },
+  "Europe/London": {
+    bg: "Лондон",
+    en: "London",
+    tr: "Londra",
+    ro: "Londra",
+  },
+  "Europe/Madrid": {
+    bg: "Мадрид",
+    en: "Madrid",
+    tr: "Madrid",
+    ro: "Madrid",
+  },
+  "Europe/Copenhagen": {
+    bg: "Копенхаген",
+    en: "Copenhagen",
+    tr: "Kopenhag",
+    ro: "Copenhaga",
+  },
+  "Europe/Helsinki": {
+    bg: "Хелзинки",
+    en: "Helsinki",
+    tr: "Helsinki",
+    ro: "Helsinki",
+  },
+};
+
+export function timeZoneLabel(timeZone: string, locale: Locale = "bg"): string {
+  const row = ZONE_LABEL[timeZone];
+  if (row) return pickText(locale, row);
+  if (locale === "bg") return ZONE_LABEL_BG_FALLBACK[timeZone] ?? "местно време";
+  return catalog(locale).planner.timeZone.local;
+}
+
+/** @deprecated Use timeZoneLabel(zone, locale) */
+export function timeZoneLabelBg(timeZone: string): string {
+  return timeZoneLabel(timeZone, "bg");
+}
+
+const ZONE_LABEL_BG_FALLBACK: Record<string, string> = {
   "Europe/Sofia": "София",
   "Europe/Budapest": "Будапеща",
   "Europe/Vienna": "Виена",
@@ -57,7 +214,3 @@ const ZONE_LABEL_BG: Record<string, string> = {
   "Europe/Copenhagen": "Копенхаген",
   "Europe/Helsinki": "Хелзинки",
 };
-
-export function timeZoneLabelBg(timeZone: string): string {
-  return ZONE_LABEL_BG[timeZone] ?? "местно време";
-}

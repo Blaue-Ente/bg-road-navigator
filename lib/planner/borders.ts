@@ -1,5 +1,10 @@
-import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
+import {
+  BORDER_CROSSINGS,
+  borderDisplayName,
+} from "@/lib/constants/border-crossings";
 import type { BorderCrossing } from "@/lib/constants/border-crossings";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import { HUNGARY_SERBIA_PLANNER_IDS } from "@/lib/constants/border-official-links";
 import { getCrossingsByIds } from "@/lib/constants/european-borders";
 import { haversineKm } from "@/lib/geo/haversine";
@@ -181,11 +186,21 @@ function toCandidate(crossing: BorderCrossing, lateralKm: number): BorderCandida
   };
 }
 
+function borderName(locale: Locale, option: BorderScoreInput): string {
+  return borderDisplayName(locale, {
+    id: option.borderId,
+    name_bg: option.nameBg,
+    name_en: option.nameEn,
+  });
+}
+
 /** Lowest drive + wait + community penalty. Reasons compare each loser with the winner. */
 export function scoreBorderOptions(
-  options: BorderScoreInput[]
+  options: BorderScoreInput[],
+  locale: Locale = "bg"
 ): ScoredBorder[] {
   if (options.length === 0) return [];
+  const b = catalog(locale).planner.border;
   const scored = options.map((option) => {
     const totalMin =
       option.driveMin + option.wait.minutes + option.communityPenaltyMin;
@@ -197,8 +212,15 @@ export function scoreBorderOptions(
     const chosen =
       option.borderId === best.borderId && option.totalMin === best.totalMin;
     const reason = chosen
-      ? chosenReason(option)
-      : `С ${option.totalMin - best.totalMin} мин повече от ${best.nameBg}: ${option.driveMin} мин път и ${option.wait.minutes} мин ${waitNoun(option.wait)} (${option.wait.label_bg}).`;
+      ? chosenReason(option, locale)
+      : formatTemplate(b.slowerThanBest, {
+          delta: String(option.totalMin - best.totalMin),
+          name: borderName(locale, best),
+          drive: String(option.driveMin),
+          wait: String(option.wait.minutes),
+          waitKind: waitNoun(option.wait, locale),
+          waitLabel: option.wait.label_bg,
+        });
     return {
       ...option,
       chosen,
@@ -211,10 +233,12 @@ export function scoreBorderOptions(
 /** A saved preferred crossing stays chosen when it was actually scored. */
 export function applyPreferredBorder(
   scored: ScoredBorder[],
-  preferredId: string | null
+  preferredId: string | null,
+  locale: Locale = "bg"
 ): ScoredBorder[] {
   if (!preferredId) return scored;
   if (!scored.some((border) => border.borderId === preferredId)) return scored;
+  const b = catalog(locale).planner.border;
   return scored.map((border) => {
     const chosen = border.borderId === preferredId;
     if (!chosen) return { ...border, chosen: false };
@@ -222,21 +246,36 @@ export function applyPreferredBorder(
       ...border,
       chosen: true,
       reasonCode: "preferred",
-      reason: `Предпочитан граничен пункт: ${border.nameBg}.`,
+      reason: formatTemplate(b.preferred, {
+        name: borderName(locale, border),
+      }),
     };
   });
 }
 
-function chosenReason(option: BorderScoreInput & { totalMin: number }): string {
+function chosenReason(
+  option: BorderScoreInput & { totalMin: number },
+  locale: Locale
+): string {
+  const b = catalog(locale).planner.border;
   const penalty =
     option.communityPenaltyMin > 0
-      ? ` Сигнали по пътя добавят ${option.communityPenaltyMin} мин.`
+      ? formatTemplate(b.communityPenalty, {
+          minutes: String(option.communityPenaltyMin),
+        })
       : "";
-  return `Най-малко общо време през ${option.nameBg}: ${option.driveMin} мин път и ${option.wait.minutes} мин ${waitNoun(option.wait)}.${penalty}`;
+  return formatTemplate(b.lowestTotal, {
+    name: borderName(locale, option),
+    drive: String(option.driveMin),
+    wait: String(option.wait.minutes),
+    waitKind: waitNoun(option.wait, locale),
+    penalty,
+  });
 }
 
-function waitNoun(wait: WaitEstimate): string {
-  if (wait.metric === "typical_queue") return "типична опашка";
-  if (wait.source === "unavailable") return "без данни за чакане";
-  return "чакане";
+function waitNoun(wait: WaitEstimate, locale: Locale): string {
+  const w = catalog(locale).planner.wait;
+  if (wait.metric === "typical_queue") return w.metricTypicalQueue;
+  if (wait.source === "unavailable") return w.metricNoData;
+  return w.metricWait;
 }

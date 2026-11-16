@@ -5,7 +5,10 @@ import type { WhyReason } from "@/lib/planner/types";
 
 export interface WhyBorder {
   chosen: boolean;
-  nameBg: string;
+  /** Localized crossing name for sentences. */
+  name: string;
+  /** Kept for fixtures; do not render in non-bg UI. */
+  nameBg?: string;
   totalMin: number;
   waitMinutes: number;
   driveMin: number;
@@ -33,7 +36,7 @@ export function whyThisRoute(input: {
     const delta = alternative.totalMin - chosen.totalMin;
     reasons.push({
       code: "border_wait",
-      title: formatTemplate(p.viaBorder, { name: chosen.nameBg }),
+      title: formatTemplate(p.viaBorder, { name: chosen.name }),
       detail: borderChoiceDetail(chosen, alternative, delta, p),
       delta_min: delta,
       delta_km: Math.round(alternative.distanceKm - chosen.distanceKm),
@@ -108,13 +111,13 @@ function borderChoiceDetail(
   const overall =
     delta >= 0
       ? formatTemplate(p.borderFaster, {
-          chosen: chosen.nameBg,
-          other: alternative.nameBg,
+          chosen: chosen.name,
+          other: alternative.name,
           delta: String(Math.abs(delta)),
         })
       : formatTemplate(p.borderSlower, {
-          chosen: chosen.nameBg,
-          other: alternative.nameBg,
+          chosen: chosen.name,
+          other: alternative.name,
           delta: String(Math.abs(delta)),
         });
   const waitDelta = alternative.waitMinutes - chosen.waitMinutes;
