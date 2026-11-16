@@ -171,7 +171,11 @@ export interface BorderChoice {
   total_min: number;
   chosen: boolean;
   reason_code:
-    "lowest_total" | "slower_than_best" | "preferred" | "serbia_hungary";
+    | "lowest_total"
+    | "slower_than_best"
+    | "preferred"
+    | "serbia_hungary"
+    | "on_path";
   reason: string;
   wait: WaitEstimate;
 }

@@ -1,4 +1,5 @@
-import { MFA_TRAVEL_ADVICE_URL } from "@/lib/constants/border-official-links";
+import { TRAVEL_ADVICE_BY_LOCALE } from "@/lib/constants/border-official-links";
+import { pickText } from "@/lib/i18n/localized-field";
 import {
   WINTER_RULES,
   WINTER_RULES_DISCLAIMER,
@@ -13,7 +14,6 @@ import {
 } from "@/lib/constants/vignettes";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
-import { pickText } from "@/lib/i18n/localized-field";
 import { roadSafetyCopy } from "@/lib/i18n/road-safety";
 import type {
   ChecklistItem,
@@ -149,13 +149,14 @@ export function buildChecklist(input: {
     });
   }
   if (input.countries.some((code) => code !== "BG")) {
+    const travel = TRAVEL_ADVICE_BY_LOCALE[locale];
     documents.push({
       id: "mfa-advice",
-      title: c.mfaAdvice,
-      detail: c.mfaAdviceDetail,
+      title: pickText(locale, travel.title),
+      detail: pickText(locale, travel.detail),
       country_code: null,
-      href: MFA_TRAVEL_ADVICE_URL,
-      link_label: c.travelAdvice,
+      href: travel.href,
+      link_label: pickText(locale, travel.link_label),
     });
   }
   if (input.withPet) {

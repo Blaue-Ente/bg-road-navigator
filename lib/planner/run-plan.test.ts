@@ -11,6 +11,11 @@ import { resolveVehicle } from "@/lib/planner/vehicle";
 
 const SOFIA = { lng: 23.3219, lat: 42.6977 };
 const PLOVDIV = { lng: 24.7453, lat: 42.1354 };
+const MUNICH = { lng: 11.582, lat: 48.1351 };
+const BUCHAREST = { lng: 26.1025, lat: 44.4268 };
+const BERLIN = { lng: 13.405, lat: 52.52 };
+const COLOGNE = { lng: 6.96, lat: 50.94 };
+const ISTANBUL = { lng: 28.9784, lat: 41.0082 };
 
 afterEach(() => {
   clearOsmMemoryCacheForTests();
@@ -129,5 +134,200 @@ describe("runTripPlan", () => {
     expect(
       seen.filter((url) => url.includes("/route/v1/driving/"))
     ).toHaveLength(2);
+  });
+
+  it("plans München → București without a forced Bulgarian border", async () => {
+    vi.stubEnv("OCI_GEO_BASE_URL", "");
+    vi.stubEnv("DATABASE_URL", "");
+    const drivingCalls: string[] = [];
+    vi.stubGlobal("fetch", async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("open-meteo.com")) {
+        return Response.json({
+          hourly: {
+            time: ["2026-11-15T08:00"],
+            temperature_2m: [8],
+            weather_code: [1],
+            wind_speed_10m: [12],
+            precipitation: [0],
+          },
+        });
+      }
+      if (url.includes("meteoalarm.org")) {
+        return Response.json({ warnings: [] });
+      }
+      if (url.includes("/route/v1/driving/")) {
+        drivingCalls.push(url);
+        return Response.json({
+          code: "Ok",
+          routes: [
+            {
+              distance: 1_450_000,
+              duration: 14_400,
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [MUNICH.lng, MUNICH.lat],
+                  [16.37, 48.21],
+                  [19.04, 47.5],
+                  [20.75, 46.07],
+                  [BUCHAREST.lng, BUCHAREST.lat],
+                ],
+              },
+              legs: [{ steps: [] }],
+            },
+          ],
+        });
+      }
+      return new Response("no", { status: 404 });
+    });
+
+    const plan = await runTripPlan({
+      origin: { label: "München", coords: MUNICH, countryCode: "DE" },
+      destination: {
+        label: "București",
+        coords: BUCHAREST,
+        countryCode: "RO",
+      },
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      vehicle: resolveVehicle({ fuel_type: "diesel" }),
+      fromProfile: false,
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      locale: "bg",
+    });
+    expect(plan).not.toBeNull();
+    expect(plan?.border.chosen).toBeNull();
+    expect(plan?.route_options?.primary.source).toBe("direct");
+    expect(plan?.route_options?.primary.label).toBe("Директен път");
+    expect(
+      plan?.checklist.vignettes.some((item) => item.country_code === "HU")
+    ).toBe(true);
+    expect(
+      plan?.checklist.vignettes.some((item) => item.country_code === "BG")
+    ).toBe(false);
+    expect(plan?.border.note).toContain("Шенген");
+    expect(drivingCalls).toHaveLength(1);
+    const blob = JSON.stringify(plan);
+    expect(blob).not.toContain("Видин");
+    expect(blob).not.toContain("Калотина");
+  });
+
+  it("labels a via point at Nădlac without naming Bulgaria", async () => {
+    vi.stubEnv("OCI_GEO_BASE_URL", "");
+    vi.stubEnv("DATABASE_URL", "");
+    vi.stubGlobal("fetch", async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("open-meteo.com")) {
+        return Response.json({
+          hourly: {
+            time: ["2026-11-15T08:00"],
+            temperature_2m: [8],
+            weather_code: [1],
+            wind_speed_10m: [12],
+            precipitation: [0],
+          },
+        });
+      }
+      if (url.includes("meteoalarm.org")) {
+        return Response.json({ warnings: [] });
+      }
+      if (url.includes("/route/v1/driving/")) {
+        return Response.json({
+          code: "Ok",
+          routes: [
+            {
+              distance: 1_450_000,
+              duration: 14_400,
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [MUNICH.lng, MUNICH.lat],
+                  [20.75, 46.07],
+                  [BUCHAREST.lng, BUCHAREST.lat],
+                ],
+              },
+              legs: [{ steps: [] }],
+            },
+          ],
+        });
+      }
+      return new Response("no", { status: 404 });
+    });
+
+    const plan = await runTripPlan({
+      origin: { label: "München", coords: MUNICH, countryCode: "DE" },
+      destination: {
+        label: "București",
+        coords: BUCHAREST,
+        countryCode: "RO",
+      },
+      via: [{ label: "Nădlac", coords: { lng: 20.752, lat: 46.068 } }],
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      vehicle: resolveVehicle({ fuel_type: "diesel" }),
+      fromProfile: false,
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      locale: "ro",
+    });
+    expect(plan?.route_options?.primary.label).toBe("Prin Nădlac");
+    const blob = JSON.stringify(plan);
+    expect(blob).not.toMatch(/Vidin|Kalotina|Калотина|Видин/i);
+  });
+
+  it("still compares Bulgarian borders for Berlin → Sofia", async () => {
+    vi.stubEnv("OCI_GEO_BASE_URL", "");
+    vi.stubEnv("DATABASE_URL", "");
+    const drivingCalls: string[] = [];
+    vi.stubGlobal("fetch", async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("open-meteo.com")) {
+        return Response.json({
+          hourly: {
+            time: ["2026-11-15T08:00"],
+            temperature_2m: [8],
+            weather_code: [1],
+            wind_speed_10m: [12],
+            precipitation: [0],
+          },
+        });
+      }
+      if (url.includes("meteoalarm.org")) {
+        return Response.json({ warnings: [] });
+      }
+      if (url.includes("/route/v1/driving/")) {
+        drivingCalls.push(url);
+        return Response.json({
+          code: "Ok",
+          routes: [
+            {
+              distance: 1_700_000,
+              duration: 16_200,
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [BERLIN.lng, BERLIN.lat],
+                  [SOFIA.lng, SOFIA.lat],
+                ],
+              },
+              legs: [{ steps: [] }],
+            },
+          ],
+        });
+      }
+      return new Response("no", { status: 404 });
+    });
+
+    const plan = await runTripPlan({
+      origin: { label: "Berlin", coords: BERLIN, countryCode: "DE" },
+      destination: { label: "Sofia", coords: SOFIA, countryCode: "BG" },
+      departAt: new Date("2026-11-15T08:00:00.000Z"),
+      vehicle: resolveVehicle({ fuel_type: "diesel" }),
+      fromProfile: false,
+      preferences: DEFAULT_TRIP_PREFERENCES,
+    });
+    expect(drivingCalls.length).toBeGreaterThan(1);
+    expect(
+      plan?.border.alternatives.some((row) => row.border_id === "kalotina") ||
+        plan?.border.chosen?.border_id === "kalotina"
+    ).toBe(true);
   });
 });

@@ -3,6 +3,7 @@ import {
   borderDisplayName,
 } from "@/lib/constants/border-crossings";
 import type { BorderCrossing } from "@/lib/constants/border-crossings";
+import { preferenceBorderById } from "@/lib/constants/preference-borders";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { HUNGARY_SERBIA_PLANNER_IDS } from "@/lib/constants/border-official-links";
@@ -39,18 +40,115 @@ export interface BorderScoreInput {
 export interface ScoredBorder extends BorderScoreInput {
   totalMin: number;
   chosen: boolean;
-  reasonCode: "lowest_total" | "slower_than_best" | "preferred" | "serbia_hungary";
+  reasonCode:
+    | "lowest_total"
+    | "slower_than_best"
+    | "preferred"
+    | "serbia_hungary"
+    | "on_path";
   reason: string;
 }
 
 const MAX_LATERAL_KM = 170;
 const MAX_CANDIDATES = 4;
 export const HUNGARY_SERBIA_ON_ROUTE_KM = 30;
+export const ON_PATH_BORDER_KM = 12;
+
+const BALKAN_TRANSIT = new Set(["TR", "GR", "MK", "BG"]);
+
+/** Ends that force a Serbia–Hungary border comparison (not only on-path info). */
+const FORCE_HU_RS_ENDS = new Set([
+  "RS",
+  "BG",
+  "MK",
+  "GR",
+  "TR",
+  "XK",
+  "ME",
+  "AL",
+  "BA",
+]);
+
+/**
+ * True when one end is in Bulgaria, or one end is in TR/GR/MK and the other is
+ * outside {TR, GR, MK, BG}. Unknown country on either end keeps today's behaviour.
+ */
+export function tripMayCrossBulgaria(
+  originCountry: string | null,
+  destinationCountry: string | null
+): boolean {
+  if (!originCountry || !destinationCountry) return true;
+  if (originCountry === "BG" || destinationCountry === "BG") return true;
+  const originTransit = BALKAN_TRANSIT.has(originCountry);
+  const destinationTransit = BALKAN_TRANSIT.has(destinationCountry);
+  if (originTransit !== destinationTransit) {
+    const other = originTransit ? destinationCountry : originCountry;
+    return !BALKAN_TRANSIT.has(other);
+  }
+  return false;
+}
+
+export function tripMustForceHungarySerbiaBorderChoice(input: {
+  originCountry?: string | null;
+  destinationCountry?: string | null;
+}): boolean {
+  if (input.originCountry && FORCE_HU_RS_ENDS.has(input.originCountry)) {
+    return true;
+  }
+  if (
+    input.destinationCountry &&
+    FORCE_HU_RS_ENDS.has(input.destinationCountry)
+  ) {
+    return true;
+  }
+  return false;
+}
 
 /**
  * Bulgarian crossings that sit between the two ends of the trip.
  * Same-country trips do not get a forced border. Nakordoni waits are applied later.
  */
+export function borderCrossingToCandidate(
+  crossing: BorderCrossing,
+  lateralKm = 0
+): BorderCandidate {
+  return {
+    id: crossing.id,
+    nameBg: crossing.name_bg,
+    nameEn: crossing.name_en,
+    coords: crossing.coords,
+    ppid: crossing.nakordoni_ppid ?? null,
+    countryPair: crossing.country_pair,
+    localTypicalMinutes: crossing.typical_wait_minutes,
+    lateralKm: Math.round(lateralKm * 10) / 10,
+  };
+}
+
+export function preferenceBorderCandidate(
+  borderId: string,
+  origin: GeoPoint,
+  destination: GeoPoint
+): BorderCandidate | null {
+  const row = preferenceBorderById(borderId);
+  if (!row) return null;
+  const approach = distanceToSegmentKm(origin, destination, row.coords);
+  return borderCrossingToCandidate(row, approach.distanceKm);
+}
+
+/** Closest BG crossing the driven line passes, for informational display only. */
+export function onPathBulgarianCrossing(
+  line: Array<[number, number]>
+): BorderCandidate | null {
+  let best: BorderCandidate | null = null;
+  for (const crossing of BORDER_CROSSINGS) {
+    const distanceKm = distanceToPolylineKm(line, crossing.coords).distanceKm;
+    if (distanceKm > ON_PATH_BORDER_KM) continue;
+    if (best && best.lateralKm <= distanceKm) continue;
+    best = borderCrossingToCandidate(crossing, distanceKm);
+  }
+  return best;
+}
+
 export function selectCandidateBorders(input: {
   origin: GeoPoint;
   destination: GeoPoint;
@@ -174,16 +272,7 @@ function rankBySegment(
 }
 
 function toCandidate(crossing: BorderCrossing, lateralKm: number): BorderCandidate {
-  return {
-    id: crossing.id,
-    nameBg: crossing.name_bg,
-    nameEn: crossing.name_en,
-    coords: crossing.coords,
-    ppid: crossing.nakordoni_ppid ?? null,
-    countryPair: crossing.country_pair,
-    localTypicalMinutes: crossing.typical_wait_minutes,
-    lateralKm: Math.round(lateralKm * 10) / 10,
-  };
+  return borderCrossingToCandidate(crossing, lateralKm);
 }
 
 function borderName(locale: Locale, option: BorderScoreInput): string {

@@ -1,10 +1,14 @@
 "use client";
 
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import {
-  BORDER_CROSSINGS,
-  borderDisplayName,
-} from "@/lib/constants/border-crossings";
+  HU_ROMANIA_PREFERENCE_IDS,
+  HUNGARY_SERBIA_PLANNER_IDS,
+} from "@/lib/constants/border-official-links";
+import { preferenceBorderCrossings } from "@/lib/constants/preference-borders";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import type { Locale } from "@/lib/i18n/locale";
+import type { BorderCrossing } from "@/lib/constants/border-crossings";
 import type { TripPreferences } from "@/lib/planner/preferences";
 
 export function PreferenceFields({
@@ -18,6 +22,11 @@ export function PreferenceFields({
   const locale = useLocale();
   const patch = (partial: Partial<TripPreferences>) =>
     onChange({ ...value, ...partial });
+  const borderOptions = preferenceBorderCrossings();
+  const noWaitBorderIds = new Set<string>([
+    ...HU_ROMANIA_PREFERENCE_IDS,
+    ...HUNGARY_SERBIA_PLANNER_IDS,
+  ]);
 
   const toggleAvoid = (id: string) => {
     if (id === value.preferred_border) return;
@@ -246,9 +255,9 @@ export function PreferenceFields({
           className="mt-1 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
         >
           <option value="">{m.prefs.noPreferred}</option>
-          {BORDER_CROSSINGS.map((border) => (
+          {borderOptions.map((border) => (
             <option key={border.id} value={border.id}>
-              {borderDisplayName(locale, border)}
+              {borderOptionLabel(locale, border, noWaitBorderIds, m.prefs)}
             </option>
           ))}
         </select>
@@ -259,20 +268,34 @@ export function PreferenceFields({
           {m.prefs.avoidBorders}
         </legend>
         <div className="mt-2 max-h-40 space-y-1 overflow-y-auto pr-1">
-          {BORDER_CROSSINGS.map((border) => (
+          {borderOptions.map((border) => (
             <Checkbox
               key={border.id}
               id={`avoid-${border.id}`}
-              label={borderDisplayName(locale, border)}
+              label={borderOptionLabel(locale, border, noWaitBorderIds, m.prefs)}
               checked={value.avoid_borders.includes(border.id)}
               disabled={value.preferred_border === border.id}
               onChange={() => toggleAvoid(border.id)}
             />
           ))}
         </div>
+        <p className="mt-2 text-xs text-[var(--waze-text-muted)]">
+          {m.prefs.bordersHint}
+        </p>
       </fieldset>
     </div>
   );
+}
+
+function borderOptionLabel(
+  locale: Locale,
+  border: BorderCrossing,
+  noWaitIds: Set<string>,
+  prefs: { borderNoWaitData: string }
+): string {
+  const name = borderDisplayName(locale, border);
+  if (!noWaitIds.has(border.id) || border.nakordoni_ppid) return name;
+  return `${name} (${prefs.borderNoWaitData})`;
 }
 
 function Choice({

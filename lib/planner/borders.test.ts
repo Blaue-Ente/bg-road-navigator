@@ -4,14 +4,19 @@ import {
   scoreBorderOptions,
   selectCandidateBorders,
   selectHungarySerbiaBorders,
+  tripMayCrossBulgaria,
   tripMayCrossHungarySerbia,
+  tripMustForceHungarySerbiaBorderChoice,
 } from "@/lib/planner/borders";
 import type { WaitEstimate } from "@/lib/planner/types";
 import { NAKORDONI_ATTRIBUTION } from "@/lib/planner/wait";
 
 const sofia = { lng: 23.3219, lat: 42.6977 };
 const munich = { lng: 11.582, lat: 48.1351 };
+const bucharest = { lng: 26.1025, lat: 44.4268 };
 const istanbul = { lng: 28.9784, lat: 41.0082 };
+const berlin = { lng: 13.405, lat: 52.52 };
+const cologne = { lng: 6.96, lat: 50.94 };
 
 function wait(minutes: number): WaitEstimate {
   return {
@@ -28,6 +33,79 @@ function wait(minutes: number): WaitEstimate {
     attribution: NAKORDONI_ATTRIBUTION,
   };
 }
+
+describe("tripMayCrossBulgaria", () => {
+  it("matches the locked corridor rules", () => {
+    expect(tripMayCrossBulgaria("DE", "RO")).toBe(false);
+    expect(tripMayCrossBulgaria("DE", "BG")).toBe(true);
+    expect(tripMayCrossBulgaria("DE", "TR")).toBe(true);
+    expect(tripMayCrossBulgaria("GR", "TR")).toBe(false);
+    expect(tripMayCrossBulgaria("AT", null)).toBe(true);
+  });
+});
+
+describe("Serbia–Hungary forcing", () => {
+  it("does not force RS–HU posts on München → București", () => {
+    expect(
+      tripMayCrossHungarySerbia({
+        origin: munich,
+        destination: bucharest,
+        originCountry: "DE",
+        destinationCountry: "RO",
+      })
+    ).toBe(true);
+    expect(
+      tripMustForceHungarySerbiaBorderChoice({
+        originCountry: "DE",
+        destinationCountry: "RO",
+      })
+    ).toBe(false);
+    const forcedBg = tripMayCrossBulgaria("DE", "RO")
+      ? selectCandidateBorders({
+          origin: munich,
+          destination: bucharest,
+          originCountry: "DE",
+          destinationCountry: "RO",
+        })
+      : [];
+    expect(forcedBg).toEqual([]);
+    const huRsChoice =
+      forcedBg.length === 0 &&
+      tripMayCrossHungarySerbia({
+        origin: munich,
+        destination: bucharest,
+        originCountry: "DE",
+        destinationCountry: "RO",
+      }) &&
+      tripMustForceHungarySerbiaBorderChoice({
+        originCountry: "DE",
+        destinationCountry: "RO",
+      });
+    expect(huRsChoice).toBe(false);
+  });
+
+  it("still offers Kalotina and Vidin for Berlin → Sofia", () => {
+    const ids = selectCandidateBorders({
+      origin: berlin,
+      destination: sofia,
+      originCountry: "DE",
+      destinationCountry: "BG",
+    }).map((border) => border.id);
+    expect(ids).toContain("kalotina");
+    expect(ids).toContain("danube-bridge-vidin");
+  });
+
+  it("still offers Kapitan Andreevo toward Istanbul", () => {
+    const ids = selectCandidateBorders({
+      origin: cologne,
+      destination: istanbul,
+      originCountry: "DE",
+      destinationCountry: "TR",
+    }).map((border) => border.id);
+    expect(ids).toContain("kapitan-andreevo");
+    expect(ids).toContain("danube-bridge-vidin");
+  });
+});
 
 describe("selectCandidateBorders", () => {
   it("keeps Kalotina toward Munich and drops the Turkish crossings", () => {
@@ -88,6 +166,15 @@ describe("selectCandidateBorders", () => {
         [24.75, 42.14],
       ])
     ).toBeNull();
+  });
+
+  it("forces Serbia–Hungary comparisons for Sofia → Munich", () => {
+    expect(
+      tripMustForceHungarySerbiaBorderChoice({
+        originCountry: "BG",
+        destinationCountry: "DE",
+      })
+    ).toBe(true);
   });
 
   it("does not ask for Hárinfó on a trip that stays south of the frontier", () => {

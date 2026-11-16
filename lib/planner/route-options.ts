@@ -108,6 +108,7 @@ export interface BuildRouteOptionsInput {
   chosenBorder: ScoredBorder | null;
   preferences: TripPreferences;
   activeChoice?: RouteChoice | null;
+  via?: Array<{ label: string; coords: GeoPoint }>;
   locale?: Locale;
 }
 
@@ -125,6 +126,7 @@ export function buildRouteOptions(
   const primaryTotal =
     input.chosenRoute.duration_min + primaryWait + primaryCommunity;
 
+  const firstVia = (input.via ?? [])[0];
   const primaryLabel = input.chosenBorder
     ? formatTemplate(labels.via, {
         name: borderDisplayName(locale, {
@@ -133,7 +135,9 @@ export function buildRouteOptions(
           name_en: input.chosenBorder.nameEn,
         }),
       })
-    : labels.direct;
+    : firstVia?.label
+      ? formatTemplate(labels.viaPoint, { name: firstVia.label })
+      : labels.direct;
 
   const primaryCharges = chargeCodes(input.chosenRoute.geometry, {
     origin: input.origin,

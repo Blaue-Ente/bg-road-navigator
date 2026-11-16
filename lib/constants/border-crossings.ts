@@ -370,6 +370,20 @@ const BORDER_NAME_I18N: Record<string, LocalizedMap> = {
   makaza: { tr: "Makaza", ro: "Makaza" },
   "malko-tarnovo": { tr: "Dereköy", ro: "Malko Târnovo" },
   lesovo: { tr: "Hamzabeyli", ro: "Lesovo" },
+  nadlac: { en: "Nadlac II — Nădlac", tr: "Nadlac II — Nădlac", ro: "Nădlac II — Nădlac" },
+  bors: { en: "Borș — Ártánd", tr: "Borș — Ártánd", ro: "Borș — Ártánd" },
+  horgos: { en: "Horgoš — Röszke", tr: "Horgoš — Röszke", ro: "Horgoš — Röszke" },
+  "horgos-road": {
+    en: "Horgoš motorway — Röszke",
+    tr: "Horgoš otoyolu — Röszke",
+    ro: "Autostrada Horgoš — Röszke",
+  },
+  tompa: { en: "Tompa — Kelebia", tr: "Tompa — Kelebia", ro: "Tompa — Kelebia" },
+  hercegszanto: {
+    en: "Hercegszántó — Backi Breg",
+    tr: "Hercegszántó — Backi Breg",
+    ro: "Hercegszántó — Backi Breg",
+  },
 };
 
 export function borderDisplayName(
