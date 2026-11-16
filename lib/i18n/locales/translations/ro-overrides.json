@@ -1,5 +1,6 @@
 {
   "home": {
+    "title": "Hartă și frontiere",
     "waitNow": "Așteptare acum"
   },
   "planning": {
@@ -342,6 +343,9 @@
   },
   "map": {
     "osmAttributionShort": "© OpenStreetMap",
-    "attributionDataFrom": "Date de la"
+    "attributionDataFrom": "Date de la",
+    "groupSections": "Zone cu atenție sporită",
+    "groupIncidents": "Incidente rutiere",
+    "groupHazards": "Pericole pe traseu"
   }
 }

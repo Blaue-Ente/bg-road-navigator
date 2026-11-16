@@ -33,16 +33,28 @@ const HAZARD_COLOR: Record<RoadHazardKind, string> = {
   conditions: "#1d4ed8",
 };
 
+function LegendGroupHeading({ children }: { children: string }) {
+  return (
+    <p className="mt-2 first:mt-0 text-[11px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
+      {children}
+    </p>
+  );
+}
+
 function LegendRow({
   color,
   label,
   line,
   diamond,
+  triangle,
+  ring,
 }: {
   color: string;
   label: string;
   line?: boolean;
   diamond?: boolean;
+  triangle?: boolean;
+  ring?: boolean;
 }) {
   return (
     <div className="flex items-center gap-2 text-xs text-[var(--waze-text-secondary)]">
@@ -52,9 +64,20 @@ function LegendRow({
             ? "h-1 w-8 shrink-0 rounded-full"
             : diamond
               ? "h-3 w-3 shrink-0 rotate-45"
-              : "h-3 w-3 shrink-0 rounded-full"
+              : triangle
+                ? "h-3 w-3 shrink-0"
+                : ring
+                  ? "box-border h-3 w-3 shrink-0 rounded-full border-2 border-white"
+                  : "h-3 w-3 shrink-0 rounded-full"
         }
-        style={{ backgroundColor: color }}
+        style={
+          triangle
+            ? {
+                backgroundColor: color,
+                clipPath: "polygon(50% 0, 100% 100%, 0 100%)",
+              }
+            : { backgroundColor: color }
+        }
         aria-hidden
       />
       <span>{label}</span>
@@ -74,6 +97,9 @@ export function MapLegend() {
     return [...kinds];
   }, [plan?.road_hazards]);
 
+  const showHotspotGroup = hotspotsOn;
+  const showHazardGroup = hazardKinds.length > 0;
+
   return (
     <details
       data-overlay-slot="legend"
@@ -81,7 +107,7 @@ export function MapLegend() {
     >
       <summary
         data-tap="legend-summary"
-        className="inline-flex min-h-11 cursor-pointer list-none items-center text-sm font-semibold text-[var(--waze-text)] marker:content-none [&::-webkit-details-marker]:hidden"
+        className="focus-ring inline-flex min-h-11 cursor-pointer list-none items-center rounded-md text-sm font-semibold text-[var(--waze-text)] marker:content-none [&::-webkit-details-marker]:hidden"
       >
         {m.map.legend}
       </summary>
@@ -90,29 +116,45 @@ export function MapLegend() {
         {hasAlt && (
           <LegendRow color={theme.routeAlt[0]} label={m.map.routeAlt} line />
         )}
-        {hotspotsOn &&
-          HOTSPOT_KEYS.map((key, index) => (
-            <LegendRow
-              key={key}
-              color={HOTSPOT_COLORS[index]!}
-              label={m.map[key]}
-            />
-          ))}
-        {hazardKinds.map((kind) => (
-          <LegendRow
-            key={kind}
-            color={HAZARD_COLOR[kind]}
-            label={hazardLabel(kind, locale)}
-            diamond
-          />
-        ))}
+
+        {showHotspotGroup && (
+          <>
+            <LegendGroupHeading>{m.map.groupSections}</LegendGroupHeading>
+            {HOTSPOT_KEYS.map((key, index) => (
+              <LegendRow
+                key={key}
+                color={HOTSPOT_COLORS[index]!}
+                label={m.map[key]}
+                ring
+              />
+            ))}
+          </>
+        )}
+
+        {showHazardGroup && (
+          <>
+            <LegendGroupHeading>{m.map.groupHazards}</LegendGroupHeading>
+            {hazardKinds.map((kind) => (
+              <LegendRow
+                key={kind}
+                color={HAZARD_COLOR[kind]}
+                label={hazardLabel(kind, locale)}
+                diamond
+              />
+            ))}
+          </>
+        )}
+
+        <LegendGroupHeading>{m.map.groupIncidents}</LegendGroupHeading>
         {TRAFFIC_KEYS.map((key, index) => (
           <LegendRow
             key={key}
             color={TRAFFIC_COLORS[index]!}
             label={m.map[key]}
+            triangle
           />
         ))}
+
         <p className="mt-1 text-[11px] leading-snug text-[var(--waze-text-muted)]">
           {m.map.bilingualHint}
         </p>

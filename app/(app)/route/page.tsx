@@ -341,7 +341,7 @@ export default function RoutePage() {
         />
 
         <details className="mb-6">
-          <summary className="cursor-pointer text-sm font-semibold text-[var(--waze-text)]">
+          <summary className="focus-ring inline-flex min-h-11 cursor-pointer list-none items-center rounded-md text-sm font-semibold text-[var(--waze-text)] marker:content-none [&::-webkit-details-marker]:hidden">
             {m.planning.corridors} ({TRAVEL_CORRIDORS.length})
           </summary>
           <div className="mt-3 flex flex-wrap gap-2">

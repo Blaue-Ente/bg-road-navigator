@@ -228,7 +228,7 @@ export function LocationSearchInput({
           aria-expanded={open && showSuggestions}
           aria-controls={listId}
           aria-autocomplete="list"
-          className={`min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] py-3 pr-10 text-sm text-[var(--waze-text)] outline-none placeholder:text-[var(--waze-text-muted)] focus:border-[var(--waze-accent)] ${
+          className={`focus-ring min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] py-3 pr-10 text-sm text-[var(--waze-text)] placeholder:text-[var(--waze-text-muted)] focus:border-[var(--waze-accent)] ${
             value?.countryCode && query === value.label ? "pl-10" : "px-3"
           }`}
         />

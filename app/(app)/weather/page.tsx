@@ -41,28 +41,14 @@ export default function WeatherPage() {
     });
   }, [data, samples]);
 
-  if (!activeRoute) {
-    return (
-      <div className="waze-page">
-        <div className="mx-auto max-w-2xl text-center">
-          <PageHeader
-            title={m.weatherPage.msg74a4274aa2}
-            subtitle={m.weatherPage.msgc96f2c4ba8}
-          />
-          <WazeCard className="py-8">
-            <p className="text-[var(--waze-text-secondary)]">{m.weatherPage.msg696d34d97f}</p>
-            <Link
-              href="/route"
-              className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm"
-            >{m.weatherPage.msg20e634be39}</Link>
-          </WazeCard>
-        </div>
-      </div>
-    );
-  }
+  const headerSubtitle = activeRoute
+    ? `${activeRoute.origin.label} → ${activeRoute.destination.label}`
+    : m.weatherPage.msgc96f2c4ba8;
 
-  if (isLoading) return <PageSkeleton label={m.weatherPage.msg98e1692afb} />;
-  if (error) {
+  if (activeRoute && isLoading) {
+    return <PageSkeleton label={m.weatherPage.msg98e1692afb} />;
+  }
+  if (activeRoute && error) {
     return (
       <ErrorState
         message={m.weatherPage.msg91ee2475bb}
@@ -73,41 +59,60 @@ export default function WeatherPage() {
 
   return (
     <div className="waze-page">
-      <div className="mx-auto max-w-4xl">
+      <div
+        className={`mx-auto ${activeRoute ? "max-w-4xl" : "max-w-2xl text-center"}`}
+      >
         <PageHeader
           title={m.weatherPage.msg74a4274aa2}
-          subtitle={`${activeRoute.origin.label} → ${activeRoute.destination.label}`}
+          subtitle={headerSubtitle}
         />
-        <p className="mb-4 text-xs text-[var(--waze-text-muted)]">
-          {m.weatherPage.openMeteo9763}
-        </p>
 
-        <WeatherAlertBanner alerts={data?.alerts ?? []} />
+        {!activeRoute ? (
+          <WazeCard className="py-8">
+            <p className="text-[var(--waze-text-secondary)]">
+              {m.weatherPage.msg696d34d97f}
+            </p>
+            <Link
+              href="/route"
+              className="waze-btn-primary mt-4 inline-block px-6 py-2.5 text-sm"
+            >
+              {m.weatherPage.msg20e634be39}
+            </Link>
+          </WazeCard>
+        ) : (
+          <>
+            <p className="mb-4 text-xs text-[var(--waze-text-muted)]">
+              {m.weatherPage.openMeteo9763}
+            </p>
 
-        <RouteWeatherTimeline weatherPoints={merged} />
+            <WeatherAlertBanner alerts={data?.alerts ?? []} />
 
-        <div className="mt-6 grid grid-cols-1 gap-3">
-          {merged.map((point, idx) => (
-            <WeatherCard
-              key={`${point.coords.lng}-${point.coords.lat}-${idx}`}
-              weather={point}
-              distance={point.distance_from_origin_km}
-            />
-          ))}
-        </div>
+            <RouteWeatherTimeline weatherPoints={merged} />
 
-        <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
-          {m.weatherPage.forecastFrom}{" "}
-          <a
-            href="https://open-meteo.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[var(--waze-accent-text)]"
-          >
-            Open-Meteo
-          </a>{" "}
-          (CC BY 4.0)
-        </p>
+            <div className="mt-6 grid grid-cols-1 gap-3">
+              {merged.map((point, idx) => (
+                <WeatherCard
+                  key={`${point.coords.lng}-${point.coords.lat}-${idx}`}
+                  weather={point}
+                  distance={point.distance_from_origin_km}
+                />
+              ))}
+            </div>
+
+            <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
+              {m.weatherPage.forecastFrom}{" "}
+              <a
+                href="https://open-meteo.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--waze-accent-text)]"
+              >
+                Open-Meteo
+              </a>{" "}
+              (CC BY 4.0)
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

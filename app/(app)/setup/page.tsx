@@ -47,29 +47,25 @@ export default function SetupPage() {
   );
   const { enabled } = useOperatorMode();
 
-  if (!enabled) {
-    return (
-      <div className="waze-page">
-        <div className="mx-auto max-w-2xl space-y-4">
-          <PageHeader
-            title={m.nav.services}
-            subtitle={m.setupPage.msg3735feec74}
-          />
-          <UserServicesPanel />
-          <p className="text-center text-xs text-[var(--waze-text-muted)]">{m.setupPage.msgc8680e81d3}</p>
-        </div>
-      </div>
-    );
-  }
+  const pageTitle = enabled ? m.nav.setup : m.nav.services;
+  const pageSubtitle = enabled
+    ? m.setupPage.msgfa46c58a10
+    : m.setupPage.msg3735feec74;
 
   return (
     <div className="waze-page">
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeader
-          title={m.nav.setup}
-          subtitle={m.setupPage.msgfa46c58a10}
-        />
+        <PageHeader title={pageTitle} subtitle={pageSubtitle} />
 
+        {!enabled ? (
+          <>
+            <UserServicesPanel />
+            <p className="text-center text-xs text-[var(--waze-text-muted)]">
+              {m.setupPage.msgc8680e81d3}
+            </p>
+          </>
+        ) : (
+          <>
         <WazeCard className="border-[var(--waze-accent)]/20 bg-[var(--waze-accent-muted)]">
           <p className="text-sm text-[var(--waze-text)]">
             {m.setupPage.msgc26e797ae9}
@@ -137,6 +133,8 @@ export default function SetupPage() {
             </li>
           </ul>
         </WazeCard>
+          </>
+        )}
       </div>
     </div>
   );

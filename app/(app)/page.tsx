@@ -28,6 +28,7 @@ export default function MapPage() {
 
   return (
     <>
+      <h1 className="sr-only">{m.home.title}</h1>
       <div
         className="pointer-events-none absolute top-0 left-0 z-10 w-full px-3 md:w-[380px]"
         style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}

@@ -65,6 +65,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.focus-ring:focus-visible {
+  outline: 2px solid var(--waze-accent);
+  outline-offset: 2px;
+}
+
 .waze-panel {
   background: var(--waze-surface);
   border: 1px solid var(--waze-border);
