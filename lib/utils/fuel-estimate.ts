@@ -1,6 +1,6 @@
 import { FUEL_TYPE_MAP, fuelTypeLabel, fuelTypeUnit } from "@/lib/constants/fuel-types";
 import type { Locale } from "@/lib/i18n/locale";
-import { catalog } from "@/lib/i18n/locale";
+import { catalog, localeTag } from "@/lib/i18n/locale";
 import type { Profile } from "@/types/profile.types";
 
 export interface FuelEstimate {
@@ -8,7 +8,10 @@ export interface FuelEstimate {
   consumption_per_100: number;
   unit: "L" | "kWh";
   fuel_needed: number;
-  cost_bgn: number;
+  /** @deprecated Use `cost_eur` — retained for older callers. */
+  cost_bgn?: number;
+  cost_eur: number;
+  cost_eur_formatted: string;
   price_per_unit: number;
   price_label: string;
   disclaimer_bg: string;
@@ -48,6 +51,14 @@ function consumptionForProfile(profile: Profile | null | undefined) {
   return base;
 }
 
+export function formatFuelCostEur(amount: number, locale: Locale = "bg"): string {
+  return new Intl.NumberFormat(localeTag(locale), {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 export function estimateRouteFuel(
   distanceKm: number,
   profile?: Profile | null,
@@ -57,7 +68,8 @@ export function estimateRouteFuel(
   const spec = consumptionForProfile(profile);
   const price = FUEL_TYPE_MAP[spec.priceKey];
   const fuelNeeded = (distanceKm / 100) * spec.per100;
-  const cost = fuelNeeded * price.default_price;
+  const costEur = fuelNeeded * price.default_price;
+  const roundedCost = Math.round(costEur * 100) / 100;
   const label = fuelTypeLabel(spec.priceKey, locale);
   const unit = fuelTypeUnit(spec.priceKey, locale);
   return {
@@ -65,7 +77,8 @@ export function estimateRouteFuel(
     consumption_per_100: spec.per100,
     unit: spec.unit,
     fuel_needed: Math.round(fuelNeeded * 10) / 10,
-    cost_bgn: Math.round(cost * 10) / 10,
+    cost_eur: roundedCost,
+    cost_eur_formatted: formatFuelCostEur(roundedCost, locale),
     price_per_unit: price.default_price,
     price_label: `${label} (${unit})`,
     disclaimer_bg: catalog(locale).fuel.estimateDisclaimer,

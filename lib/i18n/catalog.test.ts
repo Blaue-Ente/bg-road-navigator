@@ -88,7 +88,12 @@ describe("locale catalogs", () => {
 
   it("en values contain no transliteration markers", () => {
     const hits: string[] = [];
+    const allowBrandAttribution = new Set([
+      "fuel.attributionFuelo",
+      "fuel.attributionNakordoni",
+    ]);
     for (const [path, value] of Object.entries(flatten(en))) {
+      if (allowBrandAttribution.has(path)) continue;
       if (EN_TRANSLIT_MARKERS.test(value)) hits.push(`${path}: ${value}`);
     }
     expect(hits).toEqual([]);

@@ -81,6 +81,9 @@ const bgCore = {
     unitPerKwh: "€/кВтч",
     estimateDisclaimer:
       "Оценка по среден разход и референтна цена — не е реална цена на станция.",
+    attributionFuelo: "Данни: Fuelo",
+    attributionNakordoni: "Data by nakordoni.eu",
+    eurSuffix: "€",
   },
   prefs: {
     fuelStop: "Спирка за гориво или зареждане",
@@ -415,6 +418,15 @@ const bgCore = {
     ev: "EV зарядни",
     emptyStations:
       "В момента няма списък със станции. Оценката на разхода по-долу работи без него.",
+    noneHere:
+      "Няма станции в този район. Маршрутният план показва спирки за гориво вдълж пътя.",
+    unavailable:
+      "Списъкът със станции не отговаря в момента — вероятно POI услугата липсва или е недостъпна.",
+    planRouteHint:
+      "Планирай маршрут — спирките за гориво са в плана.",
+    planRouteLink: "Към планиране",
+    subtitleNearPlace:
+      "Бензиностанции и зарядни около избраното място",
     retry: "Опитай отново",
     retrying: "Зареждане…",
     emptyEv: "Списъкът със зарядни не отговори за този район.",
@@ -424,7 +436,7 @@ const bgCore = {
   fuelEstimate: {
     title: "Оценка на разход",
     disclaimer: "Оценка на разхода, не оферта за гориво.",
-    costLine: "{amount} {unit} · ≈ {cost} {currency}",
+    costLine: "{amount} {unit} · ≈ {cost}",
     consumptionLine: "{consumption} {unit}/100 {km} · {priceLabel} {price}",
   },
   route: {

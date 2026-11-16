@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/fuel-bulletin",
       "schedule": "30 6 * * *"
+    },
+    {
+      "path": "/api/cron/fuelo-averages",
+      "schedule": "45 7 * * *"
     }
   ]
 }

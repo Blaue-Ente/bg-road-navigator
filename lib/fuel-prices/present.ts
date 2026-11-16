@@ -7,9 +7,14 @@ import type { FuelCountryAverage, PlanPriceSource } from "@/lib/planner/types";
 import { FUEL_WORDS_BG, OIL_BULLETIN_SOURCE_LABEL_BG } from "@/lib/i18n/locales/fuel-present-bg";
 
 export const OIL_BULLETIN_SOURCE = "ec-oil-bulletin" as const;
+export const FUELO_AVERAGE_SOURCE = "fuelo" as const;
 
 export function oilBulletinSourceLabel(locale: Locale = "bg"): string {
   return catalog(locale).planner.fuel.oilBulletinLabel;
+}
+
+export function fueloSourceLabel(locale: Locale = "bg"): string {
+  return catalog(locale).fuel.attributionFuelo;
 }
 
 /** @deprecated Use oilBulletinSourceLabel("bg") */
@@ -18,6 +23,7 @@ export const OIL_BULLETIN_SOURCE_LABEL = OIL_BULLETIN_SOURCE_LABEL_BG;
 export interface KnownAverage {
   price: number;
   week: string;
+  source?: typeof OIL_BULLETIN_SOURCE | typeof FUELO_AVERAGE_SOURCE;
 }
 
 const INTL_LOCALE: Record<Locale, string> = {
@@ -107,6 +113,7 @@ export function stationSourceLabel(input: {
   const f = catalog(locale).planner.fuel;
   if (input.source === "e-control") return "E-Control";
   if (input.source === "tankerkoenig") return "Tankerkönig";
+  if (input.source === "nakordoni") return "nakordoni.eu";
   const hours = communityHours(input.observedAt, input.now);
   if (hours == null) return f.sourceCommunity;
   return formatTemplate(f.sourceCommunityAgo, { hours: String(hours) });
@@ -137,8 +144,13 @@ export function fuelAveragesForCountries(input: {
       week: price == null ? null : (known?.week ?? null),
       week_label_bg:
         price == null || !known?.week ? null : formatBulletinWeek(known.week),
-      source: price == null ? null : OIL_BULLETIN_SOURCE,
-      source_label_bg: oilBulletinSourceLabel(locale),
+      source: price == null ? null : (known?.source ?? OIL_BULLETIN_SOURCE),
+      source_label_bg:
+        price == null
+          ? oilBulletinSourceLabel(locale)
+          : known?.source === FUELO_AVERAGE_SOURCE
+            ? fueloSourceLabel(locale)
+            : oilBulletinSourceLabel(locale),
       label_bg: countryAverageLabel({
         countryName: localizedName,
         fuel: input.fuel,

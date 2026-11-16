@@ -17,7 +17,11 @@ export type WaitSource =
 
 export type StopKind = "fuel" | "charge" | "rest" | "overnight" | "sight";
 
-export type PlanPriceSource = "e-control" | "tankerkoenig" | "community";
+export type PlanPriceSource =
+  | "e-control"
+  | "tankerkoenig"
+  | "nakordoni"
+  | "community";
 
 export type { PriceBand };
 
@@ -31,7 +35,7 @@ export interface FuelCountryAverage {
   week: string | null;
   /** Historic name; holds text in the plan's locale. */
   week_label_bg: string | null;
-  source: "ec-oil-bulletin" | null;
+  source: "ec-oil-bulletin" | "fuelo" | null;
   /** Historic name; holds text in the plan's locale. */
   source_label_bg: string;
   /** Historic name; holds text in the plan's locale. */

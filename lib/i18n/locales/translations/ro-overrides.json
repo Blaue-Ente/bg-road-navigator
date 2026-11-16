@@ -288,7 +288,10 @@
     "unitPerLitre": "€/l",
     "unitPerKwh": "€/kWh",
     "estimateDisclaimer":
-      "Estimare după consum mediu și preț de referință — nu este prețul de la stație."
+      "Estimare după consum mediu și preț de referință — nu este prețul de la stație.",
+    "attributionFuelo": "Date: Fuelo",
+    "attributionNakordoni": "Data by nakordoni.eu",
+    "eurSuffix": "€"
   },
   "tripHeuristic": {
     "restTitle": "Pauză",
@@ -343,6 +346,16 @@
   },
   "vignetteFormat": {
     "validityTemplate": "Valabilitate (verificată la {checked}): {validity}"
+  },
+  "fuelPage": {
+    "noneHere": "Nu sunt stații în această zonă. Planificarea arată opriri la combustibil pe traseu.",
+    "unavailable": "Lista de stații nu răspunde — serviciul POI poate lipsi sau fi indisponibil.",
+    "planRouteHint": "Planifică ruta — opririle la combustibil sunt în plan.",
+    "planRouteLink": "La planificare",
+    "subtitleNearPlace": "Benzinării și încărcare lângă zona selectată"
+  },
+  "fuelEstimate": {
+    "costLine": "{amount} {unit} · ≈ {cost}"
   },
   "map": {
     "osmAttributionShort": "© OpenStreetMap",

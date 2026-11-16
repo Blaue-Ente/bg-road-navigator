@@ -22,6 +22,7 @@ export type ServiceId =
   | "oci_geo"
   | "oci_poi"
   | "cron_warm"
+  | "fuelo"
   | "app_url";
 
 export interface ServiceStatusItem {
@@ -207,6 +208,15 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       cost: "self_host",
       priority: "optional",
       env_vars: ["CRON_SECRET"],
+    },
+    {
+      id: "fuelo",
+      label: "Fuelo country averages",
+      unlocks_bg: "Дневни средни цени по държава (само /prices/average, free план)",
+      configured: hasEnv("FUELO_API_KEY"),
+      cost: "freemium",
+      priority: "optional",
+      env_vars: ["FUELO_API_KEY"],
     },
   ];
 }

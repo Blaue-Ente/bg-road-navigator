@@ -18,7 +18,7 @@ export interface AnnotatedPlace extends CorridorPlace {
   /** National average used to colour this station. Null when the bulletin has no row. */
   nationalAvgPerL: number | null;
   priceBasis: "official" | "community" | null;
-  priceSource: "e-control" | "tankerkoenig" | "community" | null;
+  priceSource: "e-control" | "tankerkoenig" | "nakordoni" | "community" | null;
   observedAt: string | null;
   savingsEur: number | null;
   flagWeights?: Record<string, number>;

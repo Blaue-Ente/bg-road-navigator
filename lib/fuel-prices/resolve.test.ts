@@ -10,7 +10,7 @@ function fetchMock(payload: unknown, status = 200) {
 }
 
 describe("fuel price providers", () => {
-  it.each(["BG", "RS", "HU", "RO", "TR"])(
+  it.each(["RS", "HU", "TR"])(
     "returns price unknown for %s and does not call a provider",
     async (countryCode) => {
       const fetchImpl = fetchMock([]);

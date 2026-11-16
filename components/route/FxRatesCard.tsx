@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { FxQuote } from "@/lib/api-clients/frankfurter";
 
-const SHOW = ["BGN", "USD", "GBP", "CHF", "TRY", "RON", "HUF"] as const;
+const SHOW = ["USD", "GBP", "CHF", "TRY", "RON", "HUF"] as const;
 
 export function FxRatesCard() {
   const m = useMessages();
