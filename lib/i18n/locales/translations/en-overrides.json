@@ -283,7 +283,10 @@
     "unitPerLitre": "€/l",
     "unitPerKwh": "€/kWh",
     "estimateDisclaimer":
-      "Estimate from average consumption and reference price — not an actual station price."
+      "Estimate from average consumption and reference price — not an actual station price.",
+    "attributionFuelo": "Prices: Fuelo",
+    "attributionNakordoni": "Data by nakordoni.eu",
+    "eurSuffix": "€"
   },
   "tripHeuristic": {
     "restTitle": "Rest break",
@@ -344,5 +347,15 @@
     "groupSections": "High-attention sections",
     "groupIncidents": "Road incidents",
     "groupHazards": "Hazards on your route"
+  },
+  "fuelPage": {
+    "noneHere": "No stations in this area. Trip planning lists fuel stops along the route.",
+    "unavailable": "The station list is not responding — the POI service may be missing or down.",
+    "planRouteHint": "Plan a route — fuel stops are in the trip plan.",
+    "planRouteLink": "Plan route",
+    "subtitleNearPlace": "Petrol and EV chargers near the selected area"
+  },
+  "fuelEstimate": {
+    "costLine": "{amount} {unit} · ≈ {cost}"
   }
 }

@@ -285,7 +285,10 @@
     "unitPerLitre": "€/l",
     "unitPerKwh": "€/kWh",
     "estimateDisclaimer":
-      "Ortalama tüketim ve referans fiyata göre tahmin — istasyon fiyatı değil."
+      "Ortalama tüketim ve referans fiyata göre tahmin — istasyon fiyatı değil.",
+    "attributionFuelo": "Veri: Fuelo",
+    "attributionNakordoni": "Data by nakordoni.eu",
+    "eurSuffix": "€"
   },
   "tripHeuristic": {
     "restTitle": "Mola",
@@ -340,6 +343,16 @@
   },
   "vignetteFormat": {
     "validityTemplate": "Geçerlilik ({checked} tarihinde kontrol edildi): {validity}"
+  },
+  "fuelPage": {
+    "noneHere": "Bu bölgede istasyon yok. Rota planında yol boyunca yakıt durakları görünür.",
+    "unavailable": "İstasyon listesi yanıt vermiyor — POI hizmeti eksik veya kapalı olabilir.",
+    "planRouteHint": "Rota planla — yakıt durakları planda.",
+    "planRouteLink": "Planlamaya git",
+    "subtitleNearPlace": "Seçilen bölge civarında benzin ve şarj"
+  },
+  "fuelEstimate": {
+    "costLine": "{amount} {unit} · ≈ {cost}"
   },
   "map": {
     "osmAttributionShort": "© OpenStreetMap",

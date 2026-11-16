@@ -1,6 +1,6 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { estimateRouteFuel } from "@/lib/utils/fuel-estimate";
@@ -8,8 +8,9 @@ import { useUserStore } from "@/lib/stores/user.store";
 
 export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
   const m = useMessages();
+  const locale = useLocale();
   const profile = useUserStore((s) => s.profile);
-  const estimate = estimateRouteFuel(distanceKm, profile);
+  const estimate = estimateRouteFuel(distanceKm, profile, locale);
 
   if (!estimate) return null;
 
@@ -21,8 +22,7 @@ export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
         {formatTemplate(m.fuelEstimate.costLine, {
           amount: String(estimate.fuel_needed),
           unit: estimate.unit,
-          cost: String(estimate.cost_bgn),
-          currency: m.units.lv,
+          cost: estimate.cost_eur_formatted,
         })}
       </p>
       <p className="mt-1 text-xs text-[var(--waze-text-secondary)]">

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getEVStations } from "@/lib/api-clients/opencharge";
-import { getFuelStations } from "@/lib/api-clients/tomtom-places";
 import { EuropeBboxSchema, EuropePointSchema } from "@/lib/server/geo-schema";
+import {
+  loadFuelStationsAt,
+  mergeFuelStationLists,
+} from "@/lib/fuel/load-route-stations";
+import { readPoiConfig } from "@/lib/poi/config";
 import {
   bboxFromCoordinates,
   sampleRouteCoordinates,
@@ -40,7 +44,7 @@ function parseRouteParam(raw: string | undefined): Array<[number, number]> {
     });
 }
 
-function dedupeFuel(stations: FuelStation[]): FuelStation[] {
+function dedupeEv(stations: EVStation[]): EVStation[] {
   const seen = new Set<string>();
   return stations.filter((s) => {
     const key = s.id || `${s.coords.lng.toFixed(4)},${s.coords.lat.toFixed(4)}`;
@@ -50,14 +54,12 @@ function dedupeFuel(stations: FuelStation[]): FuelStation[] {
   });
 }
 
-function dedupeEv(stations: EVStation[]): EVStation[] {
-  const seen = new Set<string>();
-  return stations.filter((s) => {
-    const key = s.id || `${s.coords.lng.toFixed(4)},${s.coords.lat.toFixed(4)}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+function stationsConfigured(): boolean {
+  return Boolean(
+    readPoiConfig() ||
+      process.env.TOMTOM_API_KEY?.trim() ||
+      process.env.NAKORDONI_API_KEY?.trim()
+  );
 }
 
 export async function GET(request: NextRequest) {
@@ -79,9 +81,8 @@ export async function GET(request: NextRequest) {
     }
 
     const routeCoords = parseRouteParam(parsed.data.route);
-    const hasKeys = Boolean(
-      process.env.TOMTOM_API_KEY || process.env.OPENCHARGE_API_KEY
-    );
+    const hasEvKey = Boolean(process.env.OPENCHARGE_API_KEY?.trim());
+    const configured = stationsConfigured();
 
     let fuelStations: FuelStation[] = [];
     let evStations: EVStation[] = [];
@@ -93,13 +94,13 @@ export async function GET(request: NextRequest) {
       const batches = await Promise.all(
         samples.map(async (point) => {
           const [fuel, ev] = await Promise.all([
-            getFuelStations(point.lng, point.lat, 25),
-            getEVStations(point.lng, point.lat, 25),
+            loadFuelStationsAt(point.lng, point.lat, 25),
+            hasEvKey ? getEVStations(point.lng, point.lat, 25) : Promise.resolve([]),
           ]);
           return { fuel, ev };
         })
       );
-      fuelStations = dedupeFuel(batches.flatMap((b) => b.fuel));
+      fuelStations = mergeFuelStationLists(batches.map((b) => b.fuel));
       evStations = dedupeEv(batches.flatMap((b) => b.ev));
     } else {
       const bboxCandidate = {
@@ -133,8 +134,10 @@ export async function GET(request: NextRequest) {
       mode = hasBbox ? "bbox" : "default";
 
       [fuelStations, evStations] = await Promise.all([
-        getFuelStations(centerLng, centerLat),
-        getEVStations(centerLng, centerLat),
+        loadFuelStationsAt(centerLng, centerLat),
+        hasEvKey
+          ? getEVStations(centerLng, centerLat)
+          : Promise.resolve([] as EVStation[]),
       ]);
     }
 
@@ -156,7 +159,7 @@ export async function GET(request: NextRequest) {
     const response: FuelApiResponse = {
       fuelStations,
       evStations,
-      degraded: !hasKeys,
+      degraded: !configured,
       mode,
       bbox,
     };

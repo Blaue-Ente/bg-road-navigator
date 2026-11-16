@@ -94,10 +94,11 @@ describe("emergency vignette notes", () => {
     expect(countryName("GR", "en")).toBe("Greece");
   });
 
-  it("localizes roadside assistance label for Bulgaria", () => {
+  it("keeps roadside 112 for Bulgaria with an honest roadside label", () => {
     const bg = EMERGENCY_DATA.find((row) => row.country_code === "BG");
-    expect(pickText("en", bg!.roadside_name)).toBe(
-      "Roadside assistance / insurer"
-    );
+    expect(bg?.roadside_assistance).toBe("112");
+    expect(pickText("en", bg!.roadside_name)).toContain("112");
+    expect(pickText("en", bg!.roadside_name)).toMatch(/146|motor club/i);
   });
+
 });

@@ -11,7 +11,7 @@ export interface KnownPrice {
   amount: number;
   currency: "EUR";
   unit: "L";
-  source: "e-control" | "tankerkoenig";
+  source: "e-control" | "tankerkoenig" | "nakordoni";
   observedAt: string;
   stationName: string | null;
   brand: string | null;

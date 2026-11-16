@@ -28,4 +28,11 @@ describe("estimateRouteFuel", () => {
     expect(estimate?.fuel_needed).toBe(13);
     expect(estimate?.disclaimer_bg).toContain("Оценка");
   });
+
+  it("returns EUR cost, not BGN", () => {
+    const estimate = estimateRouteFuel(1000, dieselCar);
+    expect(estimate?.cost_eur).toBeGreaterThan(0);
+    expect(estimate?.cost_eur_formatted).toMatch(/€|EUR/);
+    expect(estimate?.cost_bgn).toBeUndefined();
+  });
 });

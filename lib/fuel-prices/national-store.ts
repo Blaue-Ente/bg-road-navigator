@@ -2,7 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/lib/db";
 import { fuelNationalAverages } from "@/lib/db/schema";
 import type { BulletinPrice } from "@/lib/fuel-prices/oil-bulletin";
-import { OIL_BULLETIN_SOURCE } from "@/lib/fuel-prices/present";
+import { FUELO_AVERAGE_SOURCE, OIL_BULLETIN_SOURCE } from "@/lib/fuel-prices/present";
 
 const SOURCE = OIL_BULLETIN_SOURCE;
 const memory = new Map<string, { week: string; price: number }>();
@@ -10,7 +10,7 @@ const memory = new Map<string, { week: string; price: number }>();
 export interface StoredAverage {
   price: number;
   week: string;
-  source: typeof OIL_BULLETIN_SOURCE;
+  source: typeof OIL_BULLETIN_SOURCE | typeof FUELO_AVERAGE_SOURCE;
 }
 
 export function clearAveragesForTests() {

@@ -52,7 +52,7 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
           <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
             <span className="text-xs text-[var(--waze-text-muted)]">{m.fuel.msga5ed481eca}</span>
             <div className="font-semibold text-[var(--waze-text)]">
-              {station.prices.diesel.toFixed(2)} {m.units.lv}
+              {station.prices.diesel.toFixed(2)} {m.fuel.eurSuffix}
             </div>
           </div>
         )}
@@ -60,7 +60,7 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
           <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
             <span className="text-xs text-[var(--waze-text-muted)]">{m.fuel.msg84992a8437}</span>
             <div className="font-semibold text-[var(--waze-text)]">
-              {station.prices.petrol95.toFixed(2)} {m.units.lv}
+              {station.prices.petrol95.toFixed(2)} {m.fuel.eurSuffix}
             </div>
           </div>
         )}
@@ -68,7 +68,7 @@ export function FuelStationCard({ station, onSelect }: FuelStationCardProps) {
           <div className="rounded-xl bg-[var(--waze-surface-elevated)] p-2">
             <span className="text-xs text-[var(--waze-text-muted)]">{m.fuel.msg5d1111cb05}</span>
             <div className="font-semibold text-[var(--waze-text)]">
-              {station.prices.lpg.toFixed(2)} {m.units.lv}
+              {station.prices.lpg.toFixed(2)} {m.fuel.eurSuffix}
             </div>
           </div>
         )}

@@ -9,7 +9,7 @@ import { listPins } from "@/lib/db/community";
 import { isDatabaseConfigured } from "@/lib/db";
 import { listValidFuelReports } from "@/lib/db/fuel-reports";
 import { listPlaceFlags } from "@/lib/db/place-flags";
-import { readLatestAverageDetails } from "@/lib/fuel-prices/national-store";
+import { readMergedAverageDetails } from "@/lib/fuel-prices/average-sources";
 import { fuelAveragesForCountries } from "@/lib/fuel-prices/present";
 import { hazardsAlongRoute } from "@/lib/hazards/along-route";
 import { loadRoadHazards } from "@/lib/hazards/datex";
@@ -497,11 +497,11 @@ export async function runTripPlan(input: TripPlanRequest) {
         withChildren: prefs.with_children,
       }),
       bulletinFuel
-        ? readLatestAverageDetails(countries, bulletinFuel)
+        ? readMergedAverageDetails(countries, bulletinFuel)
         : Promise.resolve(
             new Map<
               string,
-              { price: number; week: string; source: "ec-oil-bulletin" }
+              { price: number; week: string; source: "ec-oil-bulletin" | "fuelo" }
             >()
           ),
       input.vehicle.energy === "charge"

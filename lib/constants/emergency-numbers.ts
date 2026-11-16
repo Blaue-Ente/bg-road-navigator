@@ -70,10 +70,10 @@ const ROWS: EmergencyInput[] = [
     roadside_assistance: "112",
     roadside_assistance_name: "Roadside assistance / insurer",
     roadside_name: {
-      bg: "Пътна помощ / застраховател",
-      en: "Roadside assistance / insurer",
-      tr: "Yol yardımı / sigortacı",
-      ro: "Asistență rutieră / asigurator",
+      bg: "Пътна помощ: няма единен държавен номер. При опасност — 112; иначе се обадете на своя застраховател или автоклуб (напр. СБА 146 — платена услуга).",
+      en: "Roadside help: no single state number. In danger call 112; otherwise call your insurer or motor club (e.g. UAB 146 — paid service).",
+      tr: "Yol yardımı: tek resmî numara yok. Tehlikede 112; aksi halde sigortacınız veya otomobil kulübünüz (ör. UAB 146 — ücretli).",
+      ro: "Asistență rutieră: nu există un număr unic de stat. În caz de pericol 112; altfel apelați asiguratorul sau clubul auto (ex. UAB 146 — serviciu plătit).",
     },
     towing_service: "112",
     notes: {
