@@ -1,4 +1,18 @@
 {
+  "home": {
+    "waitNow": "Wait now"
+  },
+  "sheet": {
+    "waitAtArrival": "On arrival (~{time}, {place}): {minutes} min",
+    "waitNowLine": "Now: {minutes} min"
+  },
+  "routeChoice": {
+    "waitSuffix": "min wait",
+    "waitAtArrival": "{minutes} min on arrival"
+  },
+  "borders": {
+    "asOf": "as of {time} Sofia time"
+  },
   "nav": {
     "weather": "Weather",
     "hotels": "Rest stops"

@@ -23,6 +23,7 @@ import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
 import { parseDayStats, parseForecast } from "@/lib/nakordoni/parse";
 import { loadCorridorPlaces } from "@/lib/poi/load-corridor";
 import type { CorridorPlace } from "@/lib/poi/types";
+import { timeZoneForBorderCrossing } from "@/lib/planner/border-wait-view";
 import { assembleTripPlan } from "@/lib/planner/assemble";
 import { attachStops } from "@/lib/planner/attach-stops";
 import {
@@ -32,6 +33,7 @@ import {
   preferenceBorderCandidate,
   selectCandidateBorders,
   selectHungarySerbiaBorders,
+  rescoreBordersAfterWaitUpdate,
   scoreBorderOptions,
   tripMayCrossBulgaria,
   tripMayCrossHungarySerbia,
@@ -255,6 +257,7 @@ export async function runTripPlan(input: TripPlanRequest) {
         eta,
         now,
         locale,
+        timeZone: timeZoneForBorderCrossing(candidate.id),
         forecast: cached?.forecast ?? null,
         dayStats: cached?.dayStats ?? null,
         current: cached?.current ?? null,
@@ -460,6 +463,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     traffic,
     locale,
   });
+  borders = rescoreBordersAfterWaitUpdate(borders, locale);
   const chosenBorder = borders.find((border) => border.chosen) ?? null;
   const borderWaitForWeather = chosenBorder?.wait.minutes ?? 0;
 
@@ -925,6 +929,7 @@ function refreshBorderWaits(input: {
     eta,
     now: input.now,
     locale: input.locale,
+    timeZone: timeZoneForBorderCrossing(candidate.id),
     forecast: cached?.forecast ?? null,
     dayStats: cached?.dayStats ?? null,
     current: cached?.current ?? null,

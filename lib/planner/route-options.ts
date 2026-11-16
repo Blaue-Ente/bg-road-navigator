@@ -5,6 +5,7 @@ import { formatTemplate } from "@/lib/i18n/format-template";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { countriesAlongRoute } from "@/lib/geo/countries-along-route";
 import type { ScoredBorder } from "@/lib/planner/borders";
+import { planWaitMinutes } from "@/lib/planner/border-wait-view";
 import {
   distanceToPolylineKm,
   lineLengthKm,
@@ -121,7 +122,7 @@ export function buildRouteOptions(
     [number, number]
   >;
   const chosenId = input.chosenBorder?.borderId ?? null;
-  const primaryWait = input.chosenBorder?.wait.minutes ?? 0;
+  const primaryWait = planWaitMinutes(input.chosenBorder?.wait) ?? 0;
   const primaryCommunity = input.chosenBorder?.communityPenaltyMin ?? 0;
   const primaryTotal =
     input.chosenRoute.duration_min + primaryWait + primaryCommunity;
@@ -250,7 +251,7 @@ function pickBorderAlternative(
       }),
       distance_km: Math.round(routed.distance_km),
       drive_min: Math.round(routed.duration_min),
-      wait_min: border.wait.minutes,
+      wait_min: planWaitMinutes(border.wait) ?? 0,
       total_min: Math.round(border.totalMin),
       countries: charges.countries,
       vignette_codes: charges.vignette_codes,
@@ -288,7 +289,7 @@ function pickValhallaAlternative(
   for (const border of input.borders) {
     const near = distanceToPolylineKm(line, border.coords).distanceKm;
     if (near <= ON_PATH_KM) {
-      waitMin = border.wait.minutes;
+      waitMin = planWaitMinutes(border.wait) ?? 0;
       borderId = border.borderId;
       label = formatTemplate(labels.via, {
         name: borderDisplayName(locale, {

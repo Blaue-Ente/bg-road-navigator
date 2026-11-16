@@ -2,21 +2,18 @@
 
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
-import { borderWaitView } from "@/lib/planner/border-wait-view";
+import {
+  borderWaitClockLines,
+  borderWaitView,
+} from "@/lib/planner/border-wait-view";
 import type { MessageCatalog } from "@/lib/i18n";
-import { formatZonedHourLabel } from "@/lib/planner/wait";
 import type { BorderChoice, WaitSource } from "@/lib/planner/types";
 
-export function BorderWaitBlock({
-  chosen,
-  arrivalAt,
-}: {
-  chosen: BorderChoice;
-  arrivalAt?: Date | string | null;
-}) {
+export function BorderWaitBlock({ chosen }: { chosen: BorderChoice }) {
   const m = useMessages();
   const locale = useLocale();
   const view = borderWaitView(chosen.wait);
+  const clock = borderWaitClockLines(chosen.wait, locale, chosen.border_id);
   const displayName = borderDisplayName(locale, {
     crossing_id: chosen.border_id,
     name_bg: chosen.name_bg,
@@ -31,13 +28,16 @@ export function BorderWaitBlock({
           {m.sheet.borderUnlicensed}
         </p>
       ) : null}
-      <p className="mt-1 text-[var(--waze-text)]">
-        {m.sheet.borderWait}
-        {arrivalAt
-          ? `${m.sheet.arrivalPrefix} ${formatZonedHourLabel(new Date(arrivalAt))}`
-          : ""}
-        : {view.minutes} {m.prefs.minutes}
-      </p>
+      {clock.noData ? (
+        <p className="mt-1 text-[var(--waze-text)]">
+          {m.sheet.borderWait}: {m.prefs.borderNoWaitData}
+        </p>
+      ) : (
+        <div className="mt-1 space-y-0.5 text-[var(--waze-text)]">
+          {clock.now ? <p>{clock.now.line}</p> : null}
+          {clock.arrival ? <p>{clock.arrival.line}</p> : null}
+        </div>
+      )}
       {view.trafficDelayMin != null ? (
         <p className="text-[var(--waze-text)]">
           {m.sheet.borderTraffic}: {view.trafficDelayMin} {m.prefs.minutes}

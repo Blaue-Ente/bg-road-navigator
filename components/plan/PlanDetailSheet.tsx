@@ -29,10 +29,6 @@ import {
   formatClockDuration,
   whySummary,
 } from "@/lib/planner/itinerary";
-import {
-  sleepShiftsFromPlanStops,
-  wallClockEta,
-} from "@/lib/planner/breaks";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
@@ -429,15 +425,7 @@ function DetailBody({
           {plan.border.note}
         </p>
         {chosen ? (
-          <BorderWaitBlock
-            chosen={chosen}
-            arrivalAt={wallClockEta({
-              departAt: new Date(plan.depart_at),
-              drivingMin: chosen.drive_min,
-              extraWaitMin: 0,
-              sleepShifts: sleepShiftsFromPlanStops(plan.stops),
-            })}
-          />
+          <BorderWaitBlock chosen={chosen} />
         ) : (
           <p className="mt-2 text-sm text-[var(--waze-text)]">
             {m.sheet.borderDirect}

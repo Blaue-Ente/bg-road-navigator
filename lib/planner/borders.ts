@@ -342,6 +342,30 @@ export function applyPreferredBorder(
   });
 }
 
+/** Recompute totals and chosen/slow reason text after the final border ETA wait is known. */
+export function rescoreBordersAfterWaitUpdate(
+  borders: ScoredBorder[],
+  locale: Locale = "bg"
+): ScoredBorder[] {
+  const b = catalog(locale).planner.border;
+  return borders.map((border) => {
+    const totalMin =
+      border.driveMin + border.wait.minutes + border.communityPenaltyMin;
+    if (!border.chosen) {
+      return { ...border, totalMin };
+    }
+    let reason = border.reason;
+    if (border.reasonCode === "lowest_total") {
+      reason = chosenReason({ ...border, totalMin }, locale);
+    } else if (border.reasonCode === "preferred") {
+      reason = formatTemplate(b.preferred, {
+        name: borderName(locale, border),
+      });
+    }
+    return { ...border, totalMin, reason };
+  });
+}
+
 function chosenReason(
   option: BorderScoreInput & { totalMin: number },
   locale: Locale

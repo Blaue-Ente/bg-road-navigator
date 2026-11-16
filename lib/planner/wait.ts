@@ -73,10 +73,19 @@ const FORECAST_WINDOW_MS = 75 * 60 * 1000;
  */
 export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
   const locale = input.locale ?? "bg";
-  if (input.licensed === false) {
-    if (input.hatarinfo) return hatarinfoWait(input, locale);
-    return unlicensedWait(input, locale);
-  }
+  const wait =
+    input.licensed === false
+      ? input.hatarinfo
+        ? hatarinfoWait(input, locale)
+        : unlicensedWait(input, locale)
+      : expectedWaitLicensed(input, locale);
+  return attachWaitClock(input, wait);
+}
+
+function expectedWaitLicensed(
+  input: ExpectedWaitInput,
+  locale: Locale
+): WaitEstimate {
   const forecast = matchForecast(
     input.forecast,
     input.eta,
@@ -164,6 +173,11 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     };
   }
 
+  return unavailableWait(locale, w.noWaitData);
+}
+
+function unavailableWait(locale: Locale, label: string): WaitEstimate {
+  const w = catalog(locale).planner.wait;
   return {
     source: "unavailable",
     estimate: true,
@@ -174,9 +188,43 @@ export function expectedWait(input: ExpectedWaitInput): WaitEstimate {
     observed_at: null,
     age_min: null,
     age_label: formatAge(null, locale, w.noData),
-    label_bg: w.noWaitData,
+    label_bg: label,
     attribution: null,
   };
+}
+
+function attachWaitClock(
+  input: ExpectedWaitInput,
+  wait: WaitEstimate
+): WaitEstimate {
+  if (wait.metric === "none" || wait.source === "unavailable") {
+    return {
+      ...wait,
+      eta_iso: input.eta.toISOString(),
+      now_minutes: null,
+    };
+  }
+  const nowWait = expectedWaitAtEtaOnly(input, input.now);
+  const nowMinutes =
+    nowWait.minutes === wait.minutes ? null : nowWait.minutes;
+  return {
+    ...wait,
+    eta_iso: input.eta.toISOString(),
+    now_minutes: nowMinutes,
+  };
+}
+
+/** Internal: wait at `eta` without re-attaching clock fields (avoids recursion). */
+function expectedWaitAtEtaOnly(
+  input: ExpectedWaitInput,
+  eta: Date
+): WaitEstimate {
+  const locale = input.locale ?? "bg";
+  if (input.licensed === false) {
+    if (input.hatarinfo) return hatarinfoWait({ ...input, eta }, locale);
+    return unlicensedWait({ ...input, eta }, locale);
+  }
+  return expectedWaitLicensed({ ...input, eta }, locale);
 }
 
 function hatarinfoWait(input: ExpectedWaitInput, locale: Locale): WaitEstimate {

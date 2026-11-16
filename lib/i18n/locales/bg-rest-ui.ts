@@ -265,6 +265,7 @@ export const bgRestUi = {
       motorcycle: "Мотоциклет",
     },
     waitMinutesSuffix: "мин",
+    asOf: "към {time} ч. българско време",
     peakWait: "Пик около {hour}:00 — {minutes} мин",
     hourWaitTooltip: "{hour}:00 — {minutes} мин",
     msg38f8659f01: "< 30 мин",

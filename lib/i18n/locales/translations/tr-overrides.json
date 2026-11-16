@@ -1,4 +1,18 @@
 {
+  "home": {
+    "waitNow": "Şimdiki bekleme"
+  },
+  "sheet": {
+    "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",
+    "waitNowLine": "Şimdi: {minutes} dk"
+  },
+  "routeChoice": {
+    "waitSuffix": "dk bekleme",
+    "waitAtArrival": "Varışta {minutes} dk"
+  },
+  "borders": {
+    "asOf": "Bulgaristan saatiyle {time}"
+  },
   "nav": {
     "weather": "Hava durumu",
     "hotels": "Dinlenme yerleri"

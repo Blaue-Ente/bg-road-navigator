@@ -157,6 +157,10 @@ export interface WaitEstimate {
   unlicensed_market?: boolean;
   /** TomTom delay near the crossing. Present only for an unlicensed market. */
   traffic_delay_min?: number | null;
+  /** Wait at departure-time "now" when it differs from arrival-time wait. */
+  now_minutes?: number | null;
+  /** Border reach instant used for the arrival wait estimate. */
+  eta_iso?: string | null;
 }
 
 export interface BorderChoice {

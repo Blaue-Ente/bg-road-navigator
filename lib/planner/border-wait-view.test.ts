@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { borderWaitView } from "@/lib/planner/border-wait-view";
+import {
+  borderWaitClockLines,
+  borderWaitView,
+  planWaitMinutes,
+} from "@/lib/planner/border-wait-view";
 import { NAKORDONI_ATTRIBUTION } from "@/lib/planner/wait";
 import type { WaitEstimate } from "@/lib/planner/types";
 
@@ -67,6 +71,61 @@ describe("borderWaitView", () => {
     expect(view.attribution?.text).toBe("Източник: Унгарска полиция (Hárinfó)");
     expect(view.trafficDelayMin).toBe(6);
     expect(view.source).toBe("hatarinfo");
+  });
+
+  it("returns null plan wait for unavailable data", () => {
+    expect(
+      planWaitMinutes(
+        wait({
+          source: "unavailable",
+          minutes: 0,
+          metric: "none",
+          attribution: null,
+        })
+      )
+    ).toBeNull();
+    const clock = borderWaitClockLines(
+      wait({
+        source: "unavailable",
+        minutes: 0,
+        metric: "none",
+        attribution: null,
+      }),
+      "bg",
+      "nadlac"
+    );
+    expect(clock.noData).toBe(true);
+    expect(clock.arrival).toBeNull();
+  });
+
+  it("renders arrival and now lines when they differ", () => {
+    const lines = borderWaitClockLines(
+      wait({
+        minutes: 60,
+        now_minutes: 30,
+        eta_iso: "2026-11-16T08:00:00.000Z",
+      }),
+      "bg",
+      "kalotina"
+    );
+    expect(lines.now?.minutes).toBe(30);
+    expect(lines.arrival?.minutes).toBe(60);
+    expect(lines.arrival?.line).toContain("60");
+    expect(lines.now?.line).toContain("30");
+  });
+
+  it("hides the now line when it matches arrival", () => {
+    const lines = borderWaitClockLines(
+      wait({
+        minutes: 45,
+        now_minutes: null,
+        eta_iso: "2026-11-16T08:00:00.000Z",
+      }),
+      "en",
+      "kalotina"
+    );
+    expect(lines.now).toBeNull();
+    expect(lines.arrival?.minutes).toBe(45);
   });
 
   it("omits a missing traffic delay", () => {
