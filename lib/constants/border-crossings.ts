@@ -52,13 +52,13 @@ const BORDER_NOTES: Record<string, Localized> = {
   "danube-bridge-vidin": {
     bg: "Мост над Дунав към Румъния. Важна връзка с Централна Европа.",
     en: "Danube bridge into Romania. A key link to Central Europe.",
-    tr: "Romanya'ya giden Tuna köprüsü. Orta Avrupa için önemli bir bağlantı.",
+    tr: "Romanya'ya giden Tuna Köprüsü. Orta Avrupa için önemli bir bağlantı.",
     ro: "Pod peste Dunăre spre România. Legătură importantă cu Europa Centrală.",
   },
   "danube-bridge-ruse": {
     bg: "Вторият мост над Дунав. Свързва Русе с Джурджу.",
     en: "The second Danube bridge. Connects Ruse with Giurgiu.",
-    tr: "İkinci Tuna köprüsü. Ruse ile Giurgiu'yu birbirine bağlar.",
+    tr: "İkinci Tuna Köprüsü. Ruse ile Giurgiu'yu birbirine bağlar.",
     ro: "Al doilea pod peste Dunăre. Leagă Ruse de Giurgiu.",
   },
   gyueshevo: {
@@ -119,8 +119,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       30, 35, 30, 25, 20, 18,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.kalotina.bg,
     notes: BORDER_NOTES.kalotina,
     document_codes: ["id_card", "passport"],
@@ -139,8 +139,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       35, 40, 35, 30, 25, 22,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.kulata.bg,
     notes: BORDER_NOTES.kulata,
     document_codes: ["id_card", "passport"],
@@ -159,8 +159,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       50, 60, 50, 40, 35, 32,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Паспорт", "Виза (за някои националности)"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES["kapitan-andreevo"].bg,
     notes: BORDER_NOTES["kapitan-andreevo"],
     document_codes: ["passport", "visa_some"],
@@ -179,8 +179,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       40, 45, 40, 35, 30, 27,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES["danube-bridge-vidin"].bg,
     notes: BORDER_NOTES["danube-bridge-vidin"],
     document_codes: ["id_card", "passport"],
@@ -199,8 +199,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       45, 50, 45, 40, 35, 30,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES["danube-bridge-ruse"].bg,
     notes: BORDER_NOTES["danube-bridge-ruse"],
     document_codes: ["id_card", "passport"],
@@ -219,8 +219,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       30, 35, 30, 25, 22, 20,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.gyueshevo.bg,
     notes: BORDER_NOTES.gyueshevo,
     document_codes: ["id_card", "passport"],
@@ -239,8 +239,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       28, 32, 28, 24, 20, 18,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.zlatarevo.bg,
     notes: BORDER_NOTES.zlatarevo,
     document_codes: ["id_card", "passport"],
@@ -259,8 +259,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       35, 40, 35, 30, 25, 22,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.ilinden.bg,
     notes: BORDER_NOTES.ilinden,
     document_codes: ["id_card", "passport"],
@@ -279,8 +279,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       40, 45, 40, 35, 28, 25,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.promachon.bg,
     notes: BORDER_NOTES.promachon,
     document_codes: ["id_card", "passport"],
@@ -299,8 +299,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       32, 38, 32, 28, 22, 20,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Лична карта", "Паспорт"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.makaza.bg,
     notes: BORDER_NOTES.makaza,
     document_codes: ["id_card", "passport"],
@@ -319,8 +319,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       60, 70, 60, 50, 45, 35,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Паспорт", "Виза (за някои националности)"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES["malko-tarnovo"].bg,
     notes: BORDER_NOTES["malko-tarnovo"],
     document_codes: ["passport", "visa_some"],
@@ -339,8 +339,8 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
       58, 68, 58, 48, 42, 33,
     ],
     working_hours: "00:00 - 24:00",
-    accepted_documents: ["Паспорт", "Виза (за някои националности)"],
-    vehicle_types_allowed: ["Автомобил", "Камион", "Автобус", "Мотоциклет"],
+    accepted_documents: [],
+    vehicle_types_allowed: [],
     notes_bg: BORDER_NOTES.lesovo.bg,
     notes: BORDER_NOTES.lesovo,
     document_codes: ["passport", "visa_some"],
@@ -356,10 +356,12 @@ const BORDER_NAME_I18N: Record<string, LocalizedMap> = {
     ro: "Capitan Andreevo",
   },
   "danube-bridge-vidin": {
+    en: "Danube Bridge Vidin–Calafat",
     tr: "Tuna Köprüsü Vidin–Calafat",
     ro: "Podul Dunărea Vidin–Calafat",
   },
   "danube-bridge-ruse": {
+    en: "Danube Bridge Ruse–Giurgiu",
     tr: "Tuna Köprüsü Ruse–Giurgiu",
     ro: "Podul Dunărea Ruse–Giurgiu",
   },
@@ -427,4 +429,31 @@ export function borderNotesText(
 ): string {
   if (crossing.notes) return pickText(locale, crossing.notes);
   return crossing.notes_bg;
+}
+
+export type DanubeBridgeId = "danube-bridge-vidin" | "danube-bridge-ruse";
+
+function danubeBridgeRow(id: DanubeBridgeId): BorderCrossing {
+  const row = BORDER_CROSSINGS.find((c) => c.id === id);
+  if (!row) throw new Error(`Missing border crossing: ${id}`);
+  return row;
+}
+
+/** Canonical Vidin–Calafat / Ruse–Giurgiu labels (same as `borderDisplayName`). */
+export function danubeBridgeDisplayName(id: DanubeBridgeId, locale: Locale): string {
+  return borderDisplayName(locale, danubeBridgeRow(id));
+}
+
+/** Single-sentence note naming the bridge only (e.g. Liubotenet EU row). */
+export function danubeBridgeShortNote(id: DanubeBridgeId, locale: Locale): string {
+  return `${danubeBridgeDisplayName(id, locale)}.`;
+}
+
+/** Bucharest → Sofia corridor copy for non-Bulgarian locales. */
+export function bucharestSofiaCorridorDescription(locale: Exclude<Locale, "bg">): string {
+  const vidin = danubeBridgeDisplayName("danube-bridge-vidin", locale);
+  const ruse = danubeBridgeDisplayName("danube-bridge-ruse", locale);
+  if (locale === "en") return `Via ${vidin} or ${ruse}`;
+  if (locale === "tr") return `${vidin} veya ${ruse} üzerinden`;
+  return `Prin ${vidin} sau ${ruse}`;
 }

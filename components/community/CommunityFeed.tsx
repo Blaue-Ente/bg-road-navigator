@@ -1,6 +1,6 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { useState } from "react";
@@ -21,6 +21,7 @@ export function CommunityFeed({
   pins?: import("@/types/community.types").CommunityPin[];
 }) {
   const m = useMessages();
+  const locale = useLocale();
   const storePins = useCommunityStore((s) => s.pins);
   const pins = pinsProp ?? storePins;
   const { setSelectedPin, selectedPin, setPinUpvotes } = useCommunityStore();
@@ -83,7 +84,7 @@ export function CommunityFeed({
       </div>
 
       {pins.map((pin) => {
-        const expiry = formatPinExpiry(pin.expires_at);
+        const expiry = formatPinExpiry(pin.expires_at, locale);
         return (
           <WazeCard
             key={pin.id}
@@ -96,7 +97,8 @@ export function CommunityFeed({
                   {pin.title}
                 </h3>
                 <p className="text-xs text-[var(--waze-accent-text)]">
-                  {communityPinLabel(pin.category)} · {formatPinAge(pin.created_at)}
+                  {communityPinLabel(pin.category, locale)} ·{" "}
+                  {formatPinAge(pin.created_at, locale)}
                   {expiry ? ` · ${expiry}` : ""}
                 </p>
               </div>
@@ -167,11 +169,11 @@ export function CommunityFeed({
 
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-[var(--waze-accent-muted)] px-2.5 py-0.5 text-xs text-[var(--waze-accent-text)]">
-                {communityPinLabel(selectedPin.category)}
+                {communityPinLabel(selectedPin.category, locale)}
               </span>
-              {formatPinExpiry(selectedPin.expires_at) && (
+              {formatPinExpiry(selectedPin.expires_at, locale) && (
                 <span className="rounded-full bg-[var(--waze-surface-elevated)] px-2.5 py-0.5 text-xs text-[var(--waze-text-muted)]">
-                  {formatPinExpiry(selectedPin.expires_at)}
+                  {formatPinExpiry(selectedPin.expires_at, locale)}
                 </span>
               )}
             </div>

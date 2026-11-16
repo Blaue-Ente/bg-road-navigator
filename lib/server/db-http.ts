@@ -4,11 +4,17 @@ import {
   MigrationRequiredError,
   normalizeDbError,
 } from "@/lib/db";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 
-export function databaseUnavailableResponse() {
+function apiMessages(locale: Locale) {
+  return catalog(locale).api;
+}
+
+export function databaseUnavailableResponse(locale: Locale = "bg") {
+  const api = apiMessages(locale);
   return NextResponse.json(
     {
-      error: "Базата не е включена",
+      error: api.databaseUnavailable,
       code: "DATABASE_UNAVAILABLE",
       configured: false,
     },
@@ -16,10 +22,11 @@ export function databaseUnavailableResponse() {
   );
 }
 
-export function migrationRequiredResponse() {
+export function migrationRequiredResponse(locale: Locale = "bg") {
+  const api = apiMessages(locale);
   return NextResponse.json(
     {
-      error: "Миграцията още не е приложена",
+      error: api.migrationRequired,
       code: "MIGRATION_REQUIRED",
       configured: false,
     },
@@ -27,31 +34,34 @@ export function migrationRequiredResponse() {
   );
 }
 
-export function authRequiredResponse() {
+export function authRequiredResponse(locale: Locale = "bg") {
+  const api = apiMessages(locale);
   return NextResponse.json(
-    { error: "Нужен е вход", code: "AUTH_REQUIRED" },
+    { error: api.authRequired, code: "AUTH_REQUIRED" },
     { status: 401 }
   );
 }
 
-export function rateLimitedResponse() {
+export function rateLimitedResponse(locale: Locale = "bg") {
+  const api = apiMessages(locale);
   return NextResponse.json(
-    { error: "Твърде много заявки. Опитайте след минута.", code: "RATE_LIMITED" },
+    { error: api.rateLimited, code: "RATE_LIMITED" },
     { status: 429 }
   );
 }
 
-export function toDbResponse(error: unknown) {
+export function toDbResponse(error: unknown, locale: Locale = "bg") {
   const normalized = normalizeDbError(error);
   if (normalized instanceof DatabaseUnavailableError) {
-    return databaseUnavailableResponse();
+    return databaseUnavailableResponse(locale);
   }
   if (normalized instanceof MigrationRequiredError) {
-    return migrationRequiredResponse();
+    return migrationRequiredResponse(locale);
   }
   console.error(normalized);
+  const api = apiMessages(locale);
   return NextResponse.json(
-    { error: "Записът не мина", code: "DATABASE_ERROR" },
+    { error: api.databaseError, code: "DATABASE_ERROR" },
     { status: 500 }
   );
 }

@@ -1,6 +1,10 @@
 import type { Route } from "@/types/route.types";
 import { haversineKm } from "@/lib/geo/haversine";
 import { sampleRouteCoordinates } from "@/lib/utils/route-fuel-sample";
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+
+export { nearbyPassNames } from "@/lib/i18n/locales/weather-mountain-passes";
 
 export interface WeatherSamplePoint {
   lng: number;
@@ -10,18 +14,13 @@ export interface WeatherSamplePoint {
   label: string;
 }
 
-const PASSES = [
-  { name: "Шипченски проход", lng: 25.323, lat: 42.748 },
-  { name: "Предела", lng: 23.407, lat: 41.897 },
-  { name: "Петрохан", lng: 23.125, lat: 43.118 },
-  { name: "Троянски проход", lng: 24.676, lat: 42.778 },
-] as const;
-
 export function sampleWeatherPoints(
   route: Route,
-  count = 6
+  count = 6,
+  locale: Locale = "bg"
 ): WeatherSamplePoint[] {
   const coords = (route.geometry?.coordinates ?? []) as [number, number][];
+  const along = catalog(locale).planner.weather.alongRouteSample;
   const samples =
     coords.length >= 2
       ? sampleRouteCoordinates(coords, 80, count)
@@ -41,7 +40,7 @@ export function sampleWeatherPoints(
         ? route.origin.label
         : index === samples.length - 1
           ? route.destination.label
-          : "По маршрута";
+          : along;
     return {
       lng: point.lng,
       lat: point.lat,
@@ -50,17 +49,4 @@ export function sampleWeatherPoints(
       label,
     };
   });
-}
-
-export function nearbyPassNames(
-  points: Array<{ lng: number; lat: number }>,
-  radiusKm = 35
-): string[] {
-  const names: string[] = [];
-  for (const pass of PASSES) {
-    if (points.some((p) => haversineKm(p, pass) <= radiusKm)) {
-      names.push(pass.name);
-    }
-  }
-  return names;
 }

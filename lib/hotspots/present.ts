@@ -6,7 +6,7 @@ import type { Hotspot } from "@/lib/hotspots/types";
 import type { WhyReason } from "@/lib/planner/types";
 
 /** @deprecated Use attentionTitle(locale) */
-export const ATTENTION_TITLE = "Участък за повишено внимание";
+export const ATTENTION_TITLE = catalog("bg").planner.hotspots.attentionTitle;
 
 export function attentionTitle(locale: Locale = "bg"): string {
   return catalog(locale).planner.hotspots.attentionTitle;

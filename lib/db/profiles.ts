@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { DEFAULT_DRIVER_NAME_BG } from "@/lib/i18n/locales/default-driver-name";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
 import { resolveTripPreferences } from "@/lib/planner/preferences";
@@ -39,7 +40,7 @@ export async function ensureProfile(input: {
 
   const fromEmail = input.email?.split("@")[0]?.slice(0, 40);
   const displayName =
-    input.displayName?.trim() || fromEmail || "Шофьор";
+    input.displayName?.trim() || fromEmail || DEFAULT_DRIVER_NAME_BG;
 
   const [created] = await db
     .insert(profiles)

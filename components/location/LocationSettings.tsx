@@ -49,6 +49,7 @@ export function LocationSettings() {
     () => "default" as const
   );
   const prompt = notificationPrompt(permission);
+  const notificationText = m.location.notifications[prompt.code];
 
   const update = (next: LocationPreference) => {
     saveLocationPreference(next);
@@ -115,11 +116,11 @@ export function LocationSettings() {
             onClick={() => void askNotifications()}
             className="mt-3 text-sm text-[var(--waze-accent-text)] underline"
           >
-            {prompt.text}
+            {notificationText}
           </button>
         ) : (
           <p className="mt-3 text-sm text-[var(--waze-text-secondary)]">
-            {prompt.text}
+            {notificationText}
           </p>
         )}
       </section>

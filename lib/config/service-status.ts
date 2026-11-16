@@ -27,8 +27,8 @@ export type ServiceId =
 export interface ServiceStatusItem {
   id: ServiceId;
   label: string;
-  /** What this unlocks in the product. */
-  unlocks: string;
+  /** What this unlocks in the product (Bulgarian operator copy). */
+  unlocks_bg: string;
   configured: boolean;
   /** free | freemium | paid | self_host | public */
   cost: "free" | "freemium" | "paid" | "self_host" | "public";
@@ -48,7 +48,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "postgres",
       label: "Neon Postgres + Better Auth",
-      unlocks: "Вход, профил, любими, запазени маршрути и общност",
+      unlocks_bg: "Вход, профил, любими, запазени маршрути и общност",
       configured: isDatabaseConfigured(),
       cost: "freemium",
       priority: "required_for_auth",
@@ -63,7 +63,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "nakordoni",
       label: "Nakordoni",
-      unlocks: "Live опашки на границите",
+      unlocks_bg: "Live опашки на границите",
       configured: hasEnv("NAKORDONI_API_KEY"),
       cost: "free",
       priority: "recommended",
@@ -73,7 +73,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "windy",
       label: "Windy Webcams",
-      unlocks: "Вградени webcam изображения на граници",
+      unlocks_bg: "Вградени webcam изображения на граници",
       configured: hasEnv("WINDY_WEBCAMS_API_KEY"),
       cost: "free",
       priority: "optional",
@@ -83,7 +83,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "tomtom",
       label: "TomTom",
-      unlocks: "Трафик на картата + бензиностанции",
+      unlocks_bg: "Трафик на картата + бензиностанции",
       configured: hasEnv("TOMTOM_API_KEY"),
       cost: "freemium",
       priority: "optional",
@@ -93,7 +93,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "opencharge",
       label: "OpenChargeMap",
-      unlocks: "EV зарядни станции",
+      unlocks_bg: "EV зарядни станции",
       configured: hasEnv("OPENCHARGE_API_KEY"),
       cost: "freemium",
       priority: "optional",
@@ -103,7 +103,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "tankerkoenig",
       label: "Tankerkönig",
-      unlocks: "Цени на гориво в Германия по плана на пътуването",
+      unlocks_bg: "Цени на гориво в Германия по плана на пътуването",
       configured: hasEnv("TANKERKOENIG_API_KEY"),
       cost: "free",
       priority: "optional",
@@ -113,7 +113,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "nvidia",
       label: "NVIDIA NIM",
-      unlocks: "AI план за пътуване (иначе евристика)",
+      unlocks_bg: "AI план за пътуване (иначе евристика)",
       configured: hasEnv("NVIDIA_API_KEY"),
       cost: "freemium",
       priority: "optional",
@@ -122,8 +122,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "google",
-      label: "Google вход",
-      unlocks: "Бутон „Продължи с Google“, когато и двата ключа са зададени",
+      label: "Google sign-in",
+      unlocks_bg: "Бутон „Продължи с Google“, когато и двата ключа са зададени",
       configured: hasEnv("GOOGLE_CLIENT_ID") && hasEnv("GOOGLE_CLIENT_SECRET"),
       cost: "free",
       priority: "optional",
@@ -132,8 +132,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "apple",
-      label: "Apple вход",
-      unlocks: "Бутон „Продължи с Apple“, когато id и тайна са зададени",
+      label: "Apple sign-in",
+      unlocks_bg: "Бутон „Продължи с Apple“, когато id и тайна са зададени",
       configured: hasEnv("APPLE_CLIENT_ID") && hasEnv("APPLE_CLIENT_SECRET"),
       cost: "paid",
       priority: "optional",
@@ -147,8 +147,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "app_url",
-      label: "Публичен URL",
-      unlocks: "Адрес на приложението за Better Auth и връзките за карти",
+      label: "Public URL",
+      unlocks_bg: "Адрес на приложението за Better Auth и връзките за карти",
       configured: hasEnv("NEXT_PUBLIC_APP_URL"),
       cost: "public",
       priority: "recommended",
@@ -157,7 +157,7 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     {
       id: "map_style_custom",
       label: "Custom map style",
-      unlocks: "Собствен MapLibre style (иначе Carto Dark Matter)",
+      unlocks_bg: "Собствен MapLibre style (иначе Carto Dark Matter)",
       configured: hasEnv("NEXT_PUBLIC_MAP_STYLE_URL"),
       cost: "public",
       priority: "optional",
@@ -165,8 +165,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "osrm_custom",
-      label: "Собствен OSRM",
-      unlocks: "Production routing (иначе публичен OSRM demo)",
+      label: "Custom OSRM",
+      unlocks_bg: "Production routing (иначе публичен OSRM demo)",
       configured: hasEnv("OSRM_API_URL"),
       cost: "self_host",
       priority: "optional",
@@ -174,8 +174,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "geocoding_custom",
-      label: "Собствен geocoder",
-      unlocks: "Production geocoding (иначе Nominatim + кеш)",
+      label: "Custom geocoder",
+      unlocks_bg: "Production geocoding (иначе Nominatim + кеш)",
       configured: hasEnv("GEOCODING_API_URL"),
       cost: "self_host",
       priority: "optional",
@@ -183,9 +183,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "oci_geo",
-      label: "Valhalla и Photon",
-      unlocks:
-        "Маршрути и търсене през собствения сървър; при грешка — публичен OSRM и Nominatim",
+      label: "Valhalla and Photon",
+      unlocks_bg: "Маршрути и търсене през собствения сървър; при грешка — публичен OSRM и Nominatim",
       configured: ociGeoEnvState() === "ready",
       cost: "self_host",
       priority: "optional",
@@ -193,9 +192,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "oci_poi",
-      label: "Коридор с места (POI)",
-      unlocks:
-        "Станции, хотели и почивки по маршрута от собствения POI. Overpass е резерва само с POI_OVERPASS_FALLBACK",
+      label: "Corridor POI",
+      unlocks_bg: "Станции, хотели и почивки по маршрута от собствения POI. Overpass е резерва само с POI_OVERPASS_FALLBACK",
       configured: readPoiConfig() != null,
       cost: "self_host",
       priority: "optional",
@@ -203,8 +201,8 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
     },
     {
       id: "cron_warm",
-      label: "Подгряване на Valhalla и Photon",
-      unlocks: "Защитен cron ping, за да не изтича първото търсене след пауза",
+      label: "Valhalla and Photon warm-up",
+      unlocks_bg: "Защитен cron ping, за да не изтича първото търсене след пауза",
       configured: hasEnv("CRON_SECRET"),
       cost: "self_host",
       priority: "optional",

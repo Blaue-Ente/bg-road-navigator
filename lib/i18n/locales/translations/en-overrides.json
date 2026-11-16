@@ -35,7 +35,17 @@
     "weather": {
       "noForecast": "No forecast for this hour.",
       "attribution": "Forecast: Open-Meteo.com (CC BY 4.0)",
-      "warningAlongRoute": "Around {km} km along the route at {eta}."
+      "warningAlongRoute": "Around {km} km along the route at {eta}.",
+      "alongRouteSample": "Along the route",
+      "alertPassTitle": "Attention: {name}",
+      "alertPassDescription":
+        "Possible snow, wind or slippery road near the pass. Check the forecast before you leave.",
+      "alertHighWindTitle": "Strong wind along the route",
+      "alertHighWindDescription":
+        "Wind over 50 km/h — take care with high vehicles.",
+      "alertLowVisibilityTitle": "Reduced visibility",
+      "alertLowVisibilityDescription":
+        "Visibility under 2 km — switch on lights and slow down."
     },
     "hotspots": {
       "attentionTitle": "High-attention segment",
@@ -98,5 +108,220 @@
       "sourceCommunityAgo": "from a user report, {hours} h ago",
       "oilBulletinLabel": "European Commission, Weekly Oil Bulletin"
     }
+  },
+  "api": {
+    "rateLimited": "Too many requests",
+    "invalidPlan": "Invalid plan request",
+    "routeUnavailable": "The route could not be calculated",
+    "planFailed": "The plan could not be calculated",
+    "invalidId": "Invalid record",
+    "invalidPin": "Invalid report",
+    "invalidComment": "Comment is empty or too long",
+    "pinNotFound": "Report not found",
+    "invalidReport": "Invalid report",
+    "alreadyReported": "You already reported this pin",
+    "alreadyVoted": "You already voted this way",
+    "invalidFavoritePlace": "Invalid favourite place",
+    "invalidFavoriteRoute": "Invalid favourite route",
+    "planTooLarge": "Plan is too large",
+    "invalidReportQuery": "Station or fuel type missing",
+    "invalidPriceReport": "Invalid price",
+    "invalidPlace": "Place missing",
+    "invalidFlag": "Invalid flag",
+    "invalidProfile": "Invalid profile",
+    "emptyUpdate": "No fields to update",
+    "invalidSavedPlace": "Invalid place",
+    "invalidSavedRoute": "Invalid route",
+    "databaseUnavailable": "Database is not configured",
+    "migrationRequired": "Database migration not applied yet",
+    "authRequired": "Sign-in required",
+    "databaseError": "Could not save",
+    "invalidPoints": "Invalid points",
+    "weatherFetchFailed": "Could not load forecast",
+    "weatherAttribution": "Forecast: Open-Meteo.com (CC BY 4.0)"
+  },
+  "location": {
+    "notifications": {
+      "granted": "Notifications are allowed",
+      "denied": "Notifications are blocked. Allow them in your browser settings for this site.",
+      "unsupported": "This browser does not support notifications.",
+      "ask": "Allow notifications on this device"
+    },
+    "geo": {
+      "denied": "Location access was denied. Enable GPS in your browser settings.",
+      "unavailable": "Location is not available on this device.",
+      "timeout": "GPS timed out. Try again.",
+      "locating": "Finding your position…"
+    }
+  },
+  "pinCategories": {
+    "traffic_jam": "Traffic jam",
+    "accident": "Accident",
+    "border_queue": "Border queue",
+    "rest_stop": "Rest stop",
+    "shortcut": "Shortcut",
+    "hotel": "Good hotel",
+    "place_to_visit": "Place to visit",
+    "police": "Police",
+    "road_works": "Road works",
+    "other": "Other"
+  },
+  "pinTime": {
+    "expired": "expired",
+    "remainingHours": "~{hours} h left",
+    "remainingDays": "~{days} d left",
+    "justNow": "just now",
+    "ageMinutes": "{minutes} min ago",
+    "ageHours": "{hours} h ago",
+    "ageDays": "{days} d ago"
+  },
+  "corridors": {
+    "london-sofia": {
+      "label": "London → Sofia",
+      "description": "Classic route through Western and Central Europe, ~30+ hours"
+    },
+    "berlin-sofia": {
+      "label": "Berlin → Sofia",
+      "description": "Via Poland, Czechia/Austria or Hungary"
+    },
+    "munich-sofia": {
+      "label": "Munich → Sofia",
+      "description": "Most common route from Germany, ~12–14 hours"
+    },
+    "paris-sofia": {
+      "label": "Paris → Sofia",
+      "description": "Through Germany and Austria/Hungary"
+    },
+    "amsterdam-sofia": {
+      "label": "Amsterdam → Sofia",
+      "description": "Through Germany and Central Europe"
+    },
+    "madrid-sofia": {
+      "label": "Madrid → Sofia",
+      "description": "Via France, Germany and the Balkans — 35+ hours"
+    },
+    "barcelona-sofia": {
+      "label": "Barcelona → Sofia",
+      "description": "Through France and Central Europe"
+    },
+    "milan-sofia": {
+      "label": "Milan → Sofia",
+      "description": "Via Slovenia, Croatia and Serbia"
+    },
+    "zagreb-sofia": {
+      "label": "Zagreb → Sofia",
+      "description": "Through Serbia — faster Balkan route"
+    },
+    "vienna-sofia": {
+      "label": "Vienna → Sofia",
+      "description": "Classic route via Hungary and Serbia"
+    },
+    "prague-sofia": {
+      "label": "Prague → Sofia",
+      "description": "Via Bratislava/Hungary or Austria"
+    },
+    "stockholm-sofia": {
+      "label": "Stockholm → Sofia",
+      "description": "Scandinavia — Germany — Balkans, 40+ hours"
+    },
+    "athens-sofia": {
+      "label": "Athens → Sofia",
+      "description": "Via Greece — Kulata or Promachon"
+    },
+    "istanbul-sofia": {
+      "label": "Istanbul → Sofia",
+      "description": "Via Kapitan Andreevo or Lesovo"
+    },
+    "bucharest-sofia": {
+      "label": "Bucharest → Sofia",
+      "description": "Via Danube Bridge Vidin–Calafat or Danube Bridge Ruse–Giurgiu"
+    },
+    "milan-athens": {
+      "label": "Milan → Athens",
+      "description": "Balkan transit — long drive"
+    },
+    "sofia-london": {
+      "label": "Sofia → London",
+      "description": "Return route to Western Europe"
+    },
+    "sofia-munich": {
+      "label": "Sofia → Munich",
+      "description": "Return route from Bulgaria to Germany"
+    }
+  },
+  "poi": {
+    "fuelStation": "Petrol station",
+    "hotel": "Overnight stop",
+    "charging": "Charging station",
+    "restaurant": "Restaurant",
+    "restArea": "Motorway services",
+    "attraction": "Sight",
+    "defaultPlace": "Place"
+  },
+  "fuel": {
+    "diesel": "Diesel",
+    "petrol": "Petrol",
+    "petrol95": "Petrol 95",
+    "petrol98": "Petrol 98",
+    "lpg": "LPG",
+    "adblue": "AdBlue",
+    "electric": "Electric charging",
+    "unitPerLitre": "€/l",
+    "unitPerKwh": "€/kWh",
+    "estimateDisclaimer":
+      "Estimate from average consumption and reference price — not an actual station price."
+  },
+  "tripHeuristic": {
+    "restTitle": "Rest break",
+    "overnightTitle": "Overnight stop",
+    "overnightDescription": "Plan an overnight stop before the next long leg.",
+    "restDescription": "Take a break for water, food and a stretch.",
+    "overnightNear": "Overnight near {name}",
+    "evChargeTitle": "EV charging",
+    "fuelTitle": "Fuel stop",
+    "evChargeDescription":
+      "Choose a confirmed charging station and check availability before you leave.",
+    "fuelDescription": "Pick a station on your route and check the price on site.",
+    "warningLongRoute":
+      "This route is long. Confirm at least one overnight stop before you leave.",
+    "warningEv":
+      "EV charger availability is not guaranteed — confirm each stop with the operator.",
+    "warningCalculatedStops":
+      "Some stops are planning placeholders. Pick a specific place before travelling."
+  },
+  "maneuvers": {
+    "types": {
+      "depart": "Start",
+      "arrive": "Arrive",
+      "turn": "Turn",
+      "new name": "Continue",
+      "continue": "Continue",
+      "merge": "Merge",
+      "on ramp": "Take the ramp",
+      "off ramp": "Take the exit",
+      "fork": "Fork",
+      "end of road": "At the end of the road turn",
+      "roundabout": "Roundabout",
+      "rotary": "Roundabout",
+      "exit roundabout": "Exit the roundabout",
+      "exit rotary": "Exit the roundabout",
+      "roundabout turn": "At the roundabout turn",
+      "notification": "Attention"
+    },
+    "modifiers": {
+      "left": "left",
+      "right": "right",
+      "straight": "straight",
+      "uturn": "u-turn",
+      "slight left": "slight left",
+      "slight right": "slight right",
+      "sharp left": "sharp left",
+      "sharp right": "sharp right"
+    },
+    "exitNumber": " (exit {exit})",
+    "ontoStreet": " onto {street}"
+  },
+  "vignetteFormat": {
+    "validityTemplate": "Validity (checked {checked}): {validity}"
   }
 }

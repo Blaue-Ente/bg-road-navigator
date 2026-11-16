@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -30,7 +32,7 @@ const SaveSchema = z.object({
 
 const PLAN_BYTES = 400_000;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ routes: [], configured: false });
   }
@@ -40,7 +42,7 @@ export async function GET() {
     const routes = await listFavoriteRoutes(auth.user.id);
     return NextResponse.json({ routes, configured: true });
   } catch (error) {
-    const response = toDbResponse(error);
+    const response = toDbResponse(error, requestLocale(request));
     if (response.status === 503) {
       return NextResponse.json({ routes: [], configured: false });
     }
@@ -59,17 +61,11 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitedResponse();
   const parsed = SaveSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалиден любим маршрут", code: "INVALID_FAVORITE_ROUTE" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidFavoriteRoute", "INVALID_FAVORITE_ROUTE", 400);
   }
   const plan = parsed.data.plan ?? null;
   if (plan != null && JSON.stringify(plan).length > PLAN_BYTES) {
-    return NextResponse.json(
-      { error: "Планът е твърде голям", code: "PLAN_TOO_LARGE" },
-      { status: 400 }
-    );
+    return apiError(request, "planTooLarge", "PLAN_TOO_LARGE", 400);
   }
   try {
     await ensureProfile({
@@ -87,6 +83,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ route }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

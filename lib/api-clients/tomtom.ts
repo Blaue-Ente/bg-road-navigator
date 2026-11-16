@@ -127,7 +127,7 @@ export async function getTrafficIncidents(
     return (data.incidents ?? []).map((incident) => ({
       id: incident.id ?? "unknown",
       type: mapIncidentType(incident.type),
-      title: incident.title ?? "Без име",
+      title: incident.title ?? "Untitled",
       description: incident.description ?? "",
       coords: {
         lng: incident.longitude ?? 0,

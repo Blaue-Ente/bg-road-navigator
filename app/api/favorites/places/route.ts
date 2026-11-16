@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -16,7 +18,7 @@ const SaveSchema = z.object({
   note: z.string().trim().max(280).nullable().optional(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ places: [], configured: false });
   }
@@ -26,7 +28,7 @@ export async function GET() {
     const places = await listFavoritePlaces(auth.user.id);
     return NextResponse.json({ places, configured: true });
   } catch (error) {
-    const response = toDbResponse(error);
+    const response = toDbResponse(error, requestLocale(request));
     if (response.status === 503) {
       return NextResponse.json({ places: [], configured: false });
     }
@@ -45,10 +47,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitedResponse();
   const parsed = SaveSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалидно любимо място", code: "INVALID_FAVORITE_PLACE" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidFavoritePlace", "INVALID_FAVORITE_PLACE", 400);
   }
   try {
     await ensureProfile({
@@ -67,6 +66,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ place }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

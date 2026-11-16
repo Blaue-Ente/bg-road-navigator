@@ -2,6 +2,7 @@
 import type { Localized } from "@/lib/i18n/localized-field";
 import { pickText } from "@/lib/i18n/localized-field";
 import { catalog, type Locale } from "@/lib/i18n/locale";
+import { ZONE_LABEL_BG_FALLBACK } from "@/lib/i18n/locales/time-zone-labels-fallback";
 
 const COUNTRY_TIME_ZONE: Record<string, string> = {
   AT: "Europe/Vienna",
@@ -180,7 +181,10 @@ const ZONE_LABEL: Record<string, Localized> = {
 export function timeZoneLabel(timeZone: string, locale: Locale = "bg"): string {
   const row = ZONE_LABEL[timeZone];
   if (row) return pickText(locale, row);
-  if (locale === "bg") return ZONE_LABEL_BG_FALLBACK[timeZone] ?? "местно време";
+  if (locale === "bg")
+    return (
+      ZONE_LABEL_BG_FALLBACK[timeZone] ?? catalog("bg").planner.timeZone.local
+    );
   return catalog(locale).planner.timeZone.local;
 }
 
@@ -188,29 +192,3 @@ export function timeZoneLabel(timeZone: string, locale: Locale = "bg"): string {
 export function timeZoneLabelBg(timeZone: string): string {
   return timeZoneLabel(timeZone, "bg");
 }
-
-const ZONE_LABEL_BG_FALLBACK: Record<string, string> = {
-  "Europe/Sofia": "София",
-  "Europe/Budapest": "Будапеща",
-  "Europe/Vienna": "Виена",
-  "Europe/Belgrade": "Белград",
-  "Europe/Istanbul": "Истанбул",
-  "Europe/Berlin": "Мюнхен/Берлин",
-  "Europe/Paris": "Париж",
-  "Europe/Bucharest": "Букурещ",
-  "Europe/Athens": "Атина",
-  "Europe/Zagreb": "Загреб",
-  "Europe/Bratislava": "Братислава",
-  "Europe/Prague": "Прага",
-  "Europe/Warsaw": "Варшава",
-  "Europe/Rome": "Рим",
-  "Europe/Amsterdam": "Амстердам",
-  "Europe/Brussels": "Брюксел",
-  "Europe/Zurich": "Цюрих",
-  "Europe/Ljubljana": "Любляна",
-  "Europe/Skopje": "Скопие",
-  "Europe/London": "Лондон",
-  "Europe/Madrid": "Мадрид",
-  "Europe/Copenhagen": "Копенхаген",
-  "Europe/Helsinki": "Хелзинки",
-};

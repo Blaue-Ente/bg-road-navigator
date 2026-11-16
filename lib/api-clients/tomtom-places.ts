@@ -57,7 +57,7 @@ export async function getFuelStations(
         return [];
       }
 
-      const name = result.poi?.name ?? "Бензиностанция";
+      const name = result.poi?.name ?? "Petrol station";
       return [
         {
           id: `tomtom-${result.id}`,

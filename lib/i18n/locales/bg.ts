@@ -72,8 +72,15 @@ const bgCore = {
   fuel: {
     diesel: "Дизел",
     petrol: "Бензин",
-    lpg: "Газ",
+    petrol95: "Бензин 95",
+    petrol98: "Бензин 98",
+    lpg: "Газ (LPG)",
+    adblue: "AdBlue",
     electric: "Електричество",
+    unitPerLitre: "€/л",
+    unitPerKwh: "€/кВтч",
+    estimateDisclaimer:
+      "Оценка по среден разход и референтна цена — не е реална цена на станция.",
   },
   prefs: {
     fuelStop: "Спирка за гориво или зареждане",

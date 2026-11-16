@@ -23,7 +23,7 @@ export function pickI18nText(
 ): string {
   const fromMap = options.i18n?.[locale]?.trim();
   if (fromMap) return fromMap;
-  if (locale === "en" && options.en?.trim()) return options.en.trim();
+  if (locale !== "bg" && options.en?.trim()) return options.en.trim();
   return options.bg;
 }
 

@@ -84,8 +84,8 @@ export async function getEVStations(
       return [
         {
           id: `ocm-${station.ID}`,
-          name: address.Title ?? "EV зарядна станция",
-          operator: station.OperatorInfo?.Title ?? "Неизвестен оператор",
+          name: address.Title ?? "EV charging station",
+          operator: station.OperatorInfo?.Title ?? "Unknown operator",
           coords: { lng: stationLng, lat: stationLat },
           address: addressLabel,
           power_kw: maxPower,

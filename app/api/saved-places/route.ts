@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
     );
     return NextResponse.json({ places, configured: true });
   } catch (error) {
-    const response = toDbResponse(error);
+    const response = toDbResponse(error, requestLocale(request));
     if (response.status === 503) {
       return NextResponse.json({ places: [], configured: false });
     }
@@ -69,10 +71,7 @@ export async function POST(request: NextRequest) {
 
   const parsed = SavePlaceSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалидно място", code: "INVALID_SAVED_PLACE" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidSavedPlace", "INVALID_SAVED_PLACE", 400);
   }
 
   try {
@@ -89,6 +88,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ place }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

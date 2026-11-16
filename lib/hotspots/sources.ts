@@ -8,6 +8,7 @@ export interface HotspotSource {
   label_bg: string;
   /** Shown in the map credits and on the plan. */
   attribution: string;
+  attribution_bg?: string;
   /** A pending source stays out of the credits until its file is ingested. */
   pending: boolean;
 }
@@ -22,7 +23,8 @@ export const HOTSPOT_SOURCES: HotspotSource[] = [
     id: "rs-mup",
     country: "RS",
     label_bg: "МВР на Сърбия",
-    attribution: `Източник: МУП (MUP), data.gov.rs, ${DATASET_RS}, изтеглено на ${HOTSPOT_DOWNLOAD_DATE}, данните са обработени. Serbian Open Data Licence.`,
+    attribution_bg: `Източник: МУП (MUP), data.gov.rs, ${DATASET_RS}, изтеглено на ${HOTSPOT_DOWNLOAD_DATE}, данните са обработени. Serbian Open Data Licence.`,
+    attribution: `Source: MUP (MUP), data.gov.rs, ${DATASET_RS}, retrieved ${HOTSPOT_DOWNLOAD_DATE}, data processed. Serbian Open Data Licence.`,
     pending: false,
   },
   {

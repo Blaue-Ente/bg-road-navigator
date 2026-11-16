@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { fetchNvidiaTripPlan } from "@/lib/api-clients/nvidia";
+import { requestLocale } from "@/lib/i18n/request-locale";
 import { buildTripPlan } from "@/lib/utils/trip-stop-planner";
 import type { Route } from "@/types/route.types";
 
@@ -74,7 +75,8 @@ export async function POST(request: NextRequest) {
       if (aiPlan) return NextResponse.json(aiPlan);
     }
 
-    return NextResponse.json(buildTripPlan(route, preferences));
+    const locale = requestLocale(request);
+    return NextResponse.json(buildTripPlan(route, preferences, locale));
   } catch (error) {
     console.error("Trip plan API error:", error);
     return NextResponse.json(

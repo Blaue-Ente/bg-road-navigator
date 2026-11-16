@@ -1,15 +1,8 @@
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
 
-/** Bulgarian copy kept for tests and default notifications. */
-export const HOTSPOT_ALERTS = {
-  locale: "bg" as const,
-  title: "Повишено внимание",
-  hotspot: (meters: number) =>
-    `След ${meters} м: участък с чести катастрофи. Карайте внимателно.`,
-  hazard: (meters: number) =>
-    `След ${meters} м: опасност по пътя. Карайте внимателно.`,
-};
+export { HOTSPOT_ALERTS } from "@/lib/i18n/locales/hotspot-alerts-defaults";
+import { HOTSPOT_ALERTS } from "@/lib/i18n/locales/hotspot-alerts-defaults";
 
 export function proximityAlertTitle(locale: Locale = "bg"): string {
   if (locale === "bg") return HOTSPOT_ALERTS.title;

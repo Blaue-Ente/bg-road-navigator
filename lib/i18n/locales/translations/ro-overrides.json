@@ -35,7 +35,17 @@
     "weather": {
       "noForecast": "Nu există prognoză pentru această oră.",
       "attribution": "Prognoză: Open-Meteo.com (CC BY 4.0)",
-      "warningAlongRoute": "În jur de {km} km pe traseu, la {eta}."
+      "warningAlongRoute": "În jur de {km} km pe traseu, la {eta}.",
+      "alongRouteSample": "Pe traseu",
+      "alertPassTitle": "Atenție: {name}",
+      "alertPassDescription":
+        "Posibil zăpadă, vânt sau carosabil alunecos în zona trecătorii. Verificați prognoza înainte de plecare.",
+      "alertHighWindTitle": "Vânt puternic pe traseu",
+      "alertHighWindDescription":
+        "Vânt peste 50 km/h — atenție la vehicule înalte.",
+      "alertLowVisibilityTitle": "Vizibilitate redusă",
+      "alertLowVisibilityDescription":
+        "Vizibilitate sub 2 km — aprindeți luminile și reduceți viteza."
     },
     "hotspots": {
       "attentionTitle": "Sector care cere atenție sporită",
@@ -99,5 +109,221 @@
       "sourceCommunityAgo": "de la un utilizator, acum {hours} h",
       "oilBulletinLabel": "Comisia Europeană, Buletinul săptămânal petrolier"
     }
+  },
+  "api": {
+    "rateLimited": "Prea multe cereri",
+    "invalidPlan": "Cerere de plan invalidă",
+    "routeUnavailable": "Traseul nu a putut fi calculat",
+    "planFailed": "Planul nu a putut fi calculat",
+    "invalidId": "Înregistrare invalidă",
+    "invalidPin": "Semnal invalid",
+    "invalidComment": "Comentariul este gol sau prea lung",
+    "pinNotFound": "Semnalul lipsește",
+    "invalidReport": "Raport invalid",
+    "alreadyReported": "Ați raportat deja acest semnal",
+    "alreadyVoted": "Ați votat deja astfel",
+    "invalidFavoritePlace": "Loc favorit invalid",
+    "invalidFavoriteRoute": "Traseu favorit invalid",
+    "planTooLarge": "Planul este prea mare",
+    "invalidReportQuery": "Lipsește stația sau tipul de combustibil",
+    "invalidPriceReport": "Preț invalid",
+    "invalidPlace": "Lipsește locul",
+    "invalidFlag": "Marcaj invalid",
+    "invalidProfile": "Profil invalid",
+    "emptyUpdate": "Nu există câmpuri de actualizat",
+    "invalidSavedPlace": "Loc invalid",
+    "invalidSavedRoute": "Traseu invalid",
+    "databaseUnavailable": "Baza de date nu este configurată",
+    "migrationRequired": "Migrația bazei de date nu este încă aplicată",
+    "authRequired": "Este necesară autentificarea",
+    "databaseError": "Înregistrarea a eșuat",
+    "invalidPoints": "Puncte invalide",
+    "weatherFetchFailed": "Prognoza nu a putut fi încărcată",
+    "weatherAttribution": "Prognoză: Open-Meteo.com (CC BY 4.0)"
+  },
+  "location": {
+    "notifications": {
+      "granted": "Notificările sunt permise",
+      "denied": "Notificările sunt blocate. Permiteți-le în setările browserului pentru acest site.",
+      "unsupported": "Acest browser nu suportă notificări.",
+      "ask": "Permiteți notificările pe acest dispozitiv"
+    },
+    "geo": {
+      "denied": "Accesul la locație a fost refuzat. Activați GPS în setările browserului.",
+      "unavailable": "Locația nu este disponibilă pe acest dispozitiv.",
+      "timeout": "Timpul pentru GPS a expirat. Încercați din nou.",
+      "locating": "Se caută poziția…"
+    }
+  },
+  "pinCategories": {
+    "traffic_jam": "Ambuteiaj",
+    "accident": "Accident",
+    "border_queue": "Coadă la frontieră",
+    "rest_stop": "Loc de odihnă",
+    "shortcut": "Ocolire",
+    "hotel": "Hotel bun",
+    "place_to_visit": "Loc de vizitat",
+    "police": "Poliție",
+    "road_works": "Lucrări rutiere",
+    "other": "Altele"
+  },
+  "pinTime": {
+    "expired": "expirat",
+    "remainingHours": "încă ~{hours} h",
+    "remainingDays": "încă ~{days} z",
+    "justNow": "chiar acum",
+    "ageMinutes": "acum {minutes} min",
+    "ageHours": "acum {hours} h",
+    "ageDays": "acum {days} z"
+  },
+  "corridors": {
+    "london-sofia": {
+      "label": "Londra → Sofia",
+      "description": "Traseu clasic prin Europa de Vest și Centrală, ~30+ ore"
+    },
+    "berlin-sofia": {
+      "label": "Berlin → Sofia",
+      "description": "Prin Polonia, Cehia/Austria sau Ungaria"
+    },
+    "munich-sofia": {
+      "label": "München → Sofia",
+      "description": "Cel mai frecvent traseu din Germania, ~12–14 ore"
+    },
+    "paris-sofia": {
+      "label": "Paris → Sofia",
+      "description": "Prin Germania și Austria/Ungaria"
+    },
+    "amsterdam-sofia": {
+      "label": "Amsterdam → Sofia",
+      "description": "Prin Germania și Europa Centrală"
+    },
+    "madrid-sofia": {
+      "label": "Madrid → Sofia",
+      "description": "Prin Franța, Germania și Balcani — peste 35 de ore"
+    },
+    "barcelona-sofia": {
+      "label": "Barcelona → Sofia",
+      "description": "Prin Franța și Europa Centrală"
+    },
+    "milan-sofia": {
+      "label": "Milano → Sofia",
+      "description": "Prin Slovenia, Croația și Serbia"
+    },
+    "zagreb-sofia": {
+      "label": "Zagreb → Sofia",
+      "description": "Prin Serbia — traseu balcanic mai rapid"
+    },
+    "vienna-sofia": {
+      "label": "Viena → Sofia",
+      "description": "Traseu clasic prin Ungaria și Serbia"
+    },
+    "prague-sofia": {
+      "label": "Praga → Sofia",
+      "description": "Prin Bratislava/Ungaria sau Austria"
+    },
+    "stockholm-sofia": {
+      "label": "Stockholm → Sofia",
+      "description": "Scandinavia — Germania — Balcani, peste 40 de ore"
+    },
+    "athens-sofia": {
+      "label": "Atena → Sofia",
+      "description": "Prin Grecia — Kulata sau Promachon"
+    },
+    "istanbul-sofia": {
+      "label": "Istanbul → Sofia",
+      "description": "Prin Kapitan Andreevo sau Lesovo"
+    },
+    "bucharest-sofia": {
+      "label": "București → Sofia",
+      "description": "Prin Podul Dunărea Vidin–Calafat sau Podul Dunărea Ruse–Giurgiu"
+    },
+    "milan-athens": {
+      "label": "Milano → Atena",
+      "description": "Tranzit balcanic — drum lung"
+    },
+    "sofia-london": {
+      "label": "Sofia → Londra",
+      "description": "Întoarcere spre Europa de Vest"
+    },
+    "sofia-munich": {
+      "label": "Sofia → München",
+      "description": "Întoarcere din Bulgaria spre Germania"
+    }
+  },
+  "poi": {
+    "fuelStation": "Benzinărie",
+    "hotel": "Loc de cazare",
+    "charging": "Stație de încărcare",
+    "restaurant": "Restaurant",
+    "restArea": "Parcare de odihnă",
+    "attraction": "Obiectiv",
+    "defaultPlace": "Loc"
+  },
+  "fuel": {
+    "diesel": "Motorină",
+    "petrol": "Benzină",
+    "petrol95": "Benzină 95",
+    "petrol98": "Benzină 98",
+    "lpg": "GPL",
+    "adblue": "AdBlue",
+    "electric": "Încărcare electrică",
+    "unitPerLitre": "€/l",
+    "unitPerKwh": "€/kWh",
+    "estimateDisclaimer":
+      "Estimare după consum mediu și preț de referință — nu este prețul de la stație."
+  },
+  "tripHeuristic": {
+    "restTitle": "Pauză",
+    "overnightTitle": "Cazare peste noapte",
+    "overnightDescription": "Planificați o oprire de noapte înaintea următoarei etape lungi.",
+    "restDescription": "Faceți o pauză pentru apă, masă și mișcare.",
+    "overnightNear": "Cazare lângă {name}",
+    "evChargeTitle": "Încărcare electrică",
+    "fuelTitle": "Alimentare cu combustibil",
+    "evChargeDescription":
+      "Alegeți o stație de încărcare confirmată și verificați disponibilitatea înainte de plecare.",
+    "fuelDescription":
+      "Alegeți o stație pe traseu și verificați prețul la fața locului.",
+    "warningLongRoute":
+      "Traseul este lung. Confirmați cel puțin o oprire de noapte înainte de plecare.",
+    "warningEv":
+      "Disponibilitatea încărcătoarelor nu este garantată — confirmați fiecare oprire cu operatorul.",
+    "warningCalculatedStops":
+      "Unele opriri sunt doar orientative. Alegeți un loc concret înainte de călătorie."
+  },
+  "maneuvers": {
+    "types": {
+      "depart": "Pornire",
+      "arrive": "Sosire",
+      "turn": "Viraj",
+      "new name": "Continuare",
+      "continue": "Continuare",
+      "merge": "Lipire în trafic",
+      "on ramp": "Intrați pe breteaua de acces",
+      "off ramp": "Luați ieșirea",
+      "fork": "Bifurcație",
+      "end of road": "La capătul drumului virați",
+      "roundabout": "Sens giratoriu",
+      "rotary": "Sens giratoriu",
+      "exit roundabout": "Ieșiți din sensul giratoriu",
+      "exit rotary": "Ieșiți din sensul giratoriu",
+      "roundabout turn": "În sensul giratoriu virați",
+      "notification": "Atenție"
+    },
+    "modifiers": {
+      "left": "stânga",
+      "right": "dreapta",
+      "straight": "înainte",
+      "uturn": "întoarcere în U",
+      "slight left": "ușor stânga",
+      "slight right": "ușor dreapta",
+      "sharp left": "strâns stânga",
+      "sharp right": "strâns dreapta"
+    },
+    "exitNumber": " (ieșirea {exit})",
+    "ontoStreet": " pe {street}"
+  },
+  "vignetteFormat": {
+    "validityTemplate": "Valabilitate (verificată la {checked}): {validity}"
   }
 }

@@ -7,17 +7,9 @@ import {
   type TripPreferences,
 } from "@/lib/planner/preferences";
 import type { CorridorPlace } from "@/lib/poi/types";
+import { GENERIC_PLACE_NAMES_BG } from "@/lib/i18n/locales/pick-place-generic";
 
-const GENERIC = new Set([
-  "бензиностанция",
-  "зарядна станция",
-  "място за нощувка",
-  "ресторант",
-  "крайпътна зона",
-  "забележителност",
-  "fuel",
-  "hotel",
-]);
+const GENERIC = new Set([...GENERIC_PLACE_NAMES_BG, "fuel", "hotel"]);
 
 export interface AnnotatedPlace extends CorridorPlace {
   alongKm: number;

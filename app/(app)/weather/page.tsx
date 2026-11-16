@@ -1,6 +1,6 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import { useMemo } from "react";
 import Link from "next/link";
@@ -16,10 +16,11 @@ import { sampleWeatherPoints } from "@/lib/utils/route-weather-points";
 
 export default function WeatherPage() {
   const m = useMessages();
+  const locale = useLocale();
   const { activeRoute } = useRouteStore();
   const samples = useMemo(
-    () => (activeRoute ? sampleWeatherPoints(activeRoute, 6) : []),
-    [activeRoute]
+    () => (activeRoute ? sampleWeatherPoints(activeRoute, 6, locale) : []),
+    [activeRoute, locale]
   );
   const queryPoints = useMemo(
     () => samples.map((p) => ({ lng: p.lng, lat: p.lat })),

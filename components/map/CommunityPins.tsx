@@ -2,6 +2,7 @@
 
 import type { Map } from "maplibre-gl";
 import type { CommunityPin } from "@/types/community.types";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import { communityPinColor, communityPinGlyph, communityPinLabel, formatPinAge } from "@/lib/constants/community-pins";
 import { ClusteredPoiLayer } from "@/components/map/ClusteredPoiLayer";
 import { useMapStore } from "@/lib/stores/map.store";
@@ -12,13 +13,14 @@ export interface CommunityPinsProps {
 }
 
 export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
+  const locale = useLocale();
   const enabled = useMapStore((s) => s.layers.community);
   const points = pins.map((pin) => ({
     id: pin.id,
     lng: pin.coords.lng,
     lat: pin.coords.lat,
     title: pin.title,
-    subtitle: `${communityPinLabel(pin.category)} · ${formatPinAge(pin.created_at)}`,
+    subtitle: `${communityPinLabel(pin.category, locale)} · ${formatPinAge(pin.created_at, locale)}`,
     color: communityPinColor(pin.category),
     glyph: communityPinGlyph(pin.category),
   }));

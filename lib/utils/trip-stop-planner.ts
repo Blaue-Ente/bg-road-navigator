@@ -1,5 +1,8 @@
 import { EUROPEAN_REST_AREAS, type RestArea } from "@/lib/constants/rest-areas";
 import { haversineKm } from "@/lib/geo/haversine";
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import type { GeoPoint, Route } from "@/types/route.types";
 import type {
   TripPlan,
@@ -89,8 +92,10 @@ function stopAt(
 function addRestAndOvernightStops(
   route: Route,
   breakEveryMin: number,
-  overnightAfterMin: number
+  overnightAfterMin: number,
+  locale: Locale
 ): TripPlanStop[] {
+  const h = catalog(locale).tripHeuristic;
   const stops: TripPlanStop[] = [];
 
   for (
@@ -104,17 +109,17 @@ function addRestAndOvernightStops(
       route,
       type,
       minute,
-      isOvernight ? "Нощувка" : "Почивка",
-      isOvernight
-        ? "Планирайте нощувка преди следващия дълъг етап."
-        : "Направете пауза за вода, храна и разтягане."
+      isOvernight ? h.overnightTitle : h.restTitle,
+      isOvernight ? h.overnightDescription : h.restDescription
     );
     const area = nearestRestArea(generic.coords);
 
     if (area) {
       stops.push({
         ...generic,
-        title: isOvernight ? `Нощувка близо до ${area.name}` : area.name,
+        title: isOvernight
+          ? formatTemplate(h.overnightNear, { name: area.name })
+          : area.name,
         description: `${area.location} · ${area.facilities.join(", ")}`,
         coords: area.coords,
         source: "curated_rest_area",
@@ -134,8 +139,10 @@ function addRestAndOvernightStops(
 
 function addEnergyStops(
   route: Route,
-  preferences: TripPlannerPreferences
+  preferences: TripPlannerPreferences,
+  locale: Locale
 ): TripPlanStop[] {
+  const h = catalog(locale).tripHeuristic;
   const isEv = preferences.vehicle_type === "ev";
   const rangeKm = isEv
     ? (preferences.ev_range_km ?? DEFAULT_EV_RANGE_KM)
@@ -154,10 +161,8 @@ function addEnergyStops(
         route,
         isEv ? "ev_charge" : "fuel",
         targetMin,
-        isEv ? "Зареждане на EV" : "Зареждане с гориво",
-        isEv
-          ? "Изберете потвърдена зарядна станция и проверете наличност преди тръгване."
-          : "Изберете бензиностанция по маршрута и проверете цената на място."
+        isEv ? h.evChargeTitle : h.fuelTitle,
+        isEv ? h.evChargeDescription : h.fuelDescription
       )
     );
   }
@@ -167,8 +172,10 @@ function addEnergyStops(
 
 export function buildTripPlan(
   route: Route,
-  preferences: TripPlannerPreferences
+  preferences: TripPlannerPreferences,
+  locale: Locale = "bg"
 ): TripPlan {
+  const h = catalog(locale).tripHeuristic;
   const breakEveryMin = Math.max(
     120,
     preferences.break_every_min ?? DEFAULT_BREAK_MIN
@@ -178,25 +185,19 @@ export function buildTripPlan(
     preferences.overnight_after_min ?? DEFAULT_OVERNIGHT_MIN
   );
   const stops = [
-    ...addEnergyStops(route, preferences),
-    ...addRestAndOvernightStops(route, breakEveryMin, overnightAfterMin),
+    ...addEnergyStops(route, preferences, locale),
+    ...addRestAndOvernightStops(route, breakEveryMin, overnightAfterMin, locale),
   ].sort((a, b) => a.distance_from_start_km - b.distance_from_start_km);
 
   const warnings: string[] = [];
   if (route.duration_min >= overnightAfterMin) {
-    warnings.push(
-      "Маршрутът е дълъг. Потвърдете поне една нощувка преди тръгване."
-    );
+    warnings.push(h.warningLongRoute);
   }
   if (preferences.vehicle_type === "ev") {
-    warnings.push(
-      "Наличността на EV зарядните не е гарантирана — потвърдете всяка спирка с оператора."
-    );
+    warnings.push(h.warningEv);
   }
   if (stops.some((stop) => stop.source === "calculation")) {
-    warnings.push(
-      "Част от спирките са изчислени ориентири. Изберете конкретен обект преди пътуването."
-    );
+    warnings.push(h.warningCalculatedStops);
   }
 
   return {

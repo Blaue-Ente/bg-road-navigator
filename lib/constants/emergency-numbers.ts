@@ -68,7 +68,7 @@ const ROWS: EmergencyInput[] = [
     ambulance: "150",
     fire: "160",
     roadside_assistance: "112",
-    roadside_assistance_name: "Пътна помощ / застраховател",
+    roadside_assistance_name: "Roadside assistance / insurer",
     roadside_name: {
       bg: "Пътна помощ / застраховател",
       en: "Roadside assistance / insurer",

@@ -63,7 +63,7 @@ export function ServicesStatusPanel() {
                 {service.label}
               </p>
               <p className="text-[11px] text-[var(--waze-text-muted)]">
-                {priorityLabel[service.priority]} · {service.unlocks}
+                {priorityLabel[service.priority]} · {service.unlocks_bg}
               </p>
             </div>
             <span

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import {
@@ -59,7 +61,7 @@ export async function GET(request: NextRequest) {
       bbox: bboxParsed.success ? bboxParsed.data : null,
     });
   } catch (error) {
-    const response = toDbResponse(error);
+    const response = toDbResponse(error, requestLocale(request));
     if (response.status === 503) {
       return NextResponse.json({ pins: [], configured: false });
     }
@@ -76,14 +78,11 @@ export async function POST(request: NextRequest) {
     12,
     60_000
   );
-  if (!limit.ok) return rateLimitedResponse();
+  if (!limit.ok) return rateLimitedResponse(requestLocale(request));
 
   const parsed = PinSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалиден сигнал", code: "INVALID_PIN" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidPin", "INVALID_PIN", 400);
   }
 
   try {
@@ -95,7 +94,9 @@ export async function POST(request: NextRequest) {
     const pin = await createPin({
       userId: auth.user.id,
       category: parsed.data.category,
-      title: parsed.data.title?.trim() || communityPinLabel(parsed.data.category),
+      title:
+        parsed.data.title?.trim() ||
+        communityPinLabel(parsed.data.category, requestLocale(request)),
       text: parsed.data.text ?? parsed.data.description ?? null,
       lat: parsed.data.coords.lat,
       lng: parsed.data.coords.lng,
@@ -103,6 +104,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ pin }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

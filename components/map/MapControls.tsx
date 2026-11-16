@@ -1,12 +1,13 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { catalog } from "@/lib/i18n/locale";
 
 import { useCallback, useState, type ReactNode } from "react";
 import type { Map } from "maplibre-gl";
 import {
   useGeolocation,
-  locateStatusMessage,
+  locateStatusMessageCode,
 } from "@/lib/hooks/useGeolocation";
 import { LocateIcon, PlusIcon, MinusIcon } from "@/components/icons/NavIcons";
 import { LayerPanel } from "@/components/map/LayerPanel";
@@ -51,10 +52,12 @@ function ControlButton({
 
 export function MapControls({ map }: MapControlsProps) {
   const m = useMessages();
+  const locale = useLocale();
   const { getCurrentLocation } = useGeolocation();
   const locateStatus = useMapStore((s) => s.locateStatus);
   const [layersOpen, setLayersOpen] = useState(false);
-  const message = locateStatusMessage(locateStatus);
+  const geoCode = locateStatusMessageCode(locateStatus);
+  const message = geoCode ? catalog(locale).location.geo[geoCode] : null;
 
   const zoomIn = useCallback(() => {
     if (map) map.zoomIn();

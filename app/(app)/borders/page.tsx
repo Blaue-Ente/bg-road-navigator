@@ -181,11 +181,11 @@ function BorderPageContent() {
                             name_bg: crossing.name_bg,
                             name_en: crossing.name_en,
                           })
-                        : communityPinLabel(pin.category)}
+                        : communityPinLabel(pin.category, locale)}
                     </span>
                     <span className="text-[var(--waze-text-secondary)]">
                       {" "}
-                      · {formatPinAge(pin.created_at)}
+                      · {formatPinAge(pin.created_at, locale)}
                       {pin.description ? ` · ${pin.description}` : ""}
                     </span>
                   </li>

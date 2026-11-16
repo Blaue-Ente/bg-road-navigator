@@ -2,6 +2,7 @@ import { isInEurope } from "@/lib/geo/bounds";
 import { haversineKm } from "@/lib/geo/haversine";
 import { readOsmCache, writeOsmCache } from "@/lib/nakordoni/cache-store";
 import { distanceToPolylineKm, pointAtDistance } from "@/lib/planner/line";
+import { poiFallbackName } from "@/lib/poi/client";
 
 export interface OsmPlace {
   id: string;
@@ -196,7 +197,7 @@ function sliceLine(
 }
 
 function fallbackName(kind: OsmPlace["kind"]): string {
-  if (kind === "hotel") return "Място за нощувка";
-  if (kind === "charging_station") return "Зарядна станция";
-  return "Бензиностанция";
+  if (kind === "hotel") return poiFallbackName("hotel", "bg");
+  if (kind === "charging_station") return poiFallbackName("charging", "bg");
+  return poiFallbackName("fuel", "bg");
 }

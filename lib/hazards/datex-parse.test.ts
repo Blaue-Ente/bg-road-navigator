@@ -6,7 +6,7 @@ import {
   classifyHazard,
   parseDatexSituations,
 } from "@/lib/hazards/datex-parse";
-import { DATEX_ATTRIBUTION, hazardWarnings } from "@/lib/hazards/present";
+import { datexAttributionBg, hazardWarnings } from "@/lib/hazards/present";
 
 const xml = readFileSync(
   join(
@@ -73,7 +73,7 @@ describe("DATEX situation parser", () => {
     expect(lines[0]).toContain("Затворен път");
     expect(lines[0]).toContain("АМ Хемус, км 23");
     expect(lines[0]).toContain("Валидно до");
-    expect(lines.at(-1)).toBe(DATEX_ATTRIBUTION);
+    expect(lines.at(-1)).toBe(datexAttributionBg());
   });
 
   it("returns nothing for a broken document", () => {

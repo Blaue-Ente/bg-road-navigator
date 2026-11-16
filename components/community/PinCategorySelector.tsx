@@ -1,6 +1,10 @@
 "use client";
 
-import { COMMUNITY_PIN_CATEGORIES } from "@/lib/constants/community-pins";
+import { useLocale } from "@/components/i18n/LocaleProvider";
+import {
+  COMMUNITY_PIN_CATEGORIES,
+  communityPinLabel,
+} from "@/lib/constants/community-pins";
 import type { CommunityPinCategory } from "@/types/community.types";
 
 export function PinCategorySelector({
@@ -10,6 +14,7 @@ export function PinCategorySelector({
   value: CommunityPinCategory;
   onChange: (category: CommunityPinCategory) => void;
 }) {
+  const locale = useLocale();
   return (
     <select
       value={value}
@@ -18,7 +23,7 @@ export function PinCategorySelector({
     >
       {COMMUNITY_PIN_CATEGORIES.map((category) => (
         <option key={category.id} value={category.id}>
-          {category.label}
+          {communityPinLabel(category.id, locale)}
         </option>
       ))}
     </select>
