@@ -10,6 +10,13 @@ export type Locale = (typeof LOCALES)[number];
 export const LOCALE_STORAGE_KEY = "bg-road-locale";
 export const LOCALE_COOKIE = "bg-road-locale";
 
+export const LOCALE_NATIVE_NAME: Record<Locale, string> = {
+  bg: "Български",
+  en: "English",
+  tr: "Türkçe",
+  ro: "Română",
+};
+
 const catalogs: Record<Locale, MessageCatalog> = { bg, en, tr, ro };
 
 type MessageTree = { [key: string]: string | MessageTree };
