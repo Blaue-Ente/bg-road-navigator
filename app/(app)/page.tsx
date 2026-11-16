@@ -26,6 +26,7 @@ import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { useMenu } from "@/components/layout/MenuContext";
+import { hydrateRouteTripIntoStore } from "@/lib/stores/hydrate-route-trip";
 
 const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
@@ -49,6 +50,10 @@ export default function MapPage() {
   const incidentCount = traffic?.incidents?.length ?? 0;
   const chipRowRef = useRef<HTMLDivElement>(null);
   const [chipRowOverflows, setChipRowOverflows] = useState(false);
+
+  useEffect(() => {
+    hydrateRouteTripIntoStore();
+  }, []);
 
   useEffect(() => {
     const el = chipRowRef.current;

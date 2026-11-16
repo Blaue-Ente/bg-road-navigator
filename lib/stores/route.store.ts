@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { clearRouteTripSession, tripSessionStorage } from "@/lib/stores/route-trip-session";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { PlaceFlagSummary, TripPlannerResult } from "@/lib/planner/types";
 import type { GeoPoint, Route, RoutePoint } from "@/types/route.types";
@@ -108,7 +109,9 @@ export const useRouteStore = create<RouteState>((set) => ({
         },
       };
     }),
-  clearRoute: () =>
+  clearRoute: () => {
+    const storage = tripSessionStorage();
+    if (storage) clearRouteTripSession(storage);
     set({
       origin: null,
       destination: null,
@@ -122,5 +125,6 @@ export const useRouteStore = create<RouteState>((set) => ({
       focusedStopId: null,
       planningVia: null,
       choiceCardOrderKeys: null,
-    }),
+    });
+  },
 }));

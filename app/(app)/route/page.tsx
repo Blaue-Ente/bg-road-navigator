@@ -24,6 +24,11 @@ import {
   usePlannerDraftStore,
 } from "@/lib/stores/planner-draft.store";
 import { useRouteStore } from "@/lib/stores/route.store";
+import {
+  clearRouteTripSession,
+  tripSessionStorage,
+  writeRouteTripSession,
+} from "@/lib/stores/route-trip-session";
 import { useUserStore } from "@/lib/stores/user.store";
 import { estimateRestStops, isLongHaul } from "@/lib/utils/route-planner";
 import { isRoadRoute } from "@/lib/utils/route-builder";
@@ -217,6 +222,9 @@ export default function RoutePage() {
   };
 
   const runCalculation = async (corridorId: string | null, submitted: PlanningSubmit) => {
+    const sessionStorage = tripSessionStorage();
+    if (sessionStorage) clearRouteTripSession(sessionStorage);
+
     setCalculating(true);
     setRouteError(null);
 
@@ -286,6 +294,21 @@ export default function RoutePage() {
     if (plan) {
       clearStoredDraft();
       setPlanDetailOpen(true);
+      if (sessionStorage) {
+        writeRouteTripSession(sessionStorage, {
+          tripPlan: plan,
+          activeRoute: next,
+          alternativeRoutes: useRouteStore.getState().alternativeRoutes,
+          planningVia: committedVia
+            ? {
+                label: committedVia.label,
+                lng: committedVia.coords.lng,
+                lat: committedVia.coords.lat,
+              }
+            : null,
+          planDetailOpen: true,
+        });
+      }
       router.push("/");
     }
     setCalculating(false);
