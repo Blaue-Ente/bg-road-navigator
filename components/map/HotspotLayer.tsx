@@ -2,7 +2,7 @@
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
 import { escapeHtml } from "@/lib/geo/escape-html";
@@ -19,8 +19,6 @@ export function HotspotLayer({ map }: { map: Map | null }) {
   const m = useMessages();
   const locale = useLocale();
   const enabled = useMapStore((state) => state.layers.hotspots);
-  const [credits, setCredits] = useState<string[]>([]);
-  const [creditsOpen, setCreditsOpen] = useState(false);
 
   useEffect(() => {
     if (!enabled || !isMapReady(map)) return;
@@ -91,13 +89,10 @@ export function HotspotLayer({ map }: { map: Map | null }) {
       });
       void fetch(`/api/hotspots?${params.toString()}`)
         .then((response) => (response.ok ? response.json() : null))
-        .then(
-          (payload: { hotspots?: Hotspot[]; credits?: string[] } | null) => {
-            if (!payload || cancelled) return;
-            draw(payload.hotspots ?? []);
-            setCredits(payload.credits ?? []);
-          }
-        )
+        .then((payload: { hotspots?: Hotspot[] } | null) => {
+          if (!payload || cancelled) return;
+          draw(payload.hotspots ?? []);
+        })
         .catch(() => undefined);
     };
 
@@ -144,33 +139,5 @@ export function HotspotLayer({ map }: { map: Map | null }) {
     };
   }, [map, enabled, locale]);
 
-  if (!enabled || credits.length === 0) return null;
-
-  return (
-    <aside className="pointer-events-auto absolute left-3 z-20 bottom-[calc(11.25rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:left-[400px]">
-      <button
-        type="button"
-        aria-label={m.map.msg741964e944}
-        aria-expanded={creditsOpen}
-        aria-controls="hotspot-credits"
-        onClick={() => setCreditsOpen((open) => !open)}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] text-sm font-semibold text-[var(--waze-text)] shadow"
-      >
-        i
-      </button>
-      {creditsOpen && (
-        <div
-          id="hotspot-credits"
-          className="absolute bottom-full left-0 mb-2 max-h-48 w-[min(22rem,calc(100vw-1.5rem))] overflow-y-auto rounded-lg border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 py-1 text-[11px] leading-snug text-[var(--waze-text)] shadow"
-        >
-          <p className="font-medium">{m.map.msg741964e944}</p>
-          <ul className="mt-1 space-y-1">
-            {credits.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </aside>
-  );
+  return null;
 }

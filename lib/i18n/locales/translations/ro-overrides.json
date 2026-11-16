@@ -339,5 +339,9 @@
   },
   "vignetteFormat": {
     "validityTemplate": "Valabilitate (verificată la {checked}): {validity}"
+  },
+  "map": {
+    "osmAttributionShort": "© OpenStreetMap",
+    "attributionDataFrom": "Date de la"
   }
 }

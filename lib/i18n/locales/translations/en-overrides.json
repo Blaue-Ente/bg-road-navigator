@@ -333,5 +333,9 @@
   },
   "vignetteFormat": {
     "validityTemplate": "Validity (checked {checked}): {validity}"
+  },
+  "map": {
+    "osmAttributionShort": "© OpenStreetMap",
+    "attributionDataFrom": "Data from"
   }
 }

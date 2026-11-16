@@ -107,7 +107,7 @@ function hazardMarker(
   const until = formatHazardUntil(hazard.valid_until, locale);
   const el = document.createElement("button");
   el.type = "button";
-  el.className = "flex h-8 w-8 items-center justify-center";
+  el.className = "flex h-11 w-11 items-center justify-center";
   el.setAttribute("aria-label", `${where}. ${bodyText}`);
   const diamond = document.createElement("span");
   diamond.className = "block h-3 w-3 rotate-45 border-2 border-white shadow";
@@ -176,7 +176,7 @@ function marker(
 ): maplibregl.Marker {
   const el = document.createElement("button");
   el.type = "button";
-  el.className = "relative flex h-8 w-8 items-center justify-center";
+  el.className = "relative flex h-11 w-11 items-center justify-center";
   el.setAttribute("aria-label", title);
   el.addEventListener("click", (event) => {
     event.stopPropagation();

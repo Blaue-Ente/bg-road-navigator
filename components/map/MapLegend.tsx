@@ -75,11 +75,17 @@ export function MapLegend() {
   }, [plan?.road_hazards]);
 
   return (
-    <details className="pointer-events-auto waze-panel absolute left-3 z-20 max-w-[min(18rem,calc(100vw-6rem))] px-3 py-2 shadow-sm bottom-[calc(9.5rem+env(safe-area-inset-bottom,0px))] md:bottom-[7.5rem] md:max-w-[21rem]">
-      <summary className="cursor-pointer text-sm font-semibold text-[var(--waze-text)] marker:content-none [&::-webkit-details-marker]:hidden">
+    <details
+      data-overlay-slot="legend"
+      className="pointer-events-auto waze-panel w-auto max-w-[min(16rem,calc(100vw-11rem))] shrink px-3 py-2 shadow-sm md:max-w-[21rem]"
+    >
+      <summary
+        data-tap="legend-summary"
+        className="inline-flex min-h-11 cursor-pointer list-none items-center text-sm font-semibold text-[var(--waze-text)] marker:content-none [&::-webkit-details-marker]:hidden"
+      >
         {m.map.legend}
       </summary>
-      <div className="mt-2 flex flex-col gap-1.5 border-t border-[var(--waze-border)] pt-2">
+      <div className="mt-2 flex max-h-[50vh] flex-col gap-1.5 overflow-y-auto border-t border-[var(--waze-border)] pt-2">
         <LegendRow color={theme.routeLine} label={m.map.routeChosen} line />
         {hasAlt && (
           <LegendRow color={theme.routeAlt[0]} label={m.map.routeAlt} line />

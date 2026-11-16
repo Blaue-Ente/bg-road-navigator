@@ -62,14 +62,18 @@ export default function TipsPage() {
 
         <div className="mb-6 flex flex-wrap gap-2">
           <button
+            type="button"
+            data-tap="tips-category-chip"
             onClick={() => setFilter("all")}
-            className={`waze-chip ${filter === "all" ? "waze-chip-active" : ""}`}
+            className={`inline-flex min-h-11 items-center waze-chip ${filter === "all" ? "waze-chip-active" : ""}`}
           >{m.tipsPage.msg109b6e8542}</button>
           {CATEGORIES.map((cat) => (
             <button
+              type="button"
               key={cat}
+              data-tap="tips-category-chip"
               onClick={() => setFilter(cat)}
-              className={`waze-chip ${filter === cat ? "waze-chip-active" : ""}`}
+              className={`inline-flex min-h-11 items-center waze-chip ${filter === cat ? "waze-chip-active" : ""}`}
             >
               {categoryLabel(locale, cat)}
             </button>

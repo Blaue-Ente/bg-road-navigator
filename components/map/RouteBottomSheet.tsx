@@ -31,7 +31,10 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   const badgeUnit = hours > 0 ? m.map.msg4e4e5817ea : m.prefs.minutes;
 
   return (
-    <div className="pointer-events-none absolute left-0 z-20 w-full px-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:w-[380px]">
+    <div
+      data-overlay-slot="bottom-sheet"
+      className="pointer-events-none w-full max-w-[min(22rem,calc(100vw-1.5rem))] md:max-w-[21rem]"
+    >
       <div className="pointer-events-auto overflow-hidden rounded-2xl waze-panel transition-all">
         <button
           type="button"
@@ -86,7 +89,8 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
             <div className="mt-4 grid grid-cols-4 gap-2">
               <Link
                 href="/fuel"
-                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
+                data-tap="stop-quick-fuel"
+                className="inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] px-2 py-2 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
                 <Fuel className="h-5 w-5" strokeWidth={2} aria-hidden />{m.kinds.fuel}</Link>
               <Link
@@ -101,7 +105,8 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
                 <Landmark className="h-5 w-5" strokeWidth={2} aria-hidden />{m.nav.borders}</Link>
               <Link
                 href="/hotels"
-                className="flex flex-col items-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] py-2.5 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
+                data-tap="stop-quick-rest"
+                className="inline-flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 rounded-xl bg-[var(--waze-surface-elevated)] px-2 py-2 text-xs text-[var(--waze-text-secondary)] transition hover:text-[var(--waze-accent-text)]"
               >
                 <BedDouble className="h-5 w-5" strokeWidth={2} aria-hidden />{m.kinds.rest}</Link>
             </div>

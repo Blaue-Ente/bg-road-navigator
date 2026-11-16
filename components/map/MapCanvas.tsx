@@ -89,11 +89,6 @@ export function MapCanvas({
     mapInstance.current = map;
     setMapError(null);
 
-    map.addControl(
-      new maplibregl.AttributionControl({ compact: true }),
-      "bottom-left"
-    );
-
     const resize = () => {
       map.resize();
     };

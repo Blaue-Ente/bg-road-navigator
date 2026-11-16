@@ -174,7 +174,7 @@ export function StopTimeline({
                             )
                           }
                           disabled={!stop.place_id}
-                          className="waze-btn-secondary px-3 py-1.5 text-xs disabled:opacity-50"
+                          className="waze-btn-secondary inline-flex min-h-11 min-w-11 items-center justify-center px-3 py-1.5 text-xs disabled:opacity-50"
                         >
                           {m.sheet.addFlag}
                         </button>
@@ -182,7 +182,7 @@ export function StopTimeline({
                           type="button"
                           onClick={() => void savePlace(stop)}
                           disabled={savedPlaces[stop.id] === true}
-                          className="waze-btn-secondary inline-flex items-center gap-1 px-3 py-1.5 text-xs disabled:opacity-50"
+                          className="waze-btn-secondary inline-flex min-h-11 min-w-11 items-center justify-center gap-1 px-3 py-1.5 text-xs disabled:opacity-50"
                         >
                           <Star className="h-3.5 w-3.5" aria-hidden />
                           {savedPlaces[stop.id]

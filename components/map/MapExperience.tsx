@@ -14,6 +14,11 @@ import { UserLocationMarker } from "@/components/map/UserLocationMarker";
 import { PlanMarkers } from "@/components/map/PlanMarkers";
 import { HotspotLayer } from "@/components/map/HotspotLayer";
 import { MapLegend } from "@/components/map/MapLegend";
+import { MapOverlayColumn } from "@/components/map/MapOverlayColumn";
+import { HomeMapChips } from "@/components/map/HomeMapChips";
+import { HotspotAttributionButton } from "@/components/map/HotspotAttributionButton";
+import { MapAttributionButton } from "@/components/map/MapAttributionButton";
+import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
 import { TripProximity } from "@/components/location/TripProximity";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
@@ -152,7 +157,21 @@ export function MapExperience() {
         className="h-[100dvh]"
       />
       <MapControls map={mapInstance} />
-      <MapLegend />
+      <MapOverlayColumn>
+        {onHome && activeRoute ? (
+          <RouteBottomSheet route={activeRoute} />
+        ) : onHome ? (
+          <HomeMapChips />
+        ) : null}
+        <div
+          data-overlay-slot="legend-row"
+          className="pointer-events-none flex w-full max-w-[calc(100vw-5rem)] flex-nowrap items-center gap-2"
+        >
+          <MapLegend />
+          <HotspotAttributionButton map={mapInstance} />
+          <MapAttributionButton />
+        </div>
+      </MapOverlayColumn>
       <RouteLayer
         map={mapInstance}
         route={activeRoute}
