@@ -11,11 +11,21 @@
     "waitNowLine": "Şimdi: {minutes} dk",
     "arrivalIncludes": "{breaks} mola ve bir gece konaklaması dahil.",
     "arrivalIncludesBreaksOnly": "Yolda {breaks} mola dahil.",
-    "arrivalIncludesOvernightOnly": "Gece konaklaması dahil."
+    "arrivalIncludesOvernightOnly": "Gece konaklaması dahil.",
+    "showAllCount": "Tümünü göster ({count})",
+    "showAllWeatherCount": "Tüm {count} segmenti göster",
+    "roadNotesSummaryOne": "Güzergâhta 1 uyarı — ayrıntılar aşağıda.",
+    "roadNotesSummaryOther": "Güzergâhta {count} uyarı — en önemlileri gösteriyoruz.",
+    "roadNotesSummaryRoOne": "RO one placeholder",
+    "roadNotesSummaryRoFew": "RO few placeholder",
+    "roadNotesSummaryRoMany": "RO many placeholder"
   },
   "routeChoice": {
     "waitSuffix": "dk bekleme",
-    "waitAtArrival": "Varışta {minutes} dk"
+    "waitAtArrival": "Varışta {minutes} dk",
+    "switching": "Bu güzergâha geçiliyor…",
+    "switchFailed": "Güzergâh değiştirilemedi. Lütfen tekrar deneyin.",
+    "onlyTwo": "En iyi güzergâh ve gerçek bir alternatif gösteriyoruz."
   },
   "borders": {
     "asOf": "Bulgaristan saatiyle {time}"

@@ -10,10 +10,9 @@ import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
-import {
-  AttentionSegments,
-  RoadHazards,
-} from "@/components/plan/PlanRoadNotes";
+import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
+import { weatherSegmentsForDisplay } from "@/lib/planner/road-notes-view";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import {
   currentLocationPreference,
   locationPreferenceServerSnapshot,
@@ -336,96 +335,12 @@ function DetailBody({
         </p>
       </section>
 
-      <section aria-labelledby="plan-weather">
-        <h3
-          id="plan-weather"
-          className="text-base font-semibold text-[var(--waze-text)]"
-        >
-          {m.sheet.weather}
-        </h3>
-        {plan.weather.warnings.length > 0 && (
-          <ul className="mt-2 space-y-2">
-            {plan.weather.warnings.map((warning) => (
-              <li
-                key={`${warning.source}-${warning.title}`}
-                className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-[var(--waze-warning)]"
-              >
-                <p className="font-medium">{warning.title}</p>
-                <p>{warning.detail}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-        {plan.weather.segments.length === 0 ? (
-          <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
-            {m.sheet.weatherEmpty}
-          </p>
-        ) : (
-          <>
-            {plan.weather.segments.every(
-              (segment) => !segment.summary_bg?.trim()
-            ) ? (
-              <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
-                {m.sheet.weatherEmpty}
-              </p>
-            ) : null}
-            <ul className="mt-2 space-y-2">
-              {plan.weather.segments.map((segment) => {
-                const glyph =
-                  segment.weather_code == null
-                    ? "unknown"
-                    : wmoToWeather(segment.weather_code).icon;
-                return (
-                  <li
-                    key={`${segment.eta}-${segment.distance_from_start_km}`}
-                    className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
-                  >
-                    <WeatherGlyphIcon
-                      name={glyph}
-                      className="h-6 w-6 text-[var(--waze-accent-text)]"
-                    />
-                    <div className="text-sm text-[var(--waze-text)]">
-                      <p className="font-medium">
-                        {formatWhen(segment.eta)} ·{" "}
-                        {segment.distance_from_start_km} {m.planning.km}
-                      </p>
-                      {segment.summary_bg ? (
-                        <p className="text-[var(--waze-text-secondary)]">
-                          {segment.summary_bg}
-                          {segment.temperature_c != null
-                            ? ` · ${Math.round(segment.temperature_c)}°C`
-                            : ""}
-                          {segment.wind_kmh != null
-                            ? ` · ${Math.round(segment.wind_kmh)} km/h`
-                            : ""}
-                        </p>
-                      ) : segment.temperature_c != null ||
-                        segment.wind_kmh != null ? (
-                        <p className="text-[var(--waze-text-secondary)]">
-                          {segment.temperature_c != null
-                            ? `${Math.round(segment.temperature_c)}°C`
-                            : ""}
-                          {segment.wind_kmh != null
-                            ? `${segment.temperature_c != null ? " · " : ""}${Math.round(segment.wind_kmh)} km/h`
-                            : ""}
-                        </p>
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
-        {plan.weather.attribution && (
-          <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
-            {plan.weather.attribution}
-          </p>
-        )}
-      </section>
-
-      <RoadHazards plan={plan} />
-      <AttentionSegments plan={plan} />
+      <StopTimeline
+        stops={plan.stops}
+        included={included}
+        onToggle={onToggleStop}
+        focusedStopId={focusedStopId}
+      />
 
       <section aria-labelledby="plan-border">
         <h3
@@ -451,6 +366,17 @@ function DetailBody({
           <BorderWaitBlock key={border.border_id} chosen={border} />
         ))}
       </section>
+
+      <PlanChecklist
+        checklist={plan.checklist}
+        warnings={plan.warnings}
+        checks={checks}
+        onToggle={onToggleCheck}
+      />
+
+      <PlanWeatherSection plan={plan} />
+
+      <PlanRoadNotes plan={plan} />
 
       {plan.community.notes.length > 0 && (
         <section aria-labelledby="plan-community">
@@ -478,19 +404,162 @@ function DetailBody({
 
       {((plan.fuel_averages ?? []).length > 0 ||
         plan.stops.some((stop) => stop.kinds.includes("fuel"))) && (
-        <section aria-labelledby="plan-fuel-averages">
-          <h3
-            id="plan-fuel-averages"
-            className="text-base font-semibold text-[var(--waze-text)]"
-          >
-            {m.sheet.fuelAverages}
-          </h3>
-          {(plan.fuel_averages ?? []).length === 0 ? (
+        <PlanFuelAveragesSection plan={plan} />
+      )}
+      <button
+        type="button"
+        onClick={onCreate}
+        className="plan-no-print waze-btn-primary w-full py-3.5 text-sm"
+      >
+        {m.sheet.createPlan}
+      </button>
+    </>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-[var(--waze-surface-elevated)] px-2 py-1.5">
+      <dt className="text-[11px] text-[var(--waze-text-muted)]">{label}</dt>
+      <dd className="font-semibold text-[var(--waze-text)]">{value}</dd>
+    </div>
+  );
+}
+
+function WeatherSegmentRow({
+  segment,
+}: {
+  segment: TripPlannerResult["weather"]["segments"][number];
+}) {
+  const m = useMessages();
+  const glyph =
+    segment.weather_code == null
+      ? "unknown"
+      : wmoToWeather(segment.weather_code).icon;
+  return (
+    <li
+      key={`${segment.eta}-${segment.distance_from_start_km}`}
+      className="flex items-start gap-3 rounded-xl bg-[var(--waze-surface-elevated)] p-3"
+    >
+      <WeatherGlyphIcon
+        name={glyph}
+        className="h-6 w-6 text-[var(--waze-accent-text)]"
+      />
+      <div className="text-sm text-[var(--waze-text)]">
+        <p className="font-medium">
+          {formatWhen(segment.eta)} · {segment.distance_from_start_km}{" "}
+          {m.planning.km}
+        </p>
+        {segment.summary_bg ? (
+          <p className="text-[var(--waze-text-secondary)]">
+            {segment.summary_bg}
+            {segment.temperature_c != null
+              ? ` · ${Math.round(segment.temperature_c)}°C`
+              : ""}
+            {segment.wind_kmh != null
+              ? ` · ${Math.round(segment.wind_kmh)} km/h`
+              : ""}
+          </p>
+        ) : segment.temperature_c != null || segment.wind_kmh != null ? (
+          <p className="text-[var(--waze-text-secondary)]">
+            {segment.temperature_c != null
+              ? `${Math.round(segment.temperature_c)}°C`
+              : ""}
+            {segment.wind_kmh != null
+              ? `${segment.temperature_c != null ? " · " : ""}${Math.round(segment.wind_kmh)} km/h`
+              : ""}
+          </p>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
+function PlanWeatherSection({ plan }: { plan: TripPlannerResult }) {
+  const m = useMessages();
+  const { featured, rest } = weatherSegmentsForDisplay(plan.weather.segments);
+  return (
+    <section aria-labelledby="plan-weather">
+      <h3
+        id="plan-weather"
+        className="text-base font-semibold text-[var(--waze-text)]"
+      >
+        {m.sheet.weather}
+      </h3>
+      {plan.weather.warnings.length > 0 && (
+        <ul className="mt-2 space-y-2">
+          {plan.weather.warnings.map((warning) => (
+            <li
+              key={`${warning.source}-${warning.title}`}
+              className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-[var(--waze-warning)]"
+            >
+              <p className="font-medium">{warning.title}</p>
+              <p>{warning.detail}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {plan.weather.segments.length === 0 ? (
+        <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
+          {m.sheet.weatherEmpty}
+        </p>
+      ) : (
+        <>
+          {plan.weather.segments.every(
+            (segment) => !segment.summary_bg?.trim()
+          ) ? (
             <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
+              {m.sheet.weatherEmpty}
+            </p>
+          ) : null}
+          <ul className="mt-2 space-y-2">
+            {featured.map((segment) => (
+              <WeatherSegmentRow key={`w-${segment.eta}-${segment.distance_from_start_km}`} segment={segment} />
+            ))}
+          </ul>
+          {rest.length > 0 ? (
+            <details className="mt-2">
+              <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-[var(--waze-accent-text)]">
+                {formatTemplate(m.sheet.showAllWeatherCount, {
+                  count: String(rest.length),
+                })}
+              </summary>
+              <ul className="mt-2 space-y-2">
+                {rest.map((segment) => (
+                  <WeatherSegmentRow
+                    key={`wr-${segment.eta}-${segment.distance_from_start_km}`}
+                    segment={segment}
+                  />
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </>
+      )}
+      {plan.weather.attribution ? (
+        <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
+          {plan.weather.attribution}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function PlanFuelAveragesSection({ plan }: { plan: TripPlannerResult }) {
+  const m = useMessages();
+  return (
+    <section aria-labelledby="plan-fuel-averages">
+      <details className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)]">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center px-3 text-base font-semibold text-[var(--waze-text)] [&::-webkit-details-marker]:hidden">
+          {m.sheet.fuelAverages}
+        </summary>
+        <div className="border-t border-[var(--waze-border)] px-3 py-3">
+          {(plan.fuel_averages ?? []).length === 0 ? (
+            <p className="text-sm text-[var(--waze-text-muted)]">
               {m.sheet.fuelAveragesEmpty}
             </p>
           ) : (
-            <ul className="mt-2 divide-y divide-[var(--waze-border)] overflow-hidden rounded-xl bg-[var(--waze-surface-elevated)]">
+            <ul className="divide-y divide-[var(--waze-border)] overflow-hidden rounded-xl bg-[var(--waze-surface)]">
               {(plan.fuel_averages ?? []).map((row) => (
                 <li key={row.country_code} className="px-3 py-2">
                   <p className="text-sm text-[var(--waze-text)]">
@@ -513,38 +582,9 @@ function DetailBody({
             {m.sheet.fuelNoTripTotal}
           </p>
           <FuelPriceLegend />
-        </section>
-      )}
-
-      <StopTimeline
-        stops={plan.stops}
-        included={included}
-        onToggle={onToggleStop}
-        focusedStopId={focusedStopId}
-      />
-      <PlanChecklist
-        checklist={plan.checklist}
-        warnings={plan.warnings}
-        checks={checks}
-        onToggle={onToggleCheck}
-      />
-      <button
-        type="button"
-        onClick={onCreate}
-        className="plan-no-print waze-btn-primary w-full py-3.5 text-sm"
-      >
-        {m.sheet.createPlan}
-      </button>
-    </>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl bg-[var(--waze-surface-elevated)] px-2 py-1.5">
-      <dt className="text-[11px] text-[var(--waze-text-muted)]">{label}</dt>
-      <dd className="font-semibold text-[var(--waze-text)]">{value}</dd>
-    </div>
+        </div>
+      </details>
+    </section>
   );
 }
 

@@ -4,7 +4,12 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Star } from "lucide-react";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
-import { PreferenceFields } from "@/components/route/PreferenceFields";
+import {
+  BorderPreferenceFields,
+  RouteStylePreferenceFields,
+  SchedulePreferenceFields,
+  TravelerPreferenceFields,
+} from "@/components/route/PreferenceFields";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { readApiError } from "@/lib/client/read-api-error";
 import { buildFavoriteEnvelope } from "@/lib/planner/favorite-envelope";
@@ -341,23 +346,9 @@ export function PlanningForm({
             aria-labelledby={`${morePanelId}-toggle`}
             className="space-y-4 border-t border-[var(--waze-border)] px-4 py-4"
           >
-            <LocationSearchInput
-              id="via"
-              label={m.planning.via}
-              value={via}
-              placeholder={m.planning.viaPlaceholder}
-              onSelect={(place) => onChange({ via: place })}
-              onQueryChange={onViaQueryChange}
-            />
-            {via && (
-              <button
-                type="button"
-                onClick={() => onChange({ via: null })}
-                className="text-sm text-[var(--waze-text-muted)] underline"
-              >
-                {m.planning.clearVia}
-              </button>
-            )}
+            <TravelerPreferenceFields value={prefs} onChange={changePrefs} />
+
+            <SchedulePreferenceFields value={prefs} onChange={changePrefs} />
 
             <section aria-labelledby="plan-car">
               <h2
@@ -401,7 +392,34 @@ export function PlanningForm({
               />
             </label>
 
-            <PreferenceFields value={prefs} onChange={changePrefs} />
+            <RouteStylePreferenceFields value={prefs} onChange={changePrefs} />
+
+            <LocationSearchInput
+              id="via"
+              label={m.planning.via}
+              value={via}
+              placeholder={m.planning.viaPlaceholder}
+              onSelect={(place) => onChange({ via: place })}
+              onQueryChange={onViaQueryChange}
+            />
+            {via && (
+              <button
+                type="button"
+                onClick={() => onChange({ via: null })}
+                className="text-sm text-[var(--waze-text-muted)] underline"
+              >
+                {m.planning.clearVia}
+              </button>
+            )}
+
+            <details className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)]">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center px-3 text-sm font-medium text-[var(--waze-text)] [&::-webkit-details-marker]:hidden">
+                {m.prefs.preferredBorder}
+              </summary>
+              <div className="border-t border-[var(--waze-border)] px-3 py-3">
+                <BorderPreferenceFields value={prefs} onChange={changePrefs} />
+              </div>
+            </details>
 
             <div className="flex flex-wrap gap-2">
               <button

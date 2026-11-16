@@ -185,6 +185,13 @@ const bgCore = {
     hazardsUntil: "Валидно до",
     attention: "Участък за повишено внимание",
     attentionMore: "Още {count} участъка по маршрута.",
+    showAllCount: "Покажи всички {count}",
+    showAllWeatherCount: "Покажи всички {count} сегмента",
+    roadNotesSummaryOne: "1 сигнал по трасето — подробностите са по-долу.",
+    roadNotesSummaryOther: "{count} сигнала по трасето — показваме най-важните.",
+    roadNotesSummaryRoOne: "RO placeholder one",
+    roadNotesSummaryRoFew: "RO placeholder few",
+    roadNotesSummaryRoMany: "RO placeholder many",
     onTrip: "На път",
     endTrip: "Край на пътуването",
     tripNeedsLocation:
@@ -429,6 +436,9 @@ const bgCore = {
     tollMark: " · тол",
     waitSuffix: "мин чакане",
     waitAtArrival: "{minutes} мин при пристигане",
+    switching: "Превключваме към този път…",
+    switchFailed: "Не успяхме да превключим маршрута. Опитайте отново.",
+    onlyTwo: "Показваме най-добрия път и една реална алтернатива.",
   },
   weatherLabels: {
     wind: "Вятър",

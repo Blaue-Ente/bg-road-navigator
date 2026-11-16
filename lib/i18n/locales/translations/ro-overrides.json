@@ -11,11 +11,21 @@
     "waitNowLine": "Acum: {minutes} min",
     "arrivalIncludes": "Include {breaks} de pauze și o noapte pe traseu.",
     "arrivalIncludesBreaksOnly": "Include {breaks} de pauze pe drum.",
-    "arrivalIncludesOvernightOnly": "Include o noapte pe traseu."
+    "arrivalIncludesOvernightOnly": "Include o noapte pe traseu.",
+    "showAllCount": "Arată toate cele {count}",
+    "showAllWeatherCount": "Arată toate cele {count} segmente",
+    "roadNotesSummaryOne": "Un semnal pe traseu — detaliile sunt mai jos.",
+    "roadNotesSummaryOther": "{count} semnale pe traseu — arătăm cele mai importante.",
+    "roadNotesSummaryRoOne": "Un semnal pe traseu — detaliile sunt mai jos.",
+    "roadNotesSummaryRoFew": "{count} semnale pe traseu — arătăm cele mai importante.",
+    "roadNotesSummaryRoMany": "{count} de semnale pe traseu — arătăm cele mai importante."
   },
   "routeChoice": {
     "waitSuffix": "min așteptare",
-    "waitAtArrival": "{minutes} min la sosire"
+    "waitAtArrival": "{minutes} min la sosire",
+    "switching": "Comutăm la acest traseu…",
+    "switchFailed": "Nu am putut schimba traseul. Încercați din nou.",
+    "onlyTwo": "Arătăm cel mai bun traseu și o alternativă reală."
   },
   "borders": {
     "asOf": "la ora {time}, ora Bulgariei"

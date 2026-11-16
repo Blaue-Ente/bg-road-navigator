@@ -1,15 +1,19 @@
 "use client";
 
+import { useEffect, useReducer } from "react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { MessageCatalog } from "@/lib/i18n";
-import { useState } from "react";
 import { unitsFrom } from "@/lib/i18n/units";
 import { routeChoiceWaitLine } from "@/lib/planner/border-wait-view";
+import {
+  choiceCardOrderKeysFromOptions,
+  choicePickReducer,
+  optionChoiceKey,
+  orderChoiceCards,
+} from "@/lib/planner/choice-cards";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { replanTrip } from "@/lib/planner/replan-trip";
-import {
-  routeChoiceFromAlternative,
-} from "@/lib/planner/route-options";
+import { routeChoiceFromAlternative } from "@/lib/planner/route-options";
 import type { RouteOptionSummary, WaitEstimate } from "@/lib/planner/types";
 import type { RouteOptionsBlock, TripPlannerResult } from "@/lib/planner/types";
 import { getVignetteByCountryCode } from "@/lib/constants/vignettes";
@@ -44,6 +48,7 @@ function RouteChoiceCard({
   option,
   pressed,
   disabled,
+  busy,
   onPick,
   wait,
   m,
@@ -52,6 +57,7 @@ function RouteChoiceCard({
   option: RouteOptionSummary;
   pressed: boolean;
   disabled: boolean;
+  busy: boolean;
   onPick: () => void;
   wait: WaitEstimate | null;
   m: MessageCatalog;
@@ -67,6 +73,7 @@ function RouteChoiceCard({
     <button
       type="button"
       aria-pressed={pressed}
+      aria-busy={busy || undefined}
       disabled={disabled}
       onClick={onPick}
       className={`w-full rounded-2xl border p-3 text-left transition ${
@@ -76,6 +83,11 @@ function RouteChoiceCard({
       } ${disabled ? "opacity-60" : ""}`}
     >
       <p className="font-semibold text-[var(--waze-text)]">{option.label}</p>
+      {busy ? (
+        <p className="mt-1 text-sm text-[var(--waze-accent-text)]" aria-live="polite">
+          {m.routeChoice.switching}
+        </p>
+      ) : null}
       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-[var(--waze-text-secondary)]">
         <div>
           <dt className="text-xs uppercase tracking-wide">{m.sheet.distance}</dt>
@@ -187,12 +199,25 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
   const options: RouteOptionsBlock | undefined = plan.route_options;
   const via = useRouteStore((s) => s.planningVia);
   const activeRoute = useRouteStore((s) => s.activeRoute);
+  const orderKeys = useRouteStore((s) => s.choiceCardOrderKeys);
+  const setChoiceCardOrderKeys = useRouteStore((s) => s.setChoiceCardOrderKeys);
   const setTripPlan = useRouteStore((s) => s.setTripPlan);
   const setActiveRouteStore = useRouteStore((s) => s.setActiveRoute);
   const setAlternativeRoutes = useRouteStore((s) => s.setAlternativeRoutes);
-  const [busy, setBusy] = useState(false);
+  const [pickState, dispatchPick] = useReducer(choicePickReducer, {
+    pendingId: null,
+    switchFailed: false,
+  });
+
+  useEffect(() => {
+    if (!options || orderKeys) return;
+    setChoiceCardOrderKeys(choiceCardOrderKeysFromOptions(options, null));
+  }, [options, orderKeys, setChoiceCardOrderKeys]);
 
   if (!options) return null;
+
+  const orderedCards = orderChoiceCards(options, orderKeys);
+  const activeKey = optionChoiceKey(options.primary);
 
   const unavailableCopy = (() => {
     if (!options.alternative) {
@@ -210,16 +235,29 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
     return null;
   })();
 
+  const pending = pickState.pendingId != null;
+
   const pick = async (target: RouteOptionSummary) => {
-    if (busy || target.role === "primary") return;
-    setBusy(true);
+    const targetKey = optionChoiceKey(target);
+    if (pending || targetKey === activeKey) return;
+    dispatchPick({ type: "pick", id: targetKey });
     try {
       const next = await replanTrip({
         plan,
         via,
         routeChoice: routeChoiceFromAlternative(target),
       });
-      if (!next) return;
+      if (!next) {
+        dispatchPick({ type: "failure" });
+        return;
+      }
+      setChoiceCardOrderKeys(
+        choiceCardOrderKeysFromOptions(
+          next.route_options!,
+          choiceCardOrderKeysFromOptions(options, orderKeys)
+        )
+      );
+      dispatchPick({ type: "success" });
       setTripPlan(next);
       if (activeRoute) {
         const mapped: Route = {
@@ -232,8 +270,8 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
         setActiveRouteStore(mapped);
       }
       applyPlanRouteOptions(next, activeRoute, setAlternativeRoutes);
-    } finally {
-      setBusy(false);
+    } catch {
+      dispatchPick({ type: "failure" });
     }
   };
 
@@ -246,30 +284,38 @@ export function RouteChoiceCards({ plan }: { plan: TripPlannerResult }) {
         {m.sheet.routeChoice}
       </h3>
       <div className="grid gap-2 sm:grid-cols-2">
-        <RouteChoiceCard
-          option={options.primary}
-          pressed
-          disabled={busy}
-          onPick={() => {}}
-          wait={waitForOption(plan, options.primary)}
-          m={m}
-          locale={locale}
-        />
-        {options.alternative ? (
-          <RouteChoiceCard
-            option={options.alternative}
-            pressed={false}
-            disabled={busy}
-            onPick={() => void pick(options.alternative!)}
-            wait={waitForOption(plan, options.alternative)}
-            m={m}
-            locale={locale}
-          />
-        ) : null}
+        {orderedCards.map((option) => {
+          const key = optionChoiceKey(option);
+          const isPending = pickState.pendingId === key;
+          const pressed = isPending || (!pending && key === activeKey);
+          const disabled = pending;
+          const isPrimarySlot = key === activeKey;
+          return (
+            <RouteChoiceCard
+              key={key}
+              option={option}
+              pressed={pressed}
+              disabled={disabled}
+              busy={isPending}
+              onPick={() => {
+                if (isPrimarySlot || pending) return;
+                void pick(option);
+              }}
+              wait={waitForOption(plan, option)}
+              m={m}
+              locale={locale}
+            />
+          );
+        })}
       </div>
-      {busy ? (
-        <p className="text-sm text-[var(--waze-text-secondary)]" aria-live="polite">
-          {m.planning.calculatingStatus}
+      {options.alternative ? (
+        <p className="text-sm text-[var(--waze-text-secondary)]">
+          {m.routeChoice.onlyTwo}
+        </p>
+      ) : null}
+      {pickState.switchFailed ? (
+        <p className="text-sm text-[var(--waze-danger)]" role="alert">
+          {m.routeChoice.switchFailed}
         </p>
       ) : null}
       {unavailableCopy ? (
