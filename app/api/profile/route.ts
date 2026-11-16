@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -49,18 +51,12 @@ export async function PATCH(request: NextRequest) {
     60_000
   );
   if (!limit.ok) {
-    return NextResponse.json(
-      { error: "Твърде много заявки", code: "RATE_LIMITED" },
-      { status: 429 }
-    );
+    return apiError(request, "rateLimited", "RATE_LIMITED", 429);
   }
 
   const parsed = ProfileUpdateSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалиден профил", code: "INVALID_PROFILE" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidProfile", "INVALID_PROFILE", 400);
   }
 
   const displayName = parsed.data.display_name ?? parsed.data.username;
@@ -104,10 +100,7 @@ export async function PATCH(request: NextRequest) {
         : null;
     }
     if (Object.keys(patch).length === 0) {
-      return NextResponse.json(
-        { error: "Няма полета за запис", code: "EMPTY_UPDATE" },
-        { status: 400 }
-      );
+      return apiError(request, "emptyUpdate", "EMPTY_UPDATE", 400);
     }
     const profile = await updateProfile(auth.user.id, patch);
     if (!profile) {
@@ -116,6 +109,6 @@ export async function PATCH(request: NextRequest) {
     }
     return NextResponse.json({ profile });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

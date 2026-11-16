@@ -6,6 +6,7 @@
  * housenumber match it, ahead of Photon's own order.
  */
 
+import { catalog, type Locale } from "@/lib/i18n/locale";
 import {
   failureFromError,
   failureFromStatus,
@@ -212,7 +213,7 @@ export function mapPhotonCollection(
   query: string
 ): RoutePoint[] {
   return rankPhotonFeatures(readFeatures(payload), query)
-    .map(photonFeatureToPlace)
+    .map((feature) => photonFeatureToPlace(feature))
     .filter((place): place is RoutePoint => place != null)
     .slice(0, RESULT_LIMIT);
 }
@@ -239,7 +240,8 @@ export function rankPhotonFeatures(
 }
 
 export function photonFeatureToPlace(
-  feature: PhotonFeature
+  feature: PhotonFeature,
+  locale: Locale = "bg"
 ): RoutePoint | null {
   const coordinates = feature.geometry?.coordinates;
   const lng = coordinates?.[0];
@@ -255,7 +257,8 @@ export function photonFeatureToPlace(
     props.district ||
     props.county ||
     props.state;
-  const label = street || props.name || locality || "Място";
+  const label =
+    street || props.name || locality || catalog(locale).poi.defaultPlace;
   const subtitle = [
     locality && locality !== label ? locality : null,
     props.state && props.state !== locality && props.state !== label
@@ -331,7 +334,7 @@ export async function searchPhoton(
   }
 
   const places = rankPhotonFeatures(features, trimmed)
-    .map(photonFeatureToPlace)
+    .map((feature) => photonFeatureToPlace(feature))
     .filter((place): place is RoutePoint => place != null)
     .slice(0, RESULT_LIMIT);
   remember(cacheKey, places);
@@ -362,7 +365,7 @@ export async function reversePhoton(
   if (!response.ok) return response;
   const place =
     rankPhotonFeatures(response.features, "")
-      .map(photonFeatureToPlace)
+      .map((feature) => photonFeatureToPlace(feature))
       .find((item): item is RoutePoint => item != null) ?? null;
   return { ok: true, place };
 }

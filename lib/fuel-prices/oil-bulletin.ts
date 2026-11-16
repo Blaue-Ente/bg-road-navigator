@@ -208,7 +208,9 @@ function columnMap(
     /diesel|gas oil|gasoil|automotive gas/.test(cell)
   );
   if (petrol < 0 || diesel < 0) return null;
-  const country = cells.findIndex((cell) => /country|държава|member/.test(cell));
+  const country = cells.findIndex((cell) =>
+    /country|\u0434\u044A\u0440\u0436\u0430\u0432\u0430|member/i.test(cell)
+  );
   const week = cells.findIndex((cell) => /week|date|reference/.test(cell));
   return {
     country: country >= 0 ? country : 0,

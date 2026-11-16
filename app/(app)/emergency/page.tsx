@@ -1,6 +1,7 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { catalog } from "@/lib/i18n/locale";
 
 import { useMemo, useState } from "react";
 import { EMERGENCY_DATA } from "@/lib/constants/emergency-numbers";
@@ -10,13 +11,14 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import {
   useGeolocation,
-  locateStatusMessage,
+  locateStatusMessageCode,
 } from "@/lib/hooks/useGeolocation";
 import { useMapStore } from "@/lib/stores/map.store";
 import type { NearbyPlace } from "@/types/emergency.types";
 
 export default function EmergencyPage() {
   const m = useMessages();
+  const locale = useLocale();
   const roadsideAdvice = useMemo(
     () => [
       {
@@ -39,7 +41,8 @@ export default function EmergencyPage() {
   const [places, setPlaces] = useState<NearbyPlace[] | null>(null);
   const [loadingNearby, setLoadingNearby] = useState(false);
   const [nearbyError, setNearbyError] = useState<string | null>(null);
-  const locateHint = locateStatusMessage(locateStatus);
+  const geoCode = locateStatusMessageCode(locateStatus);
+  const locateHint = geoCode ? catalog(locale).location.geo[geoCode] : null;
 
   const loadNearby = async () => {
     setLoadingNearby(true);

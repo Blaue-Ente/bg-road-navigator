@@ -14,12 +14,8 @@ import type { RouteChoice } from "@/lib/planner/types";
 import { resolveVehicle } from "@/lib/planner/vehicle";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 import type { Profile } from "@/types/profile.types";
-import {
-  LOCALE_COOKIE,
-  catalog,
-  parseLocale,
-  type Locale,
-} from "@/lib/i18n/locale";
+import { catalog, parseLocale, type Locale } from "@/lib/i18n/locale";
+import { resolvePlanLocale } from "@/lib/i18n/request-locale";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -160,11 +156,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-function resolvePlanLocale(request: NextRequest): Locale {
-  const fromCookie = request.cookies.get(LOCALE_COOKIE)?.value;
-  return parseLocale(fromCookie);
 }
 
 async function signedInProfile(): Promise<Profile | null> {

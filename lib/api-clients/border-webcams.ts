@@ -40,7 +40,7 @@ export async function getBorderWebcam(
       windyUrl: windy.detailUrl,
       source: "windy",
       attribution:
-        'Камера: <a href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com</a>',
+        'Camera: <a href="https://www.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com</a>',
     };
   }
 
@@ -54,7 +54,7 @@ export async function getBorderWebcam(
       windyUrl: null,
       source: "nakordoni",
       attribution:
-        'Опашки и камери: <a href="https://nakordoni.eu/" target="_blank" rel="noopener noreferrer">nakordoni.eu</a>',
+        'Queues and cameras: <a href="https://nakordoni.eu/" target="_blank" rel="noopener noreferrer">nakordoni.eu</a>',
     };
   }
 

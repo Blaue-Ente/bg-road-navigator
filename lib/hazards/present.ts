@@ -1,22 +1,24 @@
 import { roadKmDisplay } from "@/lib/hazards/road-km";
 import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
 import { catalog, type Locale } from "@/lib/i18n/locale";
+import { bg } from "@/lib/i18n/locales/bg";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { WhyReason } from "@/lib/planner/types";
 
-export const DATEX_ATTRIBUTION =
-  "Източник: Агенция „Пътна инфраструктура“ (datasheet.api.bg)";
+/** @deprecated Use `datexAttribution(locale)` */
+export function datexAttributionBg(): string {
+  return catalog("bg").planner.hazards.attribution;
+}
 
 export function datexAttribution(locale: Locale = "bg"): string {
   return catalog(locale).planner.hazards.attribution;
 }
 
-/** @deprecated Use hazardLabel(kind, locale) */
-export const HAZARD_LABEL: Record<RoadHazardKind, string> = {
-  roadworks: "Ремонт",
-  closed: "Затворен път",
-  danger: "Опасност",
-  conditions: "Лоши условия",
+const HAZARD_LABEL_BG: Record<RoadHazardKind, string> = {
+  roadworks: bg.planner.hazards.roadworks,
+  closed: bg.planner.hazards.closed,
+  danger: bg.planner.hazards.danger,
+  conditions: bg.planner.hazards.conditions,
 };
 
 const SHEET_LIMIT = 40;
@@ -32,7 +34,7 @@ export function hazardLabel(
   kind: RoadHazardKind,
   locale: Locale = "bg"
 ): string {
-  if (locale === "bg") return HAZARD_LABEL[kind];
+  if (locale === "bg") return HAZARD_LABEL_BG[kind];
   return catalog(locale).planner.hazards[kind];
 }
 

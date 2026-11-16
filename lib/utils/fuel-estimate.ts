@@ -1,4 +1,6 @@
-import { FUEL_TYPE_MAP } from "@/lib/constants/fuel-types";
+import { FUEL_TYPE_MAP, fuelTypeLabel, fuelTypeUnit } from "@/lib/constants/fuel-types";
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
 import type { Profile } from "@/types/profile.types";
 
 export interface FuelEstimate {
@@ -48,13 +50,16 @@ function consumptionForProfile(profile: Profile | null | undefined) {
 
 export function estimateRouteFuel(
   distanceKm: number,
-  profile?: Profile | null
+  profile?: Profile | null,
+  locale: Locale = "bg"
 ): FuelEstimate | null {
   if (!Number.isFinite(distanceKm) || distanceKm <= 0) return null;
   const spec = consumptionForProfile(profile);
   const price = FUEL_TYPE_MAP[spec.priceKey];
   const fuelNeeded = (distanceKm / 100) * spec.per100;
   const cost = fuelNeeded * price.default_price;
+  const label = fuelTypeLabel(spec.priceKey, locale);
+  const unit = fuelTypeUnit(spec.priceKey, locale);
   return {
     distance_km: Math.round(distanceKm),
     consumption_per_100: spec.per100,
@@ -62,8 +67,7 @@ export function estimateRouteFuel(
     fuel_needed: Math.round(fuelNeeded * 10) / 10,
     cost_bgn: Math.round(cost * 10) / 10,
     price_per_unit: price.default_price,
-    price_label: `${price.label_bg} (${price.unit})`,
-    disclaimer_bg:
-      "Оценка по среден разход и референтна цена за България — не е реална цена на станция.",
+    price_label: `${label} (${unit})`,
+    disclaimer_bg: catalog(locale).fuel.estimateDisclaimer,
   };
 }

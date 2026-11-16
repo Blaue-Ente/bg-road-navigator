@@ -4,6 +4,7 @@ import { catalog } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { priceBand, type PriceBand } from "@/lib/fuel-prices/bands";
 import type { FuelCountryAverage, PlanPriceSource } from "@/lib/planner/types";
+import { FUEL_WORDS_BG, OIL_BULLETIN_SOURCE_LABEL_BG } from "@/lib/i18n/locales/fuel-present-bg";
 
 export const OIL_BULLETIN_SOURCE = "ec-oil-bulletin" as const;
 
@@ -12,8 +13,7 @@ export function oilBulletinSourceLabel(locale: Locale = "bg"): string {
 }
 
 /** @deprecated Use oilBulletinSourceLabel("bg") */
-export const OIL_BULLETIN_SOURCE_LABEL =
-  "Европейска комисия, Weekly Oil Bulletin";
+export const OIL_BULLETIN_SOURCE_LABEL = OIL_BULLETIN_SOURCE_LABEL_BG;
 
 export interface KnownAverage {
   price: number;
@@ -52,8 +52,7 @@ function fuelWord(
   locale: Locale
 ): string {
   if (locale === "bg") {
-    const legacy = { diesel: "дизел", petrol: "бензин", lpg: "газ" } as const;
-    return legacy[fuel];
+    return FUEL_WORDS_BG[fuel];
   }
   return catalog(locale).planner.fuel[fuel];
 }
@@ -191,7 +190,7 @@ export function presentFuelStop(input: {
     price_label_bg:
       input.stationPerL == null
         ? null
-        : `${formatDecimal(input.stationPerL, 3, locale)} ${locale === "en" ? "€/l" : "€/л"}`,
+        : `${formatDecimal(input.stationPerL, 3, locale)} ${catalog(locale).fuel.unitPerLitre}`,
     price_delta_label_bg:
       coloured && input.stationPerL != null && input.average
         ? priceDeltaLabel({
@@ -214,7 +213,7 @@ export function presentFuelStop(input: {
 }
 
 function signedPerLitre(delta: number, locale: Locale = "bg"): string {
-  const unit = locale === "en" ? "€/l" : "€/л";
+  const unit = catalog(locale).fuel.unitPerLitre;
   const body = `${formatDecimal(Math.abs(delta), 2, locale)} ${unit}`;
   if (delta < -0.0005) return `−${body}`;
   if (delta > 0.0005) return `+${body}`;

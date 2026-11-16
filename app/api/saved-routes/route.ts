@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -40,7 +42,7 @@ const SaveRouteSchema = z.object({
   vehicle_type: z.enum(["car", "ev", "truck", "motorcycle"]).default("car"),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!isDatabaseConfigured()) {
     return NextResponse.json({ routes: [], configured: false });
   }
@@ -50,7 +52,7 @@ export async function GET() {
     const routes = await listSavedRoutes(auth.user.id);
     return NextResponse.json({ routes, configured: true });
   } catch (error) {
-    const response = toDbResponse(error);
+    const response = toDbResponse(error, requestLocale(request));
     if (response.status === 503) {
       return NextResponse.json({ routes: [], configured: false });
     }
@@ -70,10 +72,7 @@ export async function POST(request: NextRequest) {
 
   const parsed = SaveRouteSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалиден маршрут", code: "INVALID_SAVED_ROUTE" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidSavedRoute", "INVALID_SAVED_ROUTE", 400);
   }
 
   try {
@@ -101,6 +100,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ route }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

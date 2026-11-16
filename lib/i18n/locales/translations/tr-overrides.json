@@ -35,7 +35,17 @@
     "weather": {
       "noForecast": "Bu saat için tahmin yok.",
       "attribution": "Tahmin: Open-Meteo.com (CC BY 4.0)",
-      "warningAlongRoute": "Güzergâhta yaklaşık {km} km civarında, {eta}."
+      "warningAlongRoute": "Güzergâhta yaklaşık {km} km civarında, {eta}.",
+      "alongRouteSample": "Güzergâh üzerinde",
+      "alertPassTitle": "Dikkat: {name}",
+      "alertPassDescription":
+        "Geçit civarında kar, rüzgâr veya kaygan yol olabilir. Yola çıkmadan önce hava durumunu kontrol edin.",
+      "alertHighWindTitle": "Güzergâhta kuvvetli rüzgâr",
+      "alertHighWindDescription":
+        "50 km/s üzeri rüzgâr — yüksek araçlarda dikkatli olun.",
+      "alertLowVisibilityTitle": "Görüş azaldı",
+      "alertLowVisibilityDescription":
+        "2 km altı görüş — farları açın ve yavaşlayın."
     },
     "hotspots": {
       "attentionTitle": "Dikkat gerektiren kesim",
@@ -98,5 +108,221 @@
       "sourceCommunityAgo": "kullanıcı bildirimi, {hours} sa önce",
       "oilBulletinLabel": "Avrupa Komisyonu, Haftalık Petrol Bülteni"
     }
+  },
+  "api": {
+    "rateLimited": "Çok fazla istek",
+    "invalidPlan": "Geçersiz plan isteği",
+    "routeUnavailable": "Güzergah hesaplanamadı",
+    "planFailed": "Plan hesaplanamadı",
+    "invalidId": "Geçersiz kayıt",
+    "invalidPin": "Geçersiz bildirim",
+    "invalidComment": "Yorum boş veya çok uzun",
+    "pinNotFound": "Bildirim bulunamadı",
+    "invalidReport": "Geçersiz şikâyet",
+    "alreadyReported": "Bu bildirimi zaten şikâyet ettiniz",
+    "alreadyVoted": "Bu şekilde zaten oy verdiniz",
+    "invalidFavoritePlace": "Geçersiz favori yer",
+    "invalidFavoriteRoute": "Geçersiz favori güzergah",
+    "planTooLarge": "Plan çok büyük",
+    "invalidReportQuery": "İstasyon veya yakıt türü eksik",
+    "invalidPriceReport": "Geçersiz fiyat",
+    "invalidPlace": "Yer eksik",
+    "invalidFlag": "Geçersiz işaret",
+    "invalidProfile": "Geçersiz profil",
+    "emptyUpdate": "Güncellenecek alan yok",
+    "invalidSavedPlace": "Geçersiz yer",
+    "invalidSavedRoute": "Geçersiz güzergah",
+    "databaseUnavailable": "Veritabanı yapılandırılmamış",
+    "migrationRequired": "Veritabanı göçü henüz uygulanmadı",
+    "authRequired": "Giriş gerekli",
+    "databaseError": "Kaydedilemedi",
+    "invalidPoints": "Geçersiz noktalar",
+    "weatherFetchFailed": "Hava durumu yüklenemedi",
+    "weatherAttribution": "Tahmin: Open-Meteo.com (CC BY 4.0)"
+  },
+  "location": {
+    "notifications": {
+      "granted": "Bildirimlere izin verildi",
+      "denied": "Bildirimler engelli. Bu site için tarayıcı ayarlarından izin verin.",
+      "unsupported": "Bu tarayıcı bildirimleri desteklemiyor.",
+      "ask": "Cihazda bildirimlere izin ver"
+    },
+    "geo": {
+      "denied": "Konum erişimi reddedildi. Tarayıcı ayarlarından GPS’i açın.",
+      "unavailable": "Konum bu cihazda kullanılamıyor.",
+      "timeout": "GPS zaman aşımına uğradı. Tekrar deneyin.",
+      "locating": "Konum aranıyor…"
+    }
+  },
+  "pinCategories": {
+    "traffic_jam": "Trafik sıkışıklığı",
+    "accident": "Kaza",
+    "border_queue": "Sınır kuyruğu",
+    "rest_stop": "Dinlenme yeri",
+    "shortcut": "Kısayol",
+    "hotel": "İyi otel",
+    "place_to_visit": "Görülmesi gereken yer",
+    "police": "Polis",
+    "road_works": "Yol çalışması",
+    "other": "Diğer"
+  },
+  "pinTime": {
+    "expired": "süresi doldu",
+    "remainingHours": "yaklaşık {hours} sa kaldı",
+    "remainingDays": "yaklaşık {days} g kaldı",
+    "justNow": "az önce",
+    "ageMinutes": "{minutes} dk önce",
+    "ageHours": "{hours} sa önce",
+    "ageDays": "{days} g önce"
+  },
+  "corridors": {
+    "london-sofia": {
+      "label": "Londra → Sofya",
+      "description": "Batı ve Orta Avrupa üzerinden klasik güzergah, ~30+ saat"
+    },
+    "berlin-sofia": {
+      "label": "Berlin → Sofya",
+      "description": "Polonya, Çekya/Avusturya veya Macaristan üzerinden"
+    },
+    "munich-sofia": {
+      "label": "Münih → Sofya",
+      "description": "Almanya’dan en sık güzergah, ~12–14 saat"
+    },
+    "paris-sofia": {
+      "label": "Paris → Sofya",
+      "description": "Almanya ve Avusturya/Macaristan üzerinden"
+    },
+    "amsterdam-sofia": {
+      "label": "Amsterdam → Sofya",
+      "description": "Almanya ve Orta Avrupa üzerinden"
+    },
+    "madrid-sofia": {
+      "label": "Madrid → Sofya",
+      "description": "Fransa, Almanya ve Balkanlar — 35+ saat"
+    },
+    "barcelona-sofia": {
+      "label": "Barselona → Sofya",
+      "description": "Fransa ve Orta Avrupa üzerinden"
+    },
+    "milan-sofia": {
+      "label": "Milano → Sofya",
+      "description": "Slovenya, Hırvatistan ve Sırbistan üzerinden"
+    },
+    "zagreb-sofia": {
+      "label": "Zagreb → Sofya",
+      "description": "Sırbistan üzerinden — daha hızlı Balkan güzergahı"
+    },
+    "vienna-sofia": {
+      "label": "Viyana → Sofya",
+      "description": "Macaristan ve Sırbistan üzerinden klasik güzergah"
+    },
+    "prague-sofia": {
+      "label": "Prag → Sofya",
+      "description": "Bratislava/Macaristan veya Avusturya üzerinden"
+    },
+    "stockholm-sofia": {
+      "label": "Stockholm → Sofya",
+      "description": "İskandinavya — Almanya — Balkanlar, 40+ saat"
+    },
+    "athens-sofia": {
+      "label": "Atina → Sofya",
+      "description": "Yunanistan üzerinden — Kulata veya Promachon"
+    },
+    "istanbul-sofia": {
+      "label": "İstanbul → Sofya",
+      "description": "Kapıkule veya Hamzabeyli üzerinden"
+    },
+    "bucharest-sofia": {
+      "label": "Bükreş → Sofya",
+      "description": "Tuna köprüsü veya Rusçuk"
+    },
+    "milan-athens": {
+      "label": "Milano → Atina",
+      "description": "Balkan transit — uzun sürüş"
+    },
+    "sofia-london": {
+      "label": "Sofya → Londra",
+      "description": "Batı Avrupa’ya dönüş güzergahı"
+    },
+    "sofia-munich": {
+      "label": "Sofya → Münih",
+      "description": "Bulgaristan’dan Almanya’ya dönüş güzergahı"
+    }
+  },
+  "poi": {
+    "fuelStation": "Benzin istasyonu",
+    "hotel": "Konaklama yeri",
+    "charging": "Şarj istasyonu",
+    "restaurant": "Restoran",
+    "restArea": "Otoyol tesisleri",
+    "attraction": "Gezilecek yer",
+    "defaultPlace": "Yer"
+  },
+  "fuel": {
+    "diesel": "Dizel",
+    "petrol": "Benzin",
+    "petrol95": "Benzin 95",
+    "petrol98": "Benzin 98",
+    "lpg": "LPG",
+    "adblue": "AdBlue",
+    "electric": "Elektrikli şarj",
+    "unitPerLitre": "€/l",
+    "unitPerKwh": "€/kWh",
+    "estimateDisclaimer":
+      "Ortalama tüketim ve referans fiyata göre tahmin — istasyon fiyatı değil."
+  },
+  "tripHeuristic": {
+    "restTitle": "Mola",
+    "overnightTitle": "Geceleme",
+    "overnightDescription": "Sonraki uzun etap öncesi geceleme planlayın.",
+    "restDescription": "Su, yemek ve esneme için mola verin.",
+    "overnightNear": "{name} yakınında geceleme",
+    "evChargeTitle": "Elektrikli şarj",
+    "fuelTitle": "Yakıt dolumu",
+    "evChargeDescription":
+      "Onaylı bir şarj istasyonu seçin ve yola çıkmadan önce uygunluğu kontrol edin.",
+    "fuelDescription":
+      "Güzergâhtaki bir istasyonu seçin ve fiyatı yerinde kontrol edin.",
+    "warningLongRoute":
+      "Güzergâh uzun. Yola çıkmadan en az bir gecelemeyi onaylayın.",
+    "warningEv":
+      "Şarj noktası müsaitliği garanti değil — her durağı işletmeciyle teyit edin.",
+    "warningCalculatedStops":
+      "Bazı duraklar yalnızca yön gösterici. Yola çıkmadan somut bir yer seçin."
+  },
+  "maneuvers": {
+    "types": {
+      "depart": "Hareket",
+      "arrive": "Varış",
+      "turn": "Dön",
+      "new name": "Devam et",
+      "continue": "Devam et",
+      "merge": "Birleş",
+      "on ramp": "Bağlantı yoluna gir",
+      "off ramp": "Çıkışı al",
+      "fork": "Ayrım",
+      "end of road": "Yol sonunda dön",
+      "roundabout": "Dönel kavşak",
+      "rotary": "Dönel kavşak",
+      "exit roundabout": "Dönel kavşaktan çık",
+      "exit rotary": "Dönel kavşaktan çık",
+      "roundabout turn": "Dönel kavşakta dön",
+      "notification": "Dikkat"
+    },
+    "modifiers": {
+      "left": "sola",
+      "right": "sağa",
+      "straight": "düz",
+      "uturn": "U dönüşü",
+      "slight left": "hafif sola",
+      "slight right": "hafif sağa",
+      "sharp left": "keskin sola",
+      "sharp right": "keskin sağa"
+    },
+    "exitNumber": " (çıkış {exit})",
+    "ontoStreet": " {street} üzerinde"
+  },
+  "vignetteFormat": {
+    "validityTemplate": "Geçerlilik ({checked} tarihinde kontrol edildi): {validity}"
   }
 }

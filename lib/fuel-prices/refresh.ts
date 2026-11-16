@@ -25,7 +25,7 @@ export async function refreshFuelBulletin(deps?: {
     now,
   });
   if (!downloaded) {
-    return empty("Бюлетинът не се изтегли.");
+    return empty("Bulletin download failed.");
   }
   const rows = parseOilBulletin(
     downloaded.body,
@@ -33,7 +33,7 @@ export async function refreshFuelBulletin(deps?: {
     downloaded.week
   );
   if (rows.length === 0) {
-    return empty("Бюлетинът няма разпознати цени.");
+    return empty("Bulletin has no recognised prices.");
   }
   const bulgaria = {
     petrol: rows.find((row) => row.countryCode === "BG" && row.fuel === "petrol")

@@ -5,12 +5,15 @@
 
 import type { Locale } from "@/lib/i18n/locale";
 import type { Localized } from "@/lib/i18n/localized-field";
+import {
+  BG_BORDER_BULLETIN_URL,
+  HATARINFO_ATTRIBUTION_TEXT_BG,
+} from "@/lib/i18n/locales/border-official-urls";
 
 export const RS_BORDER_CAMERAS_URL =
   "https://www.mup.gov.rs/wps/portal/sr/kamere";
 
-export const BG_BORDER_BULLETIN_URL =
-  "https://www.mvr.bg/gdgp/информационен-център/пресцентър/ежедневен-трафик-по-гкпп";
+export { BG_BORDER_BULLETIN_URL } from "@/lib/i18n/locales/border-official-urls";
 
 export const RO_BORDER_TRAFFIC_URL =
   "https://www.politiadefrontiera.ro/ro/traficonline";
@@ -123,8 +126,7 @@ export const TRAVEL_ADVICE_BY_LOCALE: Record<Locale, TravelAdviceLink> = {
 export const HATARINFO_PAGE_URL =
   "https://www.police.hu/hu/hirek-es-informaciok/hatarinfo?field_hat_rszakasz_value=szerb%20hat%C3%A1rszakasz";
 
-export const HATARINFO_ATTRIBUTION_TEXT =
-  "Източник: Унгарска полиция (Hárinfó)";
+export const HATARINFO_ATTRIBUTION_TEXT = HATARINFO_ATTRIBUTION_TEXT_BG;
 
 export const HATARINFO_ATTRIBUTION_LABEL: Localized = {
   bg: HATARINFO_ATTRIBUTION_TEXT,

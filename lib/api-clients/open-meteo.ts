@@ -5,7 +5,10 @@
 
 import type { WeatherAlert, WeatherPoint } from "@/types/weather.types";
 import { wmoToWeather } from "@/lib/utils/weather-codes";
-import { nearbyPassNames } from "@/lib/utils/route-weather-points";
+import { nearbyPassNames } from "@/lib/i18n/locales/weather-mountain-passes";
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
@@ -23,19 +26,20 @@ interface OpenMeteoLocation {
 
 function buildAlerts(
   points: WeatherPoint[],
-  coords: Array<{ lng: number; lat: number }>
+  coords: Array<{ lng: number; lat: number }>,
+  locale: Locale
 ): WeatherAlert[] {
   const alerts: WeatherAlert[] = [];
+  const w = catalog(locale).planner.weather;
   const winterish = points.some(
     (p) => p.temperature_c < 2 || p.precipitation_mm > 0
   );
   if (winterish) {
-    for (const name of nearbyPassNames(coords)) {
+    for (const name of nearbyPassNames(coords, 35, locale)) {
       alerts.push({
         id: `pass-${name}`,
-        title: `Внимание: ${name}`,
-        description:
-          "Възможен сняг, вятър или хлъзгав път в района на прохода. Проверете прогнозата преди тръгване.",
+        title: formatTemplate(w.alertPassTitle, { name }),
+        description: w.alertPassDescription,
         severity: "high",
       });
     }
@@ -44,8 +48,8 @@ function buildAlerts(
   if (points.some((p) => p.wind_kmh > 50)) {
     alerts.push({
       id: "high-wind",
-      title: "Силен вятър по маршрута",
-      description: "Вятър над 50 km/h — внимание при високи превозни средства.",
+      title: w.alertHighWindTitle,
+      description: w.alertHighWindDescription,
       severity: "medium",
     });
   }
@@ -53,9 +57,8 @@ function buildAlerts(
   if (points.some((p) => p.visibility_km < 2)) {
     alerts.push({
       id: "low-visibility",
-      title: "Намалена видимост",
-      description:
-        "Видимост под 2 km — включете светлините и намалете скоростта.",
+      title: w.alertLowVisibilityTitle,
+      description: w.alertLowVisibilityDescription,
       severity: "high",
     });
   }
@@ -64,7 +67,8 @@ function buildAlerts(
 }
 
 export async function getWeatherByPoints(
-  points: Array<{ lng: number; lat: number }>
+  points: Array<{ lng: number; lat: number }>,
+  locale: Locale = "bg"
 ): Promise<{ points: WeatherPoint[]; alerts: WeatherAlert[] }> {
   if (points.length === 0) {
     return { points: [], alerts: [] };
@@ -117,7 +121,7 @@ export async function getWeatherByPoints(
 
     return {
       points: pointsData,
-      alerts: buildAlerts(pointsData, limited),
+      alerts: buildAlerts(pointsData, limited, locale),
     };
   } catch (error) {
     console.error("Open-Meteo API error:", error);

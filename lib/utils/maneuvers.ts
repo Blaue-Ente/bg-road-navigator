@@ -1,4 +1,7 @@
 import type { GeoPoint, RouteManeuver } from "@/types/route.types";
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 interface OsrmStep {
   name?: string;
@@ -12,52 +15,36 @@ interface OsrmStep {
   };
 }
 
-const TYPE_BG: Record<string, string> = {
-  depart: "Тръгнете",
-  arrive: "Пристигане",
-  turn: "Завийте",
-  "new name": "Продължете",
-  continue: "Продължете",
-  merge: "Влейте се",
-  "on ramp": "Влезте на пътя",
-  "off ramp": "Излезте",
-  fork: "Разклонение",
-  "end of road": "В края на пътя завийте",
-  roundabout: "Кръгово",
-  rotary: "Кръгово",
-  "exit roundabout": "Излезте от кръговото",
-  "exit rotary": "Излезте от кръговото",
-  "roundabout turn": "В кръговото завийте",
-  notification: "Внимание",
-};
-
-const MOD_BG: Record<string, string> = {
-  left: "наляво",
-  right: "надясно",
-  straight: "напред",
-  uturn: "обратен завой",
-  "slight left": "леко наляво",
-  "slight right": "леко надясно",
-  "sharp left": "остро наляво",
-  "sharp right": "остро надясно",
-};
-
-export function maneuverInstructionBg(step: OsrmStep): string {
+export function maneuverInstruction(
+  step: OsrmStep,
+  locale: Locale = "bg"
+): string {
+  const m = catalog(locale).maneuvers;
   const type = step.maneuver?.type ?? "continue";
   const modifier = step.maneuver?.modifier;
   const street = step.name?.trim();
-  const head = TYPE_BG[type] ?? "Продължете";
-  const dir = modifier ? (MOD_BG[modifier] ?? modifier) : "";
+  const types = m.types as Record<string, string>;
+  const mods = m.modifiers as Record<string, string>;
+  const head = types[type] ?? types.continue;
+  const dir = modifier ? (mods[modifier] ?? modifier) : "";
   const exit =
     typeof step.maneuver?.exit === "number"
-      ? ` (изход ${step.maneuver.exit})`
+      ? formatTemplate(m.exitNumber, { exit: String(step.maneuver.exit) })
       : "";
-  const onto = street ? ` по ${street}` : "";
+  const onto = street
+    ? formatTemplate(m.ontoStreet, { street })
+    : "";
   return `${head}${dir ? ` ${dir}` : ""}${exit}${onto}`.trim();
 }
 
+/** @deprecated Use `maneuverInstruction(step, "bg")` */
+export function maneuverInstructionBg(step: OsrmStep): string {
+  return maneuverInstruction(step, "bg");
+}
+
 export function stepsToManeuvers(
-  steps: OsrmStep[] | undefined
+  steps: OsrmStep[] | undefined,
+  locale: Locale = "bg"
 ): RouteManeuver[] {
   if (!steps?.length) return [];
   const result: RouteManeuver[] = [];
@@ -66,7 +53,7 @@ export function stepsToManeuvers(
     if (!loc || loc.length < 2) continue;
     const coords: GeoPoint = { lng: loc[0]!, lat: loc[1]! };
     result.push({
-      instruction_bg: maneuverInstructionBg(step),
+      instruction_bg: maneuverInstruction(step, locale),
       type: step.maneuver?.type ?? "continue",
       modifier: step.maneuver?.modifier,
       street: step.name || undefined,

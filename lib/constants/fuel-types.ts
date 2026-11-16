@@ -2,51 +2,60 @@
  * BG Road Navigator - Fuel Types Configuration
  */
 
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+
 export type FuelType =
-  "diesel" | "petrol95" | "petrol98" | "lpg" | "adblue" | "electric";
+  | "diesel"
+  | "petrol95"
+  | "petrol98"
+  | "lpg"
+  | "adblue"
+  | "electric";
 
 export interface FuelTypeInfo {
   type: FuelType;
-  label_bg: string;
-  unit: string;
+  /** Catalog key under `fuel` for the display label. */
+  labelKey: keyof ReturnType<typeof catalog>["fuel"];
+  unitKey: "unitPerLitre" | "unitPerKwh";
   default_price: number;
 }
 
 export const FUEL_TYPES: FuelTypeInfo[] = [
   {
     type: "diesel",
-    label_bg: "Дизел",
-    unit: "лв/л",
+    labelKey: "diesel",
+    unitKey: "unitPerLitre",
     default_price: 2.85,
   },
   {
     type: "petrol95",
-    label_bg: "Бензин 95",
-    unit: "лв/л",
+    labelKey: "petrol95",
+    unitKey: "unitPerLitre",
     default_price: 2.68,
   },
   {
     type: "petrol98",
-    label_bg: "Бензин 98",
-    unit: "лв/л",
+    labelKey: "petrol98",
+    unitKey: "unitPerLitre",
     default_price: 2.95,
   },
   {
     type: "lpg",
-    label_bg: "Газ (LPG)",
-    unit: "лв/л",
+    labelKey: "lpg",
+    unitKey: "unitPerLitre",
     default_price: 1.45,
   },
   {
     type: "adblue",
-    label_bg: "AdBlue",
-    unit: "лв/л",
+    labelKey: "adblue",
+    unitKey: "unitPerLitre",
     default_price: 2.1,
   },
   {
     type: "electric",
-    label_bg: "Електричество",
-    unit: "лв/кВтч",
+    labelKey: "electric",
+    unitKey: "unitPerKwh",
     default_price: 0.85,
   },
 ];
@@ -58,3 +67,13 @@ export const FUEL_TYPE_MAP: Record<FuelType, FuelTypeInfo> = FUEL_TYPES.reduce(
   },
   {} as Record<FuelType, FuelTypeInfo>
 );
+
+export function fuelTypeLabel(type: FuelType, locale: Locale = "bg"): string {
+  const info = FUEL_TYPE_MAP[type];
+  return catalog(locale).fuel[info.labelKey];
+}
+
+export function fuelTypeUnit(type: FuelType, locale: Locale = "bg"): string {
+  const info = FUEL_TYPE_MAP[type];
+  return catalog(locale).fuel[info.unitKey];
+}

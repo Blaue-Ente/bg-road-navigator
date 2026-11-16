@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { insertFuelReport, listValidFuelReports } from "@/lib/db/fuel-reports";
@@ -18,16 +20,13 @@ export async function GET(request: NextRequest) {
   const stationId = request.nextUrl.searchParams.get("station_id")?.trim();
   const fuel = request.nextUrl.searchParams.get("fuel_type")?.trim();
   if (!stationId || (fuel !== "diesel" && fuel !== "petrol" && fuel !== "lpg")) {
-    return NextResponse.json(
-      { error: "Липсва станция или гориво", code: "INVALID_REPORT_QUERY" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidReportQuery", "INVALID_REPORT_QUERY", 400);
   }
   try {
     const reports = await listValidFuelReports([stationId], fuel);
     return NextResponse.json({ reports });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }
 
@@ -42,10 +41,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitedResponse();
   const parsed = ReportSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалидна цена", code: "INVALID_PRICE_REPORT" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidPriceReport", "INVALID_PRICE_REPORT", 400);
   }
   try {
     const report = await insertFuelReport({
@@ -57,6 +53,6 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ report }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

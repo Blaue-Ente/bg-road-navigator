@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -13,7 +15,7 @@ const CommentSchema = z.object({
 });
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   if (!isDatabaseConfigured()) {
@@ -21,16 +23,13 @@ export async function GET(
   }
   const params = ParamsSchema.safeParse(await context.params);
   if (!params.success) {
-    return NextResponse.json(
-      { error: "Невалиден сигнал", code: "INVALID_ID" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidPin", "INVALID_ID", 400);
   }
   try {
     const comments = await listComments(params.data.id);
     return NextResponse.json({ comments, configured: true });
   } catch (error) {
-    const response = toDbResponse(error);
+    const response = toDbResponse(error, requestLocale(request));
     if (response.status === 503) {
       return NextResponse.json({ comments: [], configured: false });
     }
@@ -54,17 +53,11 @@ export async function POST(
 
   const params = ParamsSchema.safeParse(await context.params);
   if (!params.success) {
-    return NextResponse.json(
-      { error: "Невалиден сигнал", code: "INVALID_ID" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidPin", "INVALID_ID", 400);
   }
   const parsed = CommentSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Коментарът е празен или е твърде дълъг", code: "INVALID_COMMENT" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidComment", "INVALID_COMMENT", 400);
   }
 
   try {
@@ -79,13 +72,10 @@ export async function POST(
       body: parsed.data.body,
     });
     if (comment === "missing") {
-      return NextResponse.json(
-        { error: "Сигналът липсва", code: "PIN_NOT_FOUND" },
-        { status: 404 }
-      );
+      return apiError(request, "pinNotFound", "PIN_NOT_FOUND", 404);
     }
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,7 @@ interface PinComposerProps {
 
 export function PinComposer({ requireMapTap = false }: PinComposerProps) {
   const m = useMessages();
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const { isDropMode, dropCoords, cancelDrop, addPin, setDropCoords } =
     useCommunityStore();
@@ -42,7 +43,7 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
       setError(m.community.msgb0bc120138);
       return;
     }
-    const label = nextTitle?.trim() || communityPinLabel(nextCategory);
+    const label = nextTitle?.trim() || communityPinLabel(nextCategory, locale);
     setPublishing(true);
     setError(null);
     try {
@@ -111,7 +112,7 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
                 <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs text-white" style={{ background: item.color }}>
                   {item.glyph}
                 </span>
-                {item.label}
+                {communityPinLabel(item.id, locale)}
               </button>
             ))}
           </div>
@@ -127,7 +128,7 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder={communityPinLabel(category)}
+                placeholder={communityPinLabel(category, locale)}
                 className="w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)] outline-none"
               />
             </div>

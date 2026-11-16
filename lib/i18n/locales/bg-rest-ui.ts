@@ -575,5 +575,124 @@ export const bgRestUi = {
     msg0604f8754f: "Местоположението остава на устройството и не се записва на сървъра,",
     msg6bb1be911e: "освен ако по-късно не изберете да го споделяте.",
     msg0b9f7c6d05: "Затвори",
+    notifications: {
+      granted: "Известията са разрешени",
+      denied:
+        "Известията са блокирани. Разрешете ги от настройките на браузъра за този сайт.",
+      unsupported: "Този браузър не поддържа известия.",
+      ask: "Разреши известия на устройството",
+    },
+    geo: {
+      denied:
+        "Достъпът до локацията е отказан. Разрешете GPS от настройките на браузъра.",
+      unavailable: "Локацията не е налична на това устройство.",
+      timeout: "Изчекването за GPS изтече. Опитайте отново.",
+      locating: "Търсене на позиция…",
+    },
+  },
+  pinCategories: {
+    traffic_jam: "Задръстване",
+    accident: "Катастрофа",
+    border_queue: "Опашка на граница",
+    rest_stop: "Място за почивка",
+    shortcut: "Пряк път",
+    hotel: "Хубав хотел",
+    place_to_visit: "Място за виждане",
+    police: "Полиция",
+    road_works: "Ремонт",
+    other: "Друго",
+  },
+  pinTime: {
+    expired: "изтекъл",
+    remainingHours: "още ~{hours} ч",
+    remainingDays: "още ~{days} д",
+    justNow: "току-що",
+    ageMinutes: "преди {minutes} мин",
+    ageHours: "преди {hours} ч",
+    ageDays: "преди {days} д",
+  },
+  corridors: {
+    "london-sofia": {
+      label: "Лондон → София",
+      description:
+        "Класически маршрут през Западна и Централна Европа, ~30+ часа",
+    },
+    "berlin-sofia": {
+      label: "Берлин → София",
+      description: "През Полша, Чехия/Австрия или Унгария",
+    },
+    "munich-sofia": {
+      label: "Мюнхен → София",
+      description: "Най-честият маршрут от Германия, ~12–14 часа",
+    },
+    "paris-sofia": {
+      label: "Париж → София",
+      description: "През Германия и Австрия/Унгария",
+    },
+    "amsterdam-sofia": {
+      label: "Амстердам → София",
+      description: "През Германия и Централна Европа",
+    },
+    "madrid-sofia": {
+      label: "Мадрид → София",
+      description: "През Франция, Германия и Балканите — 35+ часа",
+    },
+    "barcelona-sofia": {
+      label: "Барселона → София",
+      description: "През Франция и Централна Европа",
+    },
+    "milan-sofia": {
+      label: "Милано → София",
+      description: "През Словения, Хърватия и Сърбия",
+    },
+    "zagreb-sofia": {
+      label: "Загреб → София",
+      description: "През Сърбия — по-бърз балкански маршрут",
+    },
+    "vienna-sofia": {
+      label: "Виена → София",
+      description: "Класически маршрут през Унгария и Сърбия",
+    },
+    "prague-sofia": {
+      label: "Прага → София",
+      description: "През Братислава/Унгария или Австрия",
+    },
+    "stockholm-sofia": {
+      label: "Стокхолм → София",
+      description: "Скандинавия — Германия — Балкани, 40+ часа",
+    },
+    "athens-sofia": {
+      label: "Атина → София",
+      description: "През Гърция — Кулата или Промахон",
+    },
+    "istanbul-sofia": {
+      label: "Истанбул → София",
+      description: "През Капитан Андреево или Лесово",
+    },
+    "bucharest-sofia": {
+      label: "Букурещ → София",
+      description: "През Дунав мост или Русе",
+    },
+    "milan-athens": {
+      label: "Милано → Атина",
+      description: "Транзит през Балканите — дълго пътуване",
+    },
+    "sofia-london": {
+      label: "София → Лондон",
+      description: "Обратен маршрут към Западна Европа",
+    },
+    "sofia-munich": {
+      label: "София → Мюнхен",
+      description: "Обратен маршрут от България към Германия",
+    },
+  },
+  poi: {
+    fuelStation: "Бензиностанция",
+    hotel: "Място за нощувка",
+    charging: "Зарядна станция",
+    restaurant: "Ресторант",
+    restArea: "Крайпътна зона",
+    attraction: "Забележителност",
+    defaultPlace: "Място",
   },
 } as const;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { catalog } from "@/lib/i18n/locale";
 import { useMapStore, type LocateStatus } from "@/lib/stores/map.store";
 
 function statusFromError(error: GeolocationPositionError): LocateStatus {
@@ -9,19 +10,32 @@ function statusFromError(error: GeolocationPositionError): LocateStatus {
   return "unavailable";
 }
 
-export function locateStatusMessage(status: LocateStatus): string | null {
+export type LocateMessageCode = keyof ReturnType<
+  typeof import("@/lib/i18n/locale").catalog
+>["location"]["geo"];
+
+export function locateStatusMessageCode(
+  status: LocateStatus
+): LocateMessageCode | null {
   switch (status) {
     case "denied":
-      return "Достъпът до локацията е отказан. Разрешете GPS от настройките на браузъра.";
+      return "denied";
     case "unavailable":
-      return "Локацията не е налична на това устройство.";
+      return "unavailable";
     case "timeout":
-      return "Изчакването за GPS изтече. Опитайте отново.";
+      return "timeout";
     case "locating":
-      return "Търсене на позиция…";
+      return "locating";
     default:
       return null;
   }
+}
+
+/** Bulgarian fallback for tests or callers without locale context. */
+export function locateStatusMessage(status: LocateStatus): string | null {
+  const code = locateStatusMessageCode(status);
+  if (!code) return null;
+  return catalog("bg").location.geo[code];
 }
 
 export function useGeolocation() {

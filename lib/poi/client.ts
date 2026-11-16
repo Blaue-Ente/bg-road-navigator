@@ -1,5 +1,7 @@
 import { ociFetch } from "@/lib/api-clients/oci-geo";
 import { isInEurope } from "@/lib/geo/bounds";
+import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
 import type { PoiConfig } from "@/lib/poi/config";
 import {
   CONTRACT_POI_TYPES,
@@ -203,13 +205,21 @@ function isPoiType(value: unknown): value is PoiType {
   );
 }
 
+export function poiFallbackName(
+  type: PoiType,
+  locale: Locale = "bg"
+): string {
+  const p = catalog(locale).poi;
+  if (type === "hotel") return p.hotel;
+  if (type === "charging") return p.charging;
+  if (type === "restaurant") return p.restaurant;
+  if (type === "rest_area") return p.restArea;
+  if (type === "attraction" || type === "viewpoint") return p.attraction;
+  return p.fuelStation;
+}
+
 function fallbackName(type: PoiType): string {
-  if (type === "hotel") return "Място за нощувка";
-  if (type === "charging") return "Зарядна станция";
-  if (type === "restaurant") return "Ресторант";
-  if (type === "rest_area") return "Крайпътна зона";
-  if (type === "attraction" || type === "viewpoint") return "Забележителност";
-  return "Бензиностанция";
+  return poiFallbackName(type, "bg");
 }
 
 function textOrNull(value: unknown): string | null {

@@ -9,7 +9,9 @@ export function roadKmDisplay(
   if (locale === "bg") return roadKmBg;
   const combined = roadKmBg ?? textBg;
   const romanRoad = combined.match(/\b([IVX]{1,4}-\d+)\b/i)?.[1];
-  const km = combined.match(/км\.?\s*(\d+(?:[+.]\d+)?)/i)?.[1];
+  const km = combined.match(
+    /(?:\u043A\u043C|km)\.?\s*(\d+(?:[+.]\d+)?)/i
+  )?.[1];
   if (romanRoad && km) return `${romanRoad} km ${km}`;
   if (km) return `km ${km}`;
   return null;

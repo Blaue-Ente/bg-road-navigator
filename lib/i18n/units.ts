@@ -1,4 +1,5 @@
 import type { MessageCatalog } from "@/lib/i18n/locales/bg";
+import { bg } from "@/lib/i18n/locales/bg";
 
 export type DurationUnits = {
   day: string;
@@ -7,9 +8,9 @@ export type DurationUnits = {
 };
 
 export const BG_UNITS: DurationUnits = {
-  day: "д",
-  hour: "ч",
-  min: "мин",
+  day: bg.units.day,
+  hour: bg.units.hour,
+  min: bg.units.min,
 };
 
 export function unitsFrom(m: MessageCatalog): DurationUnits {

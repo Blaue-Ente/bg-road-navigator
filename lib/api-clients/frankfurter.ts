@@ -36,7 +36,7 @@ export async function fetchEuroRates(): Promise<FxQuote | null> {
       rates: { BGN: BGN_PER_EUR, ...payload.rates },
       source: "frankfurter",
       disclaimer_bg:
-        "Курс по ECB (Frankfurter). BGN е валутен борд 1 EUR = 1.95583 BGN — информативно, не обменен пункт.",
+        "ECB rate via Frankfurter. Indicative reference only, not a bureau de change.",
     };
   } catch {
     return null;

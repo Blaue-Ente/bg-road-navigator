@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { voteOnPin } from "@/lib/db/community";
@@ -29,10 +31,7 @@ export async function POST(
   const raw = await request.json().catch(() => ({}));
   const parsedBody = BodySchema.safeParse(raw);
   if (!parsedParams.success || !parsedBody.success) {
-    return NextResponse.json(
-      { error: "Невалиден глас", code: "INVALID_PIN_ID" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidPin", "INVALID_PIN_ID", 400);
   }
 
   try {
@@ -47,19 +46,13 @@ export async function POST(
       kind: parsedBody.data.kind,
     });
     if (result === "missing") {
-      return NextResponse.json(
-        { error: "Сигналът липсва", code: "PIN_NOT_FOUND" },
-        { status: 404 }
-      );
+      return apiError(request, "pinNotFound", "PIN_NOT_FOUND", 404);
     }
     if (result === "same") {
-      return NextResponse.json(
-        { error: "Вече сте гласували така", code: "ALREADY_VOTED" },
-        { status: 409 }
-      );
+      return apiError(request, "alreadyVoted", "ALREADY_VOTED", 409);
     }
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

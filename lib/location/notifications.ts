@@ -4,24 +4,30 @@ export type BrowserNotificationPermission =
   | "default"
   | "unsupported";
 
+export type NotificationPromptStatus =
+  | "granted"
+  | "denied"
+  | "ask"
+  | "unsupported";
+
+export type NotificationMessageCode =
+  | "granted"
+  | "denied"
+  | "unsupported"
+  | "ask";
+
 export function notificationPrompt(permission: BrowserNotificationPermission): {
-  status: "granted" | "denied" | "ask" | "unsupported";
-  text: string;
+  status: NotificationPromptStatus;
+  code: NotificationMessageCode;
 } {
   if (permission === "granted") {
-    return { status: "granted", text: "Известията са разрешени" };
+    return { status: "granted", code: "granted" };
   }
   if (permission === "denied") {
-    return {
-      status: "denied",
-      text: "Известията са блокирани. Разрешете ги от настройките на браузъра за този сайт.",
-    };
+    return { status: "denied", code: "denied" };
   }
   if (permission === "unsupported") {
-    return {
-      status: "unsupported",
-      text: "Този браузър не поддържа известия.",
-    };
+    return { status: "unsupported", code: "unsupported" };
   }
-  return { status: "ask", text: "Разреши известия на устройството" };
+  return { status: "ask", code: "ask" };
 }

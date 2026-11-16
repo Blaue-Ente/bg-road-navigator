@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestLocale } from "@/lib/i18n/request-locale";
+import { apiError } from "@/lib/api/api-errors";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { isDatabaseConfigured } from "@/lib/db";
@@ -30,10 +32,7 @@ export async function GET(request: NextRequest) {
     .filter(Boolean)
     .slice(0, 40);
   if (ids.length === 0) {
-    return NextResponse.json(
-      { error: "Липсва място", code: "INVALID_PLACE" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidPlace", "INVALID_PLACE", 400);
   }
   try {
     const rows = await listPlaceFlags(ids);
@@ -47,7 +46,7 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }
 
@@ -62,10 +61,7 @@ export async function POST(request: NextRequest) {
   if (!limit.ok) return rateLimitedResponse();
   const parsed = FlagSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалиден флаг", code: "INVALID_FLAG" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidFlag", "INVALID_FLAG", 400);
   }
   try {
     const flag = await upsertPlaceFlag({
@@ -77,7 +73,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ flag }, { status: 201 });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }
 
@@ -91,10 +87,7 @@ export async function DELETE(request: NextRequest) {
     })
     .safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Невалиден флаг", code: "INVALID_FLAG" },
-      { status: 400 }
-    );
+    return apiError(request, "invalidFlag", "INVALID_FLAG", 400);
   }
   try {
     await deletePlaceFlag({
@@ -104,6 +97,6 @@ export async function DELETE(request: NextRequest) {
     });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    return toDbResponse(error);
+    return toDbResponse(error, requestLocale(request));
   }
 }

@@ -1,4 +1,5 @@
 import { queriedStreet, streetTier } from "@/lib/geo/street-match";
+import { NOMINATIM_STREET_PREFIX as STREET_PREFIX } from "@/lib/i18n/locales/nominatim-street-prefix";
 import type { RoutePoint } from "@/types/route.types";
 
 interface NominatimResult {
@@ -89,9 +90,6 @@ function toRoutePoint(result: NominatimResult): RoutePoint | null {
   };
 }
 
-const STREET_PREFIX =
-  /^(ул|улица|бул|булевард|пл|площад|ul|ulitsa|bul|blvd|pl|street|str|via|piazza|platz|út|ut)\.?$/iu;
-
 function queryTokens(value: string): string[] {
   return value
     .toLocaleLowerCase("bg-BG")
@@ -101,7 +99,7 @@ function queryTokens(value: string): string[] {
       (token) =>
         token.length >= 3 &&
         !STREET_PREFIX.test(token) &&
-        !/^\d+[a-zа-я]?$/iu.test(token)
+        !/^\d+[a-z\u0430-\u044F]?$/iu.test(token)
     );
 }
 
@@ -163,7 +161,9 @@ function scoreResult(result: NominatimResult, query: string): number {
   else if (roadTier === "substring") score += 28;
   else if (nameTier === "exact") score += 8;
   else if (nameTier === "substring") score += 6;
-  const askedNumber = query.match(/(?:^|\s)(\d+[a-zа-я]?)(?:\s|,|$)/iu)?.[1];
+  const askedNumber = query.match(
+    /(?:^|\s)(\d+[a-z\u0430-\u044F]?)(?:\s|,|$)/iu
+  )?.[1];
   const houseNumber = address?.house_number?.toLocaleLowerCase("bg-BG");
   const numberMatches = Boolean(
     askedNumber &&

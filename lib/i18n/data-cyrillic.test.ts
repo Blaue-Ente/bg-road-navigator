@@ -46,6 +46,17 @@ import {
   restAreaName,
   restAreaNotes,
 } from "@/lib/constants/rest-areas";
+import {
+  TRAVEL_CORRIDORS,
+  corridorDescription,
+  corridorLabel,
+} from "@/lib/constants/european-corridors";
+import {
+  COMMUNITY_PIN_CATEGORIES,
+  communityPinLabel,
+} from "@/lib/constants/community-pins";
+import { fuelTypeLabel, FUEL_TYPES } from "@/lib/constants/fuel-types";
+import { getAllEuropeanCrossings } from "@/lib/constants/european-borders";
 
 const NON_BG: Locale[] = ["en", "tr", "ro"];
 
@@ -172,6 +183,34 @@ describe("localized border and map data", () => {
         if (notes) strings.push(notes);
       }
       expectNoCyrillic(`rest areas (${locale})`, strings);
+    });
+
+    it(`${locale}: all European crossings (incl. pan-Europe) have no Cyrillic in names/notes`, () => {
+      const all = getAllEuropeanCrossings();
+      const names = all.map((row) => borderDisplayName(locale, row));
+      const notes = all.map((row) => borderNotesText(locale, row));
+      expectNoCyrillic(`all crossings names (${locale})`, names);
+      expectNoCyrillic(`all crossings notes (${locale})`, notes);
+    });
+
+    it(`${locale}: travel corridors have no Cyrillic`, () => {
+      const labels = TRAVEL_CORRIDORS.map((c) => corridorLabel(c.id, locale));
+      const descriptions = TRAVEL_CORRIDORS.map((c) =>
+        corridorDescription(c.id, locale)
+      );
+      expectNoCyrillic(`corridors (${locale})`, [...labels, ...descriptions]);
+    });
+
+    it(`${locale}: community pin labels have no Cyrillic`, () => {
+      const labels = COMMUNITY_PIN_CATEGORIES.map((c) =>
+        communityPinLabel(c.id, locale)
+      );
+      expectNoCyrillic(`community pins (${locale})`, labels);
+    });
+
+    it(`${locale}: fuel type labels have no Cyrillic`, () => {
+      const labels = FUEL_TYPES.map((row) => fuelTypeLabel(row.type, locale));
+      expectNoCyrillic(`fuel types (${locale})`, labels);
     });
   }
 });

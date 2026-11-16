@@ -4,7 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCityById } from "@/lib/constants/european-cities";
-import { TRAVEL_CORRIDORS } from "@/lib/constants/european-corridors";
+import {
+  TRAVEL_CORRIDORS,
+  corridorLabel,
+} from "@/lib/constants/european-corridors";
 import { toDatetimeLocalValue } from "@/lib/planner/form-preferences";
 import { proposedDepartLocalValue } from "@/lib/planner/proposed-depart";
 import { formatTemplate } from "@/lib/i18n/format-template";
@@ -31,7 +34,7 @@ import { SaveRouteButton } from "@/components/route/SaveRouteButton";
 import { MapsHandoffButtons } from "@/components/route/MapsHandoffButtons";
 import { RouteTollsCard } from "@/components/route/RouteTollsCard";
 import { PlanningForm, type PlanningSubmit } from "@/components/route/PlanningForm";
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { committedPlace } from "@/lib/route/place-commit";
 import { applyPlanRouteOptions } from "@/components/plan/RouteChoiceCards";
 import type { TripPlannerResult } from "@/lib/planner/types";
@@ -74,6 +77,7 @@ function toRoutePoint(cityId: string): RoutePoint | null {
 
 export default function RoutePage() {
   const m = useMessages();
+  const locale = useLocale();
   const units = unitsFrom(m);
   const router = useRouter();
   const {
@@ -327,7 +331,7 @@ export default function RoutePage() {
                   selectedCorridor === corridor.id ? "waze-chip-active" : ""
                 }`}
               >
-                {corridor.label}
+                {corridorLabel(corridor.id, locale)}
               </button>
             ))}
           </div>

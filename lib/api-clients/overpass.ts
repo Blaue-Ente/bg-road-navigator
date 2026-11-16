@@ -72,7 +72,7 @@ out center 16;
       const name =
         el.tags?.name ??
         el.tags?.["name:bg"] ??
-        (kind === "hospital" ? "Болница / клиника" : "Автосервиз");
+        (kind === "hospital" ? "Hospital / clinic" : "Vehicle repair");
       places.push({
         id: `osm-${el.type}-${el.id}`,
         kind,
