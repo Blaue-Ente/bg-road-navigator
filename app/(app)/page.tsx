@@ -9,6 +9,7 @@ import { PinDropButton } from "@/components/community/PinDropButton";
 import { PinComposer } from "@/components/community/PinComposer";
 import { MenuIcon, SearchIcon } from "@/components/icons/NavIcons";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { LocaleOffer } from "@/components/i18n/LocaleOffer";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useMenu } from "@/components/layout/MenuContext";
 import { hydrateRouteTripIntoStore } from "@/lib/stores/hydrate-route-trip";
@@ -30,7 +31,7 @@ export default function MapPage() {
     <>
       <h1 className="sr-only">{m.home.title}</h1>
       <div
-        className="pointer-events-none absolute top-0 left-0 z-10 w-full px-3 md:w-[380px]"
+        className="pointer-events-none absolute top-0 left-0 z-30 w-full px-3 md:w-[380px]"
         style={{ paddingTop: "calc(0.75rem + env(safe-area-inset-top, 0px))" }}
       >
         <div className="flex items-center gap-2">
@@ -64,6 +65,8 @@ export default function MapPage() {
             </span>
           </Link>
         </div>
+
+        <LocaleOffer placement="map" />
 
         {activeRoute && (
           <p className="pointer-events-none mt-2 ml-14 w-fit max-w-[calc(100%-3.5rem)] truncate rounded-full bg-[var(--waze-surface)] px-3 py-1 text-xs text-[var(--waze-text-secondary)] shadow-sm">

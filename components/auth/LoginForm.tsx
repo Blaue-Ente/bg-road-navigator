@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SocialSignIn } from "@/components/auth/SocialSignIn";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
+import { LocaleOffer } from "@/components/i18n/LocaleOffer";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { authClient } from "@/lib/auth-client";
 import type { SocialProviderId } from "@/lib/auth/config";
@@ -47,6 +48,7 @@ export function LoginForm({ providers }: { providers: SocialProviderId[] }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--waze-bg)] p-4">
       <div className="waze-panel w-full max-w-md p-6 text-[var(--waze-text)]">
+        <LocaleOffer placement="auth" />
         <div className="mb-4 flex justify-center">
           <LocaleSwitcher />
         </div>

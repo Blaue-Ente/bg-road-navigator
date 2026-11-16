@@ -13,6 +13,7 @@ interface MapState {
   locateStatus: LocateStatus;
   userLocation: (GeoPoint & { accuracy?: number }) | null;
   layers: Record<LayerKey, boolean>;
+  layersPanelOpen: boolean;
   mapError: string | null;
   view: { center: [number, number]; zoom: number };
   setLocating: (locating: boolean) => void;
@@ -20,6 +21,7 @@ interface MapState {
   setUserLocation: (point: MapState["userLocation"]) => void;
   toggleLayer: (key: LayerKey) => void;
   setLayer: (key: LayerKey, visible: boolean) => void;
+  setLayersPanelOpen: (open: boolean) => void;
   setMapError: (message: string | null) => void;
   setView: (view: MapState["view"]) => void;
 }
@@ -29,6 +31,7 @@ export const useMapStore = create<MapState>((set) => ({
   locateStatus: "idle",
   userLocation: null,
   layers: { ...DEFAULT_LAYER_VISIBILITY },
+  layersPanelOpen: false,
   mapError: null,
   view: { center: [23.3219, 42.6977], zoom: 7 },
   setLocating: (locating) => set({ isLocating: locating }),
@@ -41,6 +44,7 @@ export const useMapStore = create<MapState>((set) => ({
     })),
   setLayer: (key, visible) =>
     set((state) => ({ layers: { ...state.layers, [key]: visible } })),
+  setLayersPanelOpen: (layersPanelOpen) => set({ layersPanelOpen }),
   setMapError: (mapError) => set({ mapError }),
   setView: (view) => set({ view }),
 }));

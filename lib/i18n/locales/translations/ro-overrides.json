@@ -35,6 +35,9 @@
   "borders": {
     "asOf": "la ora {time}, ora Bulgariei"
   },
+  "localeOffer": {
+    "keepBulgarian": "Rămâi la bulgară"
+  },
   "nav": {
     "weather": "Vremea",
     "hotels": "Locuri de odihnă"

@@ -31,6 +31,9 @@
   "borders": {
     "asOf": "as of {time} Sofia time"
   },
+  "localeOffer": {
+    "keepBulgarian": "Keep Bulgarian"
+  },
   "nav": {
     "weather": "Weather",
     "hotels": "Rest stops"

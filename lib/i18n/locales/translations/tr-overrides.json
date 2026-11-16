@@ -33,6 +33,9 @@
   "borders": {
     "asOf": "Bulgaristan saatiyle {time}"
   },
+  "localeOffer": {
+    "keepBulgarian": "Bulgarca'da kal"
+  },
   "nav": {
     "weather": "Hava durumu",
     "hotels": "Dinlenme yerleri"

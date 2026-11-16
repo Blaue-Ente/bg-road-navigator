@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useMapStore } from "@/lib/stores/map.store";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { theme } from "@/lib/constants/theme";
 import { hazardLabel } from "@/lib/hazards/present";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import type { RoadHazardKind } from "@/lib/hazards/types";
-import { useMapStore } from "@/lib/stores/map.store";
 import { useRouteStore } from "@/lib/stores/route.store";
 
 const TRAFFIC_KEYS = [
@@ -88,6 +88,9 @@ function LegendRow({
 export function MapLegend() {
   const m = useMessages();
   const locale = useLocale();
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const layersPanelOpen = useMapStore((s) => s.layersPanelOpen);
+  const setLayersPanelOpen = useMapStore((s) => s.setLayersPanelOpen);
   const hasAlt = useRouteStore((s) => s.alternativeRoutes.length > 0);
   const plan = useRouteStore((s) => s.tripPlan);
   const hotspotsOn = useMapStore((s) => s.layers.hotspots);
@@ -100,9 +103,21 @@ export function MapLegend() {
   const showHotspotGroup = hotspotsOn;
   const showHazardGroup = hazardKinds.length > 0;
 
+  useEffect(() => {
+    if (layersPanelOpen && detailsRef.current?.open) {
+      detailsRef.current.open = false;
+    }
+  }, [layersPanelOpen]);
+
   return (
     <details
+      ref={detailsRef}
       data-overlay-slot="legend"
+      onToggle={(event) => {
+        if (event.currentTarget.open) {
+          setLayersPanelOpen(false);
+        }
+      }}
       className="pointer-events-auto waze-panel w-auto max-w-[min(16rem,calc(100vw-11rem))] shrink px-3 py-2 shadow-sm md:max-w-[21rem]"
     >
       <summary
