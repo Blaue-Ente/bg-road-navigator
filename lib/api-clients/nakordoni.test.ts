@@ -88,6 +88,42 @@ describe("nakordoniMeteredFetch", () => {
     expect(ra.json).toEqual(rb.json);
   });
 
+  it("falls back to per-instance throttle when global slot reservation fails", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const callTimes: number[] = [];
+    let now = 0;
+    const fetcher = vi.fn(async () => {
+      callTimes.push(now);
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    configureNakordoniMeteredForTests({
+      now: () => now,
+      sleep: (ms) => {
+        now += ms;
+        return Promise.resolve();
+      },
+      fetcher: fetcher as typeof fetch,
+      reserveGlobalSlot: async () => {
+        throw new Error("relation nakordoni_rate does not exist");
+      },
+    });
+
+    await nakordoniMeteredFetch("/api/v1/data/queue?ppid=id_a");
+    await nakordoniMeteredFetch("/api/v1/data/queue?ppid=id_b");
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[0]).toContain("per-instance throttle only");
+    expect(callTimes.length).toBe(2);
+    expect(callTimes[1]! - callTimes[0]!).toBeGreaterThanOrEqual(
+      NAKORDONI_MIN_GAP_MS
+    );
+    warn.mockRestore();
+  });
+
   it("backs off on 429 using Retry-After then serves stale cache", async () => {
     let now = 0;
     const sleeps: number[] = [];

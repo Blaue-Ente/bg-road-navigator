@@ -97,6 +97,16 @@ let deps: MeteredDeps = {
   reserveGlobalSlot: reserveNakordoniSlotInDb,
 };
 
+let loggedGlobalSlotFallback = false;
+
+function logGlobalSlotFallbackOnce(reason: string): void {
+  if (loggedGlobalSlotFallback) return;
+  loggedGlobalSlotFallback = true;
+  console.warn(
+    `[nakordoni] global rate slot unavailable (${reason}); using per-instance throttle only`
+  );
+}
+
 /** Test-only: swap clock, sleep, fetch, and global slot reservation. */
 export function configureNakordoniMeteredForTests(
   partial: Partial<MeteredDeps>
@@ -109,6 +119,7 @@ export function resetNakordoniMeteredForTests(): void {
   inFlight.clear();
   chain = Promise.resolve();
   lastLocalFireMs = 0;
+  loggedGlobalSlotFallback = false;
   deps = {
     now: () => Date.now(),
     sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
@@ -200,16 +211,27 @@ async function reserveNakordoniSlotInDb(nowMs: number): Promise<number> {
     });
   } catch (error) {
     const normalized = normalizeDbError(error);
-    if (normalized.name === "MigrationRequiredError") {
-      return nowMs;
-    }
+    const reason =
+      normalized.name === "MigrationRequiredError"
+        ? "nakordoni_rate migration not applied"
+        : normalized instanceof Error
+          ? normalized.message
+          : "database error";
+    logGlobalSlotFallbackOnce(reason);
     return nowMs;
   }
 }
 
 async function paceBeforeRequest(): Promise<void> {
   const now = deps.now();
-  const globalFireAt = await deps.reserveGlobalSlot(now);
+  let globalFireAt = now;
+  try {
+    globalFireAt = await deps.reserveGlobalSlot(now);
+  } catch (error) {
+    const reason =
+      error instanceof Error ? error.message : "database error";
+    logGlobalSlotFallbackOnce(reason);
+  }
   const localGap = Math.max(0, lastLocalFireMs + NAKORDONI_MIN_GAP_MS - now);
   const globalGap = Math.max(0, globalFireAt - now);
   const wait = Math.max(localGap, globalGap);
