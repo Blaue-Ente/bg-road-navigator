@@ -32,4 +32,15 @@ describe("map layers", () => {
       html.indexOf("Общност")
     );
   });
+
+  it("renders translated layer names in English", () => {
+    const html = renderToStaticMarkup(
+      <LocaleProvider initialLocale="en">
+        <LayerPanel />
+      </LocaleProvider>
+    );
+    expect(html).toContain("Accident-prone sections");
+    expect(html).toContain("Incidents");
+    expect(html).not.toContain("Повишено внимание");
+  });
 });
