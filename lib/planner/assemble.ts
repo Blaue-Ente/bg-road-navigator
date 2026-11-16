@@ -1,7 +1,7 @@
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { isHungarySerbiaPlannerId } from "@/lib/constants/border-official-links";
 import { fillLiters } from "@/lib/fuel-prices/advice";
-import { DATEX_ATTRIBUTION } from "@/lib/hazards/present";
+import { datexAttribution } from "@/lib/hazards/present";
 import type { RoadHazard } from "@/lib/hazards/types";
 import { hotspotAttribution } from "@/lib/hotspots/present";
 import type { Hotspot } from "@/lib/hotspots/types";
@@ -130,9 +130,11 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     warnings.push(p.warnings.confirmOvernight);
   }
 
+  const planLocale = input.locale ?? "bg";
   return {
     generated_at: input.now.toISOString(),
     planner: "deterministic",
+    locale: planLocale,
     depart_at: input.departAt.toISOString(),
     vehicle: {
       vehicle_type: input.vehicle.vehicle_type,
@@ -199,7 +201,9 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     why_this_route: input.why,
     road_hazards: input.roadHazards ?? [],
     road_hazard_attribution:
-      (input.roadHazards?.length ?? 0) > 0 ? DATEX_ATTRIBUTION : null,
+      (input.roadHazards?.length ?? 0) > 0
+        ? datexAttribution(planLocale)
+        : null,
     attention_segments: input.attentionSegments ?? [],
     attention_attribution: hotspotAttribution(input.attentionSegments ?? []),
     recommended_fuel: recommended,
@@ -426,6 +430,7 @@ function fuelCopy(
     observedAt: attachment?.price?.observed_at ?? null,
     liters: fillLiters(input.vehicle),
     now: input.now,
+    locale: input.locale ?? "bg",
   });
 }
 

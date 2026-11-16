@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
 import { escapeHtml } from "@/lib/geo/escape-html";
-import { ATTENTION_TITLE, hotspotDetail } from "@/lib/hotspots/present";
+import { attentionTitle, hotspotDetail } from "@/lib/hotspots/present";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import type { Hotspot } from "@/lib/hotspots/types";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useMapStore } from "@/lib/stores/map.store";
@@ -16,6 +17,7 @@ const LAYER = "attention-hotspots";
 
 export function HotspotLayer({ map }: { map: Map | null }) {
   const m = useMessages();
+  const locale = useLocale();
   const enabled = useMapStore((state) => state.layers.hotspots);
   const [credits, setCredits] = useState<string[]>([]);
   const [creditsOpen, setCreditsOpen] = useState(false);
@@ -46,7 +48,7 @@ export function HotspotLayer({ map }: { map: Map | null }) {
                 : hotspot.serious > 0
                   ? "medium"
                   : "low",
-            label: hotspotDetail(hotspot),
+            label: hotspotDetail(hotspot, locale),
           },
         })),
       };
@@ -109,7 +111,7 @@ export function HotspotLayer({ map }: { map: Map | null }) {
       popup
         .setLngLat(event.lngLat)
         .setHTML(
-          `<div class="p-2 text-sm"><strong>${escapeHtml(ATTENTION_TITLE)}</strong><p>${escapeHtml(label)}</p></div>`
+          `<div class="p-2 text-sm"><strong>${escapeHtml(attentionTitle(locale))}</strong><p>${escapeHtml(label)}</p></div>`
         )
         .addTo(map);
     };
@@ -140,7 +142,7 @@ export function HotspotLayer({ map }: { map: Map | null }) {
         if (map.getSource(SOURCE)) map.removeSource(SOURCE);
       }
     };
-  }, [map, enabled]);
+  }, [map, enabled, locale]);
 
   if (!enabled || credits.length === 0) return null;
 

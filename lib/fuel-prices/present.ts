@@ -1,25 +1,44 @@
 import { countryName } from "@/lib/geo/country-name";
 import type { Locale } from "@/lib/i18n/locale";
+import { catalog } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { priceBand, type PriceBand } from "@/lib/fuel-prices/bands";
 import type { FuelCountryAverage, PlanPriceSource } from "@/lib/planner/types";
 
 export const OIL_BULLETIN_SOURCE = "ec-oil-bulletin" as const;
+
+export function oilBulletinSourceLabel(locale: Locale = "bg"): string {
+  return catalog(locale).planner.fuel.oilBulletinLabel;
+}
+
+/** @deprecated Use oilBulletinSourceLabel("bg") */
 export const OIL_BULLETIN_SOURCE_LABEL =
   "Европейска комисия, Weekly Oil Bulletin";
-
-const FUEL_BG: Record<"diesel" | "petrol" | "lpg", string> = {
-  diesel: "дизел",
-  petrol: "бензин",
-  lpg: "газ",
-};
 
 export interface KnownAverage {
   price: number;
   week: string;
 }
 
-export function formatDecimal(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
+const INTL_LOCALE: Record<Locale, string> = {
+  bg: "bg-BG",
+  en: "en-GB",
+  tr: "tr-TR",
+  ro: "ro-RO",
+};
+
+export function formatDecimal(
+  value: number,
+  digits: number,
+  locale: Locale = "bg"
+): string {
+  if (locale === "bg") {
+    return value.toFixed(digits).replace(".", ",");
+  }
+  return new Intl.NumberFormat(INTL_LOCALE[locale], {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(value);
 }
 
 export function formatBulletinWeek(week: string): string {
@@ -28,44 +47,70 @@ export function formatBulletinWeek(week: string): string {
   return `${Number(match[3])}.${Number(match[2])}.${match[1]}`;
 }
 
+function fuelWord(
+  fuel: "diesel" | "petrol" | "lpg",
+  locale: Locale
+): string {
+  if (locale === "bg") {
+    const legacy = { diesel: "дизел", petrol: "бензин", lpg: "газ" } as const;
+    return legacy[fuel];
+  }
+  return catalog(locale).planner.fuel[fuel];
+}
+
 export function countryAverageLabel(input: {
   countryName: string;
   fuel: "diesel" | "petrol" | "lpg";
   price: number | null;
+  locale?: Locale;
 }): string {
-  if (input.price == null) return `${input.countryName}: няма средна цена`;
-  return `${input.countryName}: ${FUEL_BG[input.fuel]} ср. ${formatDecimal(input.price, 2)} €/л`;
+  const locale = input.locale ?? "bg";
+  const f = catalog(locale).planner.fuel;
+  if (input.price == null) {
+    return formatTemplate(f.noAverage, { country: input.countryName });
+  }
+  return formatTemplate(f.averageLine, {
+    country: input.countryName,
+    fuel: fuelWord(input.fuel, locale),
+    price: formatDecimal(input.price, 2, locale),
+  });
 }
 
 export function priceDeltaLabel(input: {
   stationPerL: number;
   averagePerL: number;
   liters: number;
+  locale?: Locale;
 }): string {
+  const locale = input.locale ?? "bg";
+  const f = catalog(locale).planner.fuel;
   const delta = round3(input.stationPerL - input.averagePerL);
-  const signed = signedPerLitre(delta);
+  const signed = signedPerLitre(delta, locale);
   if (!(input.liters > 0)) return signed;
-  const euros = formatApproxEuro(Math.abs(round2(delta * input.liters)));
-  const liters = formatLiters(input.liters);
+  const euros = formatApproxEuro(Math.abs(round2(delta * input.liters)), locale);
+  const liters = formatLiters(input.liters, locale);
   if (delta < -0.0005) {
-    return `${signed}, спестяваш ~${euros} € за ${liters} л`;
+    return formatTemplate(f.deltaCheaper, { signed, euros, liters });
   }
   if (delta > 0.0005) {
-    return `${signed}, плащаш ~${euros} € повече за ${liters} л`;
+    return formatTemplate(f.deltaCostlier, { signed, euros, liters });
   }
-  return `${signed} спрямо средното за ${liters} л`;
+  return formatTemplate(f.deltaNeutral, { signed, liters });
 }
 
 export function stationSourceLabel(input: {
   source: PlanPriceSource;
   observedAt: string | null;
   now: Date;
+  locale?: Locale;
 }): string {
+  const locale = input.locale ?? "bg";
+  const f = catalog(locale).planner.fuel;
   if (input.source === "e-control") return "E-Control";
   if (input.source === "tankerkoenig") return "Tankerkönig";
   const hours = communityHours(input.observedAt, input.now);
-  if (hours == null) return "от потребител";
-  return `от потребител, преди ${hours} ч`;
+  if (hours == null) return f.sourceCommunity;
+  return formatTemplate(f.sourceCommunityAgo, { hours: String(hours) });
 }
 
 export function fuelAveragesForCountries(input: {
@@ -84,20 +129,22 @@ export function fuelAveragesForCountries(input: {
     seen.add(country);
     const known = input.known.get(country) ?? null;
     const price = known && Number.isFinite(known.price) ? known.price : null;
+    const localizedName = countryName(country, locale);
     rows.push({
       country_code: country,
-      country_name_bg: countryName(country, locale),
+      country_name_bg: localizedName,
       fuel: input.fuel,
       price_eur_per_l: price,
       week: price == null ? null : (known?.week ?? null),
       week_label_bg:
         price == null || !known?.week ? null : formatBulletinWeek(known.week),
       source: price == null ? null : OIL_BULLETIN_SOURCE,
-      source_label_bg: OIL_BULLETIN_SOURCE_LABEL,
+      source_label_bg: oilBulletinSourceLabel(locale),
       label_bg: countryAverageLabel({
-        countryName: countryName(country, locale),
+        countryName: localizedName,
         fuel: input.fuel,
         price,
+        locale,
       }),
     });
   }
@@ -135,6 +182,7 @@ export function presentFuelStop(input: {
           countryName: countryLabel,
           fuel: input.fuel,
           price: input.average?.price ?? null,
+          locale,
         });
   const coloured = band !== "grey";
   return {
@@ -143,13 +191,14 @@ export function presentFuelStop(input: {
     price_label_bg:
       input.stationPerL == null
         ? null
-        : `${formatDecimal(input.stationPerL, 3)} €/л`,
+        : `${formatDecimal(input.stationPerL, 3, locale)} ${locale === "en" ? "€/l" : "€/л"}`,
     price_delta_label_bg:
       coloured && input.stationPerL != null && input.average
         ? priceDeltaLabel({
             stationPerL: input.stationPerL,
             averagePerL: input.average.price,
             liters: input.liters,
+            locale,
           })
         : null,
     price_source_label_bg:
@@ -158,30 +207,32 @@ export function presentFuelStop(input: {
             source: input.source,
             observedAt: input.observedAt,
             now: input.now,
+            locale,
           })
         : null,
   };
 }
 
-function signedPerLitre(delta: number): string {
-  const body = `${formatDecimal(Math.abs(delta), 2)} €/л`;
+function signedPerLitre(delta: number, locale: Locale = "bg"): string {
+  const unit = locale === "en" ? "€/l" : "€/л";
+  const body = `${formatDecimal(Math.abs(delta), 2, locale)} ${unit}`;
   if (delta < -0.0005) return `−${body}`;
   if (delta > 0.0005) return `+${body}`;
   return body;
 }
 
-function formatApproxEuro(value: number): string {
+function formatApproxEuro(value: number, locale: Locale = "bg"): string {
   const rounded = Math.round(value * 10) / 10;
   if (Math.abs(rounded - Math.round(rounded)) < 0.05)
     return String(Math.round(rounded));
-  return formatDecimal(rounded, 1);
+  return formatDecimal(rounded, 1, locale);
 }
 
-function formatLiters(liters: number): string {
+function formatLiters(liters: number, locale: Locale = "bg"): string {
   const rounded = Math.round(liters * 10) / 10;
   if (Math.abs(rounded - Math.round(rounded)) < 0.05)
     return String(Math.round(rounded));
-  return formatDecimal(rounded, 1);
+  return formatDecimal(rounded, 1, locale);
 }
 
 function communityHours(observedAt: string | null, now: Date): number | null {

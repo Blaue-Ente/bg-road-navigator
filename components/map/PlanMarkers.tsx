@@ -4,7 +4,13 @@ import { useEffect } from "react";
 import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
-import { DATEX_ATTRIBUTION, formatHazardUntil } from "@/lib/hazards/present";
+import {
+  datexAttribution,
+  formatHazardUntil,
+  hazardLabel,
+  hazardPopupBody,
+} from "@/lib/hazards/present";
+import { roadKmDisplay } from "@/lib/hazards/road-km";
 import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
@@ -12,6 +18,7 @@ import type { MessageCatalog } from "@/lib/i18n";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useRouteStore } from "@/lib/stores/route.store";
 import type { PlanStop, StopKind } from "@/lib/planner/types";
+import type { Locale } from "@/lib/i18n/locale";
 
 const HAZARD_COLOR: Record<RoadHazardKind, string> = {
   roadworks: "#d97706",
@@ -55,7 +62,7 @@ export function PlanMarkers({ map }: { map: Map | null }) {
       );
     }
     for (const hazard of plan.road_hazards ?? []) {
-      markers.push(hazardMarker(map, hazard, m));
+      markers.push(hazardMarker(map, hazard, m, locale));
     }
     const border = plan.border.chosen;
     if (border) {
@@ -90,16 +97,18 @@ export function PlanMarkers({ map }: { map: Map | null }) {
 function hazardMarker(
   map: Map,
   hazard: RoadHazard,
-  m: MessageCatalog
+  m: MessageCatalog,
+  locale: Locale
 ): maplibregl.Marker {
-  const where = hazard.road_km_bg
-    ? `${hazard.label_bg} · ${hazard.road_km_bg}`
-    : hazard.label_bg;
-  const until = formatHazardUntil(hazard.valid_until);
+  const label = hazardLabel(hazard.kind, locale);
+  const road = roadKmDisplay(hazard.road_km_bg, hazard.text_bg, locale);
+  const where = road ? `${label} · ${road}` : label;
+  const bodyText = hazardPopupBody(hazard, locale);
+  const until = formatHazardUntil(hazard.valid_until, locale);
   const el = document.createElement("button");
   el.type = "button";
   el.className = "flex h-8 w-8 items-center justify-center";
-  el.setAttribute("aria-label", `${where}. ${hazard.text_bg}`);
+  el.setAttribute("aria-label", `${where}. ${bodyText}`);
   const diamond = document.createElement("span");
   diamond.className = "block h-3 w-3 rotate-45 border-2 border-white shadow";
   diamond.style.background = HAZARD_COLOR[hazard.kind];
@@ -111,7 +120,7 @@ function hazardMarker(
   title.className = "font-semibold";
   title.textContent = where;
   const body = document.createElement("p");
-  body.textContent = hazard.text_bg;
+  body.textContent = bodyText;
   popup.append(title, body);
   if (until) {
     const line = document.createElement("p");
@@ -119,7 +128,7 @@ function hazardMarker(
     popup.append(line);
   }
   const source = document.createElement("p");
-  source.textContent = DATEX_ATTRIBUTION;
+  source.textContent = datexAttribution(locale);
   popup.append(source);
 
   return new maplibregl.Marker({ element: el })

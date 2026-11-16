@@ -1,6 +1,6 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
@@ -9,7 +9,7 @@ import {
   throttleAlerts,
   type AlertTarget,
 } from "@/lib/hotspots/alerts";
-import { HOTSPOT_ALERTS } from "@/lib/i18n/hotspot-alerts";
+import { proximityAlertTitle } from "@/lib/i18n/hotspot-alerts";
 import {
   currentLocationPreference,
   locationPreferenceServerSnapshot,
@@ -23,6 +23,7 @@ import { useTripSessionStore } from "@/lib/stores/trip-session.store";
 
 export function TripProximity() {
   const m = useMessages();
+  const locale = useLocale();
   const raw = useSyncExternalStore(
     subscribeLocationPreference,
     locationPreferenceSnapshot,
@@ -80,6 +81,7 @@ export function TripProximity() {
           },
           targets,
           aheadM: pref.alert_radius_m,
+          locale,
         });
         const gate = throttleAlerts(
           ahead,
@@ -93,7 +95,7 @@ export function TripProximity() {
           lat: position.coords.latitude,
           accuracy: position.coords.accuracy,
         });
-        signal(first.text, first.id, pref.notifications_opt_in);
+        signal(first.text, first.id, pref.notifications_opt_in, locale);
       },
       () => undefined,
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
@@ -105,6 +107,7 @@ export function TripProximity() {
     pref.location_opt_in,
     pref.alert_radius_m,
     pref.notifications_opt_in,
+    locale,
   ]);
 
   if (!banner) return null;
@@ -137,7 +140,12 @@ export function ProximityBanner({
   );
 }
 
-function signal(text: string, id: string, notifications: boolean): void {
+function signal(
+  text: string,
+  id: string,
+  notifications: boolean,
+  locale: import("@/lib/i18n/locale").Locale
+): void {
   if (
     typeof navigator !== "undefined" &&
     typeof navigator.vibrate === "function"
@@ -147,16 +155,16 @@ function signal(text: string, id: string, notifications: boolean): void {
   beep();
   if (!notifications || typeof Notification === "undefined") return;
   if (Notification.permission !== "granted") return;
+  const title = proximityAlertTitle(locale);
   const payload = {
     type: "hotspot-alert",
-    title: HOTSPOT_ALERTS.title,
+    title,
     body: text,
     tag: id,
   };
   const worker = navigator.serviceWorker?.controller;
   if (worker) worker.postMessage(payload);
-  else
-    new Notification(HOTSPOT_ALERTS.title, { body: text, tag: id, lang: "bg" });
+  else new Notification(title, { body: text, tag: id, lang: locale });
 }
 
 function beep(): void {

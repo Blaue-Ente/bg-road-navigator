@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { theme } from "@/lib/constants/theme";
-import { HAZARD_LABEL } from "@/lib/hazards/present";
+import { hazardLabel } from "@/lib/hazards/present";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import type { RoadHazardKind } from "@/lib/hazards/types";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -63,6 +64,7 @@ function LegendRow({
 
 export function MapLegend() {
   const m = useMessages();
+  const locale = useLocale();
   const hasAlt = useRouteStore((s) => s.alternativeRoutes.length > 0);
   const plan = useRouteStore((s) => s.tripPlan);
   const hotspotsOn = useMapStore((s) => s.layers.hotspots);
@@ -94,7 +96,7 @@ export function MapLegend() {
           <LegendRow
             key={kind}
             color={HAZARD_COLOR[kind]}
-            label={HAZARD_LABEL[kind]}
+            label={hazardLabel(kind, locale)}
             diamond
           />
         ))}
