@@ -20,8 +20,25 @@ export interface KnownAverage {
   week: string;
 }
 
-export function formatDecimal(value: number, digits: number): string {
-  return value.toFixed(digits).replace(".", ",");
+const INTL_LOCALE: Record<Locale, string> = {
+  bg: "bg-BG",
+  en: "en-GB",
+  tr: "tr-TR",
+  ro: "ro-RO",
+};
+
+export function formatDecimal(
+  value: number,
+  digits: number,
+  locale: Locale = "bg"
+): string {
+  if (locale === "bg") {
+    return value.toFixed(digits).replace(".", ",");
+  }
+  return new Intl.NumberFormat(INTL_LOCALE[locale], {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(value);
 }
 
 export function formatBulletinWeek(week: string): string {
@@ -55,7 +72,7 @@ export function countryAverageLabel(input: {
   return formatTemplate(f.averageLine, {
     country: input.countryName,
     fuel: fuelWord(input.fuel, locale),
-    price: formatDecimal(input.price, 2),
+    price: formatDecimal(input.price, 2, locale),
   });
 }
 
@@ -68,10 +85,10 @@ export function priceDeltaLabel(input: {
   const locale = input.locale ?? "bg";
   const f = catalog(locale).planner.fuel;
   const delta = round3(input.stationPerL - input.averagePerL);
-  const signed = signedPerLitre(delta);
+  const signed = signedPerLitre(delta, locale);
   if (!(input.liters > 0)) return signed;
-  const euros = formatApproxEuro(Math.abs(round2(delta * input.liters)));
-  const liters = formatLiters(input.liters);
+  const euros = formatApproxEuro(Math.abs(round2(delta * input.liters)), locale);
+  const liters = formatLiters(input.liters, locale);
   if (delta < -0.0005) {
     return formatTemplate(f.deltaCheaper, { signed, euros, liters });
   }
@@ -174,7 +191,7 @@ export function presentFuelStop(input: {
     price_label_bg:
       input.stationPerL == null
         ? null
-        : `${formatDecimal(input.stationPerL, 3)} €/л`,
+        : `${formatDecimal(input.stationPerL, 3, locale)} ${locale === "en" ? "€/l" : "€/л"}`,
     price_delta_label_bg:
       coloured && input.stationPerL != null && input.average
         ? priceDeltaLabel({
@@ -196,25 +213,26 @@ export function presentFuelStop(input: {
   };
 }
 
-function signedPerLitre(delta: number): string {
-  const body = `${formatDecimal(Math.abs(delta), 2)} €/л`;
+function signedPerLitre(delta: number, locale: Locale = "bg"): string {
+  const unit = locale === "en" ? "€/l" : "€/л";
+  const body = `${formatDecimal(Math.abs(delta), 2, locale)} ${unit}`;
   if (delta < -0.0005) return `−${body}`;
   if (delta > 0.0005) return `+${body}`;
   return body;
 }
 
-function formatApproxEuro(value: number): string {
+function formatApproxEuro(value: number, locale: Locale = "bg"): string {
   const rounded = Math.round(value * 10) / 10;
   if (Math.abs(rounded - Math.round(rounded)) < 0.05)
     return String(Math.round(rounded));
-  return formatDecimal(rounded, 1);
+  return formatDecimal(rounded, 1, locale);
 }
 
-function formatLiters(liters: number): string {
+function formatLiters(liters: number, locale: Locale = "bg"): string {
   const rounded = Math.round(liters * 10) / 10;
   if (Math.abs(rounded - Math.round(rounded)) < 0.05)
     return String(Math.round(rounded));
-  return formatDecimal(rounded, 1);
+  return formatDecimal(rounded, 1, locale);
 }
 
 function communityHours(observedAt: string | null, now: Date): number | null {

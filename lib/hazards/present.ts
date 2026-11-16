@@ -64,14 +64,12 @@ function hazardLine(hazard: RoadHazard, locale: Locale): string {
     return `${hazard.label_bg}: ${where}${hazard.text_bg}${untilPart}`;
   }
   const road = roadKmDisplay(hazard.road_km_bg, hazard.text_bg, locale);
-  const where = road ? `${road}. ` : "";
-  const text = road ? "" : `${h.agencyDetailsOnly} `;
-  return formatTemplate(h.lineUntil, {
-    label,
-    where,
-    text,
-    until: untilPart,
-  });
+  let line = `${label}: ${road ?? h.agencyDetailsOnly}`;
+  if (untilPart) {
+    const gap = untilPart.startsWith(" ") ? untilPart : ` ${untilPart}`;
+    line += gap;
+  }
+  return line.trim();
 }
 
 export function hazardWarnings(
@@ -116,9 +114,13 @@ function hazardReasonDetail(
   const count = String(hazards.length);
   let detail: string;
   if (locale === "en") {
-    detail = formatTemplate(h.reasonEn, { count, kinds, place });
+    const tpl =
+      hazards.length === 1 ? h.reasonEnOne : h.reasonEnOther;
+    detail = formatTemplate(tpl, { count, kinds, place });
   } else if (locale === "tr") {
-    detail = formatTemplate(h.reasonTr, { count, kinds, place });
+    const tpl =
+      hazards.length === 1 ? h.reasonTrOne : h.reasonTrOther;
+    detail = formatTemplate(tpl, { count, kinds, place });
   } else if (locale === "ro") {
     detail = formatTemplate(h.reasonRo, { count, kinds, place });
   } else {

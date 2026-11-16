@@ -56,4 +56,28 @@ describe("hotspot present", () => {
     expect(hotspotDetail(hotspot, "tr")).toContain("12 kaza");
     expect(hotspotDetail(hotspot, "tr")).not.toMatch(/[А-Яа-яЁё]/);
   });
+
+  it("uses proper EN plurals without (s)", () => {
+    const one = hotspotReason([hotspot], "en")?.detail;
+    const many = hotspotReason(
+      [
+        { ...hotspot, id: "h2" },
+        { ...hotspot, id: "h3" },
+      ],
+      "en"
+    )?.detail;
+    expect(one).toBe("1 high-accident section along the chosen route.");
+    expect(many).toBe("2 high-accident sections along the chosen route.");
+    expect(`${one} ${many}`).not.toContain("(s)");
+  });
+
+  it("places TR count after the adjective clause", () => {
+    const five = Array.from({ length: 5 }, (_, index) => ({
+      ...hotspot,
+      id: `h${index}`,
+    }));
+    expect(hotspotReason(five, "tr")?.detail).toBe(
+      "Seçilen güzergâhta sık kaza olan 5 kesim var."
+    );
+  });
 });

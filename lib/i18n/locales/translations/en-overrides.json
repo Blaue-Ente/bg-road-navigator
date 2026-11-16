@@ -25,7 +25,7 @@
       "warningOnRoute": "{title}: {count} on the route. {detail}",
       "reasonOne": "1 high-accident section along the chosen route.",
       "reasonOther": "{count} high-accident sections along the chosen route.",
-      "reasonEn": "{count} high-accident section(s) along the chosen route.",
+      "reasonEn": "{count} high-accident sections along the chosen route.",
       "sourceRsMup": "Serbian Ministry of Interior",
       "sourceBgCherna": "Cherna pista",
       "sourceBgMvr": "Ministry of Interior",
@@ -47,7 +47,8 @@
       "reasonTitle": "Road agency bulletin",
       "reasonDetail":
         "{count} alerts on the Bulgarian section ({kinds}).{place}",
-      "reasonEn": "{count} Bulgarian road agency alert(s) on this route ({kinds}).{place}",
+      "reasonEnOne": "1 Bulgarian road agency alert on this route ({kinds}).{place}",
+      "reasonEnOther": "{count} Bulgarian road agency alerts on this route ({kinds}).{place}",
       "reasonExample": " Example: {place}.",
       "agencyDetailsOnly": "Details are available in Bulgarian from the road agency.",
       "lineUntil": "{label}: {where}{text}{until}"

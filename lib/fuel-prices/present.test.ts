@@ -21,6 +21,27 @@ describe("fuel present", () => {
       locale: "en",
     });
     expect(rows[0]?.label_bg).toMatch(/Germany.*diesel.*avg.*€\/l/i);
+    expect(rows[0]?.label_bg).toContain("1.75");
+    expect(rows[0]?.label_bg).not.toContain("1,75");
     expect(rows[0]?.label_bg).not.toMatch(/[А-Яа-яЁё]/);
+  });
+
+  it("formats TR and RO decimals with a comma", () => {
+    expect(
+      countryAverageLabel({
+        countryName: "Türkiye",
+        fuel: "diesel",
+        price: 1.75,
+        locale: "tr",
+      })
+    ).toContain("1,75");
+    expect(
+      countryAverageLabel({
+        countryName: "România",
+        fuel: "diesel",
+        price: 1.75,
+        locale: "ro",
+      })
+    ).toContain("1,75");
   });
 });

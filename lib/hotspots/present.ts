@@ -56,11 +56,9 @@ export function hotspotWarnings(
 
 function hotspotReasonDetail(count: number, locale: Locale): string {
   const h = catalog(locale).planner.hotspots;
-  if (locale === "en") {
-    return formatTemplate(h.reasonEn, { count: String(count) });
-  }
-  if (locale === "tr") {
-    return formatTemplate(h.reasonTr, { count: String(count) });
+  if (locale === "en" || locale === "tr") {
+    if (count === 1) return h.reasonOne;
+    return formatTemplate(h.reasonOther, { count: String(count) });
   }
   if (locale === "ro") {
     const form = pluralRo(count);

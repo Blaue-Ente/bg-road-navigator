@@ -119,9 +119,9 @@ export const bgRestPlanner = {
       reasonOther:
         "{count} участъка с чести катастрофи по избрания маршрут.",
       reasonEn:
-        "{count} high-accident section(s) along the chosen route.",
+        "{count} high-accident sections along the chosen route.",
       reasonTr:
-        "Seçilen güzergâhta {count} sık kaza olan kesim.",
+        "Seçilen güzergâhta sık kaza olan {count} kesim var.",
       reasonRoOne: "1 sector cu accidente frecvente pe ruta aleasă.",
       reasonRoFew: "{count} sectoare cu accidente frecvente pe ruta aleasă.",
       reasonRoMany: "{count} de sectoare cu accidente frecvente pe ruta aleasă.",
@@ -148,10 +148,14 @@ export const bgRestPlanner = {
       reasonDetail:
         "По българската част има {count} {signals} ({kinds}).{place}",
       reasonExample: " Пример: {place}.",
-      reasonEn:
-        "{count} Bulgarian road agency alert(s) on this route ({kinds}).{place}",
-      reasonTr:
-        "Bu güzergâhta {count} Bulgar yol ajansı uyarısı ({kinds}).{place}",
+      reasonEnOne:
+        "1 Bulgarian road agency alert on this route ({kinds}).{place}",
+      reasonEnOther:
+        "{count} Bulgarian road agency alerts on this route ({kinds}).{place}",
+      reasonTrOne:
+        "Bu güzergâhta 1 Bulgar yol ajansı uyarısı var ({kinds}).{place}",
+      reasonTrOther:
+        "Bu güzergâhta {count} Bulgar yol ajansı uyarısı var ({kinds}).{place}",
       reasonRo:
         "{count} alerte de la Agenția rutieră bulgară pe acest traseu ({kinds}).{place}",
       agencyDetailsOnly:

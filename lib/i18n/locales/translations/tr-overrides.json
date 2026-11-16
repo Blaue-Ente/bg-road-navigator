@@ -8,7 +8,7 @@
   },
   "planner": {
     "stops": {
-      "lodgingNearby": "Yakında: {name}. Henüz puan yok.",
+      "lodgingNearby": "Yakınlarda: {name}. Henüz puan yok.",
       "lodgingNoMapHotel": "Haritadan otel yüklenmedi. Henüz puan yok."
     },
     "weather": {
@@ -23,9 +23,9 @@
       "severityLow": "düşük",
       "detail": "{count} kaza · şiddet {severity} · {source} · {years}",
       "warningOnRoute": "{title}: güzergâhta {count}. {detail}",
-      "reasonOne": "Seçilen güzergâhta sık kaza olan 1 kesim.",
-      "reasonOther": "Seçilen güzergâhta {count} sık kaza olan kesim.",
-      "reasonTr": "Seçilen güzergâhta {count} sık kaza olan kesim.",
+      "reasonOne": "Seçilen güzergâhta sık kaza olan 1 kesim var.",
+      "reasonOther": "Seçilen güzergâhta sık kaza olan {count} kesim var.",
+      "reasonTr": "Seçilen güzergâhta sık kaza olan {count} kesim var.",
       "sourceRsMup": "Sırbistan İçişleri Bakanlığı",
       "sourceBgCherna": "Cherna pista",
       "sourceBgMvr": "İçişleri Bakanlığı",
@@ -47,7 +47,8 @@
       "reasonTitle": "Yol ajansı bildirimi",
       "reasonDetail":
         "Bulgaristan bölümünde {count} bildirim ({kinds}).{place}",
-      "reasonTr": "Bu güzergâhta {count} Bulgar yol ajansı uyarısı ({kinds}).{place}",
+      "reasonTrOne": "Bu güzergâhta 1 Bulgar yol ajansı uyarısı var ({kinds}).{place}",
+      "reasonTrOther": "Bu güzergâhta {count} Bulgar yol ajansı uyarısı var ({kinds}).{place}",
       "reasonExample": " Örnek: {place}.",
       "agencyDetailsOnly": "Ayrıntılar Bulgar yol ajansından yalnızca Bulgarca mevcut.",
       "lineUntil": "{label}: {where}{text}{until}"
