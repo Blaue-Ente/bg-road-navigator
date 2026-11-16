@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { unitsFrom } from "@/lib/i18n/units";
 import { formatDuration } from "@/lib/utils/route-planner";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { useTraffic } from "@/lib/hooks/useTraffic";
@@ -30,6 +31,7 @@ const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
 export default function MapPage() {
   const m = useMessages();
+  const units = unitsFrom(m);
   const activeRoute = useRouteStore((s) => s.activeRoute);
   const localPins = useCommunityStore((s) => s.pins);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
@@ -97,7 +99,8 @@ export default function MapPage() {
 
         {activeRoute && (
           <p className="pointer-events-none mt-2 ml-14 w-fit max-w-[calc(100%-3.5rem)] truncate rounded-full bg-[var(--waze-surface)] px-3 py-1 text-xs text-[var(--waze-text-secondary)] shadow-sm">
-            {activeRoute.distance_km} км · {formatDuration(activeRoute.duration_min)}
+            {activeRoute.distance_km} {m.units.km} ·{" "}
+            {formatDuration(activeRoute.duration_min, units)}
           </p>
         )}
 

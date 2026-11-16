@@ -35,7 +35,6 @@ function isCommentLine(line: string): boolean {
 /** UI copy in literals/JSX text — not data fields or interpolated templates. */
 function isHardCodedUiLine(line: string): boolean {
   if (!CYRILLIC.test(line) || isCommentLine(line)) return false;
-  if (line.includes("${")) return false;
   if (/\b\w+_bg\b/.test(line)) return false;
   if (/\.(instruction_bg|condition_bg|label_bg)\b/.test(line)) return false;
   if (/["'`][^"'`]*[А-Яа-я][^"'`]*["'`]/.test(line)) return true;

@@ -3,6 +3,7 @@
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 import { useMemo } from "react";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import type { Map } from "maplibre-gl";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useFuelStations } from "@/lib/hooks/useFuelStations";
@@ -14,6 +15,7 @@ import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
 export function MapPoiLayers({ map }: { map: Map | null }) {
+  const m = useMessages();
   const layers = useMapStore((s) => s.layers);
   const wantFuel = layers.fuel || layers.ev;
   const { data } = useFuelStations(DEFAULT_BBOX, { enabled: wantFuel });
@@ -56,12 +58,16 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
                 lng: border.coords.lng,
                 lat: border.coords.lat,
                 title: border.name_bg,
-                subtitle: `${border.wait_time_cars} мин · коли`,
+                subtitle: formatTemplate(m.map.borderWaitCars, {
+                  minutes: String(border.wait_time_cars),
+                  minUnit: m.units.min,
+                  cars: m.map.cars,
+                }),
               },
             ]
           : []
       ),
-    [borders]
+    [borders, m]
   );
 
   const restPoints = useMemo(
@@ -84,10 +90,10 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
         id: `cam-${crossing.id}`,
         lng: crossing.coords.lng,
         lat: crossing.coords.lat,
-        title: `Камера · ${crossing.name_bg}`,
+        title: formatTemplate(m.map.cameraMarker, { name: crossing.name_bg }),
         subtitle: crossing.country_pair,
       })),
-    []
+    [m]
   );
 
   return (

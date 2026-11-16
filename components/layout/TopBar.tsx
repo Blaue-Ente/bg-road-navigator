@@ -6,7 +6,8 @@ import { MenuIcon } from "@/components/icons/NavIcons";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useMenu } from "@/components/layout/MenuContext";
-import { PRODUCT_NAME } from "@/lib/constants/brand";
+import { productName } from "@/lib/constants/brand";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import { useOperatorMode } from "@/lib/hooks/useOperatorMode";
 
 interface TopBarProps {
@@ -18,6 +19,7 @@ export function TopBar({ user }: TopBarProps) {
   const { open, openMenu } = useMenu();
   const { enabled: operatorSetup } = useOperatorMode();
   const m = useMessages();
+  const locale = useLocale();
 
   if (pathname === "/") return null;
 
@@ -35,7 +37,7 @@ export function TopBar({ user }: TopBarProps) {
     "/setup": operatorSetup ? m.nav.setup : m.nav.services,
   };
 
-  const title = titleByPath[pathname] ?? PRODUCT_NAME;
+  const title = titleByPath[pathname] ?? productName(locale);
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--waze-border)] bg-[var(--waze-surface)]">

@@ -4,20 +4,23 @@ import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers/Providers";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
-import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/constants/brand";
+import { productName, productTagline } from "@/lib/constants/brand";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/i18n/locale";
-import { bg } from "@/lib/i18n/locales/bg";
+import { serverMessages } from "@/lib/i18n/server-catalog";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
   variable: "--font-inter",
 });
 
-export const metadata: Metadata = {
-  title: PRODUCT_NAME,
-  description: PRODUCT_TAGLINE,
-  manifest: "/manifest.json",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = parseLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  return {
+    title: productName(locale),
+    description: productTagline(locale),
+    manifest: "/manifest.json",
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#F3F5F8",
@@ -33,6 +36,7 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const initialLocale = parseLocale(cookieStore.get(LOCALE_COOKIE)?.value);
+  const m = await serverMessages();
 
   return (
     <html lang={initialLocale} data-theme="light" suppressHydrationWarning>
@@ -65,7 +69,7 @@ export default async function RootLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded-lg focus:bg-[var(--waze-accent)] focus:px-3 focus:py-2 focus:text-white"
         >
-          {bg.nav.skipToContent}
+          {m.nav.skipToContent}
         </a>
         <Providers initialLocale={initialLocale}>
           {children}

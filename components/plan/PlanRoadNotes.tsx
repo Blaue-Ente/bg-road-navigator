@@ -1,13 +1,17 @@
+"use client";
+
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { formatHazardUntil, hazardsForSheet } from "@/lib/hazards/present";
 import {
   ATTENTION_TITLE,
   hotspotDetail,
   hotspotsForSheet,
 } from "@/lib/hotspots/present";
-import { messages as m } from "@/lib/i18n";
 import type { TripPlannerResult } from "@/lib/planner/types";
 
 export function RoadHazards({ plan }: { plan: TripPlannerResult }) {
+  const m = useMessages();
   const hazards = hazardsForSheet(plan.road_hazards ?? []);
   return (
     <section aria-labelledby="plan-hazards">
@@ -57,6 +61,7 @@ export function RoadHazards({ plan }: { plan: TripPlannerResult }) {
 }
 
 export function AttentionSegments({ plan }: { plan: TripPlannerResult }) {
+  const m = useMessages();
   const segments = hotspotsForSheet(plan.attention_segments ?? []);
   if (segments.length === 0) return null;
   const hidden = (plan.attention_segments?.length ?? 0) - segments.length;
@@ -83,7 +88,7 @@ export function AttentionSegments({ plan }: { plan: TripPlannerResult }) {
       </ul>
       {hidden > 0 && (
         <p className="mt-2 text-[11px] text-[var(--waze-text-muted)]">
-          Още {hidden} участъка по маршрута.
+          {formatTemplate(m.sheet.attentionMore, { count: String(hidden) })}
         </p>
       )}
       {plan.attention_attribution && (

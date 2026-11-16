@@ -3,6 +3,7 @@
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { MessageCatalog } from "@/lib/i18n";
 import { useState } from "react";
+import { unitsFrom } from "@/lib/i18n/units";
 import { formatClockDuration } from "@/lib/planner/itinerary";
 import { replanTrip } from "@/lib/planner/replan-trip";
 import {
@@ -51,6 +52,7 @@ function RouteChoiceCard({
   onPick: () => void;
   m: MessageCatalog;
 }) {
+  const units = unitsFrom(m);
   return (
     <button
       type="button"
@@ -74,7 +76,7 @@ function RouteChoiceCard({
         <div>
           <dt className="text-xs uppercase tracking-wide">{m.sheet.driving}</dt>
           <dd className="font-medium text-[var(--waze-text)]">
-            {formatClockDuration(option.drive_min)}
+            {formatClockDuration(option.drive_min, units)}
           </dd>
         </div>
         <div>
@@ -86,7 +88,7 @@ function RouteChoiceCard({
         <div>
           <dt className="text-xs uppercase tracking-wide">{m.sheet.total}</dt>
           <dd className="font-medium text-[var(--waze-text)]">
-            {formatClockDuration(option.total_min)}
+            {formatClockDuration(option.total_min, units)}
           </dd>
         </div>
       </dl>

@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import type { Hotspot } from "@/lib/hotspots/types";
 import { DEFAULT_TRIP_PREFERENCES } from "@/lib/planner/preferences";
@@ -54,12 +55,14 @@ describe("buildItineraryPoints", () => {
     plan.attention_segments = [hotspot()];
     plan.road_hazards = [];
     const html = renderToStaticMarkup(
-      <PlanItineraryView
-        plan={plan}
-        includedIds={["stop-1"]}
-        checks={{}}
-        via={null}
-      />
+      <LocaleProvider initialLocale="bg">
+        <PlanItineraryView
+          plan={plan}
+          includedIds={["stop-1"]}
+          checks={{}}
+          via={null}
+        />
+      </LocaleProvider>
     );
     expect(html).toContain("Безопасност в България");
     expect(html).toContain("Пазете себе си и другите на пътя.");
@@ -83,6 +86,11 @@ describe("formatClockDuration", () => {
     expect(formatClockDuration(1760)).toBe("1 д 5 ч 20 мин");
     expect(formatClockDuration(1785)).toBe("1 д 5 ч 45 мин");
     expect(formatClockDuration(45)).toBe("45 мин");
+  });
+
+  it("uses caller-supplied unit labels", () => {
+    const trUnits = { day: "g", hour: "sa", min: "dk" };
+    expect(formatClockDuration(1546, trUnits)).toBe("1 g 1 sa 46 dk");
   });
 });
 

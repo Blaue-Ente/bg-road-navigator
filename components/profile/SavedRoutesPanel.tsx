@@ -6,11 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { WazeCard } from "@/components/ui/WazeCard";
+import { unitsFrom } from "@/lib/i18n/units";
 import { formatDuration } from "@/lib/utils/route-planner";
 import type { Route, SavedRoute } from "@/types/route.types";
 
 export function SavedRoutesPanel() {
   const m = useMessages();
+  const units = unitsFrom(m);
   const router = useRouter();
   const setActiveRoute = useRouteStore((s) => s.setActiveRoute);
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -108,7 +110,7 @@ export function SavedRoutesPanel() {
                 {route.distance_km ?? "—"}
                 {m.units.kmPrefix} ·{" "}
                 {route.duration_min != null
-                  ? formatDuration(route.duration_min)
+                  ? formatDuration(route.duration_min, units)
                   : "—"}
               </p>
               <div className="mt-2 flex gap-2">

@@ -7,6 +7,7 @@ import maplibregl from "maplibre-gl";
 import type { Map } from "maplibre-gl";
 import type { TrafficIncident } from "@/types/traffic.types";
 import { escapeHtml } from "@/lib/geo/escape-html";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { useMapStore } from "@/lib/stores/map.store";
 
 export interface TrafficLayerProps {
@@ -15,6 +16,7 @@ export interface TrafficLayerProps {
 }
 
 export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
+  const m = useMessages();
   const enabled = useMapStore((s) => s.layers.traffic);
 
   useEffect(() => {
@@ -41,7 +43,12 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
           new maplibregl.Popup({ offset: 25 }).setHTML(`
           <div class="p-2 text-sm">
             <strong>${escapeHtml(incident.title)}</strong>
-            <p>Задържане: ${escapeHtml(String(incident.delay_min))} мин.</p>
+            <p>${escapeHtml(
+              formatTemplate(m.map.trafficDelay, {
+                minutes: String(incident.delay_min),
+                minUnit: m.units.min,
+              })
+            )}</p>
           </div>
         `)
         )
@@ -53,7 +60,7 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
-  }, [map, incidents, enabled]);
+  }, [map, incidents, enabled, m]);
 
   return null;
 }

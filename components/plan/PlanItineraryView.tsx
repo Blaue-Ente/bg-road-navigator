@@ -7,8 +7,10 @@ import {
   AttentionSegments,
   RoadHazards,
 } from "@/components/plan/PlanRoadNotes";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { hotspotDetail } from "@/lib/hotspots/present";
-import { messages as m } from "@/lib/i18n";
+import { unitsFrom } from "@/lib/i18n/units";
+import type { MessageCatalog } from "@/lib/i18n";
 import {
   borderWaitView,
   serbiaHungaryChoices,
@@ -40,6 +42,8 @@ export function PlanItineraryView({
   via: LabeledPoint | null;
   onToggle?: (id: string, checked: boolean) => void;
 }) {
+  const m = useMessages();
+  const units = unitsFrom(m);
   const [shareNote, setShareNote] = useState<string | null>(null);
   const included = new Set(includedIds);
   const points = buildItineraryPoints({ plan, includedStopIds: included, via });
@@ -68,7 +72,9 @@ export function PlanItineraryView({
       plan,
       stops.map((stop) => stop.place_name ?? stop.title),
       done,
-      left
+      left,
+      m,
+      units
     );
     try {
       if (navigator.share) {
@@ -96,9 +102,9 @@ export function PlanItineraryView({
         </p>
         <p className="text-sm text-[var(--waze-text-secondary)]">
           {plan.route.distance_km} {m.planning.km} ·{" "}
-          {formatClockDuration(plan.route.duration_min)}{" "}
+          {formatClockDuration(plan.route.duration_min, units)}{" "}
           {m.sheet.driving.toLowerCase()} ·{" "}
-          {formatClockDuration(plan.route.total_min)}{" "}
+          {formatClockDuration(plan.route.total_min, units)}{" "}
           {m.sheet.total.toLowerCase()} · {formatWhen(arrival.toISOString())}
         </p>
       </header>
@@ -221,10 +227,10 @@ export function PlanItineraryView({
           {m.itinerary.export}
         </h3>
         <div className="flex flex-wrap gap-2 max-md:hidden">
-          <HandoffLinks plan={desktop} />
+          <HandoffLinks plan={desktop} m={m} />
         </div>
         <div className="flex flex-wrap gap-2 md:hidden">
-          <HandoffLinks plan={mobile} />
+          <HandoffLinks plan={mobile} m={m} />
         </div>
       </section>
     </article>
@@ -258,7 +264,13 @@ function CheckList({
   );
 }
 
-function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
+function HandoffLinks({
+  plan,
+  m,
+}: {
+  plan: MapsHandoffPlan;
+  m: MessageCatalog;
+}) {
   const several = plan.legs.length > 1;
   return (
     <>
@@ -302,7 +314,7 @@ function HandoffLinks({ plan }: { plan: MapsHandoffPlan }) {
   );
 }
 
-function borderShareLine(plan: TripPlannerResult): string {
+function borderShareLine(plan: TripPlannerResult, m: MessageCatalog): string {
   const chosen = plan.border.chosen;
   if (!chosen) return "";
   const view = borderWaitView(chosen.wait);
@@ -327,12 +339,14 @@ function shareText(
   plan: TripPlannerResult,
   stopNames: string[],
   done: ChecklistItem[],
-  left: ChecklistItem[]
+  left: ChecklistItem[],
+  m: MessageCatalog,
+  units: ReturnType<typeof unitsFrom>
 ): string {
   return [
     `${m.itinerary.title}: ${plan.route.origin.label} → ${plan.route.destination.label}`,
-    `${plan.route.distance_km} ${m.planning.km}, ${formatClockDuration(plan.route.duration_min)}, ${formatClockDuration(plan.route.total_min)}`,
-    borderShareLine(plan),
+    `${plan.route.distance_km} ${m.planning.km}, ${formatClockDuration(plan.route.duration_min, units)}, ${formatClockDuration(plan.route.total_min, units)}`,
+    borderShareLine(plan, m),
     stopNames.length ? `${m.itinerary.stops}: ${stopNames.join(", ")}` : "",
     done.length
       ? `${m.itinerary.checks}: ${done.map((item) => item.title).join(", ")}`
