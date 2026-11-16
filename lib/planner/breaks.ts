@@ -1,5 +1,47 @@
 export type BreakKind = "fuel" | "charge" | "rest" | "overnight";
 
+export const DWELL_MIN = {
+  rest: 15,
+  fuel: 15,
+  meal: 40,
+  combined: 25,
+  overnight: 0,
+} as const;
+
+export function dwellMinForKinds(
+  kinds: BreakKind[],
+  withChildren: boolean
+): number {
+  if (kinds.includes("overnight")) return DWELL_MIN.overnight;
+  const hasEnergy = kinds.includes("fuel") || kinds.includes("charge");
+  const hasRest = kinds.includes("rest");
+  if (hasEnergy && hasRest) return DWELL_MIN.combined;
+  if (hasEnergy) return DWELL_MIN.fuel;
+  if (hasRest) return withChildren ? 20 : DWELL_MIN.rest;
+  return 0;
+}
+
+export function dwellMinutesBefore(
+  drivingMin: number,
+  stops: Array<{ etaMin: number; kinds: BreakKind[] }>,
+  withChildren: boolean
+): number {
+  let total = 0;
+  for (const stop of stops) {
+    if (stop.etaMin < drivingMin) {
+      total += dwellMinForKinds(stop.kinds, withChildren);
+    }
+  }
+  return total;
+}
+
+export function totalDwellMinutes(
+  stops: Array<{ etaMin: number; kinds: BreakKind[] }>,
+  withChildren: boolean
+): number {
+  return dwellMinutesBefore(Number.POSITIVE_INFINITY, stops, withChildren);
+}
+
 export interface SleepShift {
   afterDrivingMin: number;
   sleepMin: number;
@@ -179,8 +221,12 @@ export function resolveSleepShifts(input: {
   extraWaitMin: (drivingMin: number) => number;
   timeZone?: string;
   timeZoneAt?: (drivingMin: number) => string;
+  breakStops?: Array<{ etaMin: number; kinds: BreakKind[] }>;
+  withChildren?: boolean;
 }): SleepShift[] {
   const resolved: SleepShift[] = [];
+  const withChildren = input.withChildren ?? false;
+  const breakStops = input.breakStops ?? [];
   for (const anchor of input.shifts) {
     const tz =
       input.timeZoneAt?.(anchor.afterDrivingMin) ??
@@ -188,9 +234,14 @@ export function resolveSleepShifts(input: {
       SOFIA_TZ;
     const sleepSoFar = resolved.reduce((sum, row) => sum + row.sleepMin, 0);
     const wait = input.extraWaitMin(anchor.afterDrivingMin);
+    const dwell = dwellMinutesBefore(
+      anchor.afterDrivingMin,
+      breakStops,
+      withChildren
+    );
     const arrival = new Date(
       input.departAt.getTime() +
-        (anchor.afterDrivingMin + wait + sleepSoFar) * 60_000
+        (anchor.afterDrivingMin + wait + sleepSoFar + dwell) * 60_000
     );
     const wake = wakeAt(arrival, tz);
     const sleepMin = Math.max(
@@ -207,11 +258,13 @@ export function wallClockEta(input: {
   drivingMin: number;
   extraWaitMin: number;
   sleepShifts: SleepShift[];
+  dwellMin?: number;
 }): Date {
   const sleep = sleepMinutesBefore(input.drivingMin, input.sleepShifts);
+  const dwell = input.dwellMin ?? 0;
   return new Date(
     input.departAt.getTime() +
-      (input.drivingMin + input.extraWaitMin + sleep) * 60_000
+      (input.drivingMin + input.extraWaitMin + sleep + dwell) * 60_000
   );
 }
 

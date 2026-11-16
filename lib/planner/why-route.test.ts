@@ -45,10 +45,30 @@ describe("whyThisRoute", () => {
     expect(border?.detail).not.toMatch(/срещу/);
     expect(reasons.some((reason) => reason.code === "incident")).toBe(true);
     expect(reasons.some((reason) => reason.code === "time_delta")).toBe(true);
-    expect(
-      reasons.filter((reason) => reason.code === "preference").map((r) => r.title)
-    ).toEqual(
+    const prefs = reasons.filter((reason) => reason.code === "preference");
+    expect(prefs.map((r) => r.title)).toEqual(
       expect.arrayContaining(["Без тол и винетки, доколкото може", "Двама шофьори"])
     );
+    expect(prefs.find((r) => r.title === "Двама шофьори")?.detail).toMatch(
+      /караме до \d+ ч на ден/
+    );
+  });
+
+  it("does not add twoDriversDay when only one driver", () => {
+    const reasons = whyThisRoute({
+      borders: [],
+      directDurationMin: 200,
+      directDistanceKm: 300,
+      chosenDurationMin: 200,
+      chosenDistanceKm: 300,
+      incidents: [],
+      preferences: { ...DEFAULT_TRIP_PREFERENCES, drivers: 1 },
+    });
+    expect(
+      reasons.some(
+        (reason) =>
+          reason.code === "preference" && reason.detail.includes("водачи")
+      )
+    ).toBe(false);
   });
 });

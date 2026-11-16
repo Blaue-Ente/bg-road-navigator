@@ -12,7 +12,10 @@ import { getRouteTolls } from "@/lib/utils/route-tolls";
 import { buildMapsHandoff, type MapStop } from "@/lib/utils/maps-handoff";
 import type { SleepShift, TimedStop } from "@/lib/planner/breaks";
 import {
+  dwellMinForKinds,
+  dwellMinutesBefore,
   formatWakeLabel,
+  totalDwellMinutes,
   wakeAt,
   wallClockEta,
 } from "@/lib/planner/breaks";
@@ -116,13 +119,33 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     waitMin +
     (chosen?.communityPenaltyMin ?? input.community.penaltyMin);
   const borderAlongKm = input.borderAlongKm;
+  const withChildren = input.preferences.with_children;
+  const breakStops = input.merged.map((stop) => ({
+    etaMin: stop.etaMin,
+    kinds: stop.kinds,
+  }));
+  const breaksMin = totalDwellMinutes(breakStops, withChildren);
+  const destinationDwell = dwellMinutesBefore(
+    input.durationMin,
+    breakStops,
+    withChildren
+  );
   const arriveIso = wallClockEta({
     departAt: input.departAt,
     drivingMin: input.durationMin,
-    extraWaitMin:
-      borderAlongKm != null ? waitMin : 0,
+    extraWaitMin: borderAlongKm != null ? waitMin : 0,
     sleepShifts: input.sleepShifts,
+    dwellMin: destinationDwell,
   }).toISOString();
+  const originZone = timeZoneForCountry(
+    input.countryAt(input.origin.coords.lng, input.origin.coords.lat)
+  );
+  const destinationZone = timeZoneForCountry(
+    input.countryAt(
+      input.destination.coords.lng,
+      input.destination.coords.lat
+    )
+  );
 
   const warnings = [...input.warnings];
   if (stops.some((stop) => stop.kinds.includes("overnight"))) {
@@ -170,16 +193,19 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       duration_min: input.durationMin,
       total_min: totalMin,
       arrive_at: arriveIso,
+      breaks_min: breaksMin > 0 ? breaksMin : undefined,
       routing_source: input.routingSource,
       origin: {
         label: input.origin.label,
         lng: input.origin.coords.lng,
         lat: input.origin.coords.lat,
+        time_zone: originZone,
       },
       destination: {
         label: input.destination.label,
         lng: input.destination.coords.lng,
         lat: input.destination.coords.lat,
+        time_zone: destinationZone,
       },
       geometry: input.geometry,
       border_waypoint: chosen
@@ -339,11 +365,20 @@ function toPlanStop(
   const afterBorder =
     input.borderAlongKm != null && stop.distanceKm >= input.borderAlongKm - 1;
   const wait = afterBorder ? borderWaitMin : 0;
+  const withChildren = input.preferences.with_children;
+  const breakStops = input.merged.map((row) => ({
+    etaMin: row.etaMin,
+    kinds: row.kinds,
+  }));
+  const dwellBefore = dwellMinutesBefore(stop.etaMin, breakStops, withChildren);
+  const dwellMin = dwellMinForKinds(stop.kinds, withChildren);
+  const stopZone = timeZoneForCountry(input.countryAt(coords.lng, coords.lat));
   const eta = wallClockEta({
     departAt: input.departAt,
     drivingMin: stop.etaMin,
     extraWaitMin: wait,
     sleepShifts: input.sleepShifts,
+    dwellMin: dwellBefore,
   }).toISOString();
   const overnight = stop.kinds.includes("overnight");
   const sleepShift = input.sleepShifts.find(
@@ -401,6 +436,8 @@ function toPlanStop(
     stars: attachment?.stars ?? null,
     sleep_min: sleepMin,
     wake_time_zone: wakeZone,
+    dwell_min: dwellMin > 0 ? dwellMin : null,
+    time_zone: stopZone,
   };
 }
 
@@ -411,6 +448,17 @@ function sightStop(
   borderWaitMin: number,
   p: PlannerCopy
 ): PlanStop {
+  const withChildren = input.preferences.with_children;
+  const breakStops = input.merged.map((row) => ({
+    etaMin: row.etaMin,
+    kinds: row.kinds,
+  }));
+  const coords = sight.coords ?? input.origin.coords;
+  const dwellBefore = dwellMinutesBefore(
+    sight.etaMin,
+    breakStops,
+    withChildren
+  );
   const eta = wallClockEta({
     departAt: input.departAt,
     drivingMin: sight.etaMin,
@@ -420,6 +468,7 @@ function sightStop(
         ? borderWaitMin
         : 0,
     sleepShifts: input.sleepShifts,
+    dwellMin: dwellBefore,
   }).toISOString();
   return {
     id: `stop-${index + 1}`,
@@ -449,6 +498,9 @@ function sightStop(
     ratings_available: null,
     lodging_note: null,
     stars: sight.stars,
+    time_zone: timeZoneForCountry(
+      input.countryAt(coords.lng, coords.lat)
+    ),
   };
 }
 

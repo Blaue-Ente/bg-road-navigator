@@ -29,7 +29,7 @@ import {
   GOOGLE_MAPS_MOBILE_MAX_WAYPOINTS,
   type MapsHandoffPlan,
 } from "@/lib/utils/maps-handoff";
-import { formatWhen } from "@/components/plan/StopTimeline";
+import { formatPlanInstant } from "@/lib/planner/plan-time";
 
 export function PlanItineraryView({
   plan,
@@ -109,7 +109,12 @@ export function PlanItineraryView({
           {formatClockDuration(plan.route.duration_min, units)}{" "}
           {m.sheet.driving.toLowerCase()} ·{" "}
           {formatClockDuration(plan.route.total_min, units)}{" "}
-          {m.sheet.total.toLowerCase()} · {formatWhen(arrival.toISOString())}
+          {m.sheet.total.toLowerCase()} ·{" "}
+          {formatPlanInstant(
+            arrival.toISOString(),
+            locale,
+            plan.route.destination.time_zone
+          )}
         </p>
       </header>
 

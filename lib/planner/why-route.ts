@@ -1,7 +1,12 @@
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
-import type { TripPreferences } from "@/lib/planner/preferences";
+import {
+  drivingDayLimits,
+  effectiveBreakEveryMin,
+  type TripPreferences,
+} from "@/lib/planner/preferences";
+import { dwellMinForKinds } from "@/lib/planner/breaks";
 import type { WhyReason } from "@/lib/planner/types";
 
 export interface WhyBorder {
@@ -32,6 +37,7 @@ export function whyThisRoute(input: {
   chosenDistanceKm: number;
   incidents: Array<{ title: string; penaltyMin: number }>;
   preferences: TripPreferences;
+  breaksMin?: number;
 }): WhyReason[] {
   const m = catalog(input.locale ?? "bg");
   const p = m.planner.why;
@@ -110,10 +116,33 @@ export function whyThisRoute(input: {
     reasons.push(preference(p.pet, p.petDetail));
   }
   if (prefs.with_children) {
-    reasons.push(preference(p.children, p.childrenDetail));
+    const every = effectiveBreakEveryMin(prefs);
+    const dwell = dwellMinForKinds(["rest"], true);
+    const total =
+      input.breaksMin ??
+      Math.round((input.chosenDurationMin / Math.max(every, 1)) * dwell);
+    reasons.push(
+      preference(
+        p.children,
+        formatTemplate(p.childrenBreaks, {
+          minutes: String(every),
+          dwell: String(dwell),
+          total: String(total),
+        })
+      )
+    );
   }
   if (prefs.drivers >= 2) {
-    reasons.push(preference(p.twoDrivers, p.twoDriversDetail));
+    const day = drivingDayLimits(prefs);
+    const hours = Math.round(day.overnightAfterMin / 60);
+    reasons.push(
+      preference(
+        p.twoDrivers,
+        formatTemplate(p.twoDriversDay, {
+          hours: String(hours),
+        })
+      )
+    );
   }
   return reasons;
 }

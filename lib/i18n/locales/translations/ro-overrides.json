@@ -2,9 +2,16 @@
   "home": {
     "waitNow": "Așteptare acum"
   },
+  "planning": {
+    "departYourTime": "{datetime} — ceasul dvs. ({zone})",
+    "departOriginTime": "La {place} este ora {time}."
+  },
   "sheet": {
     "waitAtArrival": "La sosire (~{time}, {place}): {minutes} min",
-    "waitNowLine": "Acum: {minutes} min"
+    "waitNowLine": "Acum: {minutes} min",
+    "arrivalIncludes": "Include {breaks} de pauze și o noapte pe traseu.",
+    "arrivalIncludesBreaksOnly": "Include {breaks} de pauze pe drum.",
+    "arrivalIncludesOvernightOnly": "Include o noapte pe traseu."
   },
   "routeChoice": {
     "waitSuffix": "min așteptare",
@@ -72,6 +79,12 @@
       "hotspotAhead":
         "Peste {meters} m: sector cu accidente frecvente. Conduceți prudent.",
       "hazardAhead": "Peste {meters} m: pericol pe drum. Conduceți prudent."
+    },
+    "why": {
+      "twoDriversDay":
+        "Cu doi șoferi putem conduce până la {hours} h pe zi, deci oprirea de noapte e mai departe pe traseu și rămâne mai puțin pentru dimineață.",
+      "childrenBreaks":
+        "Cu copii, pauzele sunt la fiecare {minutes} min și durează {dwell} min; asta adaugă aproximativ {total} min."
     },
     "fuel": {
       "diesel": "motorină",

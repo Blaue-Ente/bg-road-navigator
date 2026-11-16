@@ -1,6 +1,6 @@
 import { countryCodeAtPoint } from "@/lib/geo/countries-along-route";
-import type { SleepShift } from "@/lib/planner/breaks";
-import { wallClockEta } from "@/lib/planner/breaks";
+import type { BreakKind, SleepShift } from "@/lib/planner/breaks";
+import { dwellMinutesBefore, wallClockEta } from "@/lib/planner/breaks";
 import { pointAtDistance, lineLengthKm } from "@/lib/planner/line";
 import type { RouteWeather, RouteWeatherWarning } from "@/lib/planner/types";
 import { weatherCondition } from "@/lib/utils/weather-codes";
@@ -29,6 +29,8 @@ export async function weatherAlongRoute(input: {
   borderAlongKm?: number | null;
   borderWaitMin?: number;
   sleepShifts?: SleepShift[];
+  breakStops?: Array<{ etaMin: number; kinds: BreakKind[] }>;
+  withChildren?: boolean;
   fetchImpl?: typeof fetch;
 }): Promise<RouteWeather> {
   const fetchImpl = input.fetchImpl ?? fetch;
@@ -105,6 +107,8 @@ function samplePoints(input: {
   borderAlongKm?: number | null;
   borderWaitMin?: number;
   sleepShifts?: SleepShift[];
+  breakStops?: Array<{ etaMin: number; kinds: BreakKind[] }>;
+  withChildren?: boolean;
 }) {
   const geometryKm = lineLengthKm(input.line);
   if (geometryKm <= 0) return [];
@@ -119,11 +123,17 @@ function samplePoints(input: {
       input.borderAlongKm != null && roadKm >= input.borderAlongKm - 1
         ? borderWaitMin
         : 0;
+    const dwell = dwellMinutesBefore(
+      drivingMin,
+      input.breakStops ?? [],
+      input.withChildren ?? false
+    );
     const eta = wallClockEta({
       departAt: input.departAt,
       drivingMin,
       extraWaitMin: wait,
       sleepShifts,
+      dwellMin: dwell,
     });
     return {
       eta: eta.toISOString(),
