@@ -165,7 +165,7 @@ export function MapExperience() {
         ) : null}
         <div
           data-overlay-slot="legend-row"
-          className="pointer-events-none flex w-full max-w-[min(22rem,calc(100vw-1.5rem))] flex-wrap items-end gap-2"
+          className="pointer-events-none flex w-full max-w-[calc(100vw-5rem)] flex-nowrap items-center gap-2"
         >
           <MapLegend />
           <HotspotAttributionButton map={mapInstance} />

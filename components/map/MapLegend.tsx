@@ -77,7 +77,7 @@ export function MapLegend() {
   return (
     <details
       data-overlay-slot="legend"
-      className="pointer-events-auto waze-panel w-full min-w-0 max-w-[min(18rem,calc(100vw-6rem))] px-3 py-2 shadow-sm md:max-w-[21rem]"
+      className="pointer-events-auto waze-panel w-auto max-w-[min(16rem,calc(100vw-11rem))] shrink px-3 py-2 shadow-sm md:max-w-[21rem]"
     >
       <summary
         data-tap="legend-summary"

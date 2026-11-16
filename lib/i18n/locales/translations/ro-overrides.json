@@ -341,6 +341,7 @@
     "validityTemplate": "Valabilitate (verificată la {checked}): {validity}"
   },
   "map": {
-    "osmAttributionShort": "© OSM"
+    "osmAttributionShort": "© OpenStreetMap",
+    "attributionDataFrom": "Date de la"
   }
 }

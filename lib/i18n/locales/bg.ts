@@ -387,7 +387,8 @@ const bgCore = {
     hotspotLow: "Участък за повишено внимание — ниска тежест",
     bilingualHint:
       "Имената на градовете идват от картата и може да са на две азбуки.",
-    osmAttributionShort: "© OSM",
+    osmAttributionShort: "© OpenStreetMap",
+    attributionDataFrom: "Данни от",
   },
   theme: {
     toDark: "Сега: светла. Превключи към тъмна",

@@ -47,8 +47,8 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
         href="/login"
         className={`fixed right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] text-[var(--waze-accent-text)] shadow-sm md:bottom-6 ${
           mode === "map"
-            ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
-            : "bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
+            ? "max-md:bottom-[calc(13.5rem+env(safe-area-inset-bottom,0px))]"
+            : "max-md:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
         }`}
         aria-label={m.community.msgbfa882b71c}
         title={m.community.msg0c0014ddab}
@@ -86,8 +86,8 @@ export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
       disabled={locating}
       className={`fixed right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--waze-accent)] text-white shadow-sm transition active:scale-95 disabled:opacity-60 md:bottom-6 ${
         mode === "map"
-          ? "bottom-[calc(9.5rem+env(safe-area-inset-bottom,0px))]"
-          : "bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
+          ? "max-md:bottom-[calc(13.5rem+env(safe-area-inset-bottom,0px))]"
+          : "max-md:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]"
       }`}
       aria-label={
         mode === "map" ? m.community.msgc270ea11f7 : m.community.msg22f2bd8dac

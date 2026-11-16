@@ -44,11 +44,13 @@ export default function MapPage() {
             <MenuIcon size={20} />
           </button>
 
-          <LocaleSwitcher className="pointer-events-auto hidden shrink-0 sm:inline-flex" />
+          <div className="pointer-events-auto hidden shrink-0 sm:block">
+            <LocaleSwitcher />
+          </div>
 
           <Link
             href="/route"
-            className="pointer-events-auto relative block h-12 min-w-0 flex-1 rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] shadow-sm"
+            className="pointer-events-auto relative block h-12 min-w-0 flex-1 rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] shadow-sm sm:min-w-0"
           >
             <SearchIcon className="absolute top-3.5 left-3 text-[var(--waze-accent-text)]" />
             <p className="m-0 h-12 truncate pr-24 pl-11 text-base font-medium leading-[48px] text-[var(--waze-text)]">

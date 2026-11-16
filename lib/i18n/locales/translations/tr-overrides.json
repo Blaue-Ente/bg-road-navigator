@@ -338,6 +338,7 @@
     "validityTemplate": "Geçerlilik ({checked} tarihinde kontrol edildi): {validity}"
   },
   "map": {
-    "osmAttributionShort": "© OSM"
+    "osmAttributionShort": "© OpenStreetMap",
+    "attributionDataFrom": "Veri kaynağı:"
   }
 }

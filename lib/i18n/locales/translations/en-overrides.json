@@ -335,6 +335,7 @@
     "validityTemplate": "Validity (checked {checked}): {validity}"
   },
   "map": {
-    "osmAttributionShort": "© OSM"
+    "osmAttributionShort": "© OpenStreetMap",
+    "attributionDataFrom": "Data from"
   }
 }

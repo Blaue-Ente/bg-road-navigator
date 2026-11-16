@@ -62,6 +62,12 @@ function assertBorderOfficialLinkTaps(source: string): void {
 }
 
 describe("tap targets (PR 23)", () => {
+  it("hides the home overlay locale switcher below sm", () => {
+    const home = readSource("app/(app)/page.tsx");
+    expect(home).toContain("hidden shrink-0 sm:block");
+    expect(home).toMatch(/<LocaleSwitcher/);
+  });
+
   it("defines overlay slots on the map column", () => {
     const experience = readSource("components/map/MapExperience.tsx");
     expect(readSource("components/map/MapOverlayColumn.tsx")).toContain(
@@ -99,5 +105,13 @@ describe("tap targets (PR 23)", () => {
 
   it("gives official border links min-h-11", () => {
     assertBorderOfficialLinkTaps(readSource("components/borders/BorderCard.tsx"));
+  });
+
+  it("gives map basemap attribution control min-h-11", () => {
+    const source = readSource("components/map/MapAttributionButton.tsx");
+    expect(source).toContain("openfreemap.org");
+    expect(source).toContain("openmaptiles.org");
+    expect(source).toContain("openstreetmap.org/copyright");
+    expect(source).toContain("min-h-11");
   });
 });
