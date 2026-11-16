@@ -1,12 +1,13 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import {
   formatVignetteValidity,
   OFFICIAL_VIGNETTE_LINKS,
   type VignetteLink,
 } from "@/lib/constants/vignettes";
+import { pickText } from "@/lib/i18n/localized-field";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 interface VignetteLinksProps {
@@ -22,6 +23,7 @@ export function VignetteLinks({
   intro,
   compact = false,
 }: VignetteLinksProps) {
+  const locale = useLocale();
   const m = useMessages();
   const resolvedTitle = title ?? m.vignettes.msg82c840e11a;
   const resolvedIntro = intro ?? m.vignettes.msgb601ae0e79;
@@ -41,7 +43,11 @@ export function VignetteLinks({
       <p className="mb-3 text-xs text-[var(--waze-text-muted)]">{resolvedIntro}</p>
       <ul className="space-y-2">
         {links.map((link) => {
-          const validityLine = formatVignetteValidity(link);
+          const displayName = pickText(locale, link.name);
+          const displayNotes = link.notes
+            ? pickText(locale, link.notes)
+            : link.notes_bg;
+          const validityLine = formatVignetteValidity(link, locale);
           return (
           <li key={link.country_code}>
             <a
@@ -55,14 +61,14 @@ export function VignetteLinks({
                   <span className="mr-2 inline-flex align-middle">
                     <CountryFlag code={link.country_code} />
                   </span>
-                  {link.name_bg}
+                  {displayName}
                 </p>
                 <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
                   {link.kind === "distance_toll" ? m.plan.msg725f5ff905 : m.plan.msg6497aa6c4f}
                 </p>
-                {link.notes_bg && !compact && (
+                {displayNotes && !compact && (
                   <p className="mt-0.5 text-xs text-[var(--waze-text-muted)]">
-                    {link.notes_bg}
+                    {displayNotes}
                   </p>
                 )}
                 {validityLine && !compact && (

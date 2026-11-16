@@ -9,7 +9,7 @@ import {
 } from "@/lib/constants/vignettes";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
-import { pickI18nNotes, pickI18nText } from "@/lib/i18n/localized-field";
+import { pickI18nText, pickText } from "@/lib/i18n/localized-field";
 import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
 import type {
   ChecklistItem,
@@ -88,16 +88,10 @@ export function buildChecklist(input: {
   const tolls: ChecklistItem[] = [];
   for (const link of input.tolls) {
     const validity = formatVignetteValidity(link, locale);
-    const name = pickI18nText(locale, {
-      i18n: link.name_i18n,
-      bg: link.name_bg,
-      en: link.name_en,
-    });
-    const notes = pickI18nNotes(locale, {
-      notes_i18n: link.notes_i18n,
-      notes_bg: link.notes_bg,
-      notes_en: link.notes_en,
-    });
+    const name = pickText(locale, link.name);
+    const notes = link.notes
+      ? pickText(locale, link.notes)
+      : link.notes_bg?.trim() || undefined;
     const item: ChecklistItem = {
       id: `${link.kind}-${link.country_code}`,
       title: name,
