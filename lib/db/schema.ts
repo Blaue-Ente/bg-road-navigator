@@ -2,6 +2,8 @@ import {
   boolean,
   doublePrecision,
   integer,
+  smallint,
+  bigint,
   jsonb,
   pgEnum,
   pgTable,
@@ -196,6 +198,12 @@ export const nakordoniBudget = pgTable("nakordoni_budget", {
   cheapCalls: integer("cheap_calls").notNull().default(0),
   heavyCalls: integer("heavy_calls").notNull().default(0),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** One row — coordinates minimum spacing between live Nakordoni HTTP calls. */
+export const nakordoniRate = pgTable("nakordoni_rate", {
+  id: smallint("id").primaryKey().default(1),
+  nextSlotMs: bigint("next_slot_ms", { mode: "number" }).notNull().default(0),
 });
 
 export const osmQueryCache = pgTable("osm_query_cache", {

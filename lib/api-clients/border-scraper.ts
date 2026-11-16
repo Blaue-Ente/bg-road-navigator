@@ -249,7 +249,7 @@ function buildStatus(
       wait.observed_at ?? input.live?.updatedAt ?? input.now.toISOString(),
     queue_length: wait.queue_now ?? input.live?.queueLength,
     nakordoni_url: getNakordoniPageUrl(crossing.id) ?? undefined,
-    nakordoni_ppid: input.live?.ppid,
+    nakordoni_ppid: crossing.nakordoni_ppid ?? input.live?.ppid,
     data_source: dataSourceFromWait(wait.source, input.licensed),
     region: crossing.region,
     accepted_documents: crossing.accepted_documents,
@@ -275,7 +275,7 @@ export async function fetchBorderStatus(
     ),
   ];
   const [liveQueues, hatarinfo, waits] = await Promise.all([
-    fetchNakordoniQueues(),
+    fetchNakordoniQueues(now),
     crossings.some((crossing) => isHatarinfoCrossingId(crossing.id))
       ? loadHatarinfo()
       : Promise.resolve(null),
