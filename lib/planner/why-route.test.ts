@@ -8,6 +8,7 @@ describe("whyThisRoute", () => {
       borders: [
         {
           chosen: true,
+          name: "Калотина",
           nameBg: "Калотина",
           totalMin: 200,
           waitMinutes: 20,
@@ -16,6 +17,7 @@ describe("whyThisRoute", () => {
         },
         {
           chosen: false,
+          name: "Стрезимировци",
           nameBg: "Стрезимировци",
           totalMin: 260,
           waitMinutes: 70,
