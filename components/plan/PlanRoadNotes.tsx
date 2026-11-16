@@ -4,14 +4,18 @@ import { useMessages } from "@/components/i18n/LocaleProvider";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { formatHazardUntil, hazardsForSheet } from "@/lib/hazards/present";
 import {
-  ATTENTION_TITLE,
+  attentionTitle,
   hotspotDetail,
   hotspotsForSheet,
 } from "@/lib/hotspots/present";
+import { hazardLabel, hazardPopupBody } from "@/lib/hazards/present";
+import { roadKmDisplay } from "@/lib/hazards/road-km";
+import { useLocale } from "@/components/i18n/LocaleProvider";
 import type { TripPlannerResult } from "@/lib/planner/types";
 
 export function RoadHazards({ plan }: { plan: TripPlannerResult }) {
   const m = useMessages();
+  const locale = useLocale();
   const hazards = hazardsForSheet(plan.road_hazards ?? []);
   return (
     <section aria-labelledby="plan-hazards">
@@ -28,18 +32,20 @@ export function RoadHazards({ plan }: { plan: TripPlannerResult }) {
       ) : (
         <ul className="mt-2 space-y-2">
           {hazards.map((hazard) => {
-            const until = formatHazardUntil(hazard.valid_until);
+            const until = formatHazardUntil(hazard.valid_until, locale);
+            const label = hazardLabel(hazard.kind, locale);
+            const road = roadKmDisplay(hazard.road_km_bg, hazard.text_bg, locale);
             return (
               <li
                 key={hazard.id}
                 className="rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm text-[var(--waze-text)]"
               >
                 <p className="font-medium">
-                  {hazard.label_bg}
-                  {hazard.road_km_bg ? ` · ${hazard.road_km_bg}` : ""}
+                  {label}
+                  {road ? ` · ${road}` : ""}
                 </p>
                 <p className="mt-0.5 text-[var(--waze-text-secondary)]">
-                  {hazard.text_bg}
+                  {hazardPopupBody(hazard, locale)}
                 </p>
                 {until && (
                   <p className="mt-1 text-[11px] text-[var(--waze-text-muted)]">
@@ -62,6 +68,7 @@ export function RoadHazards({ plan }: { plan: TripPlannerResult }) {
 
 export function AttentionSegments({ plan }: { plan: TripPlannerResult }) {
   const m = useMessages();
+  const locale = useLocale();
   const segments = hotspotsForSheet(plan.attention_segments ?? []);
   if (segments.length === 0) return null;
   const hidden = (plan.attention_segments?.length ?? 0) - segments.length;
@@ -71,7 +78,7 @@ export function AttentionSegments({ plan }: { plan: TripPlannerResult }) {
         id="plan-attention"
         className="text-base font-semibold text-[var(--waze-text)]"
       >
-        {ATTENTION_TITLE}
+        {attentionTitle(locale)}
       </h3>
       <ul className="mt-2 space-y-2">
         {segments.map((hotspot) => (
@@ -81,7 +88,7 @@ export function AttentionSegments({ plan }: { plan: TripPlannerResult }) {
           >
             <p className="font-medium">{m.sheet.attention}</p>
             <p className="mt-0.5 text-[var(--waze-text-secondary)]">
-              {hotspotDetail(hotspot)}
+              {hotspotDetail(hotspot, locale)}
             </p>
           </li>
         ))}

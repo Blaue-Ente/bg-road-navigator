@@ -5,5 +5,72 @@
   },
   "tipsPage": {
     "msg343e2ece52": "Important"
+  },
+  "planner": {
+    "stops": {
+      "lodgingNearby": "În apropiere: {name}. Încă nu există evaluări.",
+      "lodgingNoMapHotel": "Niciun hotel încărcat de pe hartă. Încă nu există evaluări."
+    },
+    "weather": {
+      "noForecast": "Nu există prognoză pentru această oră.",
+      "attribution": "Prognoză: Open-Meteo.com (CC BY 4.0)",
+      "warningAlongRoute": "În jur de {km} km pe traseu, la {eta}."
+    },
+    "hotspots": {
+      "attentionTitle": "Sector care cere atenție sporită",
+      "severityHigh": "ridicată",
+      "severityMedium": "medie",
+      "severityLow": "scăzută",
+      "detail": "{count} evenimente · severitate {severity} · {source} · {years}",
+      "warningOnRoute": "{title}: {count} pe traseu. {detail}",
+      "reasonOne": "1 sector cu accidente frecvente pe ruta aleasă.",
+      "reasonOther": "{count} sectoare cu accidente frecvente pe ruta aleasă.",
+      "reasonRoOne": "1 sector cu accidente frecvente pe ruta aleasă.",
+      "reasonRoFew": "{count} sectoare cu accidente frecvente pe ruta aleasă.",
+      "reasonRoMany": "{count} de sectoare cu accidente frecvente pe ruta aleasă.",
+      "sourceRsMup": "Ministerul de Interne al Serbiei",
+      "sourceBgCherna": "Cherna pista",
+      "sourceBgMvr": "Ministerul de Interne",
+      "sourceDe": "Unfallatlas",
+      "sourceHu": "KSH",
+      "sourceAt": "Statistik Austria",
+      "sourceCz": "Poliția Cehă"
+    },
+    "hazards": {
+      "roadworks": "Lucrări",
+      "closed": "Drum închis",
+      "danger": "Pericol",
+      "conditions": "Condiții dificile",
+      "attribution": "Sursă: Agenția pentru Infrastructură Rutieră (datasheet.api.bg)",
+      "validUntil": "Valabil până la {until}.",
+      "moreSignals": "Încă {count} alerte de la agenția rutieră pe traseu.",
+      "signalOne": "alertă",
+      "signalOther": "alerte",
+      "reasonTitle": "Informări de la agenția rutieră",
+      "reasonDetail":
+        "{count} alerte pe secțiunea bulgară ({kinds}).{place}",
+      "reasonRo": "{count} alerte de la Agenția rutieră bulgară pe acest traseu ({kinds}).{place}",
+      "reasonExample": " Exemplu: {place}.",
+      "agencyDetailsOnly": "Detaliile sunt disponibile în bulgară de la agenția rutieră.",
+      "lineUntil": "{label}: {where}{text}{until}"
+    },
+    "proximity": {
+      "hotspotAhead":
+        "Peste {meters} m: sector cu accidente frecvente. Conduceți prudent.",
+      "hazardAhead": "Peste {meters} m: pericol pe drum. Conduceți prudent."
+    },
+    "fuel": {
+      "diesel": "motorină",
+      "petrol": "benzină",
+      "lpg": "GPL",
+      "noAverage": "{country}: fără preț mediu",
+      "averageLine": "{country}: {fuel} medie {price} €/l",
+      "deltaCheaper": "{signed}, economisiți ~{euros} € la {liters} l",
+      "deltaCostlier": "{signed}, plătiți cu ~{euros} € mai mult la {liters} l",
+      "deltaNeutral": "{signed} față de media pentru {liters} l",
+      "sourceCommunity": "de la un utilizator",
+      "sourceCommunityAgo": "de la un utilizator, acum {hours} h",
+      "oilBulletinLabel": "Comisia Europeană, Buletinul săptămânal petrolier"
+    }
   }
 }

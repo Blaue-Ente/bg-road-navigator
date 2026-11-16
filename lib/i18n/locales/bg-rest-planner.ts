@@ -96,9 +96,88 @@ export const bgRestPlanner = {
       overnightWake:
         "Спите тук. Тръгване на следващия ден в {wake} ({place}). Остават {remaining} шофиране.",
       overnightGeneric: "Тук се спи. На сутринта пътят продължава.",
+      lodgingNearby: "Наблизо: {name}. Оценки още няма.",
+      lodgingNoMapHotel: "Няма зареден хотел от картата. Оценки още няма.",
     },
     weather: {
       hourlyEmpty: "Няма почасова прогноза за този час.",
+      noForecast: "Няма прогноза за този час.",
+      attribution: "Прогноза: Open-Meteo.com (CC BY 4.0)",
+      warningAlongRoute: "Около {km} км по маршрута в {eta}.",
+    },
+    hotspots: {
+      attentionTitle: "Участък за повишено внимание",
+      severityHigh: "висока",
+      severityMedium: "средна",
+      severityLow: "ниска",
+      detail:
+        "{count} произшествия · тежест {severity} · {source} · {years}",
+      warningOnRoute:
+        "{title}: {count} по маршрута. {detail}",
+      reasonOne:
+        "1 участък с чести катастрофи по избрания маршрут.",
+      reasonOther:
+        "{count} участъка с чести катастрофи по избрания маршрут.",
+      reasonEn:
+        "{count} high-accident section(s) along the chosen route.",
+      reasonTr:
+        "Seçilen güzergâhta {count} sık kaza olan kesim.",
+      reasonRoOne: "1 sector cu accidente frecvente pe ruta aleasă.",
+      reasonRoFew: "{count} sectoare cu accidente frecvente pe ruta aleasă.",
+      reasonRoMany: "{count} de sectoare cu accidente frecvente pe ruta aleasă.",
+      sourceRsMup: "МВР на Сърбия",
+      sourceBgCherna: "Черна писта",
+      sourceBgMvr: "МВР",
+      sourceDe: "Unfallatlas",
+      sourceHu: "KSH",
+      sourceAt: "Statistik Austria",
+      sourceCz: "Полиция на Чехия",
+    },
+    hazards: {
+      roadworks: "Ремонт",
+      closed: "Затворен път",
+      danger: "Опасност",
+      conditions: "Лоши условия",
+      attribution:
+        "Източник: Агенция „Пътна инфраструктура“ (datasheet.api.bg)",
+      validUntil: "Валидно до {until}.",
+      moreSignals: "Още {count} сигнала от АПИ по трасето.",
+      signalOne: "сигнал",
+      signalOther: "сигнала",
+      reasonTitle: "Обстановка от АПИ",
+      reasonDetail:
+        "По българската част има {count} {signals} ({kinds}).{place}",
+      reasonExample: " Пример: {place}.",
+      reasonEn:
+        "{count} Bulgarian road agency alert(s) on this route ({kinds}).{place}",
+      reasonTr:
+        "Bu güzergâhta {count} Bulgar yol ajansı uyarısı ({kinds}).{place}",
+      reasonRo:
+        "{count} alerte de la Agenția rutieră bulgară pe acest traseu ({kinds}).{place}",
+      agencyDetailsOnly:
+        "Подробностите са на български от Агенция „Пътна инфраструктура“.",
+      lineUntil: "{label}: {where}{text}{until}",
+    },
+    proximity: {
+      hotspotAhead:
+        "След {meters} м: участък с чести катастрофи. Карайте внимателно.",
+      hazardAhead: "След {meters} м: опасност по пътя. Карайте внимателно.",
+    },
+    fuel: {
+      diesel: "дизел",
+      petrol: "бензин",
+      lpg: "газ",
+      noAverage: "{country}: няма средна цена",
+      averageLine: "{country}: {fuel} ср. {price} €/л",
+      deltaCheaper:
+        "{signed}, спестяваш ~{euros} € за {liters} л",
+      deltaCostlier:
+        "{signed}, плащаш ~{euros} € повече за {liters} л",
+      deltaNeutral: "{signed} спрямо средното за {liters} л",
+      sourceCommunity: "от потребител",
+      sourceCommunityAgo: "от потребител, преди {hours} ч",
+      oilBulletinLabel:
+        "Европейска комисия, Weekly Oil Bulletin",
     },
     why: {
       viaBorder: "През {name}",

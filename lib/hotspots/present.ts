@@ -1,38 +1,89 @@
-import { attributionsFor, hotspotSource } from "@/lib/hotspots/sources";
+import { catalog, type Locale } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import { pluralRo } from "@/lib/i18n/plural";
+import { attributionsFor, hotspotSourceLabel } from "@/lib/hotspots/sources";
 import type { Hotspot } from "@/lib/hotspots/types";
 import type { WhyReason } from "@/lib/planner/types";
 
+/** @deprecated Use attentionTitle(locale) */
 export const ATTENTION_TITLE = "Участък за повишено внимание";
 
-export function severityLabel(hotspot: Hotspot): "висока" | "средна" | "ниска" {
-  if (hotspot.fatal > 0) return "висока";
-  if (hotspot.serious > 0) return "средна";
-  return "ниска";
+export function attentionTitle(locale: Locale = "bg"): string {
+  return catalog(locale).planner.hotspots.attentionTitle;
 }
 
-export function hotspotDetail(hotspot: Hotspot): string {
-  const source =
-    hotspotSource(hotspot.source_id)?.label_bg ?? hotspot.source_id;
+function severityLabel(
+  hotspot: Hotspot,
+  locale: Locale
+): string {
+  const h = catalog(locale).planner.hotspots;
+  if (hotspot.fatal > 0) return h.severityHigh;
+  if (hotspot.serious > 0) return h.severityMedium;
+  return h.severityLow;
+}
+
+export function hotspotDetail(hotspot: Hotspot, locale: Locale = "bg"): string {
+  const h = catalog(locale).planner.hotspots;
+  const source = hotspotSourceLabel(hotspot.source_id, locale);
   const years =
     hotspot.year_from === hotspot.year_to
       ? String(hotspot.year_from)
       : `${hotspot.year_from}–${hotspot.year_to}`;
-  return `${hotspot.count} произшествия · тежест ${severityLabel(hotspot)} · ${source} · ${years}`;
+  return formatTemplate(h.detail, {
+    count: String(hotspot.count),
+    severity: severityLabel(hotspot, locale),
+    source,
+    years,
+  });
 }
 
-export function hotspotWarnings(hotspots: Hotspot[]): string[] {
+export function hotspotWarnings(
+  hotspots: Hotspot[],
+  locale: Locale = "bg"
+): string[] {
   if (hotspots.length === 0) return [];
+  const h = catalog(locale).planner.hotspots;
+  const title = h.attentionTitle;
+  const detail = hotspotDetail(hotspots[0]!, locale);
   return [
-    `${ATTENTION_TITLE}: ${hotspots.length} по маршрута. ${hotspotDetail(hotspots[0]!)}`,
+    formatTemplate(h.warningOnRoute, {
+      title,
+      count: String(hotspots.length),
+      detail,
+    }),
   ];
 }
 
-export function hotspotReason(hotspots: Hotspot[]): WhyReason | null {
+function hotspotReasonDetail(count: number, locale: Locale): string {
+  const h = catalog(locale).planner.hotspots;
+  if (locale === "en") {
+    return formatTemplate(h.reasonEn, { count: String(count) });
+  }
+  if (locale === "tr") {
+    return formatTemplate(h.reasonTr, { count: String(count) });
+  }
+  if (locale === "ro") {
+    const form = pluralRo(count);
+    if (form === "one") return h.reasonRoOne;
+    if (form === "many") {
+      return formatTemplate(h.reasonRoMany, { count: String(count) });
+    }
+    return formatTemplate(h.reasonRoFew, { count: String(count) });
+  }
+  if (count === 1) return h.reasonOne;
+  return formatTemplate(h.reasonOther, { count: String(count) });
+}
+
+export function hotspotReason(
+  hotspots: Hotspot[],
+  locale: Locale = "bg"
+): WhyReason | null {
   if (hotspots.length === 0) return null;
+  const h = catalog(locale).planner.hotspots;
   return {
     code: "attention_segment",
-    title: ATTENTION_TITLE,
-    detail: `${hotspots.length} участъка с чести катастрофи по избрания маршрут.`,
+    title: h.attentionTitle,
+    detail: hotspotReasonDetail(hotspots.length, locale),
     delta_min: null,
     delta_km: null,
   };

@@ -472,6 +472,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     distanceKm: roadKm,
     countryAt: (lat, lng) => countryCodeAtPoint(lng, lat),
     averagePerLitre: (country) => averageDetails.get(country)?.price ?? null,
+    locale,
   });
 
   const warnings: string[] = [];
@@ -487,8 +488,8 @@ export async function runTripPlan(input: TripPlanRequest) {
   if (prefs.pace === "scenic" && sights.length === 0) {
     warnings.push(plannerCopy.warnings.scenicEmpty);
   }
-  warnings.push(...hazardWarnings(roadHazards));
-  warnings.push(...hotspotWarnings(attentionSegments));
+  warnings.push(...hazardWarnings(roadHazards, locale));
+  warnings.push(...hotspotWarnings(attentionSegments, locale));
 
   const tolls = getRouteTolls({
     geometry: chosenRoute.geometry,
@@ -519,9 +520,9 @@ export async function runTripPlan(input: TripPlanRequest) {
     })),
     preferences: prefs,
   });
-  const hazard = hazardReason(roadHazards);
+  const hazard = hazardReason(roadHazards, locale);
   if (hazard) why.push(hazard);
-  const attention = hotspotReason(attentionSegments);
+  const attention = hotspotReason(attentionSegments, locale);
   if (attention) why.push(attention);
 
   const plan = assembleTripPlan({
@@ -562,6 +563,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       countries,
       fuel: input.vehicle.fuel_type,
       known: averageDetails,
+      locale,
     }),
     countryAt: (lng, lat) => countryCodeAtPoint(lng, lat),
     averageFor: (country) => {

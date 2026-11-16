@@ -5,5 +5,70 @@
   },
   "tipsPage": {
     "msg343e2ece52": "Önemli"
+  },
+  "planner": {
+    "stops": {
+      "lodgingNearby": "Yakında: {name}. Henüz puan yok.",
+      "lodgingNoMapHotel": "Haritadan otel yüklenmedi. Henüz puan yok."
+    },
+    "weather": {
+      "noForecast": "Bu saat için tahmin yok.",
+      "attribution": "Tahmin: Open-Meteo.com (CC BY 4.0)",
+      "warningAlongRoute": "Güzergâhta yaklaşık {km} km civarında, {eta}."
+    },
+    "hotspots": {
+      "attentionTitle": "Dikkat gerektiren kesim",
+      "severityHigh": "yüksek",
+      "severityMedium": "orta",
+      "severityLow": "düşük",
+      "detail": "{count} kaza · şiddet {severity} · {source} · {years}",
+      "warningOnRoute": "{title}: güzergâhta {count}. {detail}",
+      "reasonOne": "Seçilen güzergâhta sık kaza olan 1 kesim.",
+      "reasonOther": "Seçilen güzergâhta {count} sık kaza olan kesim.",
+      "reasonTr": "Seçilen güzergâhta {count} sık kaza olan kesim.",
+      "sourceRsMup": "Sırbistan İçişleri Bakanlığı",
+      "sourceBgCherna": "Cherna pista",
+      "sourceBgMvr": "İçişleri Bakanlığı",
+      "sourceDe": "Unfallatlas",
+      "sourceHu": "KSH",
+      "sourceAt": "Statistik Avusturya",
+      "sourceCz": "Çek Polisi"
+    },
+    "hazards": {
+      "roadworks": "Yol çalışması",
+      "closed": "Yol kapalı",
+      "danger": "Tehlike",
+      "conditions": "Kötü koşullar",
+      "attribution": "Kaynak: Yol Altyapı Ajansı (datasheet.api.bg)",
+      "validUntil": "{until} tarihine kadar geçerli.",
+      "moreSignals": "Güzergâhta yol ajansından {count} uyarı daha.",
+      "signalOne": "uyarı",
+      "signalOther": "uyarı",
+      "reasonTitle": "Yol ajansı bildirimi",
+      "reasonDetail":
+        "Bulgaristan bölümünde {count} bildirim ({kinds}).{place}",
+      "reasonTr": "Bu güzergâhta {count} Bulgar yol ajansı uyarısı ({kinds}).{place}",
+      "reasonExample": " Örnek: {place}.",
+      "agencyDetailsOnly": "Ayrıntılar Bulgar yol ajansından yalnızca Bulgarca mevcut.",
+      "lineUntil": "{label}: {where}{text}{until}"
+    },
+    "proximity": {
+      "hotspotAhead":
+        "{meters} m sonra: sık kaza olan bir kesim. Dikkatli sürün.",
+      "hazardAhead": "{meters} m sonra: yolda tehlike. Dikkatli sürün."
+    },
+    "fuel": {
+      "diesel": "dizel",
+      "petrol": "benzin",
+      "lpg": "LPG",
+      "noAverage": "{country}: ortalama fiyat yok",
+      "averageLine": "{country}: {fuel} ort. {price} €/l",
+      "deltaCheaper": "{signed}, {liters} l için ~{euros} € tasarruf",
+      "deltaCostlier": "{signed}, {liters} l için ~{euros} € fazla ödeme",
+      "deltaNeutral": "{liters} l için ortalamaya göre {signed}",
+      "sourceCommunity": "kullanıcı bildirimi",
+      "sourceCommunityAgo": "kullanıcı bildirimi, {hours} sa önce",
+      "oilBulletinLabel": "Avrupa Komisyonu, Haftalık Petrol Bülteni"
+    }
   }
 }

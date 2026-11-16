@@ -20,6 +20,20 @@ import { expectedWait } from "@/lib/planner/wait";
 import { whyThisRoute } from "@/lib/planner/why-route";
 import { NAKORDONI_ATTRIBUTION } from "@/lib/planner/wait";
 import type { Locale } from "@/lib/i18n/locale";
+import { weatherCondition } from "@/lib/utils/weather-codes";
+import {
+  hotspotReason,
+  hotspotWarnings,
+} from "@/lib/hotspots/present";
+import { hazardReason, hazardWarnings } from "@/lib/hazards/present";
+import { countryAverageLabel } from "@/lib/fuel-prices/present";
+import { catalog } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import type { Hotspot } from "@/lib/hotspots/types";
+import { parseDatexSituations } from "@/lib/hazards/datex-parse";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const SKIP = ["name_bg", "nameBg", "nameEn", "label_bg_source"];
 const ENGLISH_BORDER_WORDS = /\b(Bridge|Danube)\b/i;
@@ -308,5 +322,54 @@ describe("plan locale outputs", () => {
     );
     expect(scored[0]?.reason).toMatch(/Preferred.*Kalotina/i);
     expectNoCyrillic("en", scored);
+  });
+
+  const hotspotFixture: Hotspot = {
+    id: "x",
+    country: "DE",
+    lng: 23,
+    lat: 42,
+    count: 5,
+    fatal: 0,
+    serious: 1,
+    slight: 0,
+    severity: 2,
+    source_id: "de-unfallatlas",
+    year_from: 2022,
+    year_to: 2023,
+  };
+
+  const hazardXml = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "../hazards/fixtures/datex-situations.xml"),
+    "utf8"
+  );
+  const hazardFixture = parseDatexSituations(hazardXml, {
+    now: new Date("2026-11-15T12:00:00.000Z"),
+  })[0]!;
+
+  for (const locale of ["en", "tr", "ro"] as const) {
+    it(`planner II presenters have no Cyrillic for ${locale}`, () => {
+      expectNoCyrillic(locale, {
+        weather: weatherCondition(61, locale),
+        hotspot: hotspotWarnings([hotspotFixture], locale),
+        hazard: hazardWarnings([hazardFixture], locale),
+        fuel: countryAverageLabel({
+          countryName: "Germany",
+          fuel: "diesel",
+          price: 1.8,
+          locale,
+        }),
+        lodging: formatTemplate(catalog(locale).planner.stops.lodgingNearby, {
+          name: "Hotel",
+        }),
+      });
+    });
+  }
+
+  it("hotspot and hazard reasons localize", () => {
+    const attention = hotspotReason([hotspotFixture], "en");
+    const hazard = hazardReason([hazardFixture], "tr");
+    expectNoCyrillic("en", attention);
+    expectNoCyrillic("tr", hazard);
   });
 });

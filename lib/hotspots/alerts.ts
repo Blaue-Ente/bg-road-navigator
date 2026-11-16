@@ -1,4 +1,5 @@
 import { alertText } from "@/lib/i18n/hotspot-alerts";
+import type { Locale } from "@/lib/i18n/locale";
 import { distanceToPolylineKm } from "@/lib/planner/line";
 
 /** Default look-ahead. The settings screen can change it. */
@@ -32,6 +33,7 @@ export function alertsAhead(input: {
   position: { lng: number; lat: number };
   targets: AlertTarget[];
   aheadM?: number;
+  locale?: Locale;
 }): ProximityAlert[] {
   const aheadM = input.aheadM ?? DEFAULT_ALERT_AHEAD_M;
   if (input.line.length < 2 || input.targets.length === 0) return [];
@@ -51,7 +53,7 @@ export function alertsAhead(input: {
       id: target.id,
       kind: target.kind,
       distanceM,
-      text: alertText(target.kind, distanceM),
+      text: alertText(target.kind, distanceM, input.locale),
     });
   }
   alerts.sort((a, b) => a.distanceM - b.distanceM);

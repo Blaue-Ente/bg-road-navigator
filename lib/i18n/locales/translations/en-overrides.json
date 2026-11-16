@@ -5,5 +5,70 @@
   },
   "tipsPage": {
     "msg343e2ece52": "Important"
+  },
+  "planner": {
+    "stops": {
+      "lodgingNearby": "Nearby: {name}. No ratings yet.",
+      "lodgingNoMapHotel": "No hotel loaded from the map. No ratings yet."
+    },
+    "weather": {
+      "noForecast": "No forecast for this hour.",
+      "attribution": "Forecast: Open-Meteo.com (CC BY 4.0)",
+      "warningAlongRoute": "Around {km} km along the route at {eta}."
+    },
+    "hotspots": {
+      "attentionTitle": "High-attention segment",
+      "severityHigh": "high",
+      "severityMedium": "medium",
+      "severityLow": "low",
+      "detail": "{count} incidents · severity {severity} · {source} · {years}",
+      "warningOnRoute": "{title}: {count} on the route. {detail}",
+      "reasonOne": "1 high-accident section along the chosen route.",
+      "reasonOther": "{count} high-accident sections along the chosen route.",
+      "reasonEn": "{count} high-accident section(s) along the chosen route.",
+      "sourceRsMup": "Serbian Ministry of Interior",
+      "sourceBgCherna": "Cherna pista",
+      "sourceBgMvr": "Ministry of Interior",
+      "sourceDe": "Unfallatlas",
+      "sourceHu": "KSH",
+      "sourceAt": "Statistics Austria",
+      "sourceCz": "Czech Police"
+    },
+    "hazards": {
+      "roadworks": "Roadworks",
+      "closed": "Road closed",
+      "danger": "Hazard",
+      "conditions": "Poor conditions",
+      "attribution": "Source: Road Infrastructure Agency (datasheet.api.bg)",
+      "validUntil": "Valid until {until}.",
+      "moreSignals": "{count} more alerts from the road agency on this route.",
+      "signalOne": "alert",
+      "signalOther": "alerts",
+      "reasonTitle": "Road agency bulletin",
+      "reasonDetail":
+        "{count} alerts on the Bulgarian section ({kinds}).{place}",
+      "reasonEn": "{count} Bulgarian road agency alert(s) on this route ({kinds}).{place}",
+      "reasonExample": " Example: {place}.",
+      "agencyDetailsOnly": "Details are available in Bulgarian from the road agency.",
+      "lineUntil": "{label}: {where}{text}{until}"
+    },
+    "proximity": {
+      "hotspotAhead":
+        "In {meters} m: a high-accident segment. Drive carefully.",
+      "hazardAhead": "In {meters} m: hazard on the road. Drive carefully."
+    },
+    "fuel": {
+      "diesel": "diesel",
+      "petrol": "petrol",
+      "lpg": "LPG",
+      "noAverage": "{country}: no average price",
+      "averageLine": "{country}: {fuel} avg {price} €/l",
+      "deltaCheaper": "{signed}, you save ~{euros} € on {liters} l",
+      "deltaCostlier": "{signed}, you pay ~{euros} € more for {liters} l",
+      "deltaNeutral": "{signed} vs the average for {liters} l",
+      "sourceCommunity": "from a user report",
+      "sourceCommunityAgo": "from a user report, {hours} h ago",
+      "oilBulletinLabel": "European Commission, Weekly Oil Bulletin"
+    }
   }
 }

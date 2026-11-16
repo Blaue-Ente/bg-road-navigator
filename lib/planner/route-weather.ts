@@ -3,8 +3,9 @@ import type { SleepShift } from "@/lib/planner/breaks";
 import { wallClockEta } from "@/lib/planner/breaks";
 import { pointAtDistance, lineLengthKm } from "@/lib/planner/line";
 import type { RouteWeather, RouteWeatherWarning } from "@/lib/planner/types";
-import { wmoToWeather } from "@/lib/utils/weather-codes";
+import { weatherCondition } from "@/lib/utils/weather-codes";
 import { catalog, type Locale } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const ALARM_URL = "https://api.meteoalarm.org/v1/warnings";
@@ -31,7 +32,9 @@ export async function weatherAlongRoute(input: {
   fetchImpl?: typeof fetch;
 }): Promise<RouteWeather> {
   const fetchImpl = input.fetchImpl ?? fetch;
-  const hourlyEmpty = catalog(input.locale ?? "bg").planner.weather.hourlyEmpty;
+  const locale = input.locale ?? "bg";
+  const wx = catalog(locale).planner.weather;
+  const hourlyEmpty = wx.hourlyEmpty;
   const samples = samplePoints(input);
   const empty: RouteWeather = {
     segments: samples.map((sample) => ({
@@ -40,10 +43,10 @@ export async function weatherAlongRoute(input: {
       weather_code: null,
       wind_kmh: null,
       precipitation_mm: null,
-      summary_bg: "Няма прогноза за този час.",
+      summary_bg: wx.noForecast,
     })),
     warnings: [],
-    attribution: "Прогноза: Open-Meteo.com (CC BY 4.0)",
+    attribution: wx.attribution,
   };
   if (samples.length === 0) return empty;
 
@@ -62,7 +65,7 @@ export async function weatherAlongRoute(input: {
     const summary =
       code == null
         ? hourlyEmpty
-        : `${wmoToWeather(code).condition}${
+        : `${weatherCondition(code, locale)}${
             temperature == null ? "" : `, ${Math.round(temperature)}°C`
           }`;
     return {
@@ -83,7 +86,10 @@ export async function weatherAlongRoute(input: {
       source: "open-meteo",
       severity: severe,
       title: segment.summary_bg,
-      detail: `Около ${segment.distance_from_start_km} км по маршрута в ${segment.eta}.`,
+      detail: formatTemplate(wx.warningAlongRoute, {
+        km: String(segment.distance_from_start_km),
+        eta: segment.eta,
+      }),
       country_code: countryCodeAtPoint(segment.lng, segment.lat),
     });
   }

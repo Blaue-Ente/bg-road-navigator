@@ -1,5 +1,6 @@
 import { CHERNA_PISTA_ATTRIBUTION } from "@/lib/hazards/cherna-pista";
 import { MVR_ATTRIBUTION } from "@/lib/hotspots/mvr";
+import { catalog, type Locale } from "@/lib/i18n/locale";
 
 export interface HotspotSource {
   id: string;
@@ -71,8 +72,36 @@ export const HOTSPOT_SOURCES: HotspotSource[] = [
 
 const BY_ID = new Map(HOTSPOT_SOURCES.map((source) => [source.id, source]));
 
+const SOURCE_LABEL_KEY: Record<
+  string,
+  | "sourceRsMup"
+  | "sourceBgCherna"
+  | "sourceBgMvr"
+  | "sourceDe"
+  | "sourceHu"
+  | "sourceAt"
+  | "sourceCz"
+> = {
+  "rs-mup": "sourceRsMup",
+  "bg-cherna": "sourceBgCherna",
+  "bg-mvr": "sourceBgMvr",
+  "de-unfallatlas": "sourceDe",
+  "hu-ksh": "sourceHu",
+  "at-statistik": "sourceAt",
+  "cz-police": "sourceCz",
+};
+
 export function hotspotSource(id: string): HotspotSource | null {
   return BY_ID.get(id) ?? null;
+}
+
+export function hotspotSourceLabel(id: string, locale: Locale = "bg"): string {
+  const row = BY_ID.get(id);
+  if (!row) return id;
+  if (locale === "bg") return row.label_bg;
+  const key = SOURCE_LABEL_KEY[id];
+  if (!key) return row.label_bg;
+  return catalog(locale).planner.hotspots[key];
 }
 
 export function attributionsFor(sourceIds: Iterable<string>): string[] {

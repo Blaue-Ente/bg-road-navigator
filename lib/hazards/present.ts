@@ -1,9 +1,17 @@
+import { roadKmDisplay } from "@/lib/hazards/road-km";
 import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
+import { catalog, type Locale } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import type { WhyReason } from "@/lib/planner/types";
 
 export const DATEX_ATTRIBUTION =
   "Източник: Агенция „Пътна инфраструктура“ (datasheet.api.bg)";
 
+export function datexAttribution(locale: Locale = "bg"): string {
+  return catalog(locale).planner.hazards.attribution;
+}
+
+/** @deprecated Use hazardLabel(kind, locale) */
 export const HAZARD_LABEL: Record<RoadHazardKind, string> = {
   roadworks: "Ремонт",
   closed: "Затворен път",
@@ -13,16 +21,29 @@ export const HAZARD_LABEL: Record<RoadHazardKind, string> = {
 
 const SHEET_LIMIT = 40;
 
-export function hazardLabel(kind: RoadHazardKind): string {
-  return HAZARD_LABEL[kind];
+const INTL_LOCALE: Record<Locale, string> = {
+  bg: "bg-BG",
+  en: "en-GB",
+  tr: "tr-TR",
+  ro: "ro-RO",
+};
+
+export function hazardLabel(
+  kind: RoadHazardKind,
+  locale: Locale = "bg"
+): string {
+  if (locale === "bg") return HAZARD_LABEL[kind];
+  return catalog(locale).planner.hazards[kind];
 }
 
-/** Sofia local time, so a test runner in UTC still shows the bulletin clock. */
-export function formatHazardUntil(iso: string | null): string | null {
+export function formatHazardUntil(
+  iso: string | null,
+  locale: Locale = "bg"
+): string | null {
   if (!iso) return null;
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat("bg-BG", {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
     timeZone: "Europe/Sofia",
     day: "numeric",
     month: "short",
@@ -31,37 +52,91 @@ export function formatHazardUntil(iso: string | null): string | null {
   }).format(date);
 }
 
-export function hazardWarnings(hazards: RoadHazard[]): string[] {
-  if (hazards.length === 0) return [];
-  const shown = hazards.slice(0, 6);
-  const lines = shown.map((hazard) => {
+function hazardLine(hazard: RoadHazard, locale: Locale): string {
+  const h = catalog(locale).planner.hazards;
+  const label = hazardLabel(hazard.kind, locale);
+  const until = formatHazardUntil(hazard.valid_until, locale);
+  const untilPart = until
+    ? formatTemplate(h.validUntil, { until })
+    : "";
+  if (locale === "bg") {
     const where = hazard.road_km_bg ? `${hazard.road_km_bg}. ` : "";
-    const until = formatHazardUntil(hazard.valid_until);
-    const tail = until ? ` Валидно до ${until}.` : "";
-    return `${hazard.label_bg}: ${where}${hazard.text_bg}${tail}`;
+    return `${hazard.label_bg}: ${where}${hazard.text_bg}${untilPart}`;
+  }
+  const road = roadKmDisplay(hazard.road_km_bg, hazard.text_bg, locale);
+  const where = road ? `${road}. ` : "";
+  const text = road ? "" : `${h.agencyDetailsOnly} `;
+  return formatTemplate(h.lineUntil, {
+    label,
+    where,
+    text,
+    until: untilPart,
   });
+}
+
+export function hazardWarnings(
+  hazards: RoadHazard[],
+  locale: Locale = "bg"
+): string[] {
+  if (hazards.length === 0) return [];
+  const h = catalog(locale).planner.hazards;
+  const shown = hazards.slice(0, 6);
+  const lines = shown.map((hazard) => hazardLine(hazard, locale));
   if (hazards.length > shown.length) {
     lines.push(
-      `Още ${hazards.length - shown.length} сигнала от АПИ по трасето.`
+      formatTemplate(h.moreSignals, {
+        count: String(hazards.length - shown.length),
+      })
     );
   }
-  lines.push(DATEX_ATTRIBUTION);
+  lines.push(datexAttribution(locale));
   return lines;
 }
 
-export function hazardReason(hazards: RoadHazard[]): WhyReason | null {
-  if (hazards.length === 0) return null;
-  const kinds = [...new Set(hazards.map((hazard) => hazard.label_bg))].join(
+function hazardReasonDetail(
+  hazards: RoadHazard[],
+  locale: Locale
+): { detail: string; title: string } {
+  const h = catalog(locale).planner.hazards;
+  const kinds = [...new Set(hazards.map((hazard) => hazardLabel(hazard.kind, locale)))].join(
     ", "
   );
-  const word = hazards.length === 1 ? "сигнал" : "сигнала";
-  const place = hazards[0]?.road_km_bg
-    ? ` Пример: ${hazards[0].road_km_bg}.`
-    : "";
+  const signals =
+    hazards.length === 1 ? h.signalOne : h.signalOther;
+  const placeRoad = hazards[0]
+    ? roadKmDisplay(hazards[0].road_km_bg, hazards[0].text_bg, locale)
+    : null;
+  const place =
+    placeRoad != null
+      ? formatTemplate(h.reasonExample, { place: placeRoad })
+      : locale === "bg" && hazards[0]?.road_km_bg
+        ? formatTemplate(h.reasonExample, { place: hazards[0].road_km_bg })
+        : "";
+
+  const count = String(hazards.length);
+  let detail: string;
+  if (locale === "en") {
+    detail = formatTemplate(h.reasonEn, { count, kinds, place });
+  } else if (locale === "tr") {
+    detail = formatTemplate(h.reasonTr, { count, kinds, place });
+  } else if (locale === "ro") {
+    detail = formatTemplate(h.reasonRo, { count, kinds, place });
+  } else {
+    detail = formatTemplate(h.reasonDetail, { count, signals, kinds, place });
+  }
+  return { title: h.reasonTitle, detail };
+}
+
+export function hazardReason(
+  hazards: RoadHazard[],
+  locale: Locale = "bg"
+): WhyReason | null {
+  if (hazards.length === 0) return null;
+  const { title, detail } = hazardReasonDetail(hazards, locale);
   return {
     code: "road_hazard",
-    title: "Обстановка от АПИ",
-    detail: `По българската част има ${hazards.length} ${word} (${kinds}).${place}`,
+    title,
+    detail,
     delta_min: null,
     delta_km: null,
   };
@@ -69,4 +144,14 @@ export function hazardReason(hazards: RoadHazard[]): WhyReason | null {
 
 export function hazardsForSheet(hazards: RoadHazard[]): RoadHazard[] {
   return hazards.slice(0, SHEET_LIMIT);
+}
+
+export function hazardPopupBody(
+  hazard: RoadHazard,
+  locale: Locale = "bg"
+): string {
+  if (locale === "bg") return hazard.text_bg;
+  const road = roadKmDisplay(hazard.road_km_bg, hazard.text_bg, locale);
+  if (road) return road;
+  return catalog(locale).planner.hazards.agencyDetailsOnly;
 }

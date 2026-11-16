@@ -15,6 +15,8 @@ import type {
   PlanPrice,
 } from "@/lib/planner/types";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
+import { catalog, type Locale } from "@/lib/i18n/locale";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 const FUEL_LOOKBACK_KM = 40;
 
@@ -27,7 +29,9 @@ export function attachStops(input: {
   distanceKm: number;
   countryAt: (lat: number, lng: number) => string | null;
   averagePerLitre: (country: string) => number | null;
+  locale?: Locale;
 }): { attachments: StopAttachment[]; sights: StopAttachment[] } {
+  const stopCopy = catalog(input.locale ?? "bg").planner.stops;
   const liters = fillLiters(input.vehicle);
   const fuel =
     input.vehicle.fuel_type === "electric" ? null : input.vehicle.fuel_type;
@@ -62,9 +66,11 @@ export function attachStops(input: {
       });
       if (!place && stay) place = stay;
       else if (stay && isNamedPlace(stay)) {
-        lodgingNote = `Наблизо: ${stay.name}. Оценки още няма.`;
+        lodgingNote = formatTemplate(stopCopy.lodgingNearby, {
+          name: stay.name ?? "",
+        });
       } else if (!stay) {
-        lodgingNote = "Няма зареден хотел от картата. Оценки още няма.";
+        lodgingNote = stopCopy.lodgingNoMapHotel;
       }
     }
 

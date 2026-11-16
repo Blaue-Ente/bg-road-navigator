@@ -4,6 +4,7 @@ import type { RoadHazard } from "@/lib/hazards/types";
 import type { Hotspot } from "@/lib/hotspots/types";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { GeoPoint } from "@/types/route.types";
+import type { Locale } from "@/lib/i18n/locale";
 
 /** Stable codes Stage 3 can branch on. Bulgarian copy lives in the *_bg fields. */
 export type WaitSource =
@@ -23,13 +24,17 @@ export type { PriceBand };
 /** National Weekly Oil Bulletin figure for one country on this route. */
 export interface FuelCountryAverage {
   country_code: string;
+  /** Historic name; holds text in the plan's locale. */
   country_name_bg: string;
   fuel: "diesel" | "petrol" | "lpg" | "electric";
   price_eur_per_l: number | null;
   week: string | null;
+  /** Historic name; holds text in the plan's locale. */
   week_label_bg: string | null;
   source: "ec-oil-bulletin" | null;
+  /** Historic name; holds text in the plan's locale. */
   source_label_bg: string;
+  /** Historic name; holds text in the plan's locale. */
   label_bg: string;
 }
 
@@ -89,6 +94,7 @@ export interface RouteWeatherSegment {
   weather_code: number | null;
   wind_kmh: number | null;
   precipitation_mm: number | null;
+  /** Historic name; holds text in the plan's locale. */
   summary_bg: string;
 }
 
@@ -198,10 +204,13 @@ export interface PlanStop {
   advice: FuelAdvice | null;
   /** Null when the stop is not a fuel stop. Grey means no station price. */
   price_band: PriceBand | null;
-  /** National average for this stop's country, e.g. "България: дизел ср. 1,90 €/л". */
+  /** Historic name; holds text in the plan's locale. */
   average_label_bg: string | null;
+  /** Historic name; holds text in the plan's locale. */
   price_label_bg: string | null;
+  /** Historic name; holds text in the plan's locale. */
   price_delta_label_bg: string | null;
+  /** Historic name; holds text in the plan's locale. */
   price_source_label_bg: string | null;
   flags: PlaceFlagSummary[];
   /** Scenic sights are optional and can be skipped. */
@@ -262,6 +271,8 @@ export interface RouteOptionsBlock {
 export interface TripPlannerResult {
   generated_at: string;
   planner: "deterministic";
+  /** Present on new plans; text fields match this locale. */
+  locale?: Locale;
   depart_at: string;
   vehicle: {
     vehicle_type: "car" | "ev" | "truck" | "motorcycle";
