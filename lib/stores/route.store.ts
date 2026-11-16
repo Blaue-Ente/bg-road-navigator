@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { clearRouteTripSession, tripSessionStorage } from "@/lib/stores/route-trip-session";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { PlaceFlagSummary, TripPlannerResult } from "@/lib/planner/types";
 import type { GeoPoint, Route, RoutePoint } from "@/types/route.types";
@@ -33,6 +34,8 @@ interface RouteState {
   focusedStopId: string | null;
   planningVia: PlanningVia | null;
   replanDraft: ReplanDraft | null;
+  /** Stable route-choice card order (`border_id` or `source` keys). */
+  choiceCardOrderKeys: string[] | null;
   setOrigin: (point: GeoPoint | null) => void;
   setDestination: (point: GeoPoint | null) => void;
   addWaypoint: (point: GeoPoint) => void;
@@ -44,6 +47,7 @@ interface RouteState {
   setFocusedStopId: (id: string | null) => void;
   setPlanningVia: (via: PlanningVia | null) => void;
   setReplanDraft: (draft: ReplanDraft | null) => void;
+  setChoiceCardOrderKeys: (keys: string[] | null) => void;
   addLocalFlag: (stopId: string, flag: PlaceFlagSummary) => void;
   clearRoute: () => void;
 }
@@ -61,8 +65,10 @@ export const useRouteStore = create<RouteState>((set) => ({
   focusedStopId: null,
   planningVia: null,
   replanDraft: null,
-  setOrigin: (point) => set({ origin: point }),
-  setDestination: (point) => set({ destination: point }),
+  choiceCardOrderKeys: null,
+  setOrigin: (point) => set({ origin: point, choiceCardOrderKeys: null }),
+  setDestination: (point) =>
+    set({ destination: point, choiceCardOrderKeys: null }),
   addWaypoint: (point) =>
     set((state) => ({
       waypoints: [...state.waypoints, point],
@@ -88,6 +94,7 @@ export const useRouteStore = create<RouteState>((set) => ({
     })),
   setPlanningVia: (via) => set({ planningVia: via }),
   setReplanDraft: (draft) => set({ replanDraft: draft }),
+  setChoiceCardOrderKeys: (keys) => set({ choiceCardOrderKeys: keys }),
   addLocalFlag: (stopId, flag) =>
     set((state) => {
       if (!state.tripPlan) return {};
@@ -102,7 +109,9 @@ export const useRouteStore = create<RouteState>((set) => ({
         },
       };
     }),
-  clearRoute: () =>
+  clearRoute: () => {
+    const storage = tripSessionStorage();
+    if (storage) clearRouteTripSession(storage);
     set({
       origin: null,
       destination: null,
@@ -115,5 +124,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       planDetailOpen: false,
       focusedStopId: null,
       planningVia: null,
-    }),
+      choiceCardOrderKeys: null,
+    });
+  },
 }));

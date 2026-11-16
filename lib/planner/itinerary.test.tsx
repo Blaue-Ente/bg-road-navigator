@@ -69,7 +69,7 @@ describe("buildItineraryPoints", () => {
     expect(html).toContain("Участък за повишено внимание");
     expect(html).toContain("4 произшествия");
     expect(html).toContain("Обстановка по пътя");
-    expect(html).toContain("Няма активни събития от АПИ в момента");
+    expect(html).toContain("1 сигнал по трасето");
   });
 
   it("leaves optional sights out of the default selection", () => {

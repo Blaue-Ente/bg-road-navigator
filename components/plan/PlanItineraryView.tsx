@@ -4,8 +4,7 @@ import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { PlanSafetyBlock } from "@/components/plan/PlanChecklist";
 import {
-  AttentionSegments,
-  RoadHazards,
+  PlanRoadNotes,
 } from "@/components/plan/PlanRoadNotes";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
@@ -195,8 +194,7 @@ export function PlanItineraryView({
         checks={checks}
         onToggle={onToggle}
       />
-      <RoadHazards plan={plan} />
-      <AttentionSegments plan={plan} />
+      <PlanRoadNotes plan={plan} />
 
       {plan.warnings.length > 0 && (
         <ul className="space-y-1 text-sm text-[var(--waze-warning)]">

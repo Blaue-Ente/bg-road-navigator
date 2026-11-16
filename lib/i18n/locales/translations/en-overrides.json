@@ -11,11 +11,21 @@
     "waitNowLine": "Now: {minutes} min",
     "arrivalIncludes": "Includes {breaks} of breaks and an overnight stop.",
     "arrivalIncludesBreaksOnly": "Includes {breaks} of breaks along the route.",
-    "arrivalIncludesOvernightOnly": "Includes an overnight stop."
+    "arrivalIncludesOvernightOnly": "Includes an overnight stop.",
+    "showAllRoadNotesOther": "Show all {count}",
+    "showAllWeatherOther": "Show all {count} segments",
+    "roadNotesSummaryOne": "1 alert along the route — details below.",
+    "roadNotesSummaryOther": "{count} alerts along the route — showing the most important.",
+    "roadNotesSummaryRoOne": "One alert on the route (RO plural).",
+    "roadNotesSummaryRoFew": "{count} alerts on the route (RO few).",
+    "roadNotesSummaryRoMany": "{count} alerts on the route (RO many)."
   },
   "routeChoice": {
     "waitSuffix": "min wait",
-    "waitAtArrival": "{minutes} min on arrival"
+    "waitAtArrival": "{minutes} min on arrival",
+    "switching": "Switching to this route…",
+    "switchFailed": "We couldn't switch routes. Please try again.",
+    "onlyTwo": "We show the best route and one real alternative."
   },
   "borders": {
     "asOf": "as of {time} Sofia time"
