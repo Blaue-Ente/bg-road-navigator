@@ -36,7 +36,7 @@ export function LocaleOffer({ placement }: { placement: LocaleOfferPlacement }) 
 
   const shellClass =
     placement === "map"
-      ? "pointer-events-auto mt-2 flex min-h-11 max-w-full items-center gap-1 rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 py-1 text-sm shadow-sm"
+      ? "pointer-events-auto mt-2 flex min-h-11 max-w-full items-center gap-0 rounded-full border border-[var(--waze-border)] bg-[var(--waze-surface)] pl-2 pr-1 py-1 text-sm shadow-sm max-md:max-w-[calc(100vw-4.75rem)] max-md:flex-nowrap"
       : placement === "auth"
         ? "mb-4 flex min-h-11 w-full items-center gap-1 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-2 py-1 text-sm"
         : "flex min-h-11 w-full items-center gap-1 border-b border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 py-1 text-sm";
@@ -52,7 +52,18 @@ export function LocaleOffer({ placement }: { placement: LocaleOfferPlacement }) 
 
   return (
     <div role="region" className={shellClass} data-locale-offer={placement}>
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-0.5 gap-y-1">
+      <div
+        className={`min-w-0 flex-1 ${
+          placement === "map"
+            ? "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            : ""
+        }`}
+      >
+        <div
+          className={`flex items-center gap-x-0.5 ${
+            placement === "map" ? "flex-nowrap whitespace-nowrap" : "flex-wrap gap-y-1"
+          }`}
+        >
         {offered.map((code, index) => (
           <span key={`${code}-${tick}`} className="inline-flex items-center">
             {index > 0 ? (
@@ -75,11 +86,13 @@ export function LocaleOffer({ placement }: { placement: LocaleOfferPlacement }) 
             </button>
           </span>
         ))}
+        </div>
       </div>
       <button
         type="button"
         onClick={keepBulgarian}
-        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-lg leading-none text-[var(--waze-text-muted)] hover:bg-[var(--waze-surface-elevated)] hover:text-[var(--waze-text)]"
+        data-tap="locale-offer-dismiss"
+        className="inline-flex h-11 min-h-11 w-11 min-w-11 shrink-0 items-center justify-center rounded-full text-xl font-medium leading-none text-[var(--waze-text)] hover:bg-[var(--waze-surface-elevated)]"
         aria-label={m.localeOffer.keepBulgarian}
       >
         ×

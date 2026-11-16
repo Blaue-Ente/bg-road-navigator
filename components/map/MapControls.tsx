@@ -157,11 +157,12 @@ export function MapControls({ map }: MapControlsProps) {
           className="pointer-events-auto fixed right-3 z-[50] max-md:block md:hidden"
           style={{
             top: "calc(5.75rem + env(safe-area-inset-top, 0px))",
-            bottom: "calc(4.75rem + env(safe-area-inset-bottom, 0px) + 0.5rem)",
+            maxHeight:
+              "calc(100dvh - 5.75rem - 4.75rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 0.5rem)",
             width: "min(18rem, calc(100vw - 1.5rem))",
           }}
         >
-          <LayerPanel className="h-full max-h-full" scrollable />
+          <LayerPanel scrollable />
         </div>
       ) : null}
     </>

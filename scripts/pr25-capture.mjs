@@ -54,9 +54,9 @@ async function main() {
     width: 390,
     height: 844,
   });
-  await shotLocaleOffer(page, "locale-offer-desktop-1440.png", {
-    width: 1440,
-    height: 900,
+  await shotLocaleOffer(page, "locale-offer-mobile-360.png", {
+    width: 360,
+    height: 740,
   });
   await page.close();
   await localeCtx.close();

@@ -21,15 +21,17 @@ export function LayerPanel({
   return (
     <section
       data-tap="layers-panel"
-      className={`waze-panel overflow-y-auto p-2 shadow-lg ${
-        scrollable ? "flex h-full min-h-0 flex-col" : "max-h-[70vh]"
+      className={`waze-panel p-2 shadow-lg ${
+        scrollable
+          ? "max-h-full overflow-y-auto overscroll-contain"
+          : "max-h-[70vh] overflow-y-auto"
       } ${className}`.trim()}
       aria-label={m.map.msg8da8df78a7}
     >
       <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-secondary)]">
         {m.mapControls.layers}
       </p>
-      <ul className={`space-y-0.5 ${scrollable ? "min-h-0 flex-1 overflow-y-auto" : ""}`}>
+      <ul className="space-y-0.5">
         {MAP_LAYERS.map((layer) => (
           <li key={layer.key}>
             <label className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-[var(--waze-text)] hover:bg-[var(--waze-surface-elevated)]">
