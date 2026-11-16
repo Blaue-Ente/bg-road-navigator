@@ -1,12 +1,12 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
 import type {
   ChecklistItem,
   PlanChecklist as Checklist,
 } from "@/lib/planner/types";
-import { BG_ROAD_SAFETY } from "@/lib/i18n/bg-road-safety";
+import { roadSafetyCopy } from "@/lib/i18n/road-safety";
 import { catalog } from "@/lib/i18n/locale";
 export function PlanChecklist({
   checklist,
@@ -135,6 +135,8 @@ export function PlanSafetyBlock({
   checks: Record<string, boolean>;
   onToggle: (id: string, checked: boolean) => void;
 }) {
+  const locale = useLocale();
+  const safetyUi = roadSafetyCopy(locale);
   const safety = checklist.safety ?? [];
   const links = checklist.bg_links ?? [];
   if (safety.length === 0 && links.length === 0) return null;
@@ -143,16 +145,16 @@ export function PlanSafetyBlock({
   return (
     <div>
       <h4 className="text-sm font-semibold text-[var(--waze-text)]">
-        {BG_ROAD_SAFETY.title}
+        {safetyUi.title}
       </h4>
       <SafetyGroup
-        label={BG_ROAD_SAFETY.law_label}
+        label={safetyUi.law_label}
         items={law}
         checks={checks}
         onToggle={onToggle}
       />
       <SafetyGroup
-        label={BG_ROAD_SAFETY.advice_label}
+        label={safetyUi.advice_label}
         items={advice}
         checks={checks}
         onToggle={onToggle}
