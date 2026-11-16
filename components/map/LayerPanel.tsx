@@ -1,12 +1,14 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { pickText } from "@/lib/i18n/localized-field";
 
 import { MAP_LAYERS, type LayerKey } from "@/lib/constants/map-layers";
 import { useMapStore } from "@/lib/stores/map.store";
 
 export function LayerPanel() {
   const m = useMessages();
+  const locale = useLocale();
   const layers = useMapStore((s) => s.layers);
   const toggleLayer = useMapStore((s) => s.toggleLayer);
 
@@ -28,7 +30,7 @@ export function LayerPanel() {
                 checked={layers[layer.key as LayerKey]}
                 onChange={() => toggleLayer(layer.key)}
               />
-              {layer.label_bg}
+              {pickText(locale, layer.label)}
             </label>
           </li>
         ))}

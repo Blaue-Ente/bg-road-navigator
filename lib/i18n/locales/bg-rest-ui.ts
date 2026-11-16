@@ -249,6 +249,21 @@ export const bgRestUi = {
   borders: {
     workingHours: "Работи:",
     documents: "Документи:",
+    documentsEu: "Документи (граждани на ЕС): {list}",
+    documentsOther:
+      "Граждани на други държави: паспорт; проверете нужна ли е виза.",
+    doc: {
+      id_card: "Лична карта",
+      passport: "Паспорт",
+      visa_some: "Виза (за някои гражданства)",
+      visa_if_needed: "Виза при нужда",
+    },
+    vehicle: {
+      car: "Автомобил",
+      truck: "Камион",
+      bus: "Автобус",
+      motorcycle: "Мотоциклет",
+    },
     waitMinutesSuffix: "мин",
     peakWait: "Пик около {hour}:00 — {minutes} мин",
     hourWaitTooltip: "{hour}:00 — {minutes} мин",

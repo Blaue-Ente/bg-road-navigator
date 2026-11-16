@@ -698,7 +698,7 @@
   "е свързана.": "is connected.",
   "евтино": "cheap",
   "забавяния в трафика.": "traffic delays.",
-  "изчакване сега": "wait now",
+  "изчакване сега": "Wait now",
   "или с имейл": "or with email",
   "инцидента": "the incident",
   "карта, публично маршрутизиране, геокодиране, време, курс и близки": "map, public routing, geocoding, weather, trip and nearby",
@@ -787,5 +787,12 @@
   "Камера {name}": "Camera {name}",
   "Жива камера — {name}": "Live camera — {name}",
   "д": "d",
-  "коли": "cars"
+  "коли": "cars",
+  "Документи (граждани на ЕС): {list}": "Documents (EU citizens): {list}",
+  "Граждани на други държави: паспорт; проверете нужна ли е виза.": "Other nationals: passport; check whether you need a visa.",
+  "Лична карта": "ID card",
+  "Паспорт": "Passport",
+  "Виза (за някои гражданства)": "Visa (for some nationalities)",
+  "Виза при нужда": "Visa if required",
+  "Автобус": "Bus"
 }

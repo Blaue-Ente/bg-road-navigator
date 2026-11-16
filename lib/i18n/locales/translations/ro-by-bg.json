@@ -578,8 +578,8 @@
   "Светлоотразителна жилетка": "Vestă reflectorizantă",
   "Свидетелство за управление": "Permis de conducere",
   "Свободен": "Liber",
-  "Сега: светла. Превключи към тъмна": "Acum: deschis. Treci la întunecat",
-  "Сега: тъмна. Превключи към светла": "Acum: întunecat. Treci la deschis",
+  "Сега: светла. Превключи към тъмна": "Acum: temă deschisă. Treci la tema întunecată",
+  "Сега: тъмна. Превключи към светла": "Acum: temă întunecată. Treci la tema deschisă",
   "Сесията е изтекла.": "Sesiunea a expirat.",
   "Сигнал на текущата позиция": "Semnal la poziția curentă",
   "Сигнал по трасето": "Alertă pe traseu",
@@ -698,7 +698,7 @@
   "е свързана.": "este conectată.",
   "евтино": "ieftin",
   "забавяния в трафика.": "întârzieri de trafic.",
-  "изчакване сега": "așteptare acum",
+  "изчакване сега": "Așteptare acum",
   "или с имейл": "sau cu e-mail",
   "инцидента": "incidentul",
   "карта, публично маршрутизиране, геокодиране, време, курс и близки": "hartă, rutare publică, geocodare, vreme, cursă și",
@@ -787,5 +787,12 @@
   "Камера {name}": "Cameră {name}",
   "Жива камера — {name}": "Cameră live — {name}",
   "д": "z",
-  "коли": "autoturisme"
+  "коли": "autoturisme",
+  "Документи (граждани на ЕС): {list}": "Documente (cetățeni UE): {list}",
+  "Граждани на други държави: паспорт; проверете нужна ли е виза.": "Alte cetățenii: pașaport; verificați dacă este nevoie de viză.",
+  "Лична карта": "Carte de identitate",
+  "Паспорт": "Pașaport",
+  "Виза (за някои гражданства)": "Viză (pentru unele naționalități)",
+  "Виза при нужда": "Viză dacă este necesară",
+  "Автобус": "Autobuz"
 }

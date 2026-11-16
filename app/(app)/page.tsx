@@ -24,13 +24,15 @@ import {
   SearchIcon,
 } from "@/components/icons/NavIcons";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { useMenu } from "@/components/layout/MenuContext";
 
 const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
 export default function MapPage() {
   const m = useMessages();
+  const locale = useLocale();
   const units = unitsFrom(m);
   const activeRoute = useRouteStore((s) => s.activeRoute);
   const localPins = useCommunityStore((s) => s.pins);
@@ -132,7 +134,12 @@ export default function MapPage() {
               className="pointer-events-auto waze-panel shrink-0 px-3 py-2"
             >
               <p className="mb-1 max-w-[140px] truncate text-xs font-medium text-[var(--waze-text-secondary)]">
-                {border.name_bg}
+                {borderDisplayName(locale, {
+                  crossing_id: border.crossing_id,
+                  name_bg: border.name_bg,
+                  name_en: border.name_en,
+                  name_i18n: border.name_i18n,
+                })}
               </p>
               <p className="mb-0.5 text-[10px] text-[var(--waze-text-muted)]">
                 {m.home.waitNow}

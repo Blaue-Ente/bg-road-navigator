@@ -1,6 +1,7 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 
 import Link from "next/link";
 import { formatTemplate } from "@/lib/i18n/format-template";
@@ -18,6 +19,7 @@ export function BorderAlternatives({
   allBorders,
 }: BorderAlternativesProps) {
   const m = useMessages();
+  const locale = useLocale();
   const alternatives = rankBorderAlternatives(border, allBorders);
   if (alternatives.length === 0) return null;
 
@@ -32,7 +34,12 @@ export function BorderAlternatives({
           >
             <div className="min-w-0">
               <p className="truncate font-medium text-[var(--waze-text)]">
-                {crossing.name_bg}
+                {borderDisplayName(locale, {
+                  crossing_id: crossing.crossing_id,
+                  name_bg: crossing.name_bg,
+                  name_en: crossing.name_en,
+                  name_i18n: crossing.name_i18n,
+                })}
                 {recommended && (
                   <span className="ml-2 text-[10px] font-semibold uppercase text-[var(--waze-ok)]">{m.borders.msg48e3fbe2b0}</span>
                 )}

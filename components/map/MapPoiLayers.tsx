@@ -1,6 +1,7 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 
 import { useMemo } from "react";
 import { formatTemplate } from "@/lib/i18n/format-template";
@@ -16,6 +17,7 @@ const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
 export function MapPoiLayers({ map }: { map: Map | null }) {
   const m = useMessages();
+  const locale = useLocale();
   const layers = useMapStore((s) => s.layers);
   const wantFuel = layers.fuel || layers.ev;
   const { data } = useFuelStations(DEFAULT_BBOX, { enabled: wantFuel });
@@ -57,7 +59,12 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
                 id: border.crossing_id,
                 lng: border.coords.lng,
                 lat: border.coords.lat,
-                title: border.name_bg,
+                title: borderDisplayName(locale, {
+                  crossing_id: border.crossing_id,
+                  name_bg: border.name_bg,
+                  name_en: border.name_en,
+                  name_i18n: border.name_i18n,
+                }),
                 subtitle: formatTemplate(m.map.borderWaitCars, {
                   minutes: String(border.wait_time_cars),
                   minUnit: m.units.min,
@@ -67,7 +74,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
             ]
           : []
       ),
-    [borders, m]
+    [borders, locale, m]
   );
 
   const restPoints = useMemo(
@@ -90,10 +97,12 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
         id: `cam-${crossing.id}`,
         lng: crossing.coords.lng,
         lat: crossing.coords.lat,
-        title: formatTemplate(m.map.cameraMarker, { name: crossing.name_bg }),
+        title: formatTemplate(m.map.cameraMarker, {
+          name: borderDisplayName(locale, crossing),
+        }),
         subtitle: crossing.country_pair,
       })),
-    [m]
+    [locale, m]
   );
 
   return (

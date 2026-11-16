@@ -1,18 +1,11 @@
 "use client";
 
-import { LOCALES, type Locale } from "@/lib/i18n/locale";
+import { LOCALES, LOCALE_NATIVE_NAME, type Locale } from "@/lib/i18n/locale";
 import {
   useLocale,
   useMessages,
   useSetLocale,
 } from "@/components/i18n/LocaleProvider";
-
-const LABEL_KEY: Record<Locale, "bg" | "en" | "tr" | "ro"> = {
-  bg: "bg",
-  en: "en",
-  tr: "tr",
-  ro: "ro",
-};
 
 export function LocaleSwitcher({ className = "" }: { className?: string }) {
   const locale = useLocale();
@@ -37,7 +30,7 @@ export function LocaleSwitcher({ className = "" }: { className?: string }) {
       >
         {LOCALES.map((code) => (
           <option key={code} value={code}>
-            {m.locale[LABEL_KEY[code]]}
+            {LOCALE_NATIVE_NAME[code]}
           </option>
         ))}
       </select>

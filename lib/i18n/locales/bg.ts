@@ -282,10 +282,6 @@ const bgCore = {
   },
   locale: {
     switch: "Език",
-    bg: "Български",
-    en: "English",
-    tr: "Türkçe",
-    ro: "Română",
   },
   nav: {
     skipToContent: "Към съдържанието",
