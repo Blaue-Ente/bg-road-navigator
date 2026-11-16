@@ -6,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "@/lib/stores/user.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
+import { useMapStore } from "@/lib/stores/map.store";
 import { LoaderCircle, Plus, X } from "lucide-react";
 
 const FALLBACK_COORDS = { lng: 23.3219, lat: 42.6977 };
@@ -36,10 +37,15 @@ interface PinDropButtonProps {
 export function PinDropButton({ mode = "list" }: PinDropButtonProps) {
   const m = useMessages();
   const session = useUserStore((s) => s.session);
+  const layersPanelOpen = useMapStore((s) => s.layersPanelOpen);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
   const beginDrop = useCommunityStore((s) => s.beginDrop);
   const cancelDrop = useCommunityStore((s) => s.cancelDrop);
   const [locating, setLocating] = useState(false);
+
+  if (mode === "map" && layersPanelOpen) {
+    return null;
+  }
 
   if (!session) {
     return (

@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
+import { LocaleOffer } from "@/components/i18n/LocaleOffer";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { MenuProvider } from "@/components/layout/MenuContext";
 import { MapHost } from "@/components/map/MapHost";
@@ -34,6 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             }
           >
             {!isMap && <TopBar user={user} />}
+            {!isMap && !isReading && <LocaleOffer placement="app" />}
             {children}
           </main>
           <BottomNav />

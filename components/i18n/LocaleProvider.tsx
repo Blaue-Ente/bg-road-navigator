@@ -17,11 +17,14 @@ import {
   writeLocaleCookie,
   type Locale,
 } from "@/lib/i18n/locale";
+import { notifyLocaleOfferChanged } from "@/lib/i18n/locale-offer-store";
 
 interface LocaleContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   messages: MessageCatalog;
+  /** True when `bg-road-locale` exists in localStorage (explicit visitor choice). */
+  hasStoredLocaleChoice: boolean;
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -35,6 +38,15 @@ function readStoredLocale(fallback: Locale): Locale {
   }
 }
 
+export function readHasStoredLocaleChoice(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(LOCALE_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function LocaleProvider({
   initialLocale,
   children,
@@ -45,15 +57,20 @@ export function LocaleProvider({
   const [locale, setLocaleState] = useState<Locale>(() =>
     readStoredLocale(initialLocale)
   );
+  const [hasStoredLocaleChoice, setHasStoredLocaleChoice] = useState(() =>
+    readHasStoredLocaleChoice()
+  );
 
   const applyLocale = useCallback((next: Locale) => {
     const safe = parseLocale(next);
     setLocaleState(safe);
     try {
       localStorage.setItem(LOCALE_STORAGE_KEY, safe);
+      setHasStoredLocaleChoice(true);
     } catch {
       /* storage unavailable */
     }
+    notifyLocaleOfferChanged();
     writeLocaleCookie(safe);
     if (typeof document !== "undefined") {
       document.documentElement.lang = safe;
@@ -72,8 +89,9 @@ export function LocaleProvider({
       locale,
       setLocale: applyLocale,
       messages: catalog(locale),
+      hasStoredLocaleChoice,
     }),
-    [applyLocale, locale]
+    [applyLocale, hasStoredLocaleChoice, locale]
   );
 
   return (
@@ -103,4 +121,12 @@ export function useSetLocale(): (locale: Locale) => void {
     throw new Error("useSetLocale requires LocaleProvider");
   }
   return ctx.setLocale;
+}
+
+export function useHasStoredLocaleChoice(): boolean {
+  const ctx = useContext(LocaleContext);
+  if (!ctx) {
+    throw new Error("useHasStoredLocaleChoice requires LocaleProvider");
+  }
+  return ctx.hasStoredLocaleChoice;
 }

@@ -14,9 +14,10 @@ import { useRouteStore } from "@/lib/stores/route.store";
 
 interface RouteBottomSheetProps {
   route: Route;
+  className?: string;
 }
 
-export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
+export function RouteBottomSheet({ route, className = "" }: RouteBottomSheetProps) {
   const m = useMessages();
   const units = unitsFrom(m);
   const [expanded, setExpanded] = useState(false);
@@ -33,7 +34,7 @@ export function RouteBottomSheet({ route }: RouteBottomSheetProps) {
   return (
     <div
       data-overlay-slot="bottom-sheet"
-      className="pointer-events-none w-full max-w-[min(22rem,calc(100vw-1.5rem))] md:max-w-[21rem]"
+      className={`pointer-events-none w-full max-w-[min(22rem,calc(100vw-1.5rem))] md:max-w-[21rem] ${className}`.trim()}
     >
       <div className="pointer-events-auto overflow-hidden rounded-2xl waze-panel transition-all">
         <div className="flex w-full items-start gap-3 px-4 py-3">

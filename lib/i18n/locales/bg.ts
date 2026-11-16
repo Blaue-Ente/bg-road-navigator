@@ -314,6 +314,9 @@ const bgCore = {
   locale: {
     switch: "Език",
   },
+  localeOffer: {
+    keepBulgarian: "Остани на български",
+  },
   nav: {
     skipToContent: "Към съдържанието",
     openMenu: "Отвори меню",

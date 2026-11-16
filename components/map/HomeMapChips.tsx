@@ -16,7 +16,7 @@ import { useCommunityStore } from "@/lib/stores/community.store";
 
 const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 
-export function HomeMapChips() {
+export function HomeMapChips({ className = "" }: { className?: string }) {
   const m = useMessages();
   const locale = useLocale();
   const localPins = useCommunityStore((s) => s.pins);
@@ -47,7 +47,7 @@ export function HomeMapChips() {
   return (
     <div
       data-overlay-slot="chips"
-      className="pointer-events-none w-full max-w-[min(22rem,calc(100vw-1.5rem))] md:max-w-[21rem]"
+      className={`pointer-events-none w-full max-w-[min(22rem,calc(100vw-1.5rem))] md:max-w-[21rem] ${className}`.trim()}
     >
       <div
         ref={chipRowRef}

@@ -23,6 +23,7 @@ import { TripProximity } from "@/components/location/TripProximity";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
+import { useMapStore } from "@/lib/stores/map.store";
 import { useTraffic } from "@/lib/hooks/useTraffic";
 import {
   DEFAULT_COMMUNITY_BBOX,
@@ -54,6 +55,7 @@ export function MapExperience() {
   const beginDrop = useCommunityStore((s) => s.beginDrop);
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
   const onHome = pathname === "/";
+  const layersPanelOpen = useMapStore((s) => s.layersPanelOpen);
 
   const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
   const { data: communityData } = useCommunityPins({
@@ -159,13 +161,20 @@ export function MapExperience() {
       <MapControls map={mapInstance} />
       <MapOverlayColumn>
         {onHome && activeRoute ? (
-          <RouteBottomSheet route={activeRoute} />
+          <RouteBottomSheet
+            route={activeRoute}
+            className={layersPanelOpen ? "max-md:invisible max-md:pointer-events-none" : ""}
+          />
         ) : onHome ? (
-          <HomeMapChips />
+          <HomeMapChips
+            className={layersPanelOpen ? "max-md:invisible max-md:pointer-events-none" : ""}
+          />
         ) : null}
         <div
           data-overlay-slot="legend-row"
-          className="pointer-events-none flex w-full max-w-[calc(100vw-5rem)] flex-nowrap items-center gap-2"
+          className={`pointer-events-none flex w-full max-w-[calc(100vw-5rem)] flex-nowrap items-center gap-2 ${
+            layersPanelOpen ? "max-md:invisible max-md:pointer-events-none" : ""
+          }`}
         >
           <MapLegend />
           <HotspotAttributionButton map={mapInstance} />

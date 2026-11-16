@@ -13,6 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ### Product decisions (approved)
 
 - Browse without login. Auth unlocks favorites, saved routes, and community writes.
+- First visit stays Bulgarian (SSR); non-`bg` browsers may see a one-tap language offer (no auto-switch).
 - In-app planning + handoff to Google Maps / Apple Maps. OSRM maneuver list is prep only — no live in-app turn-by-turn in this release.
 - Light and dark themes (map style switches with theme).
 - AI trip planner later via `NVIDIA_API_KEY` (free NVIDIA models); keep a heuristic fallback.
