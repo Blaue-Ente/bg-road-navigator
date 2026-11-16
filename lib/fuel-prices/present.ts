@@ -1,4 +1,5 @@
-import { countryNameBg } from "@/lib/geo/country-names-bg";
+import { countryName } from "@/lib/geo/country-name";
+import type { Locale } from "@/lib/i18n/locale";
 import { priceBand, type PriceBand } from "@/lib/fuel-prices/bands";
 import type { FuelCountryAverage, PlanPriceSource } from "@/lib/planner/types";
 
@@ -71,7 +72,9 @@ export function fuelAveragesForCountries(input: {
   countries: string[];
   fuel: "diesel" | "petrol" | "lpg" | "electric";
   known: ReadonlyMap<string, KnownAverage>;
+  locale?: Locale;
 }): FuelCountryAverage[] {
+  const locale = input.locale ?? "bg";
   if (input.fuel === "electric") return [];
   const seen = new Set<string>();
   const rows: FuelCountryAverage[] = [];
@@ -83,7 +86,7 @@ export function fuelAveragesForCountries(input: {
     const price = known && Number.isFinite(known.price) ? known.price : null;
     rows.push({
       country_code: country,
-      country_name_bg: countryNameBg(country),
+      country_name_bg: countryName(country, locale),
       fuel: input.fuel,
       price_eur_per_l: price,
       week: price == null ? null : (known?.week ?? null),
@@ -92,7 +95,7 @@ export function fuelAveragesForCountries(input: {
       source: price == null ? null : OIL_BULLETIN_SOURCE,
       source_label_bg: OIL_BULLETIN_SOURCE_LABEL,
       label_bg: countryAverageLabel({
-        countryName: countryNameBg(country),
+        countryName: countryName(country, locale),
         fuel: input.fuel,
         price,
       }),
@@ -118,16 +121,18 @@ export function presentFuelStop(input: {
   observedAt: string | null;
   liters: number;
   now: Date;
+  locale?: Locale;
 }): FuelStopCopy {
   const band = priceBand(input.stationPerL, input.average?.price ?? null);
-  const countryName = input.countryCode
-    ? countryNameBg(input.countryCode)
+  const locale = input.locale ?? "bg";
+  const countryLabel = input.countryCode
+    ? countryName(input.countryCode, locale)
     : null;
   const averageLabel =
-    countryName == null || input.stationPerL == null
+    countryLabel == null || input.stationPerL == null
       ? null
       : countryAverageLabel({
-          countryName,
+          countryName: countryLabel,
           fuel: input.fuel,
           price: input.average?.price ?? null,
         });
