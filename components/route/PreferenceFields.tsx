@@ -1,7 +1,10 @@
 "use client";
 
-import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import {
+  BORDER_CROSSINGS,
+  borderDisplayName,
+} from "@/lib/constants/border-crossings";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { TripPreferences } from "@/lib/planner/preferences";
 
 export function PreferenceFields({
@@ -12,6 +15,7 @@ export function PreferenceFields({
   onChange: (next: TripPreferences) => void;
 }) {
   const m = useMessages();
+  const locale = useLocale();
   const patch = (partial: Partial<TripPreferences>) =>
     onChange({ ...value, ...partial });
 
@@ -244,7 +248,7 @@ export function PreferenceFields({
           <option value="">{m.prefs.noPreferred}</option>
           {BORDER_CROSSINGS.map((border) => (
             <option key={border.id} value={border.id}>
-              {border.name_bg}
+              {borderDisplayName(locale, border)}
             </option>
           ))}
         </select>
@@ -259,7 +263,7 @@ export function PreferenceFields({
             <Checkbox
               key={border.id}
               id={`avoid-${border.id}`}
-              label={border.name_bg}
+              label={borderDisplayName(locale, border)}
               checked={value.avoid_borders.includes(border.id)}
               disabled={value.preferred_border === border.id}
               onChange={() => toggleAvoid(border.id)}

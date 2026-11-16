@@ -24,7 +24,8 @@ describe("official border links", () => {
       {
         kind: "cameras",
         href: RS_BORDER_CAMERAS_URL,
-        label_bg: "Виж камерите",
+        label_bg: OFFICIAL_LINK_LABELS.cameras.bg,
+        label: OFFICIAL_LINK_LABELS.cameras,
       },
     ]);
     expect(links[0]?.href).toBe("https://www.mup.gov.rs/wps/portal/sr/kamere");
@@ -52,8 +53,8 @@ describe("official border links", () => {
       BG_BORDER_BULLETIN_URL,
       RO_BORDER_TRAFFIC_URL,
     ]);
-    expect(links.map((link) => link.label_bg)).toContain(
-      OFFICIAL_LINK_LABELS.romania
+    expect(links.map((link) => link.label.bg)).toContain(
+      OFFICIAL_LINK_LABELS.romania.bg
     );
   });
 

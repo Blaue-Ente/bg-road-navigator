@@ -1,6 +1,7 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { borderWaitView } from "@/lib/planner/border-wait-view";
 import type { MessageCatalog } from "@/lib/i18n";
 import { formatZonedHourLabel } from "@/lib/planner/wait";
@@ -14,10 +15,16 @@ export function BorderWaitBlock({
   arrivalAt?: Date | string | null;
 }) {
   const m = useMessages();
+  const locale = useLocale();
   const view = borderWaitView(chosen.wait);
+  const displayName = borderDisplayName(locale, {
+    crossing_id: chosen.border_id,
+    name_bg: chosen.name_bg,
+    name_en: chosen.name_en,
+  });
   return (
     <div className="mt-2 rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm">
-      <p className="font-medium text-[var(--waze-text)]">{chosen.name_bg}</p>
+      <p className="font-medium text-[var(--waze-text)]">{displayName}</p>
       <p className="text-[var(--waze-text-secondary)]">{chosen.reason}</p>
       {view.unlicensed ? (
         <p className="mt-1 font-medium text-[var(--waze-text)]">

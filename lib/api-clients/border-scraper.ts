@@ -248,7 +248,9 @@ function buildStatus(
     data_source: dataSourceFromWait(wait.source, input.licensed),
     region: crossing.region,
     accepted_documents: crossing.accepted_documents,
+    document_codes: crossing.document_codes,
     notes_bg: crossing.notes_bg,
+    notes_i18n: crossing.notes,
     vehicle_types_allowed: crossing.vehicle_types_allowed,
     derived_heavy_wait: true,
   };

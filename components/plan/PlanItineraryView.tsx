@@ -7,7 +7,9 @@ import {
   AttentionSegments,
   RoadHazards,
 } from "@/components/plan/PlanRoadNotes";
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
+import type { Locale } from "@/lib/i18n/locale";
 import { hotspotDetail } from "@/lib/hotspots/present";
 import { unitsFrom } from "@/lib/i18n/units";
 import type { MessageCatalog } from "@/lib/i18n";
@@ -43,6 +45,7 @@ export function PlanItineraryView({
   onToggle?: (id: string, checked: boolean) => void;
 }) {
   const m = useMessages();
+  const locale = useLocale();
   const units = unitsFrom(m);
   const [shareNote, setShareNote] = useState<string | null>(null);
   const included = new Set(includedIds);
@@ -74,7 +77,8 @@ export function PlanItineraryView({
       done,
       left,
       m,
-      units
+      units,
+      locale
     );
     try {
       if (navigator.share) {
@@ -314,13 +318,22 @@ function HandoffLinks({
   );
 }
 
-function borderShareLine(plan: TripPlannerResult, m: MessageCatalog): string {
+function borderShareLine(
+  plan: TripPlannerResult,
+  m: MessageCatalog,
+  locale: Locale
+): string {
   const chosen = plan.border.chosen;
   if (!chosen) return "";
   const view = borderWaitView(chosen.wait);
+  const name = borderDisplayName(locale, {
+    crossing_id: chosen.border_id,
+    name_bg: chosen.name_bg,
+    name_en: chosen.name_en,
+  });
   const wait = view.unlicensed
-    ? `${chosen.name_bg}: ${m.sheet.borderUnlicensed}, ${view.minutes} ${m.prefs.minutes}`
-    : `${chosen.name_bg}: ${view.minutes} ${m.prefs.minutes}`;
+    ? `${name}: ${m.sheet.borderUnlicensed}, ${view.minutes} ${m.prefs.minutes}`
+    : `${name}: ${view.minutes} ${m.prefs.minutes}`;
   if (view.trafficDelayMin == null) return wait;
   return `${wait}. ${m.sheet.borderTraffic}: ${view.trafficDelayMin} ${m.prefs.minutes}`;
 }
@@ -341,12 +354,13 @@ function shareText(
   done: ChecklistItem[],
   left: ChecklistItem[],
   m: MessageCatalog,
-  units: ReturnType<typeof unitsFrom>
+  units: ReturnType<typeof unitsFrom>,
+  locale: Locale
 ): string {
   return [
     `${m.itinerary.title}: ${plan.route.origin.label} → ${plan.route.destination.label}`,
     `${plan.route.distance_km} ${m.planning.km}, ${formatClockDuration(plan.route.duration_min, units)}, ${formatClockDuration(plan.route.total_min, units)}`,
-    borderShareLine(plan, m),
+    borderShareLine(plan, m, locale),
     stopNames.length ? `${m.itinerary.stops}: ${stopNames.join(", ")}` : "",
     done.length
       ? `${m.itinerary.checks}: ${done.map((item) => item.title).join(", ")}`

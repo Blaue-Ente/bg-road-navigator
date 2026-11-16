@@ -1,6 +1,7 @@
 "use client";
 
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { Suspense, useState, useMemo } from "react";
@@ -37,6 +38,7 @@ export default function BorderPage() {
 
 function BorderPageContent() {
   const m = useMessages();
+  const locale = useLocale();
   const tabs = useMemo(
     (): { id: TabId; label: string; region: EuropeanBorderRegion }[] => [
       { id: "bulgaria", label: m.bordersPage.tabBulgaria, region: "bulgaria" },
@@ -173,7 +175,13 @@ function BorderPageContent() {
                 return (
                   <li key={pin.id} className="text-sm text-[var(--waze-text)]">
                     <span className="font-medium">
-                      {crossing?.name_bg ?? communityPinLabel(pin.category)}
+                      {crossing
+                        ? borderDisplayName(locale, {
+                            id: crossing.id,
+                            name_bg: crossing.name_bg,
+                            name_en: crossing.name_en,
+                          })
+                        : communityPinLabel(pin.category)}
                     </span>
                     <span className="text-[var(--waze-text-secondary)]">
                       {" "}
@@ -220,12 +228,22 @@ function BorderPageContent() {
                   <BorderStatsChart
                     hourlyData={border.avg_wait_by_hour}
                     title={formatTemplate(m.bordersPage.borderWaitChartTitle, {
-                      name: border.name_bg,
+                      name: borderDisplayName(locale, {
+                        crossing_id: border.crossing_id,
+                        name_bg: border.name_bg,
+                        name_en: border.name_en,
+                        name_i18n: border.name_i18n,
+                      }),
                     })}
                   />
                   <BorderWebcam
                     crossingId={border.crossing_id}
-                    label={border.name_bg}
+                    label={borderDisplayName(locale, {
+                      crossing_id: border.crossing_id,
+                      name_bg: border.name_bg,
+                      name_en: border.name_en,
+                      name_i18n: border.name_i18n,
+                    })}
                     nakordoniUrl={border.nakordoni_url}
                   />
                 </div>

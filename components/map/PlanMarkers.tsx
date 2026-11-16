@@ -6,7 +6,8 @@ import type { Map } from "maplibre-gl";
 import { PRICE_BAND_COLOR } from "@/lib/fuel-prices/bands";
 import { DATEX_ATTRIBUTION, formatHazardUntil } from "@/lib/hazards/present";
 import type { RoadHazard, RoadHazardKind } from "@/lib/hazards/types";
-import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
 import type { MessageCatalog } from "@/lib/i18n";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useRouteStore } from "@/lib/stores/route.store";
@@ -29,6 +30,7 @@ const KIND_COLOR: Record<StopKind, string> = {
 
 export function PlanMarkers({ map }: { map: Map | null }) {
   const m = useMessages();
+  const locale = useLocale();
   const plan = useRouteStore((state) => state.tripPlan);
   const focusedStopId = useRouteStore((state) => state.focusedStopId);
 
@@ -63,7 +65,11 @@ export function PlanMarkers({ map }: { map: Map | null }) {
           border.coords.lng,
           border.coords.lat,
           "#b91c1c",
-          border.name_bg,
+          borderDisplayName(locale, {
+            crossing_id: border.border_id,
+            name_bg: border.name_bg,
+            name_en: border.name_en,
+          }),
           {
             focused: false,
             flags: 0,
@@ -76,7 +82,7 @@ export function PlanMarkers({ map }: { map: Map | null }) {
     return () => {
       for (const item of markers) item.remove();
     };
-  }, [map, plan, focusedStopId, m]);
+  }, [map, plan, focusedStopId, m, locale]);
 
   return null;
 }

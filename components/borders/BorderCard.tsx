@@ -1,8 +1,10 @@
 "use client";
 
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
-import { pickI18nText } from "@/lib/i18n/localized-field";
-import { borderCrossingI18n } from "@/lib/constants/border-crossings";
+import { borderDisplayName } from "@/lib/constants/border-crossings";
+import { pickI18nNotes, pickText } from "@/lib/i18n/localized-field";
+import { formatTemplate } from "@/lib/i18n/format-template";
+import type { BorderDocument } from "@/lib/constants/border-crossings";
 
 import type { BorderStatus } from "@/types/border.types";
 import { officialLinksForCrossing } from "@/lib/constants/border-official-links";
@@ -13,17 +15,25 @@ interface BorderCardProps {
   onComment?: () => void;
 }
 
+function needsOtherCitizensLine(countryPair: string): boolean {
+  return countryPair
+    .split("-")
+    .map((side) => side.trim().toUpperCase())
+    .some((code) => code === "TR" || code === "RS" || code === "MK");
+}
+
 export function BorderCard({ border, onComment }: BorderCardProps) {
   const m = useMessages();
   const locale = useLocale();
-  const displayName = pickI18nText(locale, {
-    bg: border.name_bg,
-    en: border.name_en,
-    i18n: {
-      en: border.name_en,
-      ...borderCrossingI18n(border.crossing_id),
-      ...border.name_i18n,
-    },
+  const displayName = borderDisplayName(locale, {
+    crossing_id: border.crossing_id,
+    name_bg: border.name_bg,
+    name_en: border.name_en,
+    name_i18n: border.name_i18n,
+  });
+  const notes = pickI18nNotes(locale, {
+    notes_i18n: border.notes_i18n,
+    notes_bg: border.notes_bg,
   });
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -39,6 +49,13 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
         return "border-[var(--waze-border)] bg-[var(--waze-surface)]";
     }
   };
+
+  const docLabels =
+    border.document_codes?.map((code: BorderDocument) => m.borders.doc[code]) ??
+    [];
+  const showDocuments =
+    docLabels.length > 0 ||
+    (border.accepted_documents && border.accepted_documents.length > 0);
 
   return (
     <div className={`waze-panel p-4 ${getStatusColor(border.status)}`}>
@@ -94,15 +111,26 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
         )}
       </div>
 
-      {border.accepted_documents && border.accepted_documents.length > 0 && (
-        <p className="mb-2 text-xs text-[var(--waze-text-secondary)]">
-          {m.borders.documents} {border.accepted_documents.join(", ")}
-        </p>
+      {showDocuments && (
+        <div className="mb-2 space-y-1 text-xs text-[var(--waze-text-secondary)]">
+          {docLabels.length > 0 ? (
+            <p>
+              {formatTemplate(m.borders.documentsEu, {
+                list: docLabels.join(", "),
+              })}
+            </p>
+          ) : (
+            <p>
+              {m.borders.documents} {border.accepted_documents?.join(", ")}
+            </p>
+          )}
+          {needsOtherCitizensLine(border.country_pair) && (
+            <p>{m.borders.documentsOther}</p>
+          )}
+        </div>
       )}
-      {border.notes_bg && (
-        <p className="mb-3 text-xs text-[var(--waze-text-muted)]">
-          {border.notes_bg}
-        </p>
+      {notes && (
+        <p className="mb-3 text-xs text-[var(--waze-text-muted)]">{notes}</p>
       )}
 
       <OfficialBorderLinks
@@ -127,7 +155,9 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
             type="button"
             onClick={onComment}
             className="rounded-full bg-[var(--waze-accent-muted)] px-3 py-1.5 text-sm text-[var(--waze-accent-text)]"
-          >{m.borders.msg0d6ebd8e6f}</button>
+          >
+            {m.borders.msg0d6ebd8e6f}
+          </button>
         )}
       </div>
     </div>
@@ -141,6 +171,7 @@ function OfficialBorderLinks({
   crossingId: string;
   countryPair: string;
 }) {
+  const locale = useLocale();
   const links = officialLinksForCrossing({
     id: crossingId,
     country_pair: countryPair,
@@ -156,7 +187,7 @@ function OfficialBorderLinks({
           rel="noopener noreferrer"
           className="text-sm text-[var(--waze-accent-text)] underline"
         >
-          {link.label_bg}
+          {pickText(locale, link.label)}
         </a>
       ))}
     </div>

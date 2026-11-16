@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CYRILLIC, EN_TRANSLIT_MARKERS } from "@/lib/i18n/catalog-test-utils";
+import { catalog } from "@/lib/i18n/locale";
 import { bg } from "@/lib/i18n/locales/bg";
 import { en } from "@/lib/i18n/locales/en";
 import { ro } from "@/lib/i18n/locales/ro";
@@ -93,10 +94,24 @@ describe("locale catalogs", () => {
     expect(hits).toEqual([]);
   });
 
+  it("resolves nav homonyms via per-key overrides", () => {
+    expect(catalog("tr").nav.weather).toBe("Hava durumu");
+    expect(catalog("en").nav.weather).toBe("Weather");
+    expect(catalog("ro").nav.weather).toBe("Vremea");
+    expect(catalog("tr").nav.hotels).toBe("Dinlenme yerleri");
+    expect(catalog("en").nav.hotels).toBe("Rest stops");
+    expect(tr.sheet.weather).not.toBe(catalog("tr").nav.weather);
+  });
+
   it("fixes the previously broken sample strings", () => {
     expect(en.locale.switch).toBe("Language");
     expect(tr.locale.switch).toBe("Dil");
     expect(ro.locale.switch).toBe("Limbă");
+    expect(en.home.waitNow).toBe("Wait now");
+    expect(tr.home.waitNow).toBe("Şu anki bekleme");
+    expect(ro.home.waitNow).toBe("Așteptare acum");
+    expect(tr.map.legend).toBe("Harita açıklaması");
+    expect(tr.planning.via).toBe("Ara nokta (isteğe bağlı)");
     expect(en.planning.saveSettings).toBe("Save as my defaults");
     expect(tr.planning.saveSettings).toBe("Varsayılanlarım olarak kaydet");
     expect(ro.planning.saveSettings).toBe("Salvează ca setările mele");
