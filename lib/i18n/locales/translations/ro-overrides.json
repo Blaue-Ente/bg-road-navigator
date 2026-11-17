@@ -532,5 +532,10 @@
     "heavy": "Aglomerat",
     "slow": "Lent",
     "title": "Fluxul traficului"
+  },
+  "prefs": {
+    "breakCapped": "Cu un copil mic, pauzele sunt cel mult la {minutes} min, chiar dacă ai ales mai mult.",
+    "breakExact": "Respectă exact intervalul meu",
+    "breakExactOn": "Pauzele vor urma exact intervalul ales."
   }
 }

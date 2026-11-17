@@ -21,6 +21,7 @@ export function normalizePlannerPreferences(
     fuel_stop: prefs.fuel_stop === "on_route" ? "on_route" : "detour",
     max_detour_min: Math.round(clamp(prefs.max_detour_min, 0, 45)),
     break_every_min: Math.round(clamp(prefs.break_every_min, 45, 240)),
+    break_exact: prefs.break_exact === true,
     max_driving_hours: Math.round(clamp(prefs.max_driving_hours, 4, 14) * 2) / 2,
     drivers: Math.round(clamp(prefs.drivers, 1, 4)),
     pace: prefs.pace === "scenic" ? "scenic" : "fast",

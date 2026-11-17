@@ -982,5 +982,23 @@
   "Closed",
   "Kapalı",
   "Închis"
+ ],
+ "prefs.breakCapped": [
+  "С малко дете почивките са най-много на всеки {minutes} мин, дори да си избрал повече.",
+  "With a young child, breaks are at most every {minutes} min, even if you chose longer.",
+  "Küçük çocukla molalar, daha uzun seçseniz bile en fazla {minutes} dk’da bir verilir.",
+  "Cu un copil mic, pauzele sunt cel mult la {minutes} min, chiar dacă ai ales mai mult."
+ ],
+ "prefs.breakExactOn": [
+  "Почивките ще са точно през избрания от теб интервал.",
+  "Breaks will follow exactly the interval you chose.",
+  "Molalar tam olarak seçtiğiniz aralıkta olacak.",
+  "Pauzele vor urma exact intervalul ales."
+ ],
+ "prefs.breakExact": [
+  "Спазвай точно моя интервал",
+  "Keep exactly my interval",
+  "Seçtiğim aralığı aynen uygula",
+  "Respectă exact intervalul meu"
  ]
 }

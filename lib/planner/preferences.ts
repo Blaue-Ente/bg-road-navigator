@@ -4,6 +4,7 @@ export const TripPreferencePatchSchema = z.object({
   fuel_stop: z.enum(["on_route", "detour"]).optional(),
   max_detour_min: z.number().int().min(0).max(45).optional(),
   break_every_min: z.number().int().min(45).max(240).optional(),
+  break_exact: z.boolean().optional(),
   with_pet: z.boolean().optional(),
   avoid_motorways: z.boolean().optional(),
   avoid_tolls: z.boolean().optional(),
@@ -27,6 +28,8 @@ export interface TripPreferences {
   fuel_stop: "on_route" | "detour";
   max_detour_min: number;
   break_every_min: number;
+  /** Keep exactly the chosen break interval instead of shortening it for young children. */
+  break_exact: boolean;
   with_pet: boolean;
   avoid_motorways: boolean;
   avoid_tolls: boolean;
@@ -49,6 +52,7 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   fuel_stop: "detour",
   max_detour_min: 8,
   break_every_min: 135,
+  break_exact: false,
   with_pet: false,
   avoid_motorways: false,
   avoid_tolls: false,
@@ -104,8 +108,18 @@ export function detourLimitKm(prefs: TripPreferences): number {
   return Math.max(0.4, Math.round((prefs.max_detour_min / 3) * 10) / 10);
 }
 
+/** Longest stretch between breaks that is applied for the youngest child. */
+export function childBreakCapMin(prefs: TripPreferences): number | null {
+  if (!prefs.with_children) return null;
+  const youngest =
+    prefs.children_ages.length === 0 ? 2 : Math.min(...prefs.children_ages);
+  if (youngest <= 4) return 75;
+  if (youngest <= 8) return 90;
+  return 110;
+}
+
 export function effectiveBreakEveryMin(prefs: TripPreferences): number {
-  if (!prefs.with_children) return prefs.break_every_min;
+  if (!prefs.with_children || prefs.break_exact) return prefs.break_every_min;
   const youngest =
     prefs.children_ages.length === 0 ? 2 : Math.min(...prefs.children_ages);
   if (youngest <= 4) return Math.min(prefs.break_every_min, 75);

@@ -527,5 +527,10 @@
     "heavy": "Heavy",
     "slow": "Slow",
     "title": "Traffic flow"
+  },
+  "prefs": {
+    "breakCapped": "With a young child, breaks are at most every {minutes} min, even if you chose longer.",
+    "breakExact": "Keep exactly my interval",
+    "breakExactOn": "Breaks will follow exactly the interval you chose."
   }
 }

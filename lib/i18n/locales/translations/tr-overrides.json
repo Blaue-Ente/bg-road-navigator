@@ -529,5 +529,10 @@
     "heavy": "Yoğun",
     "slow": "Yavaş",
     "title": "Trafik yoğunluğu"
+  },
+  "prefs": {
+    "breakCapped": "Küçük çocukla molalar, daha uzun seçseniz bile en fazla {minutes} dk’da bir verilir.",
+    "breakExact": "Seçtiğim aralığı aynen uygula",
+    "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak."
   }
 }
