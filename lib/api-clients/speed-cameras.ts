@@ -1,10 +1,14 @@
 import { countryCodeAtPoint } from "@/lib/geo/countries-along-route";
 import { isInEurope } from "@/lib/geo/bounds";
+import { cachedValue } from "@/lib/cache/shared-cache";
 
 const OVERPASS_URLS = [
   "https://overpass-api.de/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
 ];
+/** Camera positions are OpenStreetMap data (ODbL), so a tile is kept for a day, shared through the database. */
+const TILE_TTL_MS = 24 * 3_600_000;
 const TIMEOUT_MS = 9_000;
 /** Tiles keep the cached answers shared between nearby map views. */
 export const CAMERA_TILE_DEG = 0.5;
@@ -99,32 +103,43 @@ export function parseSpeedCameras(payload: unknown): SpeedCamera[] {
   return out;
 }
 
-async function fetchTile(
+async function fetchTileLive(
   tile: { w: number; s: number; e: number; n: number },
   fetchImpl: typeof fetch
 ): Promise<SpeedCamera[] | null> {
   const query = `[out:json][timeout:8];node["highway"="speed_camera"](${tile.s},${tile.w},${tile.n},${tile.e});out body ${MAX_NODES_PER_TILE};`;
-  for (const base of OVERPASS_URLS) {
-    try {
-      const response = await fetchImpl(
-        `${base}?data=${encodeURIComponent(query)}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "User-Agent": "BG-Road-Navigator/1.0 (travel planning)",
-          },
-          signal: AbortSignal.timeout(TIMEOUT_MS),
-          // OpenStreetMap camera positions change slowly; a day is plenty.
-          next: { revalidate: 86_400 },
-        } as RequestInit
-      );
-      if (!response.ok) continue;
-      return parseSpeedCameras(await response.json());
-    } catch {
-      // Try the next mirror.
-    }
+  const attempt = async (base: string): Promise<SpeedCamera[]> => {
+    const response = await fetchImpl(`${base}?data=${encodeURIComponent(query)}`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "BG-Road-Navigator/1.0 (travel planning)",
+      },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`overpass ${response.status}`);
+    return parseSpeedCameras(await response.json());
+  };
+  try {
+    // Ask every mirror at once and take the first answer: the public ones are
+    // often slow or refuse a cloud address, and waiting for each in turn took 18 s.
+    return await Promise.any(OVERPASS_URLS.map((base) => attempt(base)));
+  } catch {
+    return null;
   }
-  return null;
+}
+
+function fetchTile(
+  tile: { w: number; s: number; e: number; n: number },
+  fetchImpl: typeof fetch
+): Promise<SpeedCamera[] | null> {
+  return cachedValue<SpeedCamera[]>({
+    key: `cam|${tile.w}|${tile.s}`,
+    kind: "speed_cameras",
+    ttlMs: TILE_TTL_MS,
+    persist: true,
+    load: () => fetchTileLive(tile, fetchImpl),
+  }).then((result) => result.value);
 }
 
 export async function loadSpeedCameras(
