@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nearbyStays, rankStays } from "@/lib/api-clients/tripadvisor";
+import { nearbyStays, rankStays, tripadvisorKey } from "@/lib/api-clients/tripadvisor";
 import {
   airbnbSearchUrl,
   bookingSearchUrl,
@@ -15,6 +15,16 @@ describe("rankStays", () => {
       { id: "d", name: "D", rating: 4, reviews: 100, price_level: null, url: null, distance_km: 1 },
     ]);
     expect(rows.map((row) => row.id)).toEqual(["b", "a"]);
+  });
+});
+
+describe("tripadvisorKey", () => {
+  it("accepts the documented name and the Traveler-API spellings", () => {
+    const env = (value: Record<string, string>) => value as unknown as NodeJS.ProcessEnv;
+    expect(tripadvisorKey(env({}))).toBeNull();
+    expect(tripadvisorKey(env({ TRIPADVISOR_API_KEY: "a" }))).toBe("a");
+    expect(tripadvisorKey(env({ TRIPADVISOR_TRAVELER_API: " b " }))).toBe("b");
+    expect(tripadvisorKey(env({ TRIPADVISOR_TRAVALER_API: "c" }))).toBe("c");
   });
 });
 
