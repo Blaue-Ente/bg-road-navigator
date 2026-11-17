@@ -60,7 +60,7 @@ async function reason(response: Response): Promise<string> {
   try {
     const body = (await response.json()) as { code?: unknown; message?: unknown };
     const code = typeof body.code === "string" ? body.code : "";
-    const message = typeof body.message === "string" ? body.message.slice(0, 160) : "";
+    const message = typeof body.message === "string" ? body.message.slice(0, 700) : "";
     return `${response.status} ${code} ${message}`.trim();
   } catch {
     return String(response.status);
@@ -257,11 +257,14 @@ export async function searchHotels(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        // The service asked for destination and room count as well as the dates.
         city: query.city,
+        destination: query.city,
         checkIn: query.checkIn,
         checkOut: query.checkOut,
-        ...(query.adults ? { adults: query.adults } : {}),
-        ...(query.children ? { children: query.children } : {}),
+        rooms: 1,
+        adults: query.adults ?? 2,
+        children: query.children ?? 0,
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });

@@ -18,8 +18,19 @@ export interface TripadvisorStay {
   distance_km: number | null;
 }
 
+/** Also accepts the names people tend to use for the Traveler-API key. */
+const KEY_NAMES = [
+  "TRIPADVISOR_API_KEY",
+  "TRIPADVISOR_TRAVELER_API",
+  "TRIPADVISOR_TRAVALER_API",
+] as const;
+
 export function tripadvisorKey(env: NodeJS.ProcessEnv = process.env): string | null {
-  return env.TRIPADVISOR_API_KEY?.trim() || null;
+  for (const name of KEY_NAMES) {
+    const value = env[name]?.trim();
+    if (value) return value;
+  }
+  return null;
 }
 
 async function get<T>(
