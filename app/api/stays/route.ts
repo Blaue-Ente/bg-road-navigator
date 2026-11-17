@@ -111,9 +111,13 @@ export async function GET(request: NextRequest) {
     q.pet === "1" ? "pet" : "",
     q.adults > 1 ? `${q.adults} adults` : "",
   ].filter(Boolean);
+  let aiError: string | null = null;
   const why =
     stays && stays.length > 0 && aiConfig()
-      ? await stayWhy({ locale: q.locale, place, stays, traveler })
+      ? await stayWhy(
+          { locale: q.locale, place, stays, traveler },
+          { onError: (message) => (aiError = message) }
+        )
       : null;
 
   return NextResponse.json(
@@ -131,6 +135,7 @@ export async function GET(request: NextRequest) {
       ...(q.debug === "1"
         ? {
             tripadvisor_error: tripadvisorError,
+            ai_error: aiError,
             partner_shape: partner?.shape ?? null,
             partner_error: partner?.error ?? null,
             partner_city: city,
