@@ -12,6 +12,7 @@ export type LayerKey =
   | "borders"
   | "rest"
   | "cameras"
+  | "speedCameras"
   | "hotspots";
 
 export interface MapLayer {
@@ -119,6 +120,18 @@ export const MAP_LAYERS: MapLayer[] = [
     visible: false,
     toggleable: true,
   },
+  {
+    key: "speedCameras",
+    label_bg: "Камери за скорост",
+    label: {
+      bg: "Камери за скорост",
+      en: "Speed cameras",
+      tr: "Hız kameraları",
+      ro: "Radare de viteză",
+    },
+    visible: false,
+    toggleable: true,
+  },
 ];
 
 export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {
@@ -129,5 +142,6 @@ export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {
   ev: false,
   rest: false,
   cameras: false,
+  speedCameras: false,
   hotspots: true,
 };

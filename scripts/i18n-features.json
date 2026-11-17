@@ -322,5 +322,137 @@
   "€/kWh",
   "€/kWh",
   "€/kWh"
+ ],
+ "map.speedCamera": [
+  "Камера за скорост",
+  "Speed camera",
+  "Hız kamerası",
+  "Radar de viteză"
+ ],
+ "map.speedCameraLimit": [
+  "Камера за скорост · {limit} км/ч",
+  "Speed camera · {limit} km/h",
+  "Hız kamerası · {limit} km/s",
+  "Radar de viteză · {limit} km/h"
+ ],
+ "map.speedCameraNote": [
+  "Данни: OpenStreetMap. Само за информация, без предупреждения.",
+  "Data: OpenStreetMap. For information only, no warnings.",
+  "Veri: OpenStreetMap. Yalnızca bilgi içindir, uyarı yoktur.",
+  "Date: OpenStreetMap. Doar informativ, fără avertizări."
+ ],
+ "map.speedCameraLegal": [
+  "Само точки на картата, без звук. В Германия и Австрия предупрежденията за камери при шофиране са забранени, във Франция и Швейцария не показваме камери.",
+  "Map points only, no sound. In Germany and Austria camera warnings while driving are banned; we don't show cameras in France or Switzerland.",
+  "Yalnızca haritada noktalar, sessiz. Almanya ve Avusturya'da sürüş sırasında kamera uyarıları yasaktır; Fransa ve İsviçre'de kamera göstermiyoruz.",
+  "Doar puncte pe hartă, fără sunet. În Germania și Austria avertizările despre radare în timpul condusului sunt interzise; nu afișăm radare în Franța și Elveția."
+ ],
+ "map.zoomForCameras": [
+  "Приближете картата, за да видите камерите за скорост.",
+  "Zoom in to see speed cameras.",
+  "Hız kameralarını görmek için yakınlaştırın.",
+  "Mărește harta pentru a vedea radarele de viteză."
+ ],
+ "map.camerasUnavailable": [
+  "Камерите не се заредиха. Опитайте пак след малко.",
+  "Cameras didn't load. Try again in a moment.",
+  "Kameralar yüklenemedi. Biraz sonra tekrar deneyin.",
+  "Radarele nu s-au încărcat. Încearcă din nou în scurt timp."
+ ],
+ "trip.title": [
+  "Пътуване",
+  "Trip",
+  "Yolculuk",
+  "Călătorie"
+ ],
+ "trip.nextStop": [
+  "Следваща спирка",
+  "Next stop",
+  "Sonraki mola",
+  "Următoarea oprire"
+ ],
+ "trip.toDestination": [
+  "До крайната точка",
+  "To the destination",
+  "Varış noktasına",
+  "Spre destinație"
+ ],
+ "trip.distance": [
+  "до там",
+  "to go",
+  "kaldı",
+  "de parcurs"
+ ],
+ "trip.inTime": [
+  "след {duration}",
+  "in {duration}",
+  "{duration} sonra",
+  "peste {duration}"
+ ],
+ "trip.remaining": [
+  "Остават {km} {unit} · пристигане {time}",
+  "{km} {unit} left · arrive {time}",
+  "{km} {unit} kaldı · varış {time}",
+  "Au rămas {km} {unit} · sosire {time}"
+ ],
+ "trip.navigateStop": [
+  "Навигирай до спирката",
+  "Navigate to the stop",
+  "Molaya git",
+  "Navighează la oprire"
+ ],
+ "trip.navigateDestination": [
+  "Навигирай до крайната точка",
+  "Navigate to the destination",
+  "Varış noktasına git",
+  "Navighează la destinație"
+ ],
+ "trip.fuelNearby": [
+  "Гориво",
+  "Fuel",
+  "Yakıt",
+  "Combustibil"
+ ],
+ "trip.openPlan": [
+  "План",
+  "Plan",
+  "Plan",
+  "Plan"
+ ],
+ "trip.waitingGps": [
+  "Търсим позицията ви…",
+  "Finding your position…",
+  "Konumunuz aranıyor…",
+  "Căutăm poziția ta…"
+ ],
+ "trip.gpsOff": [
+  "Позицията не е налична — показваме плана.",
+  "Position unavailable — showing the plan.",
+  "Konum yok — plan gösteriliyor.",
+  "Poziția nu este disponibilă — arătăm planul."
+ ],
+ "trip.following": [
+  "Следваме позицията ви",
+  "Following your position",
+  "Konumunuz izleniyor",
+  "Urmărim poziția ta"
+ ],
+ "trip.keepAwake": [
+  "Екранът остава включен",
+  "Screen stays on",
+  "Ekran açık kalır",
+  "Ecranul rămâne pornit"
+ ],
+ "trip.offRoute": [
+  "Извън маршрута ({km} {unit})",
+  "Off the route ({km} {unit})",
+  "Rotanın dışında ({km} {unit})",
+  "În afara rutei ({km} {unit})"
+ ],
+ "trip.end": [
+  "Край",
+  "End",
+  "Bitir",
+  "Gata"
  ]
 }

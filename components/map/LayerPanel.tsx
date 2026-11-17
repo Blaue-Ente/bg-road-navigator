@@ -43,6 +43,11 @@ export function LayerPanel({
               />
               {pickText(locale, layer.label)}
             </label>
+            {layer.key === "speedCameras" && layers.speedCameras && (
+              <p className="px-2 pb-1 text-xs leading-snug text-[var(--waze-text-muted)]">
+                {m.map.speedCameraLegal}
+              </p>
+            )}
           </li>
         ))}
       </ul>

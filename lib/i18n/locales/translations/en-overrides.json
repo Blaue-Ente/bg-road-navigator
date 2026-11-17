@@ -342,7 +342,13 @@
     "groupSections": "High-attention sections",
     "groupIncidents": "Road incidents",
     "groupHazards": "Hazards on your route",
-    "zoomForStations": "Zoom in to see fuel stations and chargers."
+    "zoomForStations": "Zoom in to see fuel stations and chargers.",
+    "camerasUnavailable": "Cameras didn't load. Try again in a moment.",
+    "speedCamera": "Speed camera",
+    "speedCameraLegal": "Map points only, no sound. In Germany and Austria camera warnings while driving are banned; we don't show cameras in France or Switzerland.",
+    "speedCameraLimit": "Speed camera · {limit} km/h",
+    "speedCameraNote": "Data: OpenStreetMap. For information only, no warnings.",
+    "zoomForCameras": "Zoom in to see speed cameras."
   },
   "fuelPage": {
     "noneHere": "No stations in this area. Trip planning lists fuel stops along the route.",
@@ -403,5 +409,23 @@
     "unitLiters": "L/100 km",
     "use": "Use",
     "importProfile": "Add “{name}” from your profile"
+  },
+  "trip": {
+    "distance": "to go",
+    "following": "Following your position",
+    "fuelNearby": "Fuel",
+    "gpsOff": "Position unavailable — showing the plan.",
+    "inTime": "in {duration}",
+    "keepAwake": "Screen stays on",
+    "navigateDestination": "Navigate to the destination",
+    "navigateStop": "Navigate to the stop",
+    "nextStop": "Next stop",
+    "offRoute": "Off the route ({km} {unit})",
+    "openPlan": "Plan",
+    "remaining": "{km} {unit} left · arrive {time}",
+    "title": "Trip",
+    "toDestination": "To the destination",
+    "waitingGps": "Finding your position…",
+    "end": "End"
   }
 }

@@ -8,6 +8,7 @@ import { formatTemplate } from "@/lib/i18n/format-template";
 import type { Map } from "maplibre-gl";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useFuelStations } from "@/lib/hooks/useFuelStations";
+import { useSpeedCameras } from "@/lib/hooks/useSpeedCameras";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
 import { ClusteredPoiLayer } from "@/components/map/ClusteredPoiLayer";
 import {
@@ -20,6 +21,8 @@ import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 /** Below this zoom the view is too wide for a useful station search. */
 const MIN_STATION_ZOOM = 8;
+/** Camera tiles are half a degree wide, so only a regional view is useful. */
+const MIN_CAMERA_ZOOM = 9;
 
 interface MapView {
   bbox: { w: number; s: number; e: number; n: number };
@@ -61,11 +64,16 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
   const locale = useLocale();
   const layers = useMapStore((s) => s.layers);
   const wantFuel = layers.fuel || layers.ev;
-  const view = useMapView(map, wantFuel);
+  const view = useMapView(map, wantFuel || layers.speedCameras);
   const zoomedIn = view == null || view.zoom >= MIN_STATION_ZOOM;
   const { data } = useFuelStations(view?.bbox ?? DEFAULT_BBOX, {
     enabled: wantFuel && view != null && zoomedIn,
   });
+  const cameraZoomOk = view != null && view.zoom >= MIN_CAMERA_ZOOM;
+  const { data: cameraData } = useSpeedCameras(
+    view?.bbox ?? null,
+    layers.speedCameras && cameraZoomOk
+  );
   const { data: borders } = useBorderStatus({
     region: "bulgaria",
     enabled: layers.borders || layers.cameras,
@@ -122,6 +130,24 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
     [borders, locale, m]
   );
 
+  const speedCameraPoints = useMemo(
+    () =>
+      (cameraData?.cameras ?? []).map((camera) => ({
+        id: camera.id,
+        lng: camera.lng,
+        lat: camera.lat,
+        title:
+          camera.maxspeed != null
+            ? formatTemplate(m.map.speedCameraLimit, {
+                limit: String(camera.maxspeed),
+              })
+            : m.map.speedCamera,
+        subtitle: m.map.speedCameraNote,
+        glyph: camera.maxspeed != null ? String(camera.maxspeed) : "",
+      })),
+    [cameraData?.cameras, m]
+  );
+
   const restPoints = useMemo(
     () =>
       EUROPEAN_REST_AREAS.map((area) => ({
@@ -152,6 +178,22 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
 
   return (
     <>
+      {layers.speedCameras && view != null && !cameraZoomOk && (
+        <p
+          role="status"
+          className="waze-panel pointer-events-none absolute left-1/2 top-28 z-20 max-w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 px-3 py-2 text-center text-xs text-[var(--waze-text-secondary)]"
+        >
+          {m.map.zoomForCameras}
+        </p>
+      )}
+      {layers.speedCameras && cameraZoomOk && cameraData?.ok === false && (
+        <p
+          role="status"
+          className="waze-panel pointer-events-none absolute left-1/2 top-28 z-20 max-w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 px-3 py-2 text-center text-xs text-[var(--waze-text-secondary)]"
+        >
+          {m.map.camerasUnavailable}
+        </p>
+      )}
       {wantFuel && !zoomedIn && (
         <p
           role="status"
@@ -187,6 +229,13 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
         points={restPoints}
         color="#a78bfa"
         enabled={layers.rest}
+      />
+      <ClusteredPoiLayer
+        map={map}
+        sourceId="poi-speed-cameras"
+        points={speedCameraPoints}
+        color="#0f766e"
+        enabled={layers.speedCameras && cameraZoomOk}
       />
       <ClusteredPoiLayer
         map={map}

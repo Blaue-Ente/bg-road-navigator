@@ -2,11 +2,14 @@
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useFuelStations } from "@/lib/hooks/useFuelStations";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { useMapStore } from "@/lib/stores/map.store";
+import { useGeolocation } from "@/lib/hooks/useGeolocation";
+import { isInEurope } from "@/lib/geo/bounds";
 import { FuelStationCard } from "@/components/fuel/FuelStationCard";
 import { EVChargerCard } from "@/components/fuel/EVChargerCard";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -60,7 +63,23 @@ function FuelPageContent() {
       .join(";");
   }, [wantRoute, activeRoute]);
 
-  const bbox = routePolyline ? undefined : DEFAULT_BBOX;
+  // Around the driver when the position is known, otherwise Bulgaria.
+  const userLocation = useMapStore((s) => s.userLocation);
+  const { getCurrentLocation } = useGeolocation();
+  useEffect(() => {
+    if (wantRoute || useMapStore.getState().userLocation) return;
+    void getCurrentLocation({ coarse: true });
+  }, [wantRoute, getCurrentLocation]);
+  const nearUser =
+    userLocation && isInEurope(userLocation.lng, userLocation.lat)
+      ? {
+          w: Math.round((userLocation.lng - 0.35) * 100) / 100,
+          s: Math.round((userLocation.lat - 0.25) * 100) / 100,
+          e: Math.round((userLocation.lng + 0.35) * 100) / 100,
+          n: Math.round((userLocation.lat + 0.25) * 100) / 100,
+        }
+      : null;
+  const bbox = routePolyline ? undefined : (nearUser ?? DEFAULT_BBOX);
   const { data, isLoading, isError, refetch, isFetching } = useFuelStations(
     bbox,
     {
