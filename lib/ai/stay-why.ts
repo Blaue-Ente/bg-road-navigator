@@ -13,7 +13,11 @@ export async function stayWhy(
     stays: TripadvisorStay[];
     traveler: string[];
   },
-  deps: { config?: AiConfig | null; fetchImpl?: typeof fetch } = {}
+  deps: {
+    config?: AiConfig | null;
+    fetchImpl?: typeof fetch;
+    onError?: (message: string) => void;
+  } = {}
 ): Promise<string | null> {
   if (input.stays.length === 0) return null;
   const text = await chatText(

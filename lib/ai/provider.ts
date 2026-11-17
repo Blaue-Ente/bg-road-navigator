@@ -27,7 +27,12 @@ export function aiConfig(env: NodeJS.ProcessEnv = process.env): AiConfig | null 
 
 export async function chatText(
   input: { system: string; user: string; maxTokens?: number },
-  deps: { config?: AiConfig | null; fetchImpl?: typeof fetch } = {}
+  deps: {
+    config?: AiConfig | null;
+    fetchImpl?: typeof fetch;
+    /** Why a call gave nothing: status and message only, never the key. */
+    onError?: (message: string) => void;
+  } = {}
 ): Promise<string | null> {
   const config = deps.config === undefined ? aiConfig() : deps.config;
   if (!config) return null;
@@ -50,7 +55,13 @@ export async function chatText(
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      if (deps.onError) {
+        const body = await response.text().catch(() => "");
+        deps.onError(`${response.status} ${body.replace(/\s+/g, " ").slice(0, 200)}`.trim());
+      }
+      return null;
+    }
     const payload = (await response.json()) as {
       choices?: Array<{ message?: { content?: string } }>;
     };
@@ -58,8 +69,10 @@ export async function chatText(
     const text = payload.choices?.[0]?.message?.content
       ?.replace(/<think>[\s\S]*?<\/think>/g, "")
       .trim();
+    if (!text) deps.onError?.(`empty answer from ${config.model}`);
     return text ? text : null;
   } catch {
+    deps.onError?.("the AI service did not answer in time");
     return null;
   }
 }
