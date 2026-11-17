@@ -1,6 +1,7 @@
 import { countryCodeAtPoint } from "@/lib/geo/countries-along-route";
 import { isInEurope } from "@/lib/geo/bounds";
 import { cachedValue } from "@/lib/cache/shared-cache";
+import dataset from "@/lib/data/speed-cameras.json";
 
 const OVERPASS_URLS = [
   "https://overpass-api.de/api/interpreter",
@@ -163,10 +164,46 @@ function fetchTile(
   }).then((result) => result.value);
 }
 
+/** [lng, lat, posted limit in km/h or 0] as written by scripts/speed-cameras/build.py. */
+export type StaticCameraPoint = [number, number, number];
+
+/** Points of the built dataset; empty until the monthly build has been merged. */
+export const STATIC_CAMERA_POINTS = (dataset as { points: StaticCameraPoint[] }).points;
+
+/**
+ * Cameras inside a box from the built dataset (OpenStreetMap, ODbL). No outside
+ * call is needed. Cameras in France and Switzerland are never shown.
+ */
+export function camerasFromPoints(
+  bbox: { w: number; s: number; e: number; n: number },
+  points: StaticCameraPoint[] = STATIC_CAMERA_POINTS
+): SpeedCamera[] {
+  const out: SpeedCamera[] = [];
+  for (const [lng, lat, maxspeed] of points) {
+    if (lng < bbox.w || lng > bbox.e || lat < bbox.s || lat > bbox.n) continue;
+    const country = countryCodeAtPoint(lng, lat);
+    if (country && CAMERA_HIDDEN_COUNTRIES.has(country)) continue;
+    out.push({
+      id: `osm-cam-${lng.toFixed(5)}-${lat.toFixed(5)}`,
+      lng,
+      lat,
+      maxspeed: maxspeed > 0 ? maxspeed : null,
+    });
+    if (out.length >= 600) break;
+  }
+  return out;
+}
+
 export async function loadSpeedCameras(
   bbox: { w: number; s: number; e: number; n: number },
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  points: StaticCameraPoint[] = STATIC_CAMERA_POINTS
 ): Promise<SpeedCameraResult> {
+  // The built dataset first: instant and independent of any outside service.
+  if (points.length > 0) {
+    return { cameras: camerasFromPoints(bbox, points), ok: true };
+  }
+  // Until it exists, ask OpenStreetMap's public Overpass servers (often slow).
   const tiles = tilesForBbox(bbox);
   if (tiles.length === 0 || tiles.length > MAX_TILES) {
     return { cameras: [], ok: true };

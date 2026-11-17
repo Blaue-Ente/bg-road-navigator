@@ -71,6 +71,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Closed app: the trip push plan carries `border` (id, name, expected arrival, expected wait). `buildPushSchedule` sends "Did you cross X?" about 25 minutes after the expected crossing; it opens `/?border=<id>&wait=<min>`, which asks for the real wait (`origin: "estimate"`).
 - Tankerkönig prices are shared per 5 km cell for `TANKERKOENIG_CACHE_MINUTES` (default 10, open data, kept in Neon); Fuelo country averages already use a 24-hour Next data cache.
 
+### Speed cameras
+
+- `GET /api/speed-cameras?w&s&e&n[&debug=1]` serves fixed cameras (OpenStreetMap `highway=speed_camera`, ODbL) from `lib/data/speed-cameras.json` when it has points: instant, no outside call. The file is built by `scripts/speed-cameras/build.py` (needs `osmium` and Geofabrik) in the GitHub workflow `.github/workflows/speed-cameras.yml` (manual run or monthly), which opens a draft PR when the data changed. Countries: BG RS RO HU GR MK TR DE AT PL CZ SK SI HR NL BE DK IT ES PT. France and Switzerland are left out on purpose (showing camera positions is banned) and also filtered at runtime. While the file has no points, the route falls back to the public Overpass mirrors (slow from Vercel; failures are `no-store`). Map points only: no alerts, and none while driving in DE/AT.
+
 ### Keys-only readiness
 
 - Code is ready for operators to paste env vars only (+ one-shot Neon SQL).

@@ -1,0 +1,41 @@
+name: Build speed camera data
+
+# Builds lib/data/speed-cameras.json from OpenStreetMap extracts and opens a pull
+# request when it changed. Run it by hand from the Actions tab, or monthly.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 5 * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install osmium
+        run: sudo apt-get update && sudo apt-get install -y osmium-tool
+      - name: Build the dataset
+        run: python3 scripts/speed-cameras/build.py "$RUNNER_TEMP/speed-cameras"
+      - name: Open a pull request when the data changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- lib/data/speed-cameras.json; then
+            echo "No change in the camera data."
+            exit 0
+          fi
+          branch="data/speed-cameras-$(date +%Y%m%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add lib/data/speed-cameras.json
+          git commit -m "data: refresh speed cameras from OpenStreetMap"
+          git push origin "$branch"
+          gh pr create --draft --base "${GITHUB_REF_NAME}" --head "$branch" \
+            --title "Refresh speed camera data" \
+            --body "Speed cameras from OpenStreetMap (ODbL), built by scripts/speed-cameras/build.py. France and Switzerland are left out on purpose."
