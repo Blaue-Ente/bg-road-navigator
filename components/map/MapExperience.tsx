@@ -22,6 +22,7 @@ import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
 import { TripDashboard } from "@/components/trip/TripDashboard";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
 import { TripProximity } from "@/components/location/TripProximity";
+import { BorderTimeWatcher } from "@/components/borders/BorderTimeWatcher";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
@@ -234,6 +235,7 @@ export function MapExperience() {
       <PlanMarkers map={mapInstance} />
       <HotspotLayer map={mapInstance} />
       <TripProximity />
+      <BorderTimeWatcher />
       <UserLocationMarker map={mapInstance} />
     </div>
   );

@@ -156,7 +156,9 @@
     "weatherFetchFailed": "Prognoza nu a putut fi încărcată",
     "weatherAttribution": "Prognoză: Open-Meteo.com (CC BY 4.0)",
     "invalidVehicle": "Date invalide pentru mașină.",
-    "vehicleLimit": "Ai atins limita de 12 mașini."
+    "vehicleLimit": "Ai atins limita de 12 mașini.",
+    "borderReportTooSoon": "Ai partajat deja un timp pentru această graniță. Mulțumim!",
+    "invalidBorderReport": "Date invalide despre timpul la graniță."
   },
   "location": {
     "notifications": {
@@ -454,7 +456,8 @@
     "pushFailed": "Nu am putut activa notificările.",
     "pushOn": "Notificări și cu aplicația închisă",
     "pushStopSoon": "Peste aproximativ {minutes} min: {title}.",
-    "pushUnsupported": "Acest browser nu poate trimite notificări cu aplicația închisă. Pe iPhone, adaugă site-ul pe ecranul principal."
+    "pushUnsupported": "Acest browser nu poate trimite notificări cu aplicația închisă. Pe iPhone, adaugă site-ul pe ecranul principal.",
+    "pushBorderAfter": "Ai trecut de {name}? Spune cât ai așteptat — îi ajută pe șoferii următori."
   },
   "ai": {
     "disclaimer": "Text generat de AI din datele planului. Poate conține greșeli — verifică lucrurile importante.",
@@ -480,5 +483,24 @@
     "freeCancellation": "Anulare gratuită",
     "payAtHotel": "Plată la hotel",
     "distanceKm": "{km} km"
+  },
+  "borderTime": {
+    "drivers": "Șoferii raportează aproximativ {minutes} min ({count})",
+    "driversAgo": "ultimul {ago}",
+    "failed": "Nu am putut trimite. Încearcă din nou.",
+    "later": "Nu acum",
+    "less": "Mai puțin",
+    "measured": "Aplicația a măsurat aproximativ {minutes} min. Corectează dacă nu e corect.",
+    "minutes": "{minutes} min",
+    "more": "Mai mult",
+    "privacy": "Salvăm doar punctul și minutele, nu traseul tău.",
+    "question": "Cât ai așteptat la graniță?",
+    "send": "Trimite",
+    "signIn": "Autentifică-te pentru a partaja timpul.",
+    "thanks": "Mulțumim! Șoferii următori o vor vedea.",
+    "title": "Ai trecut {name}",
+    "unavailable": "Partajarea nu este activată pe acest site.",
+    "unsure": "Nu a fost semnal o parte din timp, verifică numărul.",
+    "estimated": "Timpul estimat era de aproximativ {minutes} min. Introdu cât ai așteptat de fapt."
   }
 }

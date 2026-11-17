@@ -110,6 +110,21 @@ export const userVehicles = pgTable("user_vehicles", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const borderWaitReports = pgTable("border_wait_reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  crossingId: text("crossing_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => profiles.userId, { onDelete: "cascade" }),
+  minutes: integer("minutes").notNull(),
+  fromCountry: text("from_country"),
+  toCountry: text("to_country"),
+  source: text("source").notNull().default("manual"),
+  reliable: boolean("reliable").notNull().default(true),
+  startedAt: timestamp("started_at", { withTimezone: true }),
+  reportedAt: timestamp("reported_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const pushSubscriptions = pgTable("push_subscriptions", {
   endpoint: text("endpoint").primaryKey(),
   p256dh: text("p256dh").notNull(),

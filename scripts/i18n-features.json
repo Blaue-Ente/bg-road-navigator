@@ -718,5 +718,125 @@
   "Pay at the hotel",
   "Otelde ödeme",
   "Plată la hotel"
+ ],
+ "api.invalidBorderReport": [
+  "Невалидни данни за времето на границата.",
+  "Invalid border wait data.",
+  "Geçersiz sınır bekleme verisi.",
+  "Date invalide despre timpul la graniță."
+ ],
+ "api.borderReportTooSoon": [
+  "Вече споделихте време за тази граница. Благодарим!",
+  "You already shared a time for this border. Thank you!",
+  "Bu sınır için zaten bir süre paylaştınız. Teşekkürler!",
+  "Ai partajat deja un timp pentru această graniță. Mulțumim!"
+ ],
+ "borderTime.title": [
+  "Минахте {name}",
+  "You crossed {name}",
+  "{name} sınırını geçtiniz",
+  "Ai trecut {name}"
+ ],
+ "borderTime.question": [
+  "Колко време чакахте на границата?",
+  "How long did you wait at the border?",
+  "Sınırda ne kadar beklediniz?",
+  "Cât ai așteptat la graniță?"
+ ],
+ "borderTime.measured": [
+  "Приложението отчете около {minutes} мин. Поправете, ако не е вярно.",
+  "The app measured about {minutes} min. Correct it if that is wrong.",
+  "Uygulama yaklaşık {minutes} dk ölçtü. Yanlışsa düzeltin.",
+  "Aplicația a măsurat aproximativ {minutes} min. Corectează dacă nu e corect."
+ ],
+ "borderTime.unsure": [
+  "Нямаше сигнал през част от времето, затова проверете числото.",
+  "There was no signal for part of it, so check the number.",
+  "Bir süre sinyal yoktu, bu yüzden sayıyı kontrol edin.",
+  "Nu a fost semnal o parte din timp, verifică numărul."
+ ],
+ "borderTime.minutes": [
+  "{minutes} мин",
+  "{minutes} min",
+  "{minutes} dk",
+  "{minutes} min"
+ ],
+ "borderTime.less": [
+  "По-малко",
+  "Less",
+  "Daha az",
+  "Mai puțin"
+ ],
+ "borderTime.more": [
+  "Повече",
+  "More",
+  "Daha fazla",
+  "Mai mult"
+ ],
+ "borderTime.send": [
+  "Изпрати",
+  "Send",
+  "Gönder",
+  "Trimite"
+ ],
+ "borderTime.later": [
+  "Не сега",
+  "Not now",
+  "Şimdi değil",
+  "Nu acum"
+ ],
+ "borderTime.thanks": [
+  "Благодарим! Следващите шофьори ще го видят.",
+  "Thank you! Drivers after you will see it.",
+  "Teşekkürler! Sonraki sürücüler görecek.",
+  "Mulțumim! Șoferii următori o vor vedea."
+ ],
+ "borderTime.signIn": [
+  "Влезте, за да споделите времето.",
+  "Sign in to share the time.",
+  "Süreyi paylaşmak için giriş yapın.",
+  "Autentifică-te pentru a partaja timpul."
+ ],
+ "borderTime.privacy": [
+  "Записваме само пункта и минутите, не маршрута ви.",
+  "We store only the crossing and the minutes, not your route.",
+  "Yalnızca kapıyı ve dakikayı saklarız, rotanızı değil.",
+  "Salvăm doar punctul și minutele, nu traseul tău."
+ ],
+ "borderTime.failed": [
+  "Не успяхме да изпратим. Опитайте пак.",
+  "We couldn't send it. Try again.",
+  "Gönderilemedi. Tekrar deneyin.",
+  "Nu am putut trimite. Încearcă din nou."
+ ],
+ "borderTime.unavailable": [
+  "Споделянето не е включено на този сайт.",
+  "Sharing is not switched on for this site.",
+  "Paylaşım bu sitede açık değil.",
+  "Partajarea nu este activată pe acest site."
+ ],
+ "borderTime.drivers": [
+  "Шофьори съобщават: около {minutes} мин ({count})",
+  "Drivers report about {minutes} min ({count})",
+  "Sürücüler yaklaşık {minutes} dk bildiriyor ({count})",
+  "Șoferii raportează aproximativ {minutes} min ({count})"
+ ],
+ "borderTime.driversAgo": [
+  "последно {ago}",
+  "latest {ago}",
+  "son {ago}",
+  "ultimul {ago}"
+ ],
+ "trip.pushBorderAfter": [
+  "Минахте ли {name}? Споделете колко чакахте — помага на следващите шофьори.",
+  "Did you cross {name}? Share how long you waited — it helps the drivers after you.",
+  "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur.",
+  "Ai trecut de {name}? Spune cât ai așteptat — îi ajută pe șoferii următori."
+ ],
+ "borderTime.estimated": [
+  "Очакваното време беше около {minutes} мин. Въведете колко чакахте наистина.",
+  "The expected wait was about {minutes} min. Enter how long you really waited.",
+  "Beklenen süre yaklaşık {minutes} dk idi. Gerçekte ne kadar beklediğinizi girin.",
+  "Timpul estimat era de aproximativ {minutes} min. Introdu cât ai așteptat de fapt."
  ]
 }

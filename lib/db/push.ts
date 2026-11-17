@@ -51,6 +51,7 @@ export async function replaceTripSchedule(
       title: push.title,
       body: push.body,
       tag: push.tag,
+      url: push.url ?? "/",
     }));
     if (rows.length > 0) await tx.insert(tripPushQueue).values(rows);
     return rows.length;

@@ -17,6 +17,35 @@ const plan: TripPushPlan = {
 
 const now = new Date("2026-11-17T08:00:00.000Z");
 
+describe("border question", () => {
+  const withBorder: TripPushPlan = {
+    ...plan,
+    border: { id: "kalotina", name: "Kalotina", eta: "2026-11-17T12:00:00.000Z", wait_min: 40 },
+  };
+
+  it("asks well after the expected crossing and opens the question", () => {
+    const rows = buildPushSchedule({ plan: withBorder, startedAt: now, now, locale: "en" });
+    const ask = rows.find((row) => row.tag === "border-kalotina");
+    expect(ask?.sendAt.toISOString()).toBe("2026-11-17T13:05:00.000Z");
+    expect(ask?.body).toContain("Kalotina");
+    expect(ask?.url).toBe("/?border=kalotina&wait=40");
+  });
+
+  it("follows a late start and is left out when the route has no border", () => {
+    const late = buildPushSchedule({
+      plan: withBorder,
+      startedAt: new Date("2026-11-17T09:00:00.000Z"),
+      now,
+      locale: "bg",
+    });
+    expect(late.find((row) => row.tag === "border-kalotina")?.sendAt.toISOString()).toBe(
+      "2026-11-17T14:05:00.000Z"
+    );
+    const none = buildPushSchedule({ plan, startedAt: now, now, locale: "en" });
+    expect(none.some((row) => row.tag.startsWith("border-"))).toBe(false);
+  });
+});
+
 describe("buildPushSchedule", () => {
   const rows = buildPushSchedule({ plan, startedAt: now, now, locale: "en" });
 
