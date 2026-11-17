@@ -5,12 +5,15 @@ import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { estimateRouteFuel } from "@/lib/utils/fuel-estimate";
 import { useUserStore } from "@/lib/stores/user.store";
+import { useVehicles } from "@/lib/hooks/useVehicles";
 
 export function FuelEstimateCard({ distanceKm }: { distanceKm: number }) {
   const m = useMessages();
   const locale = useLocale();
   const profile = useUserStore((s) => s.profile);
-  const estimate = estimateRouteFuel(distanceKm, profile, locale);
+  const signedIn = useUserStore((s) => Boolean(s.session));
+  const { activeVehicle } = useVehicles(signedIn);
+  const estimate = estimateRouteFuel(distanceKm, profile, locale, activeVehicle);
 
   if (!estimate) return null;
 

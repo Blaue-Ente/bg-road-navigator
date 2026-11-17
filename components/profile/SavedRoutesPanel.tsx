@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -30,7 +31,10 @@ export function SavedRoutesPanel() {
     },
   });
 
-  const remove = async (id: string) => {
+  const remove = async (id: string, name: string) => {
+    if (!window.confirm(formatTemplate(m.favorites.confirmRemove, { name }))) {
+      return;
+    }
     const response = await fetch(`/api/saved-routes/${id}`, {
       method: "DELETE",
     });
@@ -117,14 +121,14 @@ export function SavedRoutesPanel() {
                 <button
                   type="button"
                   onClick={() => openRoute(route)}
-                  className="waze-btn-primary px-3 py-1.5 text-xs"
+                  className="waze-btn-primary min-h-11 px-3 py-1.5 text-xs"
                 >
                   {m.profile.openRoute}
                 </button>
                 <button
                   type="button"
-                  onClick={() => void remove(route.id)}
-                  className="waze-btn-secondary px-3 py-1.5 text-xs text-[var(--waze-danger)]"
+                  onClick={() => void remove(route.id, route.name)}
+                  className="waze-btn-secondary min-h-11 px-3 py-1.5 text-xs text-[var(--waze-danger)]"
                 >{m.profile.msg7cc236d2ac}</button>
               </div>
             </li>

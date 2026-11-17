@@ -97,7 +97,7 @@ export const bgRestPlanner = {
       motorwayService: "Станцията е в крайпътно обслужване.",
       detourFuel: "Предпочетена е станция до 3 км извън магистралата.",
       restWithCharge: "Почивката съвпада със зареждането.",
-      restAfterDrive: "Почивка след около 2–2.5 часа шофиране.",
+      restAfterDrive: "Почивка след около {every} шофиране.",
       overnightWake:
         "Спите тук. Тръгване на следващия ден в {wake} ({place}). Остават {remaining} шофиране.",
       overnightGeneric: "Тук се спи. На сутринта пътят продължава.",

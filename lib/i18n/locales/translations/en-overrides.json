@@ -5,7 +5,11 @@
   },
   "planning": {
     "departYourTime": "{datetime} — your clock ({zone})",
-    "departOriginTime": "In {place} that is {time}."
+    "departOriginTime": "In {place} that is {time}.",
+    "carChoose": "Car for this trip",
+    "carConsumption": "Average consumption: {value} {unit}",
+    "carDefault": "Default car",
+    "carNoGarage": "Add a car in your profile for a more accurate plan."
   },
   "sheet": {
     "waitAtArrival": "On arrival (~{time}, {place}): {minutes} min",
@@ -52,14 +56,11 @@
       "warningAlongRoute": "Around {km} km along the route at {eta}.",
       "alongRouteSample": "Along the route",
       "alertPassTitle": "Attention: {name}",
-      "alertPassDescription":
-        "Possible snow, wind or slippery road near the pass. Check the forecast before you leave.",
+      "alertPassDescription": "Possible snow, wind or slippery road near the pass. Check the forecast before you leave.",
       "alertHighWindTitle": "Strong wind along the route",
-      "alertHighWindDescription":
-        "Wind over 50 km/h — take care with high vehicles.",
+      "alertHighWindDescription": "Wind over 50 km/h — take care with high vehicles.",
       "alertLowVisibilityTitle": "Reduced visibility",
-      "alertLowVisibilityDescription":
-        "Visibility under 2 km — switch on lights and slow down."
+      "alertLowVisibilityDescription": "Visibility under 2 km — switch on lights and slow down."
     },
     "hotspots": {
       "attentionTitle": "High-attention segment",
@@ -90,8 +91,7 @@
       "signalOne": "alert",
       "signalOther": "alerts",
       "reasonTitle": "Road agency bulletin",
-      "reasonDetail":
-        "{count} alerts on the Bulgarian section ({kinds}).{place}",
+      "reasonDetail": "{count} alerts on the Bulgarian section ({kinds}).{place}",
       "reasonEnOne": "1 Bulgarian road agency alert on this route ({kinds}).{place}",
       "reasonEnOther": "{count} Bulgarian road agency alerts on this route ({kinds}).{place}",
       "reasonExample": " Example: {place}.",
@@ -99,15 +99,12 @@
       "lineUntil": "{label}: {where}{text}{until}"
     },
     "proximity": {
-      "hotspotAhead":
-        "In {meters} m: a high-accident segment. Drive carefully.",
+      "hotspotAhead": "In {meters} m: a high-accident segment. Drive carefully.",
       "hazardAhead": "In {meters} m: hazard on the road. Drive carefully."
     },
     "why": {
-      "twoDriversDay":
-        "With two drivers we can drive up to {hours} h per day, so the overnight stop is further along and less is left for the morning.",
-      "childrenBreaks":
-        "With children, breaks are every {minutes} min and last {dwell} min each; that adds about {total} min."
+      "twoDriversDay": "With two drivers we can drive up to {hours} h per day, so the overnight stop is further along and less is left for the morning.",
+      "childrenBreaks": "With children, breaks are every {minutes} min and last {dwell} min each; that adds about {total} min."
     },
     "fuel": {
       "diesel": "diesel",
@@ -152,7 +149,9 @@
     "databaseError": "Could not save",
     "invalidPoints": "Invalid points",
     "weatherFetchFailed": "Could not load forecast",
-    "weatherAttribution": "Forecast: Open-Meteo.com (CC BY 4.0)"
+    "weatherAttribution": "Forecast: Open-Meteo.com (CC BY 4.0)",
+    "invalidVehicle": "Invalid vehicle details.",
+    "vehicleLimit": "You have reached the limit of 12 cars."
   },
   "location": {
     "notifications": {
@@ -282,11 +281,11 @@
     "electric": "Electric charging",
     "unitPerLitre": "€/l",
     "unitPerKwh": "€/kWh",
-    "estimateDisclaimer":
-      "Estimate from average consumption and reference price — not an actual station price.",
+    "estimateDisclaimer": "Estimate from average consumption and reference price — not an actual station price.",
     "attributionFuelo": "Prices: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
-    "eurSuffix": "€"
+    "eurSuffix": "€",
+    "kwhec63": "€/kWh"
   },
   "tripHeuristic": {
     "restTitle": "Rest break",
@@ -296,15 +295,11 @@
     "overnightNear": "Overnight near {name}",
     "evChargeTitle": "EV charging",
     "fuelTitle": "Fuel stop",
-    "evChargeDescription":
-      "Choose a confirmed charging station and check availability before you leave.",
+    "evChargeDescription": "Choose a confirmed charging station and check availability before you leave.",
     "fuelDescription": "Pick a station on your route and check the price on site.",
-    "warningLongRoute":
-      "This route is long. Confirm at least one overnight stop before you leave.",
-    "warningEv":
-      "EV charger availability is not guaranteed — confirm each stop with the operator.",
-    "warningCalculatedStops":
-      "Some stops are planning placeholders. Pick a specific place before travelling."
+    "warningLongRoute": "This route is long. Confirm at least one overnight stop before you leave.",
+    "warningEv": "EV charger availability is not guaranteed — confirm each stop with the operator.",
+    "warningCalculatedStops": "Some stops are planning placeholders. Pick a specific place before travelling."
   },
   "maneuvers": {
     "types": {
@@ -346,7 +341,8 @@
     "attributionDataFrom": "Data from",
     "groupSections": "High-attention sections",
     "groupIncidents": "Road incidents",
-    "groupHazards": "Hazards on your route"
+    "groupHazards": "Hazards on your route",
+    "zoomForStations": "Zoom in to see fuel stations and chargers."
   },
   "fuelPage": {
     "noneHere": "No stations in this area. Trip planning lists fuel stops along the route.",
@@ -357,5 +353,55 @@
   },
   "fuelEstimate": {
     "costLine": "{amount} {unit} · ≈ {cost}"
+  },
+  "favorites": {
+    "cancel": "Cancel",
+    "clearAll": "Delete all routes",
+    "confirmClearAll": "Delete all {count} favourite routes?",
+    "confirmRemove": "Delete “{name}”?",
+    "edit": "Edit",
+    "editing": "Editing saved route: {name}",
+    "removeFailed": "We couldn't delete it. Please try again.",
+    "rename": "Rename",
+    "renameFailed": "We couldn't save the name. Please try again.",
+    "renameLabel": "Route name",
+    "save": "Save",
+    "stopEditing": "Save as a new route",
+    "updateFailed": "The route could not be updated.",
+    "updateRoute": "Update saved route",
+    "updated": "Saved route updated."
+  },
+  "garage": {
+    "active": "Default",
+    "add": "Add a car",
+    "cancel": "Cancel",
+    "consumption": "Average extra-urban consumption",
+    "consumptionHint": "Used for fuel stops and trip cost. You can also enter it by hand.",
+    "edit": "Edit",
+    "empty": "No car saved yet. Add one for accurate fuel stops and costs.",
+    "findConsumption": "Find average consumption",
+    "finding": "Searching…",
+    "lookupFailed": "The search failed. Try again or enter the consumption by hand.",
+    "makeActive": "Make default",
+    "migrationHint": "Run drizzle/0005_user_vehicles.sql on the database to save cars.",
+    "name": "Make, model, year",
+    "namePlaceholder": "e.g. VW Passat 2018 2.0 TDI",
+    "noMatch": "We couldn't find this model. Enter the consumption by hand.",
+    "pickCandidate": "Pick the closest match:",
+    "remove": "Delete",
+    "removeFailed": "The car could not be deleted.",
+    "save": "Save car",
+    "saveFailed": "The car could not be saved.",
+    "saving": "Saving…",
+    "signIn": "Sign in to save cars.",
+    "sourceEstimate": "Rough estimate — please check it",
+    "sourceKnown": "Known figure (US EPA)",
+    "sourceManual": "Entered by hand",
+    "title": "My cars",
+    "unavailable": "Cars are saved once the database is enabled.",
+    "unitKwh": "kWh/100 km",
+    "unitLiters": "L/100 km",
+    "use": "Use",
+    "importProfile": "Add “{name}” from your profile"
   }
 }

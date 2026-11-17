@@ -837,7 +837,7 @@
   "planner.stops.motorwayService": "Станцията е в крайпътно обслужване.",
   "planner.stops.detourFuel": "Предпочетена е станция до 3 км извън магистралата.",
   "planner.stops.restWithCharge": "Почивката съвпада със зареждането.",
-  "planner.stops.restAfterDrive": "Почивка след около 2–2.5 часа шофиране.",
+  "planner.stops.restAfterDrive": "Почивка след около {every} шофиране.",
   "planner.stops.overnightWake": "Спите тук. Тръгване на следващия ден в {wake} ({place}). Остават {remaining} шофиране.",
   "planner.stops.overnightGeneric": "Тук се спи. На сутринта пътят продължава.",
   "planner.weather.hourlyEmpty": "Няма почасова прогноза за този час.",

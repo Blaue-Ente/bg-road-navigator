@@ -75,6 +75,42 @@ export async function insertFavoriteRoute(input: {
   };
 }
 
+export async function updateFavoriteRoute(input: {
+  userId: string;
+  id: string;
+  name?: string;
+  origin?: FavoriteRouteRow["origin"];
+  destination?: FavoriteRouteRow["destination"];
+  preferences?: TripPreferences;
+  plan?: unknown;
+}): Promise<FavoriteRouteRow | null> {
+  const db = getDb();
+  const set: Partial<typeof favoriteRoutes.$inferInsert> = {};
+  if (input.name !== undefined) set.name = input.name;
+  if (input.origin !== undefined) set.origin = input.origin;
+  if (input.destination !== undefined) set.destination = input.destination;
+  if (input.preferences !== undefined) set.preferences = input.preferences;
+  if (input.plan !== undefined) set.plan = input.plan;
+  if (Object.keys(set).length === 0) return null;
+  const [row] = await db
+    .update(favoriteRoutes)
+    .set(set)
+    .where(
+      and(eq(favoriteRoutes.id, input.id), eq(favoriteRoutes.userId, input.userId))
+    )
+    .returning();
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    origin: row.origin,
+    destination: row.destination,
+    preferences: row.preferences,
+    plan: row.plan ?? null,
+    created_at: row.createdAt.toISOString(),
+  };
+}
+
 export async function deleteFavoriteRoute(userId: string, id: string) {
   const db = getDb();
   await db

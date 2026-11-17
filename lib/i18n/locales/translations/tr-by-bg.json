@@ -597,7 +597,7 @@
   "Потвърдено": "Onaylandı",
   "Потребителско име": "Kullanıcı adı",
   "Почивка": "Mola",
-  "Почивка след около 2–2.5 часа шофиране.": "Yaklaşık 2–2,5 saat sürüşten sonra mola.",
+  "Почивка след около {every} шофиране.": "Yaklaşık {every} sürüşten sonra mola.",
   "Почивката съвпада със зареждането.": "Mola şarjla aynı zamana denk geliyor.",
   "Почивки": "Molalar",
   "Почивки и нощувки": "Mola ve gece konaklama",

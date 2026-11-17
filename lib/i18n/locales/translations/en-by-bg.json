@@ -597,7 +597,7 @@
   "Потвърдено": "Confirmed",
   "Потребителско име": "Username",
   "Почивка": "Break",
-  "Почивка след около 2–2.5 часа шофиране.": "Break after about 2–2.5 hours of driving.",
+  "Почивка след около {every} шофиране.": "Break after about {every} of driving.",
   "Почивката съвпада със зареждането.": "The break aligns with charging.",
   "Почивки": "Breaks",
   "Почивки и нощувки": "Breaks and overnight stays",

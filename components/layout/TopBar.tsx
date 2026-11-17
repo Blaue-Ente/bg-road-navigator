@@ -65,7 +65,7 @@ export function TopBar({ user }: TopBarProps) {
         {user ? (
           <Link
             href="/profile"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--waze-accent)] text-sm font-bold text-white"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--waze-accent)] text-sm font-bold text-white"
             aria-label={m.nav.profile}
           >
             {user.email.charAt(0).toUpperCase()}

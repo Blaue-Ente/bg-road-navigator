@@ -93,6 +93,23 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const userVehicles = pgTable("user_vehicles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => profiles.userId, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  vehicleType: text("vehicle_type").notNull().default("car"),
+  fuelType: text("fuel_type").notNull().default("diesel"),
+  tankCapacityLiters: doublePrecision("tank_capacity_liters"),
+  evRangeKm: integer("ev_range_km"),
+  consumptionPer100: doublePrecision("consumption_per_100"),
+  consumptionSource: text("consumption_source").notNull().default("manual"),
+  isActive: boolean("is_active").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const savedPlaces = pgTable("saved_places", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")

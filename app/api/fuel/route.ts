@@ -6,6 +6,7 @@ import {
   loadFuelStationsAt,
   mergeFuelStationLists,
 } from "@/lib/fuel/load-route-stations";
+import { haversineKm } from "@/lib/geo/haversine";
 import { readPoiConfig } from "@/lib/poi/config";
 import {
   bboxFromCoordinates,
@@ -132,11 +133,26 @@ export async function GET(request: NextRequest) {
           ? (parsed.data.s + parsed.data.n) / 2
           : 42.7;
       mode = hasBbox ? "bbox" : "default";
+      // Search the whole visible area, not just a 25 km disc around its centre.
+      const radiusKm = hasBbox
+        ? Math.min(
+            60,
+            Math.max(
+              5,
+              Math.round(
+                haversineKm(
+                  { lng: centerLng, lat: centerLat },
+                  { lng: parsed.data.e!, lat: parsed.data.n! }
+                )
+              )
+            )
+          )
+        : 25;
 
       [fuelStations, evStations] = await Promise.all([
-        loadFuelStationsAt(centerLng, centerLat),
+        loadFuelStationsAt(centerLng, centerLat, radiusKm),
         hasEvKey
-          ? getEVStations(centerLng, centerLat)
+          ? getEVStations(centerLng, centerLat, radiusKm)
           : Promise.resolve([] as EVStation[]),
       ]);
     }

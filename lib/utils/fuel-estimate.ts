@@ -2,6 +2,7 @@ import { FUEL_TYPE_MAP, fuelTypeLabel, fuelTypeUnit } from "@/lib/constants/fuel
 import type { Locale } from "@/lib/i18n/locale";
 import { catalog, localeTag } from "@/lib/i18n/locale";
 import type { Profile } from "@/types/profile.types";
+import type { UserVehicle } from "@/lib/vehicles/types";
 
 export interface FuelEstimate {
   distance_km: number;
@@ -51,6 +52,30 @@ function consumptionForProfile(profile: Profile | null | undefined) {
   return base;
 }
 
+/** The car the driver picked: its own average consumption wins over class defaults. */
+function consumptionForVehicle(
+  vehicle: Pick<
+    UserVehicle,
+    "vehicle_type" | "fuel_type" | "consumption_per_100"
+  >
+) {
+  const base = consumptionForProfile(vehicle as unknown as Profile);
+  const priceKey: keyof typeof FUEL_TYPE_MAP =
+    vehicle.fuel_type === "electric"
+      ? "electric"
+      : vehicle.fuel_type === "diesel"
+        ? "diesel"
+        : vehicle.fuel_type === "lpg"
+          ? "lpg"
+          : "petrol95";
+  const unit: "L" | "kWh" = vehicle.fuel_type === "electric" ? "kWh" : "L";
+  return {
+    per100: vehicle.consumption_per_100 ?? base.per100,
+    unit,
+    priceKey,
+  };
+}
+
 export function formatFuelCostEur(amount: number, locale: Locale = "bg"): string {
   return new Intl.NumberFormat(localeTag(locale), {
     style: "currency",
@@ -62,10 +87,13 @@ export function formatFuelCostEur(amount: number, locale: Locale = "bg"): string
 export function estimateRouteFuel(
   distanceKm: number,
   profile?: Profile | null,
-  locale: Locale = "bg"
+  locale: Locale = "bg",
+  vehicle?: UserVehicle | null
 ): FuelEstimate | null {
   if (!Number.isFinite(distanceKm) || distanceKm <= 0) return null;
-  const spec = consumptionForProfile(profile);
+  const spec = vehicle
+    ? consumptionForVehicle(vehicle)
+    : consumptionForProfile(profile);
   const price = FUEL_TYPE_MAP[spec.priceKey];
   const fuelNeeded = (distanceKm / 100) * spec.per100;
   const costEur = fuelNeeded * price.default_price;

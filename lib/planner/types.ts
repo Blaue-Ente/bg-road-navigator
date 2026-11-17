@@ -94,6 +94,8 @@ export interface RouteWeatherSegment {
   lat: number;
   lng: number;
   distance_from_start_km: number;
+  /** Expected whereabouts at `eta`, e.g. "Niš, Serbia". Absent on older saved plans. */
+  place?: string | null;
   temperature_c: number | null;
   weather_code: number | null;
   wind_kmh: number | null;
@@ -291,6 +293,8 @@ export interface TripPlannerResult {
   locale?: Locale;
   depart_at: string;
   vehicle: {
+    /** The garage car this plan was made for, when one was used. */
+    vehicle_id?: string | null;
     vehicle_type: "car" | "ev" | "truck" | "motorcycle";
     fuel_type: "diesel" | "petrol" | "lpg" | "electric";
     energy: "fuel" | "charge";

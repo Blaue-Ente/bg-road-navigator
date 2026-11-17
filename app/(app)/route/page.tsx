@@ -148,6 +148,8 @@ export default function RoutePage() {
         preferences: resolveTripPreferences(replanDraft.preferences),
         departLocal: toDatetimeLocalValue(replanDraft.departAt),
         fuelPercent: Math.round(replanDraft.fuelLevel * 100),
+        favoriteId: replanDraft.favoriteId ?? null,
+        favoriteName: replanDraft.favoriteName ?? null,
       })
     );
     setReplanDraft(null);
@@ -223,7 +225,6 @@ export default function RoutePage() {
 
   const runCalculation = async (corridorId: string | null, submitted: PlanningSubmit) => {
     const sessionStorage = tripSessionStorage();
-    if (sessionStorage) clearRouteTripSession(sessionStorage);
 
     setCalculating(true);
     setRouteError(null);
@@ -242,6 +243,8 @@ export default function RoutePage() {
       setRouteError(m.planning.sameEnds);
       return;
     }
+    // Only now is a new plan certain to follow, so only now drop the old one.
+    if (sessionStorage) clearRouteTripSession(sessionStorage);
     setPlanDetailOpen(false);
 
     const corridor = corridorId
@@ -527,6 +530,7 @@ function postPlan(
       ...(draft.departAt ? { depart_at: draft.departAt } : {}),
       fuel_level: draft.fuelLevel,
       preferences: draft.preferences,
+      ...(draft.vehicleId ? { vehicle_id: draft.vehicleId } : {}),
     }),
   })
     .then(async (response) => {
