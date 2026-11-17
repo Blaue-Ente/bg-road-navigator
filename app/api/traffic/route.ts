@@ -5,14 +5,11 @@ import {
   hereKey,
   mergeIncidents,
 } from "@/lib/api-clients/here-traffic";
-import {
-  getTrafficFlow,
-  getTrafficIncidents,
-  type TrafficFlow,
-  type TrafficIncident,
-} from "@/lib/api-clients/tomtom";
-import { cachedValue, minutesFromEnv } from "@/lib/cache/shared-cache";
+import { getTomTomIncidents, tomtomKey } from "@/lib/api-clients/tomtom";
 import { EuropeBboxSchema } from "@/lib/server/geo-schema";
+
+const MAX_INCIDENTS = 400;
+const SEVERITY_RANK = { critical: 0, major: 1, moderate: 2, minor: 3 } as const;
 
 const TrafficQuerySchema = z.object({
   bbox: z.string().max(80).optional(),
@@ -56,43 +53,30 @@ export async function GET(request: NextRequest) {
       boundingBox = bboxParsed.data;
     }
 
-    interface TrafficPayload {
-      flow: TrafficFlow[];
-      incidents: TrafficIncident[];
-      here_error: string | null;
-    }
-    const seconds = minutesFromEnv(process.env.TRAFFIC_CACHE_SECONDS, 90, 600);
-    const round = (value: number | undefined) => (value ?? 0).toFixed(1);
-    // Every driver looks at the same area, so one pair of calls serves them all
-    // for a minute or two. Traffic changes fast and the providers' terms are
-    // unclear about keeping it, so this stays in memory only.
-    const { value: payload } = await cachedValue<TrafficPayload>({
-      key: `traffic|${round(boundingBox?.w)}|${round(boundingBox?.s)}|${round(boundingBox?.e)}|${round(boundingBox?.n)}|${parsed.data.zoom ?? 0}`,
-      kind: "traffic",
-      ttlMs: seconds * 1000,
-      persist: false,
-      load: async () => {
-        let hereError: string | null = null;
-        const [flow, tomtom, here] = await Promise.all([
-          getTrafficFlow(boundingBox),
-          getTrafficIncidents(boundingBox),
-          boundingBox && hereKey()
-            ? getHereIncidents(boundingBox, { onError: (message) => (hereError = message) })
-            : Promise.resolve([] as TrafficIncident[]),
-        ]);
-        return {
-          flow,
-          incidents: mergeIncidents(tomtom, here),
-          here_error: hereError,
-        };
-      },
-    });
-    const body = payload ?? { flow: [], incidents: [], here_error: null };
+    let tomtomError: string | null = null;
+    let hereError: string | null = null;
+    // Each provider answers per one-degree tile and shares those tiles between
+    // drivers for a few minutes (see lib/traffic/tiles.ts), so this stays cheap.
+    const [tomtom, here] = boundingBox
+      ? await Promise.all([
+          getTomTomIncidents(boundingBox, { onError: (message) => (tomtomError = message) }),
+          getHereIncidents(boundingBox, { onError: (message) => (hereError = message) }),
+        ])
+      : [[], []];
+    const incidents = mergeIncidents(tomtom, here)
+      .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity])
+      .slice(0, MAX_INCIDENTS);
+
     return NextResponse.json({
-      flow: body.flow,
-      incidents: body.incidents,
+      flow: [],
+      incidents,
       ...(parsed.data.debug === "1"
-        ? { here_configured: Boolean(hereKey()), here_error: body.here_error }
+        ? {
+            tomtom_configured: Boolean(tomtomKey()),
+            tomtom_error: tomtomError,
+            here_configured: Boolean(hereKey()),
+            here_error: hereError,
+          }
         : {}),
     });
   } catch (error) {

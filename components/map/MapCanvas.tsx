@@ -117,10 +117,18 @@ export function MapCanvas({
       if (!isFatalMapError(event)) return;
       setMapError(m.map.msgea50450bfc);
     });
-    map.on("moveend", () => {
+    const syncView = () => {
       const c = map.getCenter();
-      setView({ center: [c.lng, c.lat], zoom: map.getZoom() });
-    });
+      const b = map.getBounds();
+      setView({
+        center: [c.lng, c.lat],
+        zoom: map.getZoom(),
+        bounds: { w: b.getWest(), s: b.getSouth(), e: b.getEast(), n: b.getNorth() },
+      });
+    };
+    map.on("moveend", syncView);
+    // The first view counts too: no move happens before a driver touches the map.
+    map.once("load", syncView);
 
     map.on("click", (event) => {
       onMapClickRef.current?.({

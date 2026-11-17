@@ -85,7 +85,7 @@ export async function cachedValue<T>(options: {
   return { value: await pending, source: "fresh" };
 }
 
-/** Minutes from an environment value, within [0, max]; `0` switches caching off. */
+/** A number (minutes or seconds) from an environment value, within [0, max]; `0` switches caching off. */
 export function minutesFromEnv(
   value: string | undefined,
   fallback: number,

@@ -34,6 +34,8 @@ export async function stayWhy(
         })),
       }),
       maxTokens: 260,
+      // An optional note must not hold up the list of places.
+      timeoutMs: 9_000,
     },
     deps
   );

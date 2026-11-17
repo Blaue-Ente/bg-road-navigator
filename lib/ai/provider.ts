@@ -26,7 +26,7 @@ export function aiConfig(env: NodeJS.ProcessEnv = process.env): AiConfig | null 
 }
 
 export async function chatText(
-  input: { system: string; user: string; maxTokens?: number },
+  input: { system: string; user: string; maxTokens?: number; timeoutMs?: number },
   deps: {
     config?: AiConfig | null;
     fetchImpl?: typeof fetch;
@@ -53,7 +53,7 @@ export async function chatText(
           { role: "user", content: input.user },
         ],
       }),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      signal: AbortSignal.timeout(input.timeoutMs ?? TIMEOUT_MS),
     });
     if (!response.ok) {
       if (deps.onError) {

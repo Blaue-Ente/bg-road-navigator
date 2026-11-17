@@ -1,14 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { TrafficFlowResponse } from "@/types/traffic.types";
 import type { BoundingBox } from "@/types/map.types";
 
-export function useTraffic(bbox: BoundingBox, zoom: number) {
+/** Incidents in the visible area; no request while there is no area or the map is zoomed far out. */
+export function useTraffic(bbox: BoundingBox | null, zoom: number) {
   return useQuery({
-    queryKey: ["traffic", bbox, zoom],
+    queryKey: ["traffic", bbox],
+    enabled: bbox !== null,
+    // Keep the markers while a pan loads the next tile.
+    placeholderData: keepPreviousData,
     queryFn: async (): Promise<TrafficFlowResponse> => {
+      if (!bbox) return { flow: [], incidents: [] };
       const bboxParam = `${bbox.w},${bbox.s},${bbox.e},${bbox.n}`;
       const response = await fetch(
-        `/api/traffic?bbox=${bboxParam}&zoom=${zoom}`
+        `/api/traffic?bbox=${bboxParam}&zoom=${Math.round(zoom)}`
       );
 
       if (!response.ok) {
