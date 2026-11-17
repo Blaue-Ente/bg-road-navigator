@@ -25,6 +25,11 @@ export const NAKORDONI_RESPONSE_CACHE_MS = 15 * 60 * 1000;
 const MAX_429_RETRIES = 2;
 /** A request that would have to wait longer than this for its slot is skipped, not queued. */
 export const NAKORDONI_MAX_PACE_WAIT_MS = 5_000;
+/** After a 429 asking for a long wait, live calls stop for this long at most. */
+export const NAKORDONI_MAX_BLOCK_MS = 15 * 60_000;
+
+/** While the daily limit is reached, no call is made until this time (ms since epoch). */
+let blockedUntilMs = 0;
 const ADVISORY_LOCK_KEY = 915_001;
 
 export interface NakordoniMeteredResult {
@@ -121,6 +126,7 @@ export function resetNakordoniMeteredForTests(): void {
   inFlight.clear();
   chain = Promise.resolve();
   lastLocalFireMs = 0;
+  blockedUntilMs = 0;
   loggedGlobalSlotFallback = false;
   deps = {
     now: () => Date.now(),
@@ -296,6 +302,15 @@ async function httpGetWith429Backoff(
       return rest;
     }
     const waitMs = response.retryAfterMs ?? backoffMs;
+    if (waitMs > NAKORDONI_MAX_PACE_WAIT_MS) {
+      // The limit is used up: asking again would only wait for hours. Stop
+      // calling for a while and answer from what is cached.
+      blockedUntilMs = deps.now() + Math.min(waitMs, NAKORDONI_MAX_BLOCK_MS);
+      const stale = staleGet(path);
+      return stale != null
+        ? { ok: true, status: 200, json: stale, stale: true }
+        : { ok: false, status: 429, json: null };
+    }
     await deps.sleep(waitMs);
     backoffMs *= 2;
   }
@@ -313,6 +328,12 @@ async function runMetered(path: string): Promise<NakordoniMeteredResult> {
   const now = deps.now();
   const cached = cacheGet(path, now);
   if (cached) return cached;
+  if (now < blockedUntilMs) {
+    const stale = staleGet(path);
+    return stale != null
+      ? { ok: true, status: 200, json: stale, stale: true }
+      : { ok: false, status: 429, json: null };
+  }
 
   const result = await httpGetWith429Backoff(path, apiKey);
   if (result.ok && result.json != null && !result.stale) {
