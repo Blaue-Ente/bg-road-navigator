@@ -102,7 +102,7 @@ describe("aiConfig", () => {
     ).toEqual({
       url: "https://openrouter.ai/api/v1/chat/completions",
       key: "or-key",
-      model: "particle-ai/particle-1:free",
+      model: "openai/gpt-6-luna-pro",
     });
     expect(
       aiConfig(env({ AI_PROVIDER: "openrouter", OPENROUTER_API_KEY: "k", AI_MODEL: "x/y:free" }))?.model

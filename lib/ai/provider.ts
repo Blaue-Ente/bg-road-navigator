@@ -38,7 +38,7 @@ export function openRouterConfig(
   return key ? { url: OPENROUTER_URL, key, model } : null;
 }
 
-const OPENROUTER_DEFAULT_MODEL = "particle-ai/particle-1:free";
+const OPENROUTER_DEFAULT_MODEL = "openai/gpt-6-luna-pro";
 
 /**
  * AI_PROVIDER=openrouter runs the app on OpenRouter with the OpenRouter key
