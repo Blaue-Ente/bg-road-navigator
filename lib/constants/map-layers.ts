@@ -6,6 +6,7 @@ import type { Localized } from "@/lib/i18n/localized-field";
 
 export type LayerKey =
   | "traffic"
+  | "trafficFlow"
   | "fuel"
   | "ev"
   | "community"
@@ -32,6 +33,18 @@ export const MAP_LAYERS: MapLayer[] = [
       en: "Incidents",
       tr: "Olaylar",
       ro: "Incidente",
+    },
+    visible: false,
+    toggleable: true,
+  },
+  {
+    key: "trafficFlow",
+    label_bg: "Интензивност на трафика",
+    label: {
+      bg: "Интензивност на трафика",
+      en: "Traffic flow",
+      tr: "Trafik yoğunluğu",
+      ro: "Fluxul traficului",
     },
     visible: false,
     toggleable: true,
@@ -136,6 +149,7 @@ export const MAP_LAYERS: MapLayer[] = [
 
 export const DEFAULT_LAYER_VISIBILITY: Record<LayerKey, boolean> = {
   traffic: false,
+  trafficFlow: false,
   community: true,
   borders: false,
   fuel: false,

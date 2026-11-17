@@ -23,8 +23,28 @@ export const MAP_STYLE_OPTIONS = {
   demo: "https://demotiles.maplibre.org/style.json",
 } as const;
 
-export function getMapStyleUrl(scheme: "dark" | "light" = "light"): string {
+/** OpenFreeMap styles share one data source and one credit, so any can be offered. */
+export const MAP_STYLE_CHOICES = ["auto", "liberty", "bright", "positron", "dark"] as const;
+export type MapStyleChoice = (typeof MAP_STYLE_CHOICES)[number];
+
+const CHOICE_URL: Record<Exclude<MapStyleChoice, "auto">, string> = {
+  liberty: "https://tiles.openfreemap.org/styles/liberty",
+  bright: "https://tiles.openfreemap.org/styles/bright",
+  positron: LIGHT_MAP_STYLE,
+  dark: DARK_MAP_STYLE,
+};
+
+export function isMapStyleChoice(value: unknown): value is MapStyleChoice {
+  return typeof value === "string" && (MAP_STYLE_CHOICES as readonly string[]).includes(value);
+}
+
+/** The chosen style; "auto" follows the light or dark theme. */
+export function getMapStyleUrl(
+  scheme: "dark" | "light" = "light",
+  choice: MapStyleChoice = "auto"
+): string {
   const configured = process.env.NEXT_PUBLIC_MAP_STYLE_URL?.trim();
   if (configured) return configured;
+  if (choice !== "auto") return CHOICE_URL[choice];
   return scheme === "dark" ? DARK_MAP_STYLE : LIGHT_MAP_STYLE;
 }

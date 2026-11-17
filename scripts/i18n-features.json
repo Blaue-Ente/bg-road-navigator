@@ -916,5 +916,71 @@
   "A bigger sign means a more serious event.",
   "Daha büyük işaret daha ciddi olay demektir.",
   "Un semn mai mare înseamnă un eveniment mai grav."
+ ],
+ "mapStyle.title": [
+  "Стил на картата",
+  "Map style",
+  "Harita stili",
+  "Stilul hărții"
+ ],
+ "mapStyle.auto": [
+  "Автоматично",
+  "Automatic",
+  "Otomatik",
+  "Automat"
+ ],
+ "mapStyle.liberty": [
+  "Подробен",
+  "Detailed",
+  "Ayrıntılı",
+  "Detaliat"
+ ],
+ "mapStyle.bright": [
+  "Ярък",
+  "Bright",
+  "Parlak",
+  "Luminos"
+ ],
+ "mapStyle.positron": [
+  "Светъл",
+  "Light",
+  "Açık",
+  "Deschis"
+ ],
+ "mapStyle.dark": [
+  "Тъмен",
+  "Dark",
+  "Koyu",
+  "Întunecat"
+ ],
+ "trafficFlow.title": [
+  "Интензивност на трафика",
+  "Traffic flow",
+  "Trafik yoğunluğu",
+  "Fluxul traficului"
+ ],
+ "trafficFlow.free": [
+  "Свободно",
+  "Free flow",
+  "Akıcı",
+  "Fluid"
+ ],
+ "trafficFlow.slow": [
+  "Забавено",
+  "Slow",
+  "Yavaş",
+  "Lent"
+ ],
+ "trafficFlow.heavy": [
+  "Задръстване",
+  "Heavy",
+  "Yoğun",
+  "Aglomerat"
+ ],
+ "trafficFlow.closed": [
+  "Затворено",
+  "Closed",
+  "Kapalı",
+  "Închis"
  ]
 }

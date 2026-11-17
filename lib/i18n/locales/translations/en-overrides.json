@@ -512,5 +512,20 @@
     "road_closure": "Road closed",
     "size": "A bigger sign means a more serious event.",
     "weather": "Bad weather"
+  },
+  "mapStyle": {
+    "auto": "Automatic",
+    "bright": "Bright",
+    "dark": "Dark",
+    "liberty": "Detailed",
+    "positron": "Light",
+    "title": "Map style"
+  },
+  "trafficFlow": {
+    "closed": "Closed",
+    "free": "Free flow",
+    "heavy": "Heavy",
+    "slow": "Slow",
+    "title": "Traffic flow"
   }
 }

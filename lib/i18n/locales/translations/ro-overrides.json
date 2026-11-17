@@ -517,5 +517,20 @@
     "road_closure": "Drum închis",
     "size": "Un semn mai mare înseamnă un eveniment mai grav.",
     "weather": "Vreme rea"
+  },
+  "mapStyle": {
+    "auto": "Automat",
+    "bright": "Luminos",
+    "dark": "Întunecat",
+    "liberty": "Detaliat",
+    "positron": "Deschis",
+    "title": "Stilul hărții"
+  },
+  "trafficFlow": {
+    "closed": "Închis",
+    "free": "Fluid",
+    "heavy": "Aglomerat",
+    "slow": "Lent",
+    "title": "Fluxul traficului"
   }
 }

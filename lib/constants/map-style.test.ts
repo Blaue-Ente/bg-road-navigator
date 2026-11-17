@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getMapStyleUrl, LIGHT_MAP_STYLE, DARK_MAP_STYLE } from "@/lib/constants/map-style";
+import {
+  getMapStyleUrl,
+  isMapStyleChoice,
+  LIGHT_MAP_STYLE,
+  DARK_MAP_STYLE,
+  MAP_STYLE_CHOICES,
+} from "@/lib/constants/map-style";
 
 describe("getMapStyleUrl", () => {
   afterEach(() => {
@@ -24,5 +30,20 @@ describe("getMapStyleUrl", () => {
   it("offers a dark style when no custom style is set", () => {
     delete process.env.NEXT_PUBLIC_MAP_STYLE_URL;
     expect(getMapStyleUrl("dark")).toBe(DARK_MAP_STYLE);
+  });
+});
+
+
+describe("map style choice", () => {
+  it("follows the theme on auto and honours an explicit choice", () => {
+    expect(getMapStyleUrl("light", "auto")).toContain("/positron");
+    expect(getMapStyleUrl("dark", "auto")).toContain("/dark");
+    expect(getMapStyleUrl("light", "liberty")).toContain("/liberty");
+    expect(getMapStyleUrl("dark", "bright")).toContain("/bright");
+    expect(getMapStyleUrl("light")).toContain("/positron");
+  });
+  it("knows its choices", () => {
+    for (const choice of MAP_STYLE_CHOICES) expect(isMapStyleChoice(choice)).toBe(true);
+    expect(isMapStyleChoice("neon")).toBe(false);
   });
 });

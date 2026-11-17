@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getMapStyleUrl } from "@/lib/constants/map-style";
+import { useMapStyleStore } from "@/lib/stores/map-style.store";
 import { isFatalMapError } from "@/lib/map/map-error";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useMapStore } from "@/lib/stores/map.store";
@@ -36,6 +37,7 @@ export function MapCanvas({
 }: MapCanvasProps) {
   const m = useMessages();
   const scheme = useThemeStore((s) => s.scheme);
+  const styleChoice = useMapStyleStore((s) => s.choice);
   const view = useMapStore((s) => s.view);
   const setView = useMapStore((s) => s.setView);
   const setMapError = useMapStore((s) => s.setMapError);
@@ -74,7 +76,7 @@ export function MapCanvas({
     try {
       map = new maplibregl.Map({
         container,
-        style: getMapStyleUrl(scheme),
+        style: getMapStyleUrl(scheme, styleChoice),
         center: initialCenterRef.current,
         zoom: initialZoomRef.current,
         attributionControl: false,
@@ -188,7 +190,7 @@ export function MapCanvas({
     };
     // Recreate the map when the style theme changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scheme]);
+  }, [scheme, styleChoice]);
 
   useEffect(() => {
     const map = mapInstance.current;

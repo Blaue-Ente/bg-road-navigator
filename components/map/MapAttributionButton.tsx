@@ -1,6 +1,7 @@
 "use client";
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { useMapStore } from "@/lib/stores/map.store";
 
 const ATTRIBUTION_LINKS = [
   { href: "https://openfreemap.org", label: "OpenFreeMap" },
@@ -13,6 +14,7 @@ const ATTRIBUTION_LINKS = [
 
 export function MapAttributionButton() {
   const m = useMessages();
+  const flowOn = useMapStore((s) => s.layers.trafficFlow);
 
   return (
     <details
@@ -58,6 +60,7 @@ export function MapAttributionButton() {
             {ATTRIBUTION_LINKS[2].label}
           </a>
         </p>
+        {flowOn && <p className="mt-1">Traffic flow © TomTom</p>}
       </div>
     </details>
   );
