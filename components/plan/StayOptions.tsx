@@ -86,7 +86,17 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
           <p className="text-sm font-medium text-[var(--waze-text)]">{m.stay.available}</p>
           <ul className="mt-1 space-y-1">
             {data.available_hotels.items.map((hotel) => (
-              <li key={hotel.id} className="text-sm text-[var(--waze-text)]">
+              <li key={hotel.id} className="flex gap-3 text-sm text-[var(--waze-text)]">
+                {hotel.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={hotel.image}
+                    alt=""
+                    loading="lazy"
+                    className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                  />
+                )}
+                <div className="min-w-0">
                 {hotel.url ? (
                   <a
                     href={hotel.url}
@@ -108,6 +118,18 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
                       }).trim()}`
                     : ""}
                 </span>
+                {(hotel.free_cancellation || hotel.free_breakfast || hotel.pay_at_hotel) && (
+                  <p className="text-xs text-[var(--waze-text-muted)]">
+                    {[
+                      hotel.free_cancellation ? m.stay.freeCancellation : null,
+                      hotel.free_breakfast ? m.stay.breakfast : null,
+                      hotel.pay_at_hotel ? m.stay.payAtHotel : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
+                </div>
               </li>
             ))}
           </ul>

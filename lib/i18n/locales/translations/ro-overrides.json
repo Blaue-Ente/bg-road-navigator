@@ -475,6 +475,9 @@
     "tripadvisorCredit": "Evaluări: Tripadvisor. Deschide linkul pentru prețuri și recenzii actuale.",
     "available": "Hoteluri disponibile în acea noapte",
     "availableNote": "Prețuri și disponibilitate de la partenerul nostru. Verifică condițiile și prețul final înainte de rezervare.",
-    "fromPrice": "de la {price} {currency}"
+    "fromPrice": "{price} {currency} pe noapte",
+    "breakfast": "Mic dejun",
+    "freeCancellation": "Anulare gratuită",
+    "payAtHotel": "Plată la hotel"
   }
 }

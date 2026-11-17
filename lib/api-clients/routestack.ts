@@ -127,6 +127,10 @@ export interface RouteStackHotel {
   image: string | null;
   url: string | null;
   address: string | null;
+  free_cancellation: boolean;
+  pay_at_hotel: boolean;
+  free_breakfast: boolean;
+  distance_km: number | null;
 }
 
 type Json = Record<string, unknown>;
@@ -170,10 +174,15 @@ export function findHotelList(payload: unknown, depth = 0): Json[] | null {
   return null;
 }
 
-export function toHotel(row: Json, index: number): RouteStackHotel | null {
+export function toHotel(
+  row: Json,
+  index: number,
+  fallbackCurrency: string | null = null
+): RouteStackHotel | null {
   const name = asString(pick(row, ["name", "hotelName", "title", "propertyName"]));
   if (!name) return null;
   const rawPrice = pick(row, [
+    "ourprice",
     "pricePerNight",
     "price",
     "minPrice",
@@ -183,16 +192,27 @@ export function toHotel(row: Json, index: number): RouteStackHotel | null {
     "rate",
   ]);
   let price = asNumber(rawPrice);
-  let currency = asString(pick(row, ["currency", "currencyCode"]));
+  let currency = asString(pick(row, ["currency", "currencyCode"])) ?? fallbackCurrency;
   if (isObject(rawPrice)) {
     price = asNumber(pick(rawPrice, ["amount", "value", "total", "perNight"]));
     currency = asString(pick(rawPrice, ["currency", "currencyCode"])) ?? currency;
   }
-  const rawImage = pick(row, ["image", "imageUrl", "thumbnail", "photo", "images"]);
+  const rawImage = pick(row, ["heroImage", "image", "imageUrl", "thumbnail", "photo", "images"]);
   const image = Array.isArray(rawImage)
     ? asString(isObject(rawImage[0]) ? pick(rawImage[0], ["url", "src"]) : rawImage[0])
     : asString(rawImage);
-  const address = pick(row, ["address", "location"]);
+  const contact = isObject(row.contact) ? row.contact : null;
+  const nested = contact && isObject(contact.address) ? contact.address : null;
+  const nestedAddress = nested
+    ? [
+        asString(nested.line1),
+        isObject(nested.city) ? asString(nested.city.name) : null,
+      ]
+        .filter(Boolean)
+        .join(", ") || null
+    : null;
+  const address = nestedAddress ?? pick(row, ["address", "location"]);
+  const options = isObject(row.options) ? row.options : {};
   return {
     id: asString(pick(row, ["id", "hotelId", "code"])) ?? `rs-${index}`,
     name,
@@ -204,15 +224,40 @@ export function toHotel(row: Json, index: number): RouteStackHotel | null {
     address: isObject(address)
       ? asString(pick(address, ["full", "line1", "street", "city"]))
       : asString(address),
+    free_cancellation: options.freeCancellation === true || options.refundable === true,
+    pay_at_hotel: row.payAtHotel === true,
+    free_breakfast: options.freeBreakfast === true,
+    distance_km: asNumber(pick(row, ["distancekm", "distanceKm"])),
   };
+}
+
+/** The currency the service quotes in, wherever it sits in the response. */
+function findCurrency(payload: unknown, depth = 0): string | null {
+  if (!isObject(payload) || depth > 3) return null;
+  const own = asString(payload.currency);
+  if (own) return own;
+  for (const value of Object.values(payload)) {
+    const found = findCurrency(value, depth + 1);
+    if (found) return found;
+  }
+  return null;
 }
 
 export function parseHotels(payload: unknown): RouteStackHotel[] {
   const list = findHotelList(payload);
   if (!list) return [];
-  return list
-    .map(toHotel)
-    .filter((hotel): hotel is RouteStackHotel => hotel !== null);
+  const currency = findCurrency(payload);
+  const byId = new Map<string, RouteStackHotel>();
+  list.forEach((row, index) => {
+    const hotel = toHotel(row, index, currency);
+    if (!hotel) return;
+    // One hotel can appear once per rate; keep the cheapest.
+    const known = byId.get(hotel.id);
+    if (!known || (hotel.price ?? Infinity) < (known.price ?? Infinity)) {
+      byId.set(hotel.id, hotel);
+    }
+  });
+  return [...byId.values()];
 }
 
 /** Key names only, so a changed response shape can be fixed without exposing data. */

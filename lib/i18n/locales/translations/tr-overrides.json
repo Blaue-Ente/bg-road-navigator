@@ -472,6 +472,9 @@
     "tripadvisorCredit": "Puanlar: Tripadvisor. Güncel fiyatlar ve yorumlar için bağlantıyı açın.",
     "available": "O gece müsait oteller",
     "availableNote": "Fiyatlar ve müsaitlik ortağımızdan. Rezervasyondan önce koşulları ve son fiyatı kontrol edin.",
-    "fromPrice": "{price} {currency}'den"
+    "fromPrice": "Gece için {price} {currency}",
+    "breakfast": "Kahvaltı",
+    "freeCancellation": "Ücretsiz iptal",
+    "payAtHotel": "Otelde ödeme"
   }
 }
