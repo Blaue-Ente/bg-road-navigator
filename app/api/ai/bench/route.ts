@@ -21,6 +21,9 @@ const CANDIDATES = [
 
 /** Free OpenRouter models worth comparing (from its public catalogue). */
 const OPENROUTER_CANDIDATES = [
+  "openai/gpt-6-luna-pro",
+  "openai/gpt-6-luna",
+  "~openai/gpt-luna-latest",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
   "nvidia/nemotron-3.5-lightning:free",
@@ -71,6 +74,12 @@ export async function GET(request: NextRequest) {
   // think=off asks reasoning models to answer without thinking first;
   // tokens= sets the answer budget (default 260, as the stay note uses).
   const thinkOff = request.nextUrl.searchParams.get("think") === "off";
+  // effort= (OpenRouter only) sets how much a reasoning model may think.
+  const effort = request.nextUrl.searchParams.get("effort");
+  const effortBody =
+    viaOpenRouter && effort && ["none", "minimal", "low", "medium"].includes(effort)
+      ? { reasoning: { effort } }
+      : null;
   const tokens = Number.parseInt(request.nextUrl.searchParams.get("tokens") ?? "", 10);
   const maxTokens = Number.isFinite(tokens) ? Math.min(1500, Math.max(100, tokens)) : 260;
   const prompt = stayPrompt({ locale: "bg", ...SAMPLE });
@@ -80,7 +89,9 @@ export async function GET(request: NextRequest) {
       const started = Date.now();
       let error: string | null = null;
       const raw = await chatText(
-        { ...prompt, maxTokens, timeoutMs, ...(thinkOff
+        { ...prompt, maxTokens, timeoutMs, ...(effortBody
+            ? { extraBody: effortBody }
+            : thinkOff
             ? {
                 extraBody: viaOpenRouter
                   ? { reasoning: { enabled: false } }
@@ -98,6 +109,7 @@ export async function GET(request: NextRequest) {
     provider: viaOpenRouter ? "openrouter" : "nvidia",
     current: viaOpenRouter ? null : config.model,
     thinkOff,
+    effort: effortBody ? effort : null,
     maxTokens,
     results,
   });
