@@ -429,6 +429,30 @@
     "title": "Yolculuk",
     "toDestination": "Varış noktasına",
     "waitingGps": "Konumunuz aranıyor…",
-    "end": "Bitir"
+    "end": "Bitir",
+    "noticeDismiss": "Gizle",
+    "noticeFuel": "Uygun yakıt durağı: {title}, {km} km sonra, ortalamadan yaklaşık {saving} € ucuz.",
+    "noticeRest": "Yaklaşık {hours} saattir molasız sürüyorsunuz. Mola vermeyi düşünün.",
+    "noticeRestSoon": "Mola zamanı: {title}, {km} km sonra.",
+    "noticeTitle": "Yol önerisi",
+    "noticeWeather": "İleride kötü hava: {summary} {place}, {km} km sonra. Dikkatli sürün.",
+    "notifyOn": "Bildirimleri aç",
+    "turnAccept": "Anladım, aç",
+    "turnBeta": "Sonraki dönüş (beta)",
+    "turnConsentBody": "Dönüş ipuçları deneyseldir ve %100 güvenilir değildir. Tarayıcı konumu sıçrayabilir, OpenStreetMap verileri hatalı veya eski olabilir. Navigasyonun yerini tutmaz: trafik işaretlerine ve kurallarına uyun, yönlendirme için Google Maps, Apple Maps veya Waze kullanın. Sürüş sırasında ekrana bakmayın.",
+    "turnConsentTitle": "Beta özellik",
+    "turnDecline": "Şimdi değil",
+    "turnInKm": "{distance} km sonra",
+    "turnInM": "{distance} m sonra",
+    "turnNone": "Sona kadar başka dönüş yok.",
+    "turnOff": "Dönüşleri kapat",
+    "turnUnavailable": "Bu planda dönüş verisi yok. Yeniden planlayın."
+  },
+  "ai": {
+    "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",
+    "explain": "Neden uygun olduğunu YZ ile açıkla",
+    "failed": "YZ yanıt vermedi. Biraz sonra tekrar deneyin.",
+    "loading": "YZ yazıyor…",
+    "unavailable": "YZ açıklaması henüz etkin değil."
   }
 }

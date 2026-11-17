@@ -432,6 +432,30 @@
     "title": "Călătorie",
     "toDestination": "Spre destinație",
     "waitingGps": "Căutăm poziția ta…",
-    "end": "Gata"
+    "end": "Gata",
+    "noticeDismiss": "Ascunde",
+    "noticeFuel": "Benzinărie avantajoasă: {title} peste {km} km, cu aproximativ {saving} € sub medie.",
+    "noticeRest": "Conduci de aproximativ {hours} h fără oprire. Gândește-te la o pauză.",
+    "noticeRestSoon": "E timpul pentru o pauză: {title} peste {km} km.",
+    "noticeTitle": "Sfat de drum",
+    "noticeWeather": "Vreme rea înainte: {summary} {place} peste {km} km. Condu cu grijă.",
+    "notifyOn": "Activează notificările",
+    "turnAccept": "Am înțeles, activează",
+    "turnBeta": "Următoarea întoarcere (beta)",
+    "turnConsentBody": "Indicațiile de întoarcere sunt experimentale și nu sunt 100% de încredere. Poziția din browser poate sări, iar datele OpenStreetMap pot fi greșite sau vechi. Nu înlocuiește navigația: respectă indicatoarele și regulile și folosește Google Maps, Apple Maps sau Waze pentru ghidare. Nu te uita la ecran în timp ce conduci.",
+    "turnConsentTitle": "Funcție beta",
+    "turnDecline": "Nu acum",
+    "turnInKm": "peste {distance} km",
+    "turnInM": "peste {distance} m",
+    "turnNone": "Nu mai sunt întoarceri până la capăt.",
+    "turnOff": "Dezactivează întoarcerile",
+    "turnUnavailable": "Acest plan nu are date despre întoarceri. Planifică din nou."
+  },
+  "ai": {
+    "disclaimer": "Text generat de AI din datele planului. Poate conține greșeli — verifică lucrurile importante.",
+    "explain": "Explică cu AI de ce se potrivește",
+    "failed": "AI nu a răspuns. Încearcă din nou în scurt timp.",
+    "loading": "AI scrie…",
+    "unavailable": "Explicația AI nu este încă activată."
   }
 }

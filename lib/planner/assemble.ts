@@ -45,7 +45,7 @@ import {
 } from "@/lib/planner/preferences";
 import { OSM_ATTRIBUTION } from "@/lib/planner/osm-attribution";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
-import type { GeoPoint } from "@/types/route.types";
+import type { GeoPoint, RouteManeuver } from "@/types/route.types";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { MessageCatalog } from "@/lib/i18n/locales/bg";
@@ -79,6 +79,7 @@ export interface AssembleInput {
   distanceKm: number;
   durationMin: number;
   geometry: GeoJSON.LineString;
+  maneuvers?: RouteManeuver[];
   routingSource: "valhalla" | "osrm";
   borders: ScoredBorder[];
   borderAlongKm: number | null;
@@ -211,6 +212,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
         time_zone: destinationZone,
       },
       geometry: input.geometry,
+      ...(input.maneuvers?.length ? { maneuvers: input.maneuvers } : {}),
       border_waypoint: chosen
         ? {
             label: chosen.nameBg,

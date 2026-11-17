@@ -617,6 +617,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     distanceKm: roadKm,
     durationMin: chosenRoute.duration_min,
     geometry: chosenRoute.geometry,
+    maneuvers: chosenRoute.maneuvers,
     routingSource: chosenRoute.provider,
     borders,
     borderAlongKm: borderRoadKm,

@@ -22,7 +22,8 @@ import { maneuverInstructionBg } from "@/lib/utils/maneuvers";
 import type { RouteManeuver } from "@/types/route.types";
 
 const KM_PER_MILE = 1.609344;
-const MAX_MANEUVERS = 80;
+/** Enough for a 2,000 km trip; the beta "next turn" view needs the whole route. */
+const MAX_MANEUVERS = 700;
 const MAX_ALTERNATES = 2;
 
 interface ValhallaManeuver {

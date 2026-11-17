@@ -32,15 +32,26 @@ export function buildFavoriteEnvelope(
   };
 }
 
+/** The turn list is large and only useful live, so saved favorites drop it. */
+function withoutManeuvers(
+  record: Record<string, unknown>
+): Record<string, unknown> {
+  const route = record.route;
+  if (!route || typeof route !== "object") return record;
+  const { maneuvers: _drop, ...rest } = route as Record<string, unknown>;
+  void _drop;
+  return { ...record, route: rest };
+}
+
 function stripRouteOptionGeometry(result: unknown): unknown {
   if (!result || typeof result !== "object") return result ?? null;
-  const record = result as Record<string, unknown>;
-  if (record.planner !== "deterministic") return result;
+  const record = withoutManeuvers(result as Record<string, unknown>);
+  if (record.planner !== "deterministic") return record;
   const options = record.route_options;
-  if (!options || typeof options !== "object") return result;
+  if (!options || typeof options !== "object") return record;
   const block = options as Record<string, unknown>;
   const alt = block.alternative;
-  if (!alt || typeof alt !== "object") return result;
+  if (!alt || typeof alt !== "object") return record;
   return {
     ...record,
     route_options: {

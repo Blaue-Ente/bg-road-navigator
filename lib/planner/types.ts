@@ -1,3 +1,4 @@
+import type { RouteManeuver } from "@/types/route.types";
 import type { VignetteLink } from "@/lib/constants/vignettes";
 import type { PriceBand } from "@/lib/fuel-prices/bands";
 import type { RoadHazard } from "@/lib/hazards/types";
@@ -326,6 +327,8 @@ export interface TripPlannerResult {
       time_zone?: string;
     };
     geometry: GeoJSON.LineString;
+    /** Turn list for the beta "next turn" view. Absent on older plans. */
+    maneuvers?: RouteManeuver[];
     border_waypoint: { label: string; lng: number; lat: number } | null;
   };
   border: {
