@@ -6,6 +6,28 @@ const LANGUAGE = { bg: "Bulgarian", en: "English", tr: "Turkish", ro: "Romanian"
 const SYSTEM = `You help a driver choose where to sleep on a long road trip.
 Use ONLY the facts in the JSON (name, Tripadvisor rating, number of reviews, distance, traveller needs). Never invent amenities, prices, review quotes or availability. 2 or 3 sentences, plain text, no markdown. Say which listing looks best for this traveller and why, name Tripadvisor as the source of the ratings, and remind them to check the current price and reviews before booking.`;
 
+/** The system and user text for the stay note, also used to compare models. */
+export function stayPrompt(input: {
+  locale: keyof typeof LANGUAGE;
+  place: string;
+  stays: TripadvisorStay[];
+  traveler: string[];
+}): { system: string; user: string } {
+  return {
+    system: `${SYSTEM}\nWrite in ${LANGUAGE[input.locale]}.`,
+    user: JSON.stringify({
+      place: input.place,
+      traveler: input.traveler,
+      stays: input.stays.map((stay) => ({
+        name: stay.name,
+        rating: stay.rating,
+        reviews: stay.reviews,
+        distance_km: stay.distance_km,
+      })),
+    }),
+  };
+}
+
 export async function stayWhy(
   input: {
     locale: keyof typeof LANGUAGE;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aiConfig } from "@/lib/ai/provider";
-import { stayWhy } from "@/lib/ai/stay-why";
+import { aiConfig, chatText } from "@/lib/ai/provider";
+import { stayPrompt } from "@/lib/ai/stay-why";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -50,16 +50,24 @@ export async function GET(request: NextRequest) {
   const wanted = Number.parseInt(request.nextUrl.searchParams.get("timeout") ?? "", 10);
   const timeoutMs = Number.isFinite(wanted) ? Math.min(25, Math.max(3, wanted)) * 1000 : 9_000;
 
+  // think=off asks reasoning models to answer without thinking first;
+  // tokens= sets the answer budget (default 260, as the stay note uses).
+  const thinkOff = request.nextUrl.searchParams.get("think") === "off";
+  const tokens = Number.parseInt(request.nextUrl.searchParams.get("tokens") ?? "", 10);
+  const maxTokens = Number.isFinite(tokens) ? Math.min(1500, Math.max(100, tokens)) : 260;
+  const prompt = stayPrompt({ locale: "bg", ...SAMPLE });
+
   const results = await Promise.all(
     models.map(async (model) => {
       const started = Date.now();
       let error: string | null = null;
-      const text = await stayWhy(
-        { locale: "bg", ...SAMPLE },
-        { config: { ...config, model }, onError: (message) => (error = message), timeoutMs }
+      const raw = await chatText(
+        { ...prompt, maxTokens, timeoutMs, ...(thinkOff ? { extraBody: { chat_template_kwargs: { enable_thinking: false } } } : {}) },
+        { config: { ...config, model }, onError: (message) => (error = message) }
       );
+      const text = raw ? raw.replace(/[*_`#]+/g, "").trim().slice(0, 700) : null;
       return { model, ms: Date.now() - started, ok: text !== null, error, text };
     })
   );
-  return NextResponse.json({ current: config.model, results });
+  return NextResponse.json({ current: config.model, thinkOff, maxTokens, results });
 }
