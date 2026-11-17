@@ -363,7 +363,8 @@
     "speedCameraLegal": "Doar puncte pe hartă, fără sunet. În Germania și Austria avertizările despre radare în timpul condusului sunt interzise; nu afișăm radare în Franța și Elveția.",
     "speedCameraLimit": "Radar de viteză · {limit} km/h",
     "speedCameraNote": "Date: OpenStreetMap. Doar informativ, fără avertizări.",
-    "zoomForCameras": "Mărește harta pentru a vedea radarele de viteză."
+    "zoomForCameras": "Mărește harta pentru a vedea radarele de viteză.",
+    "navigateTo": "Navighează aici:"
   },
   "favorites": {
     "cancel": "Anulează",

@@ -205,6 +205,8 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-fuel"
+        icon="fuel"
+        navigateLabel={m.map.navigateTo}
         points={fuelPoints}
         color="#f59e0b"
         enabled={layers.fuel && zoomedIn}
@@ -212,6 +214,8 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-ev"
+        icon="ev"
+        navigateLabel={m.map.navigateTo}
         points={evPoints}
         color="#22c55e"
         enabled={layers.ev && zoomedIn}
@@ -219,6 +223,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-borders"
+        navigateLabel={m.map.navigateTo}
         points={borderPoints}
         color="#38bdf8"
         enabled={layers.borders}
@@ -226,6 +231,8 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-rest"
+        icon="rest"
+        navigateLabel={m.map.navigateTo}
         points={restPoints}
         color="#a78bfa"
         enabled={layers.rest}
@@ -233,6 +240,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-speed-cameras"
+        navigateLabel={m.map.navigateTo}
         points={speedCameraPoints}
         color="#0f766e"
         enabled={layers.speedCameras && cameraZoomOk}
@@ -240,6 +248,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-cameras"
+        navigateLabel={m.map.navigateTo}
         points={cameraPoints}
         color="#fb7185"
         enabled={layers.cameras}

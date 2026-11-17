@@ -348,7 +348,8 @@
     "speedCameraLegal": "Map points only, no sound. In Germany and Austria camera warnings while driving are banned; we don't show cameras in France or Switzerland.",
     "speedCameraLimit": "Speed camera · {limit} km/h",
     "speedCameraNote": "Data: OpenStreetMap. For information only, no warnings.",
-    "zoomForCameras": "Zoom in to see speed cameras."
+    "zoomForCameras": "Zoom in to see speed cameras.",
+    "navigateTo": "Navigate here:"
   },
   "fuelPage": {
     "noneHere": "No stations in this area. Trip planning lists fuel stops along the route.",
