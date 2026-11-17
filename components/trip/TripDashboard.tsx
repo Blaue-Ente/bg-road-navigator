@@ -29,6 +29,14 @@ import type { PlanStop, TripPlannerResult } from "@/lib/planner/types";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
+import {
+  enablePush,
+  existingSubscription,
+  pushSupported,
+  startTripPush,
+  vapidPublicKey,
+  stopTripPush,
+} from "@/lib/push/client";
 import { lineLengthKm } from "@/lib/planner/line";
 import { tripNotices, type TripNotice } from "@/lib/trip/notices";
 import {
@@ -143,6 +151,11 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     () => (typeof Notification === "undefined" ? "none" : Notification.permission)
   );
   const announced = useRef<Set<string>>(new Set());
+  const [pushState, setPushState] = useState<
+    "off" | "on" | "failed" | "unsupported"
+  >("off");
+  const pushEndpoint = useRef<string | null>(null);
+  const tripStartedAt = useRef(new Date());
 
   // Starting the trip is the opt-in: follow the position until it ends.
   useEffect(() => {
@@ -186,6 +199,64 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     }).format(new Date(ms));
 
   const next = progress.next;
+
+  // Already allowed on this phone: schedule this trip's notices right away.
+  useEffect(() => {
+    let cancelled = false;
+    void existingSubscription().then(async (subscription) => {
+      if (cancelled || !subscription) return;
+      const ok = await startTripPush({
+        endpoint: subscription.endpoint,
+        plan,
+        startedAt: tripStartedAt.current,
+        locale,
+      });
+      if (cancelled || !ok) return;
+      pushEndpoint.current = subscription.endpoint;
+      setPushState("on");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [plan, locale]);
+
+  const turnPushOn = async () => {
+    // Push keys not set up on the server: fall back to notices while the page is open.
+    if (!vapidPublicKey() && typeof Notification !== "undefined") {
+      setNotifyPermission(await Notification.requestPermission());
+      return;
+    }
+    if (!pushSupported()) {
+      setPushState("unsupported");
+      return;
+    }
+    try {
+      const subscription = await enablePush(locale);
+      if (!subscription) {
+        setNotifyPermission(
+          typeof Notification === "undefined" ? "none" : Notification.permission
+        );
+        setPushState("failed");
+        return;
+      }
+      const ok = await startTripPush({
+        endpoint: subscription.endpoint,
+        plan,
+        startedAt: tripStartedAt.current,
+        locale,
+      });
+      pushEndpoint.current = ok ? subscription.endpoint : null;
+      setNotifyPermission("granted");
+      setPushState(ok ? "on" : "failed");
+    } catch {
+      setPushState("failed");
+    }
+  };
+
+  const endTrip = () => {
+    if (pushEndpoint.current) void stopTripPush(pushEndpoint.current, plan);
+    stopTrip();
+  };
 
   const notices = useMemo(() => tripNotices({ plan, progress }), [plan, progress]);
   const noticeText = (notice: TripNotice) =>
@@ -410,6 +481,22 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         </p>
       )}
 
+      {pushState === "on" && (
+        <p className="mt-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+          {m.trip.pushActive}
+        </p>
+      )}
+      {pushState === "unsupported" && (
+        <p className="mt-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+          {m.trip.pushUnsupported}
+        </p>
+      )}
+      {pushState === "failed" && (
+        <p className="mt-3 text-sm text-[var(--waze-danger)]" role="alert">
+          {m.trip.pushFailed}
+        </p>
+      )}
+
       <div className="mt-3 grid grid-cols-2 gap-2">
         {!turnBetaOn && !showConsent && (
           <button
@@ -420,16 +507,14 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
             {m.trip.turnBeta}
           </button>
         )}
-        {notifyPermission === "default" && (
+        {pushState !== "on" && notifyPermission !== "none" && (
           <button
             type="button"
-            onClick={() =>
-              void Notification.requestPermission().then(setNotifyPermission)
-            }
+            onClick={() => void turnPushOn()}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[var(--waze-border)] px-3 text-sm font-semibold text-[var(--waze-text)]"
           >
             <Bell className="h-4 w-4" aria-hidden />
-            {m.trip.notifyOn}
+            {m.trip.pushOn}
           </button>
         )}
         <a
@@ -465,7 +550,7 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         </button>
         <button
           type="button"
-          onClick={stopTrip}
+          onClick={endTrip}
           className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-danger)] px-3 text-base font-semibold text-[var(--waze-danger)]"
         >
           {m.trip.end}

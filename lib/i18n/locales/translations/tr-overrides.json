@@ -446,7 +446,12 @@
     "turnInM": "{distance} m sonra",
     "turnNone": "Sona kadar başka dönüş yok.",
     "turnOff": "Dönüşleri kapat",
-    "turnUnavailable": "Bu planda dönüş verisi yok. Yeniden planlayın."
+    "turnUnavailable": "Bu planda dönüş verisi yok. Yeniden planlayın.",
+    "pushActive": "Bildirimler uygulama kapalıyken de açık. Zamanlar yaklaşıktır.",
+    "pushFailed": "Bildirimler açılamadı.",
+    "pushOn": "Uygulama kapalıyken de bildirimler",
+    "pushStopSoon": "Yaklaşık {minutes} dk sonra: {title}.",
+    "pushUnsupported": "Bu tarayıcı uygulama kapalıyken bildirim gönderemez. iPhone'da siteyi Ana Ekrana ekleyin."
   },
   "ai": {
     "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",
@@ -454,5 +459,16 @@
     "failed": "YZ yanıt vermedi. Biraz sonra tekrar deneyin.",
     "loading": "YZ yazıyor…",
     "unavailable": "YZ açıklaması henüz etkin değil."
+  },
+  "stay": {
+    "failed": "Yerler yüklenemedi. Tekrar deneyin.",
+    "find": "Nerede kalınır",
+    "loading": "Yerler aranıyor…",
+    "near": "Yakınlarda: {place}",
+    "partnerNote": "Booking.com bağlantısı bir ortaklık bağlantısıdır: size ek maliyet olmadan komisyon alabiliriz.",
+    "ratingsUnavailable": "Puanlar şu anda kullanılamıyor.",
+    "reviews": "{count} yorum",
+    "searchNote": "Bağlantılar o gece için Booking.com ve Airbnb aramasını açar. Fiyatlar ve müsaitlik orada.",
+    "tripadvisorCredit": "Puanlar: Tripadvisor. Güncel fiyatlar ve yorumlar için bağlantıyı açın."
   }
 }

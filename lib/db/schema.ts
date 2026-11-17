@@ -110,6 +110,29 @@ export const userVehicles = pgTable("user_vehicles", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  endpoint: text("endpoint").primaryKey(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  locale: text("locale").notNull().default("bg"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const tripPushQueue = pgTable("trip_push_queue", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  endpoint: text("endpoint")
+    .notNull()
+    .references(() => pushSubscriptions.endpoint, { onDelete: "cascade" }),
+  tripId: text("trip_id").notNull(),
+  sendAt: timestamp("send_at", { withTimezone: true }).notNull(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  url: text("url").notNull().default("/"),
+  tag: text("tag").notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const savedPlaces = pgTable("saved_places", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")

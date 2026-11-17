@@ -449,7 +449,12 @@
     "turnInM": "peste {distance} m",
     "turnNone": "Nu mai sunt întoarceri până la capăt.",
     "turnOff": "Dezactivează întoarcerile",
-    "turnUnavailable": "Acest plan nu are date despre întoarceri. Planifică din nou."
+    "turnUnavailable": "Acest plan nu are date despre întoarceri. Planifică din nou.",
+    "pushActive": "Notificările sunt active, chiar și cu aplicația închisă. Orele sunt aproximative.",
+    "pushFailed": "Nu am putut activa notificările.",
+    "pushOn": "Notificări și cu aplicația închisă",
+    "pushStopSoon": "Peste aproximativ {minutes} min: {title}.",
+    "pushUnsupported": "Acest browser nu poate trimite notificări cu aplicația închisă. Pe iPhone, adaugă site-ul pe ecranul principal."
   },
   "ai": {
     "disclaimer": "Text generat de AI din datele planului. Poate conține greșeli — verifică lucrurile importante.",
@@ -457,5 +462,16 @@
     "failed": "AI nu a răspuns. Încearcă din nou în scurt timp.",
     "loading": "AI scrie…",
     "unavailable": "Explicația AI nu este încă activată."
+  },
+  "stay": {
+    "failed": "Nu am putut încărca locurile. Încearcă din nou.",
+    "find": "Unde să înnoptezi",
+    "loading": "Căutăm locuri…",
+    "near": "Aproape de {place}",
+    "partnerNote": "Linkul Booking.com este de afiliere: putem primi un comision fără costuri suplimentare pentru tine.",
+    "ratingsUnavailable": "Evaluările nu sunt disponibile acum.",
+    "reviews": "{count} recenzii",
+    "searchNote": "Linkurile deschid o căutare pe Booking.com și Airbnb pentru acea noapte. Prețurile și disponibilitatea sunt acolo.",
+    "tripadvisorCredit": "Evaluări: Tripadvisor. Deschide linkul pentru prețuri și recenzii actuale."
   }
 }
