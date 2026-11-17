@@ -109,6 +109,6 @@ describe("searchHotels", () => {
     const denied = (async () => new Response("no", { status: 401 })) as unknown as typeof fetch;
     expect(
       await searchHotels({ city: "x", checkIn: "a", checkOut: "b" }, { config, fetchImpl: denied })
-    ).toEqual({ hotels: [], ok: false });
+    ).toEqual({ hotels: [], ok: false, error: "auth 401" });
   });
 });
