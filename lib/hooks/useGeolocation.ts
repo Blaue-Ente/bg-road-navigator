@@ -43,7 +43,10 @@ export function useGeolocation() {
   const setUserLocation = useMapStore((s) => s.setUserLocation);
 
   const getCurrentLocation =
-    useCallback((): Promise<GeolocationPosition | null> => {
+    useCallback((options?: {
+      /** A quick, coarse fix for the first visit; the locate button keeps GPS accuracy. */
+      coarse?: boolean;
+    }): Promise<GeolocationPosition | null> => {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
           setLocateStatus("unavailable");
@@ -66,7 +69,9 @@ export function useGeolocation() {
             setLocateStatus(statusFromError(error));
             resolve(null);
           },
-          { enableHighAccuracy: true, timeout: 10_000, maximumAge: 15_000 }
+          options?.coarse
+            ? { enableHighAccuracy: false, timeout: 8_000, maximumAge: 120_000 }
+            : { enableHighAccuracy: true, timeout: 10_000, maximumAge: 15_000 }
         );
       });
     }, [setLocateStatus, setUserLocation]);

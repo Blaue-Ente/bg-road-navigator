@@ -354,7 +354,13 @@
     "groupSections": "Dikkat gereken bölümler",
     "groupIncidents": "Yol olayları",
     "groupHazards": "Güzergâhtaki tehlikeler",
-    "zoomForStations": "Akaryakıt istasyonlarını ve şarj noktalarını görmek için yakınlaştırın."
+    "zoomForStations": "Akaryakıt istasyonlarını ve şarj noktalarını görmek için yakınlaştırın.",
+    "camerasUnavailable": "Kameralar yüklenemedi. Biraz sonra tekrar deneyin.",
+    "speedCamera": "Hız kamerası",
+    "speedCameraLegal": "Yalnızca haritada noktalar, sessiz. Almanya ve Avusturya'da sürüş sırasında kamera uyarıları yasaktır; Fransa ve İsviçre'de kamera göstermiyoruz.",
+    "speedCameraLimit": "Hız kamerası · {limit} km/s",
+    "speedCameraNote": "Veri: OpenStreetMap. Yalnızca bilgi içindir, uyarı yoktur.",
+    "zoomForCameras": "Hız kameralarını görmek için yakınlaştırın."
   },
   "favorites": {
     "cancel": "İptal",
@@ -405,5 +411,23 @@
     "unitLiters": "L/100 km",
     "use": "Kullan",
     "importProfile": "Profildeki “{name}” aracını ekle"
+  },
+  "trip": {
+    "distance": "kaldı",
+    "following": "Konumunuz izleniyor",
+    "fuelNearby": "Yakıt",
+    "gpsOff": "Konum yok — plan gösteriliyor.",
+    "inTime": "{duration} sonra",
+    "keepAwake": "Ekran açık kalır",
+    "navigateDestination": "Varış noktasına git",
+    "navigateStop": "Molaya git",
+    "nextStop": "Sonraki mola",
+    "offRoute": "Rotanın dışında ({km} {unit})",
+    "openPlan": "Plan",
+    "remaining": "{km} {unit} kaldı · varış {time}",
+    "title": "Yolculuk",
+    "toDestination": "Varış noktasına",
+    "waitingGps": "Konumunuz aranıyor…",
+    "end": "Bitir"
   }
 }

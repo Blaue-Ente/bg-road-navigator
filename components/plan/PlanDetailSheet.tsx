@@ -276,6 +276,7 @@ function TripMode() {
   const active = useTripSessionStore((state) => state.active);
   const start = useTripSessionStore((state) => state.start);
   const stop = useTripSessionStore((state) => state.stop);
+  const setPlanDetailOpen = useRouteStore((state) => state.setPlanDetailOpen);
   const raw = useSyncExternalStore(
     subscribeLocationPreference,
     locationPreferenceSnapshot,
@@ -286,7 +287,15 @@ function TripMode() {
     <div className="mt-3">
       <button
         type="button"
-        onClick={() => (active ? stop() : start())}
+        onClick={() => {
+          if (active) {
+            stop();
+            return;
+          }
+          // The driving view takes over from the plan sheet.
+          start();
+          setPlanDetailOpen(false);
+        }}
         className="plan-no-print rounded-full bg-[var(--waze-accent)] px-4 py-2 text-sm font-semibold text-white"
       >
         {active ? m.sheet.endTrip : m.sheet.onTrip}

@@ -19,12 +19,15 @@ import { HomeMapChips } from "@/components/map/HomeMapChips";
 import { HotspotAttributionButton } from "@/components/map/HotspotAttributionButton";
 import { MapAttributionButton } from "@/components/map/MapAttributionButton";
 import { RouteBottomSheet } from "@/components/map/RouteBottomSheet";
+import { TripDashboard } from "@/components/trip/TripDashboard";
+import { useTripSessionStore } from "@/lib/stores/trip-session.store";
 import { TripProximity } from "@/components/location/TripProximity";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useTraffic } from "@/lib/hooks/useTraffic";
+import { useInitialLocation } from "@/lib/hooks/useInitialLocation";
 import {
   DEFAULT_COMMUNITY_BBOX,
   useCommunityPins,
@@ -56,12 +59,17 @@ export function MapExperience() {
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
   const onHome = pathname === "/";
   const layersPanelOpen = useMapStore((s) => s.layersPanelOpen);
+  const tripActive = useTripSessionStore((s) => s.active);
+  const showTripDashboard = onHome && tripActive && tripPlan != null && !planOpen;
 
   const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
   const { data: communityData } = useCommunityPins({
     bbox: DEFAULT_COMMUNITY_BBOX,
     enabled: onHome,
   });
+
+  // Start at the driver's own position, unless a planned route is already shown.
+  useInitialLocation(mapInstance, onHome && !activeRoute);
 
   const handleMapLoad = useCallback((map: Map) => {
     setMapInstance(map);
@@ -120,6 +128,18 @@ export function MapExperience() {
     ]
   );
 
+  // While the driving view is up, keep the driver in the visible part of the map.
+  const userLocation = useMapStore((s) => s.userLocation);
+  useEffect(() => {
+    if (!mapInstance || !showTripDashboard || !userLocation) return;
+    mapInstance.easeTo({
+      center: [userLocation.lng, userLocation.lat],
+      zoom: Math.max(mapInstance.getZoom(), 9),
+      padding: { top: 90, bottom: 340, left: 0, right: 0 },
+      duration: 800,
+    });
+  }, [mapInstance, showTripDashboard, userLocation]);
+
   useEffect(() => {
     if (!mapInstance || !activeRoute?.geometry?.coordinates?.length) return;
     const merged: [number, number][] = [
@@ -160,7 +180,7 @@ export function MapExperience() {
       />
       <MapControls map={mapInstance} />
       <MapOverlayColumn>
-        {onHome && activeRoute ? (
+        {showTripDashboard ? null : onHome && activeRoute ? (
           <RouteBottomSheet
             route={activeRoute}
             className={layersPanelOpen ? "max-md:invisible max-md:pointer-events-none" : ""}
@@ -197,6 +217,7 @@ export function MapExperience() {
           <MapPoiLayers map={mapInstance} />
         </>
       )}
+      {showTripDashboard && tripPlan ? <TripDashboard plan={tripPlan} /> : null}
       <PlanMarkers map={mapInstance} />
       <HotspotLayer map={mapInstance} />
       <TripProximity />
