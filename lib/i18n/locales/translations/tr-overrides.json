@@ -360,7 +360,8 @@
     "speedCameraLegal": "Yalnızca haritada noktalar, sessiz. Almanya ve Avusturya'da sürüş sırasında kamera uyarıları yasaktır; Fransa ve İsviçre'de kamera göstermiyoruz.",
     "speedCameraLimit": "Hız kamerası · {limit} km/s",
     "speedCameraNote": "Veri: OpenStreetMap. Yalnızca bilgi içindir, uyarı yoktur.",
-    "zoomForCameras": "Hız kameralarını görmek için yakınlaştırın."
+    "zoomForCameras": "Hız kameralarını görmek için yakınlaştırın.",
+    "navigateTo": "Buraya git:"
   },
   "favorites": {
     "cancel": "İptal",

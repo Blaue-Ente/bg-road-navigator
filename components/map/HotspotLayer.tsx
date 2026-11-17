@@ -1,5 +1,6 @@
 "use client";
 
+import { drawPoiIcon, poiIconId } from "@/lib/map/poi-icons";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 import { useEffect } from "react";
@@ -11,6 +12,13 @@ import { useLocale } from "@/components/i18n/LocaleProvider";
 import type { Hotspot } from "@/lib/hotspots/types";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { useMapStore } from "@/lib/stores/map.store";
+
+/** Pin colour per rank: high, medium, other. */
+const HOTSPOT_COLORS = [
+  ["high", "#b91c1c"],
+  ["medium", "#d97706"],
+  ["low", "#ca8a04"],
+] as const;
 
 const SOURCE = "attention-hotspots";
 const LAYER = "attention-hotspots";
@@ -57,23 +65,28 @@ export function HotspotLayer({ map }: { map: Map | null }) {
         return;
       }
       map.addSource(SOURCE, { type: "geojson", data });
+      for (const [, color] of HOTSPOT_COLORS) {
+        const id = poiIconId("alert", color);
+        if (map.hasImage(id)) continue;
+        const image = drawPoiIcon("alert", color);
+        if (image) map.addImage(id, image, { pixelRatio: 2 });
+      }
       map.addLayer({
         id: LAYER,
-        type: "circle",
+        type: "symbol",
         source: SOURCE,
-        paint: {
-          "circle-radius": 7,
-          "circle-stroke-width": 1.5,
-          "circle-stroke-color": "#ffffff",
-          "circle-color": [
+        layout: {
+          "icon-image": [
             "match",
             ["get", "rank"],
             "high",
-            "#b91c1c",
+            poiIconId("alert", HOTSPOT_COLORS[0]![1]),
             "medium",
-            "#d97706",
-            "#ca8a04",
+            poiIconId("alert", HOTSPOT_COLORS[1]![1]),
+            poiIconId("alert", HOTSPOT_COLORS[2]![1]),
           ],
+          "icon-size": 0.55,
+          "icon-allow-overlap": true,
         },
       });
     };

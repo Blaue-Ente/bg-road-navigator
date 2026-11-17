@@ -1,4 +1,5 @@
 import type { CommunityPinCategory } from "@/types/community.types";
+import type { PoiIcon } from "@/lib/map/poi-icons";
 import type { Locale } from "@/lib/i18n/locale";
 import { catalog } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
@@ -21,6 +22,20 @@ export const COMMUNITY_PIN_CATEGORIES: Array<{
   { id: "road_works", color: "#B45309", glyph: "W", shortLivedHours: 72 },
   { id: "other", color: "#334155", glyph: "·", shortLivedHours: null },
 ];
+
+/** Pictogram for each category on the map. */
+export const COMMUNITY_PIN_ICONS: Record<CommunityPinCategory, PoiIcon> = {
+  traffic_jam: "car",
+  accident: "alert",
+  border_queue: "border",
+  rest_stop: "rest",
+  shortcut: "shortcut",
+  hotel: "bed",
+  place_to_visit: "pin",
+  police: "shield",
+  road_works: "cone",
+  other: "info",
+};
 
 export const COMMUNITY_PIN_CATEGORY_IDS = COMMUNITY_PIN_CATEGORIES.map(
   (c) => c.id

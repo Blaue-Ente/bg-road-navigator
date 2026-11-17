@@ -5,6 +5,11 @@ import type { Map, MapLayerMouseEvent } from "maplibre-gl";
 import maplibregl from "maplibre-gl";
 import { isMapReady } from "@/lib/map/is-map-ready";
 import { escapeHtml } from "@/lib/geo/escape-html";
+import {
+  drawPoiIcon,
+  poiIconId,
+  type PoiIcon,
+} from "@/lib/map/poi-icons";
 
 export interface ClusterPoi {
   id: string;
@@ -14,6 +19,8 @@ export interface ClusterPoi {
   color?: string;
   subtitle?: string;
   glyph?: string;
+  /** Own pictogram; overrides the layer icon. */
+  icon?: PoiIcon;
 }
 
 interface ClusteredPoiLayerProps {
@@ -22,6 +29,35 @@ interface ClusteredPoiLayerProps {
   points: ClusterPoi[];
   color: string;
   enabled: boolean;
+  /** Pictogram for single points; clusters stay numbered circles. */
+  icon?: PoiIcon;
+  /** Text before the navigation links in the popup. Omit for no links. */
+  navigateLabel?: string;
+}
+
+function isApple(): boolean {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent);
+}
+
+/** Navigation links for one point: Google Maps, Waze, and Apple Maps on iOS. */
+function navigationLinks(lng: number, lat: number): string {
+  const target = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+  const links = [
+    [
+      "Google Maps",
+      `https://www.google.com/maps/dir/?api=1&destination=${target}&travelmode=driving`,
+    ],
+    ["Waze", `https://waze.com/ul?ll=${target}&navigate=yes`],
+  ];
+  if (isApple()) {
+    links.unshift(["Apple Maps", `https://maps.apple.com/?daddr=${target}&dirflg=d`]);
+  }
+  return links
+    .map(
+      ([name, url]) =>
+        `<a href="${url}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:6px 8px 0 0;padding:8px 12px;border-radius:12px;background:#1e40af;color:#fff;font-weight:600;text-decoration:none">${name}</a>`
+    )
+    .join("");
 }
 
 function cleanup(map: Map, sourceId: string) {
@@ -43,6 +79,8 @@ export function ClusteredPoiLayer({
   points,
   color,
   enabled,
+  icon,
+  navigateLabel,
 }: ClusteredPoiLayerProps) {
   useEffect(() => {
     if (!isMapReady(map) || !enabled) {
@@ -52,6 +90,20 @@ export function ClusteredPoiLayer({
 
     cleanup(map, sourceId);
 
+    // Each point's pin is its own pictogram on its own colour; one image per pair.
+    const pinIds = points.map((point) => {
+      const pinIcon = point.icon ?? icon;
+      if (!pinIcon) return null;
+      const pinColor = point.color ?? color;
+      const id = poiIconId(pinIcon, pinColor);
+      if (!map.hasImage(id)) {
+        const image = drawPoiIcon(pinIcon, pinColor);
+        if (image) map.addImage(id, image, { pixelRatio: 2 });
+      }
+      return map.hasImage(id) ? id : null;
+    });
+    const useIcon = pinIds.length > 0 && pinIds.every(Boolean);
+
     map.addSource(sourceId, {
       type: "geojson",
       cluster: true,
@@ -59,7 +111,7 @@ export function ClusteredPoiLayer({
       clusterRadius: 48,
       data: {
         type: "FeatureCollection",
-        features: points.map((point) => ({
+        features: points.map((point, index) => ({
           type: "Feature",
           geometry: { type: "Point", coordinates: [point.lng, point.lat] },
           properties: {
@@ -68,6 +120,7 @@ export function ClusteredPoiLayer({
             subtitle: point.subtitle ?? "",
             color: point.color ?? color,
             glyph: point.glyph ?? "",
+            iconId: pinIds[index] ?? "",
           },
         })),
       },
@@ -99,20 +152,34 @@ export function ClusteredPoiLayer({
       paint: { "text-color": "#0b0f14" },
     });
 
-    map.addLayer({
-      id: `${sourceId}-points`,
-      type: "circle",
-      source: sourceId,
-      filter: ["!", ["has", "point_count"]],
-      paint: {
-        "circle-color": ["coalesce", ["get", "color"], color],
-        "circle-radius": 11,
-        "circle-stroke-width": 2,
-        "circle-stroke-color": "#0b0f14",
-      },
-    });
+    if (useIcon) {
+      map.addLayer({
+        id: `${sourceId}-points`,
+        type: "symbol",
+        source: sourceId,
+        filter: ["!", ["has", "point_count"]],
+        layout: {
+          "icon-image": ["get", "iconId"],
+          "icon-size": 0.85,
+          "icon-allow-overlap": true,
+        },
+      });
+    } else {
+      map.addLayer({
+        id: `${sourceId}-points`,
+        type: "circle",
+        source: sourceId,
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": ["coalesce", ["get", "color"], color],
+          "circle-radius": 11,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#0b0f14",
+        },
+      });
+    }
 
-    map.addLayer({
+    if (!useIcon) map.addLayer({
       id: `${sourceId}-glyph`,
       type: "symbol",
       source: sourceId,
@@ -156,6 +223,10 @@ export function ClusteredPoiLayer({
         .setHTML(
           `<div class="p-2 text-sm"><strong>${title}</strong>${
             subtitle ? `<p>${subtitle}</p>` : ""
+          }${
+            navigateLabel
+              ? `<p style="margin-top:8px">${escapeHtml(navigateLabel)}</p><div>${navigationLinks(coords[0], coords[1])}</div>`
+              : ""
           }</div>`
         )
         .addTo(map);
@@ -169,7 +240,7 @@ export function ClusteredPoiLayer({
       map.off("click", `${sourceId}-points`, onPointClick);
       cleanup(map, sourceId);
     };
-  }, [map, sourceId, points, color, enabled]);
+  }, [map, sourceId, points, color, enabled, icon, navigateLabel]);
 
   return null;
 }
