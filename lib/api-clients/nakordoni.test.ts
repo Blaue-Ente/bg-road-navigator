@@ -81,6 +81,37 @@ describe("nakordoniMeteredFetch", () => {
     expect(slept).toEqual([]);
   });
 
+  it("stops calling after a 429 that asks for a long wait instead of sleeping for it", async () => {
+    let now = 1_000;
+    const slept: number[] = [];
+    const fetcher = vi.fn(
+      async () =>
+        new Response("{}", { status: 429, headers: { "retry-after": "7200" } })
+    );
+    configureNakordoniMeteredForTests({
+      now: () => now,
+      sleep: (ms) => {
+        slept.push(ms);
+        now += ms;
+        return Promise.resolve();
+      },
+      fetcher: fetcher as typeof fetch,
+      reserveGlobalSlot: async (at) => at,
+    });
+    const first = await nakordoniMeteredFetch("/api/v1/data/queue?ppid=a");
+    expect(first).toMatchObject({ ok: false, status: 429 });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(slept.every((ms) => ms < 5_000)).toBe(true);
+    // Another path is refused at once, without a call, while the limit holds.
+    const second = await nakordoniMeteredFetch("/api/v1/data/queue?ppid=b");
+    expect(second).toMatchObject({ ok: false, status: 429 });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    // After the pause it asks again.
+    now += 16 * 60_000;
+    await nakordoniMeteredFetch("/api/v1/data/queue?ppid=c");
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
   it("dedupes identical in-flight paths", async () => {
     let resolves: (() => void) | undefined;
     const gate = new Promise<void>((resolve) => {
