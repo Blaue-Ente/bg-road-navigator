@@ -63,13 +63,25 @@ export async function chatText(
       return null;
     }
     const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{
+        finish_reason?: string;
+        message?: { content?: string | null } & Record<string, unknown>;
+      }>;
+      usage?: { completion_tokens?: number };
     };
     // Reasoning models put their thinking in <think> blocks; keep the answer only.
     const text = payload.choices?.[0]?.message?.content
       ?.replace(/<think>[\s\S]*?<\/think>/g, "")
       .trim();
-    if (!text) deps.onError?.(`empty answer from ${config.model}`);
+    if (!text) {
+      // What the answer looked like: reasoning models can spend the whole
+      // token budget thinking and leave the content empty.
+      const choice = payload.choices?.[0];
+      const keys = Object.keys(choice?.message ?? {}).join("+");
+      deps.onError?.(
+        `empty answer from ${config.model} (finish=${choice?.finish_reason ?? "?"}, fields=${keys || "none"}, tokens=${payload.usage?.completion_tokens ?? "?"})`
+      );
+    }
     return text ? text : null;
   } catch (error) {
     // The kind of failure (timeout, network, unreadable answer), never the key.

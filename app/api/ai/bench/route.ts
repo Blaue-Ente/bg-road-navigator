@@ -47,6 +47,8 @@ export async function GET(request: NextRequest) {
       (CANDIDATES as readonly string[]).includes(name)
     );
   const models = asked.length > 0 ? asked : [...CANDIDATES];
+  const wanted = Number.parseInt(request.nextUrl.searchParams.get("timeout") ?? "", 10);
+  const timeoutMs = Number.isFinite(wanted) ? Math.min(25, Math.max(3, wanted)) * 1000 : 9_000;
 
   const results = await Promise.all(
     models.map(async (model) => {
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest) {
       let error: string | null = null;
       const text = await stayWhy(
         { locale: "bg", ...SAMPLE },
-        { config: { ...config, model }, onError: (message) => (error = message) }
+        { config: { ...config, model }, onError: (message) => (error = message), timeoutMs }
       );
       return { model, ms: Date.now() - started, ok: text !== null, error, text };
     })

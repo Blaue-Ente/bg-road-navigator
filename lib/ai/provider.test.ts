@@ -45,7 +45,8 @@ describe("chatText", () => {
         onError: (message) => errors.push(message),
       }
     );
-    expect(errors).toEqual(["empty answer from m"]);
+    expect(errors[0]).toContain("empty answer from m");
+    expect(errors[0]).toContain("finish=");
   });
 
   it("is null without a config", async () => {
