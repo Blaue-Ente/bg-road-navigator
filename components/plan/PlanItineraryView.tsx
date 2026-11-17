@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { PlanSafetyBlock } from "@/components/plan/PlanChecklist";
-import {
-  PlanRoadNotes,
-} from "@/components/plan/PlanRoadNotes";
+import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import type { Locale } from "@/lib/i18n/locale";
@@ -89,6 +87,28 @@ export function PlanItineraryView({
     } catch {
       setShareNote(m.itinerary.shareFailed);
     }
+  };
+
+  const download = () => {
+    const text = shareText(
+      plan,
+      stops.map((stop) => stop.place_name ?? stop.title),
+      done,
+      left,
+      m,
+      units,
+      locale
+    );
+    const url = URL.createObjectURL(
+      new Blob([text], { type: "text/plain;charset=utf-8" })
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "trip-plan.txt";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -219,6 +239,13 @@ export function PlanItineraryView({
         >
           {m.itinerary.share}
         </button>
+        <button
+          type="button"
+          onClick={download}
+          className="waze-btn-secondary px-4 py-2 text-sm"
+        >
+          {m.itinerary.download}
+        </button>
       </div>
       {shareNote && (
         <p
@@ -348,6 +375,7 @@ function checklistItems(plan: TripPlannerResult): ChecklistItem[] {
     ...plan.checklist.documents,
     ...plan.checklist.winter,
     ...plan.checklist.kit,
+    ...(plan.checklist.prep ?? []),
   ];
 }
 

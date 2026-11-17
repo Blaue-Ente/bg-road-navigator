@@ -83,6 +83,8 @@ export interface PlanChecklist {
   documents: ChecklistItem[];
   winter: ChecklistItem[];
   kit: ChecklistItem[];
+  /** What to bring and arrange. Absent on plans saved before it existed. */
+  prep?: ChecklistItem[];
   /** Bulgarian rules. Empty when the route does not enter Bulgaria. */
   safety: SafetyNote[];
   safety_closing: string | null;

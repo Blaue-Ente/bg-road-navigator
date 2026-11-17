@@ -636,6 +636,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       withChildren: prefs.with_children,
       childrenAges: prefs.children_ages,
       tolls,
+      hasOvernight: merged.some((stop) => stop.kinds.includes("overnight")),
     }),
     weather,
     fuelAverages: fuelAveragesForCountries({

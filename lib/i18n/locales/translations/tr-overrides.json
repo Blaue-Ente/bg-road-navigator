@@ -122,6 +122,30 @@
       "sourceCommunity": "kullanıcı bildirimi",
       "sourceCommunityAgo": "kullanıcı bildirimi, {hours} sa önce",
       "oilBulletinLabel": "Avrupa Komisyonu, Haftalık Petrol Bülteni"
+    },
+    "checklist": {
+      "prepBooking": "Konaklama rezervasyonu",
+      "prepBookingDetail": "Planda gece konaklaması var. Gece geç saatte aramamak için önceden rezervasyon yapın; konaklama durağındaki önerilere bakın.",
+      "prepCar": "Araç hazır",
+      "prepCarDetail": "Lastik basıncı ve diş derinliği (stepne dahil), yağ, cam suyu, farlar, frenler, dolu depo veya şarjlı batarya.",
+      "prepCash": "Biraz nakit",
+      "prepCashDetail": "Dükkânlar, tuvaletler ve yol ücretleri için bozuk para. Güzergâhtaki para birimleri: {currencies}.",
+      "prepChild": "Arabadaki çocuklar için",
+      "prepChildDetail": "Atıştırmalık, su, sevilen bir oyuncak veya film indirilmiş tablet, yedek kıyafet ve temiz mendil. Molalarda oyun payı planlayın.",
+      "prepFood": "Yol için yiyecek ve su",
+      "prepFoodDetail": "Herkes için yeterli: kişi başı yaklaşık 1,5 L su, meyve, sandviç ve kuru atıştırmalıklar; rastgele bir durağa bağımlı kalmayın.",
+      "prepGifts": "Akrabalar için hediyeler",
+      "prepGiftsDetail": "Son ana kalmasın diye kolay ulaşılır yere yerleştirin.",
+      "prepJars": "Geri götürülecek kavanozlar ve kaplar",
+      "prepJarsDetail": "Kullanılmış kavanoz ve kapları ayırın ve Bulgaristan'a geri getirin.",
+      "prepMeds": "İlaçlar ve kişisel eşyalar",
+      "prepMedsDetail": "Düzenli ilaçlar, yol tutmasına karşı ürün, güneş gözlüğü, yedek kıyafet çantası.",
+      "prepPet": "Evcil hayvan için",
+      "prepPetDetail": "Su ve kap, tasma, poşetler, battaniye ve aşı karnesi. Park halindeki araçta bırakmayın.",
+      "prepPhone": "Şarj aleti, telefon tutucu ve çevrimdışı haritalar",
+      "prepPhoneDetail": "Araç kablosu, powerbank, güzergâhtaki ülkeler için indirilmiş haritalar.",
+      "prepWipes": "Islak ve kuru mendiller, çöp torbaları",
+      "prepWipesDetail": "Eller, dökülmeler ve kâğıtsız tuvaletler için. Arabada çöp torbaları."
     }
   },
   "api": {
@@ -544,5 +568,11 @@
     "breakCapped": "Küçük çocukla molalar, daha uzun seçseniz bile en fazla {minutes} dk’da bir verilir.",
     "breakExact": "Seçtiğim aralığı aynen uygula",
     "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak."
+  },
+  "checklist": {
+    "prep": "Yola hazırlık"
+  },
+  "itinerary": {
+    "download": "Dosya olarak indir"
   }
 }

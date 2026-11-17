@@ -1060,5 +1060,149 @@
   "Try again in a moment.",
   "Biraz sonra tekrar deneyin.",
   "Încearcă din nou în curând."
+ ],
+ "checklist.prep": [
+  "Подготовка за пътя",
+  "Getting ready for the road",
+  "Yola hazırlık",
+  "Pregătirea pentru drum"
+ ],
+ "planner.checklist.prepCar": [
+  "Автомобилът е подготвен",
+  "The car is ready",
+  "Araç hazır",
+  "Mașina este pregătită"
+ ],
+ "planner.checklist.prepCarDetail": [
+  "Налягане и протектор на гумите (с резервната), масло, течност за чистачки, светлини, спирачки, зареден резервоар или батерия.",
+  "Tyre pressure and tread (spare too), oil, washer fluid, lights, brakes, a full tank or charged battery.",
+  "Lastik basıncı ve diş derinliği (stepne dahil), yağ, cam suyu, farlar, frenler, dolu depo veya şarjlı batarya.",
+  "Presiunea și profilul anvelopelor (și roata de rezervă), ulei, lichid de parbriz, faruri, frâne, rezervor plin sau baterie încărcată."
+ ],
+ "planner.checklist.prepBooking": [
+  "Резервация за нощувка",
+  "Book your overnight stay",
+  "Konaklama rezervasyonu",
+  "Rezervarea cazării"
+ ],
+ "planner.checklist.prepBookingDetail": [
+  "Планът има нощен престой. Резервирай навреме, за да не търсиш късно вечерта; виж предложенията при нощувката в плана.",
+  "The plan has an overnight stop. Book ahead so you are not searching late at night; see the suggestions at the overnight stop.",
+  "Planda gece konaklaması var. Gece geç saatte aramamak için önceden rezervasyon yapın; konaklama durağındaki önerilere bakın.",
+  "Planul are o oprire peste noapte. Rezervă din timp ca să nu cauți seara târziu; vezi sugestiile de la oprirea de noapte."
+ ],
+ "planner.checklist.prepFood": [
+  "Храна и вода за пътя",
+  "Food and water for the road",
+  "Yol için yiyecek ve su",
+  "Mâncare și apă pentru drum"
+ ],
+ "planner.checklist.prepFoodDetail": [
+  "Достатъчно за всички: около 1,5 л вода на човек, плодове, сандвичи и сухи закуски, за да не зависите от случайна спирка.",
+  "Enough for everyone: about 1.5 L of water each, fruit, sandwiches and dry snacks, so you do not depend on a random stop.",
+  "Herkes için yeterli: kişi başı yaklaşık 1,5 L su, meyve, sandviç ve kuru atıştırmalıklar; rastgele bir durağa bağımlı kalmayın.",
+  "Suficient pentru toți: circa 1,5 L de apă de persoană, fructe, sandvișuri și gustări uscate, ca să nu depinzi de o oprire întâmplătoare."
+ ],
+ "planner.checklist.prepWipes": [
+  "Мокри и сухи кърпи, торби за боклук",
+  "Wet and dry wipes, rubbish bags",
+  "Islak ve kuru mendiller, çöp torbaları",
+  "Șervețele umede și uscate, saci de gunoi"
+ ],
+ "planner.checklist.prepWipesDetail": [
+  "За ръце, разливи и тоалетни без хартия. Торбички за боклука в колата.",
+  "For hands, spills and toilets without paper. Bags for rubbish in the car.",
+  "Eller, dökülmeler ve kâğıtsız tuvaletler için. Arabada çöp torbaları.",
+  "Pentru mâini, scurgeri și toalete fără hârtie. Saci de gunoi în mașină."
+ ],
+ "planner.checklist.prepCash": [
+  "Малко пари в брой",
+  "Some cash",
+  "Biraz nakit",
+  "Puțini bani cash"
+ ],
+ "planner.checklist.prepCashDetail": [
+  "Дребни за магазини, тоалетни и пътни такси. Валути по маршрута: {currencies}.",
+  "Small notes for shops, toilets and road charges. Currencies on the route: {currencies}.",
+  "Dükkânlar, tuvaletler ve yol ücretleri için bozuk para. Güzergâhtaki para birimleri: {currencies}.",
+  "Bancnote mici pentru magazine, toalete și taxe de drum. Monede pe traseu: {currencies}."
+ ],
+ "planner.checklist.prepGifts": [
+  "Подаръци за роднините",
+  "Gifts for relatives",
+  "Akrabalar için hediyeler",
+  "Cadouri pentru rude"
+ ],
+ "planner.checklist.prepGiftsDetail": [
+  "Подредени отгоре в багажника, за да не се трупат нещата на последния момент.",
+  "Packed where you can reach them, so nothing is left to the last minute.",
+  "Son ana kalmasın diye kolay ulaşılır yere yerleştirin.",
+  "Pune-le la îndemână, ca să nu rămână totul pe ultima sută de metri."
+ ],
+ "planner.checklist.prepJars": [
+  "Буркани и съдове за връщане",
+  "Jars and containers to return",
+  "Geri götürülecek kavanozlar ve kaplar",
+  "Borcane și recipiente de returnat"
+ ],
+ "planner.checklist.prepJarsDetail": [
+  "Използваните буркани и съдове да се приберат и върнат в България.",
+  "Keep the used jars and containers and bring them back to Bulgaria.",
+  "Kullanılmış kavanoz ve kapları ayırın ve Bulgaristan'a geri getirin.",
+  "Păstrează borcanele și recipientele folosite și adu-le înapoi în Bulgaria."
+ ],
+ "planner.checklist.prepPhone": [
+  "Зарядно, държач и офлайн карти",
+  "Charger, phone mount and offline maps",
+  "Şarj aleti, telefon tutucu ve çevrimdışı haritalar",
+  "Încărcător, suport de telefon și hărți offline"
+ ],
+ "planner.checklist.prepPhoneDetail": [
+  "Кабел за колата, външна батерия, свалени карти за държавите по пътя.",
+  "Car cable, power bank, maps downloaded for the countries on the way.",
+  "Araç kablosu, powerbank, güzergâhtaki ülkeler için indirilmiş haritalar.",
+  "Cablu auto, baterie externă, hărți descărcate pentru țările de pe traseu."
+ ],
+ "planner.checklist.prepMeds": [
+  "Лекарства и лични неща",
+  "Medicines and personal items",
+  "İlaçlar ve kişisel eşyalar",
+  "Medicamente și lucruri personale"
+ ],
+ "planner.checklist.prepMedsDetail": [
+  "Редовни лекарства, средство против гадене, слънчеви очила, пакет с резервни дрехи.",
+  "Regular medicines, something for travel sickness, sunglasses, a bag with spare clothes.",
+  "Düzenli ilaçlar, yol tutmasına karşı ürün, güneş gözlüğü, yedek kıyafet çantası.",
+  "Medicamente uzuale, ceva pentru rău de mașină, ochelari de soare, o geantă cu haine de schimb."
+ ],
+ "planner.checklist.prepChild": [
+  "За децата в колата",
+  "For the children in the car",
+  "Arabadaki çocuklar için",
+  "Pentru copiii din mașină"
+ ],
+ "planner.checklist.prepChildDetail": [
+  "Закуски, вода, любима играчка или таблет със свалени филми, резервни дрехи и чисти кърпи. Планирай игра на почивките.",
+  "Snacks, water, a favourite toy or a tablet with downloaded films, spare clothes and clean wipes. Plan play time at the breaks.",
+  "Atıştırmalık, su, sevilen bir oyuncak veya film indirilmiş tablet, yedek kıyafet ve temiz mendil. Molalarda oyun payı planlayın.",
+  "Gustări, apă, o jucărie preferată sau o tabletă cu filme descărcate, haine de schimb și șervețele curate. Planifică joaca la opriri."
+ ],
+ "planner.checklist.prepPet": [
+  "За домашния любимец",
+  "For the pet",
+  "Evcil hayvan için",
+  "Pentru animalul de companie"
+ ],
+ "planner.checklist.prepPetDetail": [
+  "Вода и купа, повод, торбички, одеяло и ваксинационна книжка. Не го оставяй в затворена кола.",
+  "Water and a bowl, lead, waste bags, a blanket and the vaccination record. Never leave it in a parked car.",
+  "Su ve kap, tasma, poşetler, battaniye ve aşı karnesi. Park halindeki araçta bırakmayın.",
+  "Apă și bol, lesă, pungi, o pătură și carnetul de vaccinări. Nu-l lăsa într-o mașină parcată."
+ ],
+ "itinerary.download": [
+  "Свали като файл",
+  "Download as a file",
+  "Dosya olarak indir",
+  "Descarcă ca fișier"
  ]
 }

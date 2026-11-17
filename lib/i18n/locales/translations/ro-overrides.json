@@ -125,6 +125,30 @@
       "sourceCommunity": "de la un utilizator",
       "sourceCommunityAgo": "de la un utilizator, acum {hours} h",
       "oilBulletinLabel": "Comisia Europeană, Buletinul săptămânal petrolier"
+    },
+    "checklist": {
+      "prepBooking": "Rezervarea cazării",
+      "prepBookingDetail": "Planul are o oprire peste noapte. Rezervă din timp ca să nu cauți seara târziu; vezi sugestiile de la oprirea de noapte.",
+      "prepCar": "Mașina este pregătită",
+      "prepCarDetail": "Presiunea și profilul anvelopelor (și roata de rezervă), ulei, lichid de parbriz, faruri, frâne, rezervor plin sau baterie încărcată.",
+      "prepCash": "Puțini bani cash",
+      "prepCashDetail": "Bancnote mici pentru magazine, toalete și taxe de drum. Monede pe traseu: {currencies}.",
+      "prepChild": "Pentru copiii din mașină",
+      "prepChildDetail": "Gustări, apă, o jucărie preferată sau o tabletă cu filme descărcate, haine de schimb și șervețele curate. Planifică joaca la opriri.",
+      "prepFood": "Mâncare și apă pentru drum",
+      "prepFoodDetail": "Suficient pentru toți: circa 1,5 L de apă de persoană, fructe, sandvișuri și gustări uscate, ca să nu depinzi de o oprire întâmplătoare.",
+      "prepGifts": "Cadouri pentru rude",
+      "prepGiftsDetail": "Pune-le la îndemână, ca să nu rămână totul pe ultima sută de metri.",
+      "prepJars": "Borcane și recipiente de returnat",
+      "prepJarsDetail": "Păstrează borcanele și recipientele folosite și adu-le înapoi în Bulgaria.",
+      "prepMeds": "Medicamente și lucruri personale",
+      "prepMedsDetail": "Medicamente uzuale, ceva pentru rău de mașină, ochelari de soare, o geantă cu haine de schimb.",
+      "prepPet": "Pentru animalul de companie",
+      "prepPetDetail": "Apă și bol, lesă, pungi, o pătură și carnetul de vaccinări. Nu-l lăsa într-o mașină parcată.",
+      "prepPhone": "Încărcător, suport de telefon și hărți offline",
+      "prepPhoneDetail": "Cablu auto, baterie externă, hărți descărcate pentru țările de pe traseu.",
+      "prepWipes": "Șervețele umede și uscate, saci de gunoi",
+      "prepWipesDetail": "Pentru mâini, scurgeri și toalete fără hârtie. Saci de gunoi în mașină."
     }
   },
   "api": {
@@ -547,5 +571,11 @@
     "breakCapped": "Cu un copil mic, pauzele sunt cel mult la {minutes} min, chiar dacă ai ales mai mult.",
     "breakExact": "Respectă exact intervalul meu",
     "breakExactOn": "Pauzele vor urma exact intervalul ales."
+  },
+  "checklist": {
+    "prep": "Pregătirea pentru drum"
+  },
+  "itinerary": {
+    "download": "Descarcă ca fișier"
   }
 }

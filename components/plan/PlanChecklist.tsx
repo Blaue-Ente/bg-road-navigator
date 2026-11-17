@@ -37,6 +37,7 @@ export function PlanChecklist({
     },
     { id: "winter", title: m.checklist.winter, items: checklist.winter },
     { id: "kit", title: m.checklist.kit, items: checklist.kit },
+    { id: "prep", title: m.checklist.prep, items: checklist.prep ?? [] },
   ];
 
   return (

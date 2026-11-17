@@ -84,6 +84,8 @@ export function buildChecklist(input: {
   withChildren: boolean;
   childrenAges: number[];
   tolls: VignetteLink[];
+  /** True when the plan has a night away, so a booking is part of the preparation. */
+  hasOvernight?: boolean;
 }): PlanChecklist {
   const locale = input.locale ?? "bg";
   const c = catalog(locale).planner.checklist;
@@ -255,14 +257,85 @@ export function buildChecklist(input: {
     });
   }
 
+  const prep = prepItems(input, c);
+
   return {
     vignettes,
     toll_sections: tolls,
     documents,
     winter,
     kit,
+    prep,
     ...safetyBlock(input.countries, locale),
   };
+}
+
+const CURRENCY: Record<string, string> = {
+  RO: "RON",
+  HU: "HUF",
+  RS: "RSD",
+  MK: "MKD",
+  TR: "TRY",
+  PL: "PLN",
+  CZ: "CZK",
+  CH: "CHF",
+  BG: "EUR",
+};
+
+type ChecklistCopy = ReturnType<typeof catalog>["planner"]["checklist"];
+
+/** What to bring and arrange, shaped by who travels and what the route needs. */
+function prepItems(
+  input: {
+    countries: string[];
+    withPet: boolean;
+    withChildren: boolean;
+    hasOvernight?: boolean;
+  },
+  c: ChecklistCopy
+): ChecklistItem[] {
+  const item = (id: string, title: string, detail: string): ChecklistItem => ({
+    id: `prep-${id}`,
+    title,
+    detail,
+    country_code: null,
+    href: null,
+  });
+  const out: ChecklistItem[] = [item("car", c.prepCar, c.prepCarDetail)];
+  if (input.hasOvernight) {
+    out.push(item("booking", c.prepBooking, c.prepBookingDetail));
+  }
+  out.push(
+    item("food", c.prepFood, c.prepFoodDetail),
+    item("wipes", c.prepWipes, c.prepWipesDetail)
+  );
+  const currencies = [
+    ...new Set(
+      input.countries
+        .map((code) => CURRENCY[code.toUpperCase()])
+        .filter((code): code is string => Boolean(code))
+    ),
+  ];
+  if (currencies.length > 0) {
+    out.push(
+      item(
+        "cash",
+        c.prepCash,
+        formatTemplate(c.prepCashDetail, { currencies: currencies.join(", ") })
+      )
+    );
+  }
+  out.push(item("gifts", c.prepGifts, c.prepGiftsDetail));
+  if (input.countries.some((code) => code.toUpperCase() === "BG")) {
+    out.push(item("jars", c.prepJars, c.prepJarsDetail));
+  }
+  out.push(
+    item("phone", c.prepPhone, c.prepPhoneDetail),
+    item("meds", c.prepMeds, c.prepMedsDetail)
+  );
+  if (input.withChildren) out.push(item("child", c.prepChild, c.prepChildDetail));
+  if (input.withPet) out.push(item("pet", c.prepPet, c.prepPetDetail));
+  return out;
 }
 
 function safetyBlock(countries: string[], locale: Locale): {

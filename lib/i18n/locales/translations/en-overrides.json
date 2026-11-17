@@ -120,6 +120,30 @@
       "sourceCommunity": "from a user report",
       "sourceCommunityAgo": "from a user report, {hours} h ago",
       "oilBulletinLabel": "European Commission, Weekly Oil Bulletin"
+    },
+    "checklist": {
+      "prepBooking": "Book your overnight stay",
+      "prepBookingDetail": "The plan has an overnight stop. Book ahead so you are not searching late at night; see the suggestions at the overnight stop.",
+      "prepCar": "The car is ready",
+      "prepCarDetail": "Tyre pressure and tread (spare too), oil, washer fluid, lights, brakes, a full tank or charged battery.",
+      "prepCash": "Some cash",
+      "prepCashDetail": "Small notes for shops, toilets and road charges. Currencies on the route: {currencies}.",
+      "prepChild": "For the children in the car",
+      "prepChildDetail": "Snacks, water, a favourite toy or a tablet with downloaded films, spare clothes and clean wipes. Plan play time at the breaks.",
+      "prepFood": "Food and water for the road",
+      "prepFoodDetail": "Enough for everyone: about 1.5 L of water each, fruit, sandwiches and dry snacks, so you do not depend on a random stop.",
+      "prepGifts": "Gifts for relatives",
+      "prepGiftsDetail": "Packed where you can reach them, so nothing is left to the last minute.",
+      "prepJars": "Jars and containers to return",
+      "prepJarsDetail": "Keep the used jars and containers and bring them back to Bulgaria.",
+      "prepMeds": "Medicines and personal items",
+      "prepMedsDetail": "Regular medicines, something for travel sickness, sunglasses, a bag with spare clothes.",
+      "prepPet": "For the pet",
+      "prepPetDetail": "Water and a bowl, lead, waste bags, a blanket and the vaccination record. Never leave it in a parked car.",
+      "prepPhone": "Charger, phone mount and offline maps",
+      "prepPhoneDetail": "Car cable, power bank, maps downloaded for the countries on the way.",
+      "prepWipes": "Wet and dry wipes, rubbish bags",
+      "prepWipesDetail": "For hands, spills and toilets without paper. Bags for rubbish in the car."
     }
   },
   "api": {
@@ -542,5 +566,11 @@
     "breakCapped": "With a young child, breaks are at most every {minutes} min, even if you chose longer.",
     "breakExact": "Keep exactly my interval",
     "breakExactOn": "Breaks will follow exactly the interval you chose."
+  },
+  "checklist": {
+    "prep": "Getting ready for the road"
+  },
+  "itinerary": {
+    "download": "Download as a file"
   }
 }
