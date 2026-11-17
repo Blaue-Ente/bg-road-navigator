@@ -3,6 +3,9 @@
  */
 
 import { ociGeoEnvState } from "@/lib/api-clients/oci-geo";
+import { hereKey } from "@/lib/api-clients/here-traffic";
+import { routeStackConfig } from "@/lib/api-clients/routestack";
+import { tripadvisorKey } from "@/lib/api-clients/tripadvisor";
 import { isDatabaseConfigured } from "@/lib/db";
 import { readPoiConfig } from "@/lib/poi/config";
 
@@ -12,6 +15,9 @@ export type ServiceId =
   | "windy"
   | "tomtom"
   | "opencharge"
+  | "here"
+  | "tripadvisor"
+  | "routestack"
   | "tankerkoenig"
   | "nvidia"
   | "google"
@@ -100,6 +106,36 @@ export function getServiceStatusCatalog(): ServiceStatusItem[] {
       priority: "optional",
       signup_url: "https://openchargemap.org/site/develop",
       env_vars: ["OPENCHARGE_API_KEY"],
+    },
+    {
+      id: "here",
+      label: "HERE Traffic",
+      unlocks_bg: "Втори източник на пътни инциденти в цяла Европа",
+      configured: hereKey() !== null,
+      cost: "freemium",
+      priority: "optional",
+      signup_url: "https://platform.here.com/",
+      env_vars: ["HERE_API_KEY"],
+    },
+    {
+      id: "tripadvisor",
+      label: "Tripadvisor Terra",
+      unlocks_bg: "Оценки на хотели в „Къде да пренощувате“",
+      configured: tripadvisorKey() !== null,
+      cost: "paid",
+      priority: "optional",
+      signup_url: "https://www.tripadvisor.com/developers",
+      env_vars: ["TRIPADVISOR_API_KEY"],
+    },
+    {
+      id: "routestack",
+      label: "RouteStack",
+      unlocks_bg: "Свободни хотели с цени в „Къде да пренощувате“",
+      configured: routeStackConfig() !== null,
+      cost: "paid",
+      priority: "optional",
+      signup_url: "https://dashboard.routestack.ai/",
+      env_vars: ["ROUTESTACK_API_KEY", "ROUTESTACK_API_SECRET"],
     },
     {
       id: "tankerkoenig",

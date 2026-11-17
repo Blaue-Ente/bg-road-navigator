@@ -71,8 +71,11 @@ export async function chatText(
       .trim();
     if (!text) deps.onError?.(`empty answer from ${config.model}`);
     return text ? text : null;
-  } catch {
-    deps.onError?.("the AI service did not answer in time");
+  } catch (error) {
+    // The kind of failure (timeout, network, unreadable answer), never the key.
+    const detail =
+      error instanceof Error ? `${error.name}: ${error.message}`.slice(0, 160) : "unknown";
+    deps.onError?.(`the AI call failed (${detail})`);
     return null;
   }
 }

@@ -4,7 +4,12 @@ import { stayWhy } from "@/lib/ai/stay-why";
 import { aiConfig } from "@/lib/ai/provider";
 import { reversePlace } from "@/lib/api-clients/geocoding";
 import { nearbyStays, tripadvisorKey } from "@/lib/api-clients/tripadvisor";
-import { routeStackConfig, searchHotels } from "@/lib/api-clients/routestack";
+import {
+  routeStackConfig,
+  searchHotels,
+  type RouteStackResult,
+} from "@/lib/api-clients/routestack";
+import { cachedValue, minutesFromEnv } from "@/lib/cache/shared-cache";
 import { weatherPlaceLabel } from "@/lib/planner/weather-place";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 import { EuropePointSchema } from "@/lib/server/geo-schema";
@@ -82,24 +87,40 @@ export async function GET(request: NextRequest) {
       : place;
   const city = (cityName ?? place).split(",")[0]?.trim() || place;
   let tripadvisorError: string | null = null;
-  const [stays, partner] = await Promise.all([
+  // Hotel prices for the same city, night and party are shared for a while, so
+  // drivers on similar routes do not each spend a partner call.
+  let partnerLive: RouteStackResult | null = null;
+  const partnerLookup = async () => {
+    if (!routeStackConfig()) return { value: null, source: "off" as const };
+    return cachedValue<RouteStackResult>({
+      key: `rs|${city.toLowerCase()}|${stayQuery.checkin}|${q.adults}|${q.children}`,
+      kind: "routestack_hotels",
+      ttlMs: minutesFromEnv(process.env.ROUTESTACK_CACHE_MINUTES, 60) * 60_000,
+      persist: true,
+      load: async () => {
+        partnerLive = await searchHotels({
+          city,
+          checkIn: stayQuery.checkin,
+          checkOut: stayQuery.checkout,
+          adults: q.adults,
+          children: q.children,
+        });
+        // A failed search is shown for debugging but never kept.
+        return partnerLive?.ok ? partnerLive : null;
+      },
+    });
+  };
+  const [stays, partnerCached] = await Promise.all([
     tripadvisorKey()
       ? nearbyStays(
           { lat, lng },
           { onError: (message) => (tripadvisorError = message) }
         )
       : Promise.resolve(null),
-    routeStackConfig()
-      ? searchHotels({
-          city,
-          checkIn: stayQuery.checkin,
-          checkOut: stayQuery.checkout,
-          adults: q.adults,
-          children: q.children,
-        })
-      : Promise.resolve(null),
+    partnerLookup(),
   ]);
-  const available = (partner?.hotels ?? [])
+  const partner = partnerCached.value ?? (partnerLive as RouteStackResult | null);
+  const available = [...(partner?.hotels ?? [])]
     .sort(
       (a, b) =>
         (b.rating ?? 0) - (a.rating ?? 0) ||
@@ -140,6 +161,7 @@ export async function GET(request: NextRequest) {
             partner_error: partner?.error ?? null,
             partner_city: city,
             partner_base: routeStackConfig()?.baseUrl ?? null,
+            partner_cache: partnerCached.source,
           }
         : {}),
       why,
