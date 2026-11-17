@@ -469,6 +469,9 @@
     "ratingsUnavailable": "Puanlar şu anda kullanılamıyor.",
     "reviews": "{count} yorum",
     "searchNote": "Bağlantılar o gece için Booking.com ve Airbnb aramasını açar. Fiyatlar ve müsaitlik orada.",
-    "tripadvisorCredit": "Puanlar: Tripadvisor. Güncel fiyatlar ve yorumlar için bağlantıyı açın."
+    "tripadvisorCredit": "Puanlar: Tripadvisor. Güncel fiyatlar ve yorumlar için bağlantıyı açın.",
+    "available": "O gece müsait oteller",
+    "availableNote": "Fiyatlar ve müsaitlik ortağımızdan. Rezervasyondan önce koşulları ve son fiyatı kontrol edin.",
+    "fromPrice": "{price} {currency}'den"
   }
 }

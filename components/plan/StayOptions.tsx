@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BedDouble } from "lucide-react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import type { RouteStackHotel } from "@/lib/api-clients/routestack";
 import type { TripadvisorStay } from "@/lib/api-clients/tripadvisor";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { PlanStop } from "@/lib/planner/types";
@@ -14,6 +15,7 @@ interface StaysPayload {
   links: { booking: string; airbnb: string; booking_partner: boolean };
   tripadvisor: TripadvisorStay[] | null;
   tripadvisor_configured: boolean;
+  available_hotels: { ok: boolean; items: RouteStackHotel[] } | null;
   why: string | null;
 }
 
@@ -79,6 +81,39 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
       <p className="text-sm font-medium text-[var(--waze-text)]">
         {formatTemplate(m.stay.near, { place: data.place })}
       </p>
+      {data.available_hotels && data.available_hotels.items.length > 0 && (
+        <div>
+          <p className="text-sm font-medium text-[var(--waze-text)]">{m.stay.available}</p>
+          <ul className="mt-1 space-y-1">
+            {data.available_hotels.items.map((hotel) => (
+              <li key={hotel.id} className="text-sm text-[var(--waze-text)]">
+                {hotel.url ? (
+                  <a
+                    href={hotel.url}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="font-medium text-[var(--waze-accent-text)] underline"
+                  >
+                    {hotel.name}
+                  </a>
+                ) : (
+                  <span className="font-medium">{hotel.name}</span>
+                )}
+                <span className="text-[var(--waze-text-secondary)]">
+                  {hotel.rating != null ? ` · ${hotel.rating.toFixed(1)}★` : ""}
+                  {hotel.price != null
+                    ? ` · ${formatTemplate(m.stay.fromPrice, {
+                        price: String(Math.round(hotel.price)),
+                        currency: hotel.currency ?? "",
+                      }).trim()}`
+                    : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs text-[var(--waze-text-muted)]">{m.stay.availableNote}</p>
+        </div>
+      )}
       {data.tripadvisor && data.tripadvisor.length > 0 && (
         <ul className="space-y-1">
           {data.tripadvisor.map((stay) => (

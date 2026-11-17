@@ -676,5 +676,23 @@
   "We couldn't turn notices on.",
   "Bildirimler açılamadı.",
   "Nu am putut activa notificările."
+ ],
+ "stay.available": [
+  "Налични хотели за тази вечер",
+  "Hotels available that night",
+  "O gece müsait oteller",
+  "Hoteluri disponibile în acea noapte"
+ ],
+ "stay.fromPrice": [
+  "от {price} {currency}",
+  "from {price} {currency}",
+  "{price} {currency}'den",
+  "de la {price} {currency}"
+ ],
+ "stay.availableNote": [
+  "Цени и наличност от наш партньор. Проверете условията и крайната цена преди резервация.",
+  "Prices and availability from our partner. Check the terms and the final price before booking.",
+  "Fiyatlar ve müsaitlik ortağımızdan. Rezervasyondan önce koşulları ve son fiyatı kontrol edin.",
+  "Prețuri și disponibilitate de la partenerul nostru. Verifică condițiile și prețul final înainte de rezervare."
  ]
 }

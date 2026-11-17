@@ -4,6 +4,7 @@ import { stayWhy } from "@/lib/ai/stay-why";
 import { aiConfig } from "@/lib/ai/provider";
 import { reversePlace } from "@/lib/api-clients/geocoding";
 import { nearbyStays, tripadvisorKey } from "@/lib/api-clients/tripadvisor";
+import { routeStackConfig, searchHotels } from "@/lib/api-clients/routestack";
 import { weatherPlaceLabel } from "@/lib/planner/weather-place";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 import { EuropePointSchema } from "@/lib/server/geo-schema";
@@ -24,6 +25,7 @@ const QuerySchema = z.object({
   children: z.coerce.number().int().min(0).max(6).default(0),
   locale: z.enum(["bg", "en", "tr", "ro"]).default("bg"),
   pet: z.enum(["0", "1"]).default("0"),
+  debug: z.enum(["0", "1"]).default("0"),
 });
 
 /**
@@ -68,9 +70,26 @@ export async function GET(request: NextRequest) {
   };
   const affiliateId = process.env.BOOKING_AFFILIATE_ID?.trim() || null;
 
-  const stays = tripadvisorKey()
-    ? await nearbyStays({ lat, lng })
-    : null;
+  const city = place.split(",")[0]?.trim() || place;
+  const [stays, partner] = await Promise.all([
+    tripadvisorKey() ? nearbyStays({ lat, lng }) : Promise.resolve(null),
+    routeStackConfig()
+      ? searchHotels({
+          city,
+          checkIn: stayQuery.checkin,
+          checkOut: stayQuery.checkout,
+          adults: q.adults,
+          children: q.children,
+        })
+      : Promise.resolve(null),
+  ]);
+  const available = (partner?.hotels ?? [])
+    .sort(
+      (a, b) =>
+        (b.rating ?? 0) - (a.rating ?? 0) ||
+        (a.price ?? Infinity) - (b.price ?? Infinity)
+    )
+    .slice(0, 4);
   const traveler = [
     q.children > 0 ? "children" : "",
     q.pet === "1" ? "pet" : "",
@@ -91,6 +110,9 @@ export async function GET(request: NextRequest) {
       },
       tripadvisor: stays,
       tripadvisor_configured: Boolean(tripadvisorKey()),
+      available_hotels: partner ? { ok: partner.ok, items: available } : null,
+      // Key names only, to fix a changed partner response without exposing data.
+      ...(q.debug === "1" && partner ? { partner_shape: partner.shape ?? null } : {}),
       why,
     },
     { headers: { "Cache-Control": "private, max-age=600" } }

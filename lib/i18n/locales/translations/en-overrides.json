@@ -467,6 +467,9 @@
     "ratingsUnavailable": "Ratings are not available right now.",
     "reviews": "{count} reviews",
     "searchNote": "The links open a search on Booking.com and Airbnb for that night. Prices and availability are there.",
-    "tripadvisorCredit": "Ratings: Tripadvisor. Open the link for current prices and reviews."
+    "tripadvisorCredit": "Ratings: Tripadvisor. Open the link for current prices and reviews.",
+    "available": "Hotels available that night",
+    "availableNote": "Prices and availability from our partner. Check the terms and the final price before booking.",
+    "fromPrice": "from {price} {currency}"
   }
 }
