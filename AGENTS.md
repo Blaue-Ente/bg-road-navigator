@@ -50,6 +50,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `PATCH /api/favorites/routes/[id]` renames or updates a favorite route. New UI strings live in `scripts/i18n-features.json`; run `python3 scripts/i18n-features.py` to regenerate `lib/i18n/locales/bg-features.ts` and the en/tr/ro overrides.
 - Rest breaks count from the previous stop of any kind (`mergeDrivingBreaks`), so a longer `break_every_min` is honoured.
 
+### Where to sleep (Tripadvisor Terra, RouteStack)
+
+- `GET /api/stays?lat&lng&checkin&adults&children&locale&pet[&debug=1]` (rate limited, `no-store`). Tripadvisor comes from **Terra** (`terra.tripadvisor.com/api`, header `X-API-Key`, `?version=1`), not the retired Content API: `lib/api-clients/tripadvisor.ts` calls `/catalog/locations/nearby` (hotels, radius max 8 km, one billable unit per returned place). Its key may be named `TRIPADVISOR_API_KEY` or `TRIPADVISOR_API`. Terra forbids keeping content (no fetch cache, no DB copy, `Cache-Control: no-store`), requires links back to Tripadvisor (name, review count) and the credit line, and bans review text in page source, so only rating, count, link and the bubble icon are used. Cost guards: `TRIPADVISOR_RESULT_SIZE` (default 6) and `TRIPADVISOR_DAILY_LIMIT` (per server, default 200); `debug=1` shows `tripadvisor_error` (status and message, never the key).
+- RouteStack (`lib/api-clients/routestack.ts`) lists bookable hotels with prices; its rows have no booking link yet.
+
 ### Keys-only readiness
 
 - Code is ready for operators to paste env vars only (+ one-shot Neon SQL).

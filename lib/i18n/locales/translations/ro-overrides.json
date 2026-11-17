@@ -472,12 +472,13 @@
     "ratingsUnavailable": "Evaluările nu sunt disponibile acum.",
     "reviews": "{count} recenzii",
     "searchNote": "Linkurile deschid o căutare pe Booking.com și Airbnb pentru acea noapte. Prețurile și disponibilitatea sunt acolo.",
-    "tripadvisorCredit": "Evaluări: Tripadvisor. Deschide linkul pentru prețuri și recenzii actuale.",
+    "tripadvisorCredit": "Evaluările sunt de la Tripadvisor. Deschide linkul pentru prețuri și recenzii actuale.",
     "available": "Hoteluri disponibile în acea noapte",
     "availableNote": "Prețuri și disponibilitate de la partenerul nostru. Verifică condițiile și prețul final înainte de rezervare.",
     "fromPrice": "{price} {currency} pe noapte",
     "breakfast": "Mic dejun",
     "freeCancellation": "Anulare gratuită",
-    "payAtHotel": "Plată la hotel"
+    "payAtHotel": "Plată la hotel",
+    "distanceKm": "{km} km"
   }
 }

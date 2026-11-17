@@ -84,6 +84,7 @@ export const bgFeatures = {
     available: "Налични хотели за тази вечер",
     availableNote: "Цени и наличност от наш партньор. Проверете условията и крайната цена преди резервация.",
     breakfast: "Закуска",
+    distanceKm: "{km} км",
     failed: "Не успяхме да заредим местата. Опитайте пак.",
     find: "Къде да пренощувате",
     freeCancellation: "Безплатна отмяна",
@@ -95,7 +96,7 @@ export const bgFeatures = {
     ratingsUnavailable: "Оценките не са налични в момента.",
     reviews: "{count} мнения",
     searchNote: "Връзките водят към търсене в Booking.com и Airbnb за тази вечер. Цените и наличността са там.",
-    tripadvisorCredit: "Оценки: Tripadvisor. Отворете връзката за актуални цени и мнения.",
+    tripadvisorCredit: "Оценките са от Tripadvisor. Отворете връзката за актуални цени и мнения.",
   },
   trip: {
     distance: "до там",
