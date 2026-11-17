@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { clearSharedCacheForTests } from "@/lib/cache/shared-cache";
 import {
+  camerasFromPoints,
   loadSpeedCameras,
   parseMaxspeed,
   parseSpeedCameras,
@@ -110,5 +111,28 @@ describe("loadSpeedCameras mirrors and cache", () => {
     const up = (async () =>
       new Response(JSON.stringify({ elements: [] }), { status: 200 })) as unknown as typeof fetch;
     expect((await loadSpeedCameras(bbox, up)).ok).toBe(true);
+  });
+});
+
+describe("built dataset", () => {
+  const points: Array<[number, number, number]> = [
+    [23.3, 42.7, 50],
+    [23.31, 42.71, 0],
+    [2.35, 48.85, 50], // Paris: France, never shown
+    [8.54, 47.37, 50], // Zurich: Switzerland, never shown
+    [30.0, 45.0, 60], // far away
+  ];
+
+  it("answers from the points inside the box, without any outside call", async () => {
+    const never = (async () => {
+      throw new Error("no network expected");
+    }) as unknown as typeof fetch;
+    const result = await loadSpeedCameras({ w: 23.0, s: 42.5, e: 23.5, n: 43.0 }, never, points);
+    expect(result.ok).toBe(true);
+    expect(result.cameras.map((c) => c.maxspeed)).toEqual([50, null]);
+  });
+
+  it("never returns cameras in France or Switzerland", () => {
+    expect(camerasFromPoints({ w: 1, s: 46, e: 9, n: 49 }, points)).toEqual([]);
   });
 });
