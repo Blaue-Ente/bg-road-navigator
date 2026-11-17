@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chatText } from "@/lib/ai/provider";
+import { chatText, extraBodyFromEnv } from "@/lib/ai/provider";
 
 const config = { url: "https://ai.example/v1/chat", key: "secret-key", model: "m" };
 const reply = (status: number, body: unknown) =>
@@ -51,5 +51,19 @@ describe("chatText", () => {
 
   it("is null without a config", async () => {
     expect(await chatText({ system: "s", user: "u" }, { config: null })).toBeNull();
+  });
+});
+
+describe("extraBodyFromEnv", () => {
+  const env = (value: Record<string, string>) => value as unknown as NodeJS.ProcessEnv;
+  it("reads a JSON object and never lets it replace the model or messages", () => {
+    expect(extraBodyFromEnv(env({}))).toEqual({});
+    expect(
+      extraBodyFromEnv(
+        env({ AI_EXTRA_BODY: '{"chat_template_kwargs":{"enable_thinking":false},"model":"x","messages":[]}' })
+      )
+    ).toEqual({ chat_template_kwargs: { enable_thinking: false } });
+    expect(extraBodyFromEnv(env({ AI_EXTRA_BODY: "not json" }))).toEqual({});
+    expect(extraBodyFromEnv(env({ AI_EXTRA_BODY: "[1]" }))).toEqual({});
   });
 });

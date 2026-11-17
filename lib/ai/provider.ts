@@ -25,8 +25,36 @@ export function aiConfig(env: NodeJS.ProcessEnv = process.env): AiConfig | null 
   };
 }
 
+/**
+ * Extra request fields from AI_EXTRA_BODY (a JSON object), for example
+ * {"chat_template_kwargs":{"enable_thinking":false}} to stop a reasoning model
+ * spending its answer budget on thinking. Anything unreadable is ignored.
+ */
+export function extraBodyFromEnv(
+  env: NodeJS.ProcessEnv = process.env
+): Record<string, unknown> {
+  const raw = env.AI_EXTRA_BODY?.trim();
+  if (!raw) return {};
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const { model: _m, messages: _x, stream: _s, ...rest } = parsed as Record<string, unknown>;
+    void _m; void _x; void _s;
+    return rest;
+  } catch {
+    return {};
+  }
+}
+
 export async function chatText(
-  input: { system: string; user: string; maxTokens?: number; timeoutMs?: number },
+  input: {
+    system: string;
+    user: string;
+    maxTokens?: number;
+    timeoutMs?: number;
+    /** Extra request fields, for example to switch a reasoning model's thinking off. */
+    extraBody?: Record<string, unknown>;
+  },
   deps: {
     config?: AiConfig | null;
     fetchImpl?: typeof fetch;
@@ -45,6 +73,7 @@ export async function chatText(
         Accept: "application/json",
       },
       body: JSON.stringify({
+        ...(input.extraBody ?? extraBodyFromEnv()),
         model: config.model,
         temperature: 0.3,
         max_tokens: input.maxTokens ?? 350,
