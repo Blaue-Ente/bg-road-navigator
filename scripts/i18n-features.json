@@ -1012,5 +1012,17 @@
   "Less",
   "Daha az",
   "Mai puțin"
+ ],
+ "trip.panelMore": [
+  "Повече",
+  "More",
+  "Daha fazla",
+  "Mai mult"
+ ],
+ "trip.panelLess": [
+  "Свий панела",
+  "Collapse panel",
+  "Paneli daralt",
+  "Restrânge panoul"
  ]
 }

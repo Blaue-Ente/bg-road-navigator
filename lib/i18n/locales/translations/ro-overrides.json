@@ -459,7 +459,9 @@
     "pushOn": "Notificări și cu aplicația închisă",
     "pushStopSoon": "Peste aproximativ {minutes} min: {title}.",
     "pushUnsupported": "Acest browser nu poate trimite notificări cu aplicația închisă. Pe iPhone, adaugă site-ul pe ecranul principal.",
-    "pushBorderAfter": "Ai trecut de {name}? Spune cât ai așteptat — îi ajută pe șoferii următori."
+    "pushBorderAfter": "Ai trecut de {name}? Spune cât ai așteptat — îi ajută pe șoferii următori.",
+    "panelLess": "Restrânge panoul",
+    "panelMore": "Mai mult"
   },
   "ai": {
     "disclaimer": "Text generat de AI din datele planului. Poate conține greșeli — verifică lucrurile importante.",

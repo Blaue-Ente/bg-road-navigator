@@ -456,7 +456,9 @@
     "pushOn": "Uygulama kapalıyken de bildirimler",
     "pushStopSoon": "Yaklaşık {minutes} dk sonra: {title}.",
     "pushUnsupported": "Bu tarayıcı uygulama kapalıyken bildirim gönderemez. iPhone'da siteyi Ana Ekrana ekleyin.",
-    "pushBorderAfter": "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur."
+    "pushBorderAfter": "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur.",
+    "panelLess": "Paneli daralt",
+    "panelMore": "Daha fazla"
   },
   "ai": {
     "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",
