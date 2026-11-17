@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadSpeedCameras } from "@/lib/api-clients/speed-cameras";
+import { loadSpeedCameras, recentCameraErrors } from "@/lib/api-clients/speed-cameras";
 import { EuropeBboxSchema } from "@/lib/server/geo-schema";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
@@ -32,7 +32,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid bbox" }, { status: 400 });
   }
   const result = await loadSpeedCameras(parsed.data);
-  return NextResponse.json(result, {
-    headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+  const body =
+    params.get("debug") === "1" ? { ...result, errors: recentCameraErrors() } : result;
+  return NextResponse.json(body, {
+    headers: {
+      // A failure must not be kept by the CDN: the next view should try again.
+      "Cache-Control": result.ok
+        ? "public, s-maxage=3600, stale-while-revalidate=86400"
+        : "no-store",
+    },
   });
 }

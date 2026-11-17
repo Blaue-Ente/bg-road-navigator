@@ -32,6 +32,8 @@ export interface SpeedCameraResult {
   cameras: SpeedCamera[];
   /** False when every upstream failed, so the client can say so. */
   ok: boolean;
+  /** Why each mirror failed (status or kind only), for ?debug=1. */
+  errors?: string[];
 }
 
 interface OverpassNode {
@@ -103,12 +105,31 @@ export function parseSpeedCameras(payload: unknown): SpeedCamera[] {
   return out;
 }
 
+/** Failure reasons of the last live calls, newest last; shown only with ?debug=1. */
+const recentErrors: string[] = [];
+function noteError(message: string): void {
+  recentErrors.push(message);
+  if (recentErrors.length > 6) recentErrors.shift();
+}
+export function recentCameraErrors(): string[] {
+  return [...recentErrors];
+}
+
 async function fetchTileLive(
   tile: { w: number; s: number; e: number; n: number },
   fetchImpl: typeof fetch
 ): Promise<SpeedCamera[] | null> {
   const query = `[out:json][timeout:8];node["highway"="speed_camera"](${tile.s},${tile.w},${tile.n},${tile.e});out body ${MAX_NODES_PER_TILE};`;
   const attempt = async (base: string): Promise<SpeedCamera[]> => {
+    const host = new URL(base).hostname;
+    try {
+      return await attemptOnce(base);
+    } catch (error) {
+      noteError(`${host}: ${error instanceof Error ? `${error.name} ${error.message}`.slice(0, 80) : "failed"}`);
+      throw error;
+    }
+  };
+  const attemptOnce = async (base: string): Promise<SpeedCamera[]> => {
     const response = await fetchImpl(`${base}?data=${encodeURIComponent(query)}`, {
       headers: {
         Accept: "application/json",
