@@ -127,18 +127,19 @@ export async function GET(request: NextRequest) {
       tripadvisor: stays,
       tripadvisor_configured: Boolean(tripadvisorKey()),
       available_hotels: partner ? { ok: partner.ok, items: available } : null,
-      // Key names only, to fix a changed partner response without exposing data.
-      ...(q.debug === "1" && partner
+      // Key names and error texts only, to fix a changed response without exposing data.
+      ...(q.debug === "1"
         ? {
-            partner_shape: partner.shape ?? null,
-            partner_error: partner.error ?? null,
-            partner_city: city,
             tripadvisor_error: tripadvisorError,
+            partner_shape: partner?.shape ?? null,
+            partner_error: partner?.error ?? null,
+            partner_city: city,
             partner_base: routeStackConfig()?.baseUrl ?? null,
           }
         : {}),
       why,
     },
-    { headers: { "Cache-Control": "private, max-age=600" } }
+    // Tripadvisor content must not be kept, not even in the browser cache.
+    { headers: { "Cache-Control": "no-store" } }
   );
 }

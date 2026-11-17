@@ -469,12 +469,13 @@
     "ratingsUnavailable": "Puanlar şu anda kullanılamıyor.",
     "reviews": "{count} yorum",
     "searchNote": "Bağlantılar o gece için Booking.com ve Airbnb aramasını açar. Fiyatlar ve müsaitlik orada.",
-    "tripadvisorCredit": "Puanlar: Tripadvisor. Güncel fiyatlar ve yorumlar için bağlantıyı açın.",
+    "tripadvisorCredit": "Puanlar Tripadvisor'dan. Güncel fiyatlar ve yorumlar için bağlantıyı açın.",
     "available": "O gece müsait oteller",
     "availableNote": "Fiyatlar ve müsaitlik ortağımızdan. Rezervasyondan önce koşulları ve son fiyatı kontrol edin.",
     "fromPrice": "Gece için {price} {currency}",
     "breakfast": "Kahvaltı",
     "freeCancellation": "Ücretsiz iptal",
-    "payAtHotel": "Otelde ödeme"
+    "payAtHotel": "Otelde ödeme",
+    "distanceKm": "{km} km"
   }
 }

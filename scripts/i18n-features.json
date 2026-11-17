@@ -623,11 +623,17 @@
   "{count} yorum",
   "{count} recenzii"
  ],
+ "stay.distanceKm": [
+  "{km} км",
+  "{km} km",
+  "{km} km",
+  "{km} km"
+ ],
  "stay.tripadvisorCredit": [
-  "Оценки: Tripadvisor. Отворете връзката за актуални цени и мнения.",
-  "Ratings: Tripadvisor. Open the link for current prices and reviews.",
-  "Puanlar: Tripadvisor. Güncel fiyatlar ve yorumlar için bağlantıyı açın.",
-  "Evaluări: Tripadvisor. Deschide linkul pentru prețuri și recenzii actuale."
+  "Оценките са от Tripadvisor. Отворете връзката за актуални цени и мнения.",
+  "Ratings from Tripadvisor. Open the link for current prices and reviews.",
+  "Puanlar Tripadvisor'dan. Güncel fiyatlar ve yorumlar için bağlantıyı açın.",
+  "Evaluările sunt de la Tripadvisor. Deschide linkul pentru prețuri și recenzii actuale."
  ],
  "stay.ratingsUnavailable": [
   "Оценките не са налични в момента.",

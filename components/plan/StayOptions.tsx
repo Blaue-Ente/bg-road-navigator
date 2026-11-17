@@ -137,30 +137,54 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
         </div>
       )}
       {data.tripadvisor && data.tripadvisor.length > 0 && (
-        <ul className="space-y-1">
-          {data.tripadvisor.map((stay) => (
-            <li key={stay.id} className="text-sm text-[var(--waze-text)]">
-              <a
-                href={stay.url ?? undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-[var(--waze-accent-text)] underline"
-              >
-                {stay.name}
-              </a>
-              <span className="text-[var(--waze-text-secondary)]">
-                {stay.rating != null ? ` · ${stay.rating.toFixed(1)}★` : ""}
-                {stay.reviews != null
-                  ? ` · ${formatTemplate(m.stay.reviews, { count: String(stay.reviews) })}`
-                  : ""}
-                {stay.price_level ? ` · ${stay.price_level}` : ""}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-      {data.tripadvisor && data.tripadvisor.length > 0 && (
-        <p className="text-xs text-[var(--waze-text-muted)]">{m.stay.tripadvisorCredit}</p>
+        <div className="space-y-1">
+          <ul className="space-y-1.5">
+            {data.tripadvisor.map((stay) => (
+              <li key={stay.id} className="text-sm text-[var(--waze-text)]">
+                <a
+                  href={stay.url ?? undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-[var(--waze-accent-text)] underline"
+                >
+                  {stay.name}
+                </a>
+                <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[var(--waze-text-secondary)]">
+                  {stay.rating_icon_url ? (
+                    // Tripadvisor's own bubble rating, as their brand rules ask.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={stay.rating_icon_url}
+                      alt={`${stay.rating?.toFixed(1) ?? ""} Tripadvisor`}
+                      className="h-4"
+                      loading="lazy"
+                    />
+                  ) : stay.rating != null ? (
+                    <span>{stay.rating.toFixed(1)}★</span>
+                  ) : null}
+                  {stay.reviews != null && (
+                    <a
+                      href={stay.url ?? undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      {formatTemplate(m.stay.reviews, { count: String(stay.reviews) })}
+                    </a>
+                  )}
+                  {stay.distance_km != null && (
+                    <span>
+                      {formatTemplate(m.stay.distanceKm, {
+                        km: stay.distance_km.toFixed(1),
+                      })}
+                    </span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-[var(--waze-text-muted)]">{m.stay.tripadvisorCredit}</p>
+        </div>
       )}
       {data.why && (
         <>

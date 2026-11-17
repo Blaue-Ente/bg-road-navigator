@@ -4,7 +4,7 @@ import type { TripadvisorStay } from "@/lib/api-clients/tripadvisor";
 const LANGUAGE = { bg: "Bulgarian", en: "English", tr: "Turkish", ro: "Romanian" } as const;
 
 const SYSTEM = `You help a driver choose where to sleep on a long road trip.
-Use ONLY the facts in the JSON (name, Tripadvisor rating, number of reviews, price level, distance, traveller needs). Never invent amenities, prices, review quotes or availability. 2 or 3 sentences, plain text, no markdown. Say which listing looks best for this traveller and why, and remind them to check the current price and reviews before booking.`;
+Use ONLY the facts in the JSON (name, Tripadvisor rating, number of reviews, distance, traveller needs). Never invent amenities, prices, review quotes or availability. 2 or 3 sentences, plain text, no markdown. Say which listing looks best for this traveller and why, name Tripadvisor as the source of the ratings, and remind them to check the current price and reviews before booking.`;
 
 export async function stayWhy(
   input: {
@@ -26,7 +26,6 @@ export async function stayWhy(
           name: stay.name,
           rating: stay.rating,
           reviews: stay.reviews,
-          price_level: stay.price_level,
           distance_km: stay.distance_km,
         })),
       }),
