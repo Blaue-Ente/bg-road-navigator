@@ -17,6 +17,8 @@ export async function stayWhy(
     config?: AiConfig | null;
     fetchImpl?: typeof fetch;
     onError?: (message: string) => void;
+    /** Longer than the page would wait, to see how slow a model really is. */
+    timeoutMs?: number;
   } = {}
 ): Promise<string | null> {
   if (input.stays.length === 0) return null;
@@ -35,7 +37,7 @@ export async function stayWhy(
       }),
       maxTokens: 260,
       // An optional note must not hold up the list of places.
-      timeoutMs: 9_000,
+      timeoutMs: deps.timeoutMs ?? 9_000,
     },
     deps
   );
