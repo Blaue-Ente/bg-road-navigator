@@ -499,5 +499,20 @@
     "unavailable": "Paylaşım bu sitede açık değil.",
     "unsure": "Bir süre sinyal yoktu, bu yüzden sayıyı kontrol edin.",
     "estimated": "Beklenen süre yaklaşık {minutes} dk idi. Gerçekte ne kadar beklediğinizi girin."
+  },
+  "trafficKind": {
+    "accident": "Kaza",
+    "congestion": "Trafik yoğunluğu",
+    "construction": "Yol çalışması",
+    "groupClosures": "Kapalı ve daralan",
+    "groupCrashes": "Kazalar ve tehlikeler",
+    "groupSlowdowns": "Yoğunluk ve diğer",
+    "groupWorks": "Yol çalışmaları",
+    "hazard": "Yolda tehlike",
+    "lane_restriction": "Şerit daraldı",
+    "other": "Diğer olay",
+    "road_closure": "Yol kapalı",
+    "size": "Daha büyük işaret daha ciddi olay demektir.",
+    "weather": "Kötü hava"
   }
 }

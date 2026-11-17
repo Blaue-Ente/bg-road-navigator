@@ -497,5 +497,20 @@
     "unavailable": "Sharing is not switched on for this site.",
     "unsure": "There was no signal for part of it, so check the number.",
     "estimated": "The expected wait was about {minutes} min. Enter how long you really waited."
+  },
+  "trafficKind": {
+    "accident": "Crash",
+    "congestion": "Congestion",
+    "construction": "Road works",
+    "groupClosures": "Closed and narrowed",
+    "groupCrashes": "Crashes and hazards",
+    "groupSlowdowns": "Slowdowns and other",
+    "groupWorks": "Road works",
+    "hazard": "Road hazard",
+    "lane_restriction": "Lane closed",
+    "other": "Other event",
+    "road_closure": "Road closed",
+    "size": "A bigger sign means a more serious event.",
+    "weather": "Bad weather"
   }
 }
