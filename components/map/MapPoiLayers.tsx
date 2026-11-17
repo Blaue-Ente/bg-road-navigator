@@ -3,7 +3,7 @@
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { Map } from "maplibre-gl";
 import { useMapStore } from "@/lib/stores/map.store";
@@ -18,13 +18,54 @@ import {
 import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
 
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
+/** Below this zoom the view is too wide for a useful station search. */
+const MIN_STATION_ZOOM = 8;
+
+interface MapView {
+  bbox: { w: number; s: number; e: number; n: number };
+  zoom: number;
+}
+
+function readView(map: Map): MapView {
+  const bounds = map.getBounds();
+  // Rounded so small pans reuse the cached answer.
+  const round = (value: number) => Math.round(value * 10) / 10;
+  return {
+    bbox: {
+      w: round(bounds.getWest()),
+      s: round(bounds.getSouth()),
+      e: round(bounds.getEast()),
+      n: round(bounds.getNorth()),
+    },
+    zoom: map.getZoom(),
+  };
+}
+
+/** The visible area, updated when the map stops moving. */
+function useMapView(map: Map | null, enabled: boolean): MapView | null {
+  const [view, setView] = useState<MapView | null>(null);
+  useEffect(() => {
+    if (!map || !enabled) return;
+    const update = () => setView(readView(map));
+    update();
+    map.on("moveend", update);
+    return () => {
+      map.off("moveend", update);
+    };
+  }, [map, enabled]);
+  return view;
+}
 
 export function MapPoiLayers({ map }: { map: Map | null }) {
   const m = useMessages();
   const locale = useLocale();
   const layers = useMapStore((s) => s.layers);
   const wantFuel = layers.fuel || layers.ev;
-  const { data } = useFuelStations(DEFAULT_BBOX, { enabled: wantFuel });
+  const view = useMapView(map, wantFuel);
+  const zoomedIn = view == null || view.zoom >= MIN_STATION_ZOOM;
+  const { data } = useFuelStations(view?.bbox ?? DEFAULT_BBOX, {
+    enabled: wantFuel && view != null && zoomedIn,
+  });
   const { data: borders } = useBorderStatus({
     region: "bulgaria",
     enabled: layers.borders || layers.cameras,
@@ -111,19 +152,27 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
 
   return (
     <>
+      {wantFuel && !zoomedIn && (
+        <p
+          role="status"
+          className="waze-panel pointer-events-none absolute left-1/2 top-28 z-20 max-w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 px-3 py-2 text-center text-xs text-[var(--waze-text-secondary)]"
+        >
+          {m.map.zoomForStations}
+        </p>
+      )}
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-fuel"
         points={fuelPoints}
         color="#f59e0b"
-        enabled={layers.fuel}
+        enabled={layers.fuel && zoomedIn}
       />
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-ev"
         points={evPoints}
         color="#22c55e"
-        enabled={layers.ev}
+        enabled={layers.ev && zoomedIn}
       />
       <ClusteredPoiLayer
         map={map}

@@ -44,6 +44,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Route-scoped fuel/EV: `GET /api/fuel?route=lng,lat;...` and `/fuel?route=1` with active route
 - Trip planner: `POST /api/trips/plan` tries NVIDIA (`NVIDIA_API_KEY`) then the heuristic. `POST /api/plan` is the deterministic planner (borders, fuel, rest, preferences, checklist, weather) in `lib/planner/*`. Bulgarian border candidates are forced only when `tripMayCrossBulgaria` is true for the trip ends (e.g. DE→RO uses the direct line; DE→TR still compares BG crossings). It reads the Nakordoni cache only. Corridor places come from `OCI_POI_BASE_URL` (default `OCI_GEO_BASE_URL/poi`, header `X-API-Key`). Public Overpass runs only when `POI_OVERPASS_FALLBACK` is `1`, `true`, or `yes`. Daily `GET /api/cron/fuel-bulletin` stores the European Commission Weekly Oil Bulletin. Apply `drizzle/0003_planner_places.sql` before profile preferences, flags, price reports, and favorites. `POST /api/plan` accepts an optional `via` array of up to three `{label,lng,lat}` points; omit it and routing stays origin–destination. Each plan stop may include `stars` (1–5 from OSM, or null). A border wait may include `unlicensed_market` and `traffic_delay_min`; the plan sheet then shows typical wait without a Nakordoni credit. A favorite route's `plan` JSON may be the planner result or `{ kind: "bg-road-favorite-v1", inputs: { via, depart_at, fuel_level }, result }`.
 
+### Garage and saved routes
+
+- `GET/POST /api/vehicles`, `PATCH/DELETE /api/vehicles/[id]` (needs `drizzle/0005_user_vehicles.sql`; without it the garage UI says so and planning falls back to the profile car). `GET /api/vehicles/lookup?q=` finds a known extra-urban consumption from the US EPA list (fueleconomy.gov) and, only when `NVIDIA_API_KEY` is set, a labelled estimate. `POST /api/plan` takes an optional `vehicle_id`; omitted, the driver's default garage car is used.
+- `PATCH /api/favorites/routes/[id]` renames or updates a favorite route. New UI strings live in `scripts/i18n-features.json`; run `python3 scripts/i18n-features.py` to regenerate `lib/i18n/locales/bg-features.ts` and the en/tr/ro overrides.
+- Rest breaks count from the previous stop of any kind (`mergeDrivingBreaks`), so a longer `break_every_min` is honoured.
+
 ### Keys-only readiness
 
 - Code is ready for operators to paste env vars only (+ one-shot Neon SQL).

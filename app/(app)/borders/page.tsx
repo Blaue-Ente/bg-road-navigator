@@ -98,7 +98,8 @@ function BorderPageContent() {
     );
   }
 
-  if (error || !borderStatus) {
+  // The "on route" tab with no route has nothing to fetch; it shows the hint below.
+  if (error || (!borderStatus && fetchOptions.enabled !== false)) {
     return (
       <div className="p-8 text-center text-sm text-[var(--waze-danger)]">{m.bordersPage.msgcfb43299fd}<button
           onClick={() => window.location.reload()}

@@ -4,6 +4,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { isDatabaseConfigured } from "@/lib/db";
 import { getProfile } from "@/lib/db/profiles";
+import { getActiveVehicle, getVehicle } from "@/lib/db/vehicles";
+import type { UserVehicle } from "@/lib/vehicles/types";
 import {
   resolveDeparture,
   resolveTripPreferences,
@@ -40,6 +42,8 @@ const PlanSchema = z.object({
    * together with a chosen border.
    */
   via: z.array(PointSchema).max(3).optional(),
+  /** A car from the signed-in driver's garage. Omitted: the default car. */
+  vehicle_id: z.string().uuid().optional(),
   preferences: TripPreferencePatchSchema.optional(),
   locale: z.enum(["bg", "en", "tr", "ro"]).optional(),
   route_choice: z
@@ -105,13 +109,24 @@ export async function POST(request: NextRequest) {
     profile?.trip_preferences
   );
   const departAt = resolveDeparture(preferences, body.depart_at, new Date());
+  const garageCar = await signedInVehicle(profile, body.vehicle_id);
   const vehicle = resolveVehicle({
-    vehicle_type: profile?.vehicle_type ?? body.vehicle?.vehicle_type,
-    fuel_type: profile?.fuel_type ?? body.vehicle?.fuel_type,
+    vehicle_type:
+      garageCar?.vehicle_type ??
+      profile?.vehicle_type ??
+      body.vehicle?.vehicle_type,
+    fuel_type:
+      garageCar?.fuel_type ?? profile?.fuel_type ?? body.vehicle?.fuel_type,
     tank_capacity_liters:
-      profile?.tank_capacity_liters ?? body.vehicle?.tank_capacity_liters,
-    ev_range_km: profile?.ev_range_km ?? body.vehicle?.ev_range_km,
-    consumption_per_100: body.vehicle?.consumption_per_100,
+      garageCar?.tank_capacity_liters ??
+      profile?.tank_capacity_liters ??
+      body.vehicle?.tank_capacity_liters,
+    ev_range_km:
+      garageCar?.ev_range_km ??
+      profile?.ev_range_km ??
+      body.vehicle?.ev_range_km,
+    consumption_per_100:
+      garageCar?.consumption_per_100 ?? body.vehicle?.consumption_per_100,
     level: body.fuel_level,
     reserve: body.reserve_margin,
   });
@@ -148,13 +163,31 @@ export async function POST(request: NextRequest) {
         { status: 502 }
       );
     }
-    return NextResponse.json(plan);
+    return NextResponse.json({
+      ...plan,
+      vehicle: { ...plan.vehicle, vehicle_id: garageCar?.id ?? null },
+    });
   } catch (error) {
     console.error("Trip plan failed:", error);
     return NextResponse.json(
       { error: api.planFailed, code: "PLAN_FAILED" },
       { status: 500 }
     );
+  }
+}
+
+/** The picked or default garage car. A missing table or database means no garage car. */
+async function signedInVehicle(
+  profile: Profile | null,
+  vehicleId: string | undefined
+): Promise<UserVehicle | null> {
+  if (!profile) return null;
+  try {
+    return vehicleId
+      ? await getVehicle(profile.id, vehicleId)
+      : await getActiveVehicle(profile.id);
+  } catch {
+    return null;
   }
 }
 

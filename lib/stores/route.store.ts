@@ -12,6 +12,8 @@ export interface ReplanDraft {
   preferences: TripPreferences;
   departAt: string | null;
   fuelLevel: number;
+  favoriteId?: string | null;
+  favoriteName?: string | null;
 }
 
 export interface PlanningVia {

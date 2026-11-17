@@ -5,7 +5,11 @@
   },
   "planning": {
     "departYourTime": "{datetime} — ceasul dvs. ({zone})",
-    "departOriginTime": "La {place} este ora {time}."
+    "departOriginTime": "La {place} este ora {time}.",
+    "carChoose": "Mașina pentru această călătorie",
+    "carConsumption": "Consum mediu: {value} {unit}",
+    "carDefault": "Mașina principală",
+    "carNoGarage": "Adaugă o mașină în profil pentru un plan mai precis."
   },
   "sheet": {
     "waitAtArrival": "La sosire (~{time}, {place}): {minutes} min",
@@ -56,14 +60,11 @@
       "warningAlongRoute": "În jur de {km} km pe traseu, la {eta}.",
       "alongRouteSample": "Pe traseu",
       "alertPassTitle": "Atenție: {name}",
-      "alertPassDescription":
-        "Posibil zăpadă, vânt sau carosabil alunecos în zona trecătorii. Verificați prognoza înainte de plecare.",
+      "alertPassDescription": "Posibil zăpadă, vânt sau carosabil alunecos în zona trecătorii. Verificați prognoza înainte de plecare.",
       "alertHighWindTitle": "Vânt puternic pe traseu",
-      "alertHighWindDescription":
-        "Vânt peste 50 km/h — atenție la vehicule înalte.",
+      "alertHighWindDescription": "Vânt peste 50 km/h — atenție la vehicule înalte.",
       "alertLowVisibilityTitle": "Vizibilitate redusă",
-      "alertLowVisibilityDescription":
-        "Vizibilitate sub 2 km — aprindeți luminile și reduceți viteza."
+      "alertLowVisibilityDescription": "Vizibilitate sub 2 km — aprindeți luminile și reduceți viteza."
     },
     "hotspots": {
       "attentionTitle": "Sector care cere atenție sporită",
@@ -96,23 +97,19 @@
       "signalOne": "alertă",
       "signalOther": "alerte",
       "reasonTitle": "Informări de la agenția rutieră",
-      "reasonDetail":
-        "{count} alerte pe secțiunea bulgară ({kinds}).{place}",
+      "reasonDetail": "{count} alerte pe secțiunea bulgară ({kinds}).{place}",
       "reasonRo": "{count} alerte de la Agenția rutieră bulgară pe acest traseu ({kinds}).{place}",
       "reasonExample": " Exemplu: {place}.",
       "agencyDetailsOnly": "Detaliile sunt disponibile în bulgară de la agenția rutieră.",
       "lineUntil": "{label}: {where}{text}{until}"
     },
     "proximity": {
-      "hotspotAhead":
-        "Peste {meters} m: sector cu accidente frecvente. Conduceți prudent.",
+      "hotspotAhead": "Peste {meters} m: sector cu accidente frecvente. Conduceți prudent.",
       "hazardAhead": "Peste {meters} m: pericol pe drum. Conduceți prudent."
     },
     "why": {
-      "twoDriversDay":
-        "Cu doi șoferi putem conduce până la {hours} h pe zi, deci oprirea de noapte e mai departe pe traseu și rămâne mai puțin pentru dimineață.",
-      "childrenBreaks":
-        "Cu copii, pauzele sunt la fiecare {minutes} min și durează {dwell} min; asta adaugă aproximativ {total} min."
+      "twoDriversDay": "Cu doi șoferi putem conduce până la {hours} h pe zi, deci oprirea de noapte e mai departe pe traseu și rămâne mai puțin pentru dimineață.",
+      "childrenBreaks": "Cu copii, pauzele sunt la fiecare {minutes} min și durează {dwell} min; asta adaugă aproximativ {total} min."
     },
     "fuel": {
       "diesel": "motorină",
@@ -157,7 +154,9 @@
     "databaseError": "Înregistrarea a eșuat",
     "invalidPoints": "Puncte invalide",
     "weatherFetchFailed": "Prognoza nu a putut fi încărcată",
-    "weatherAttribution": "Prognoză: Open-Meteo.com (CC BY 4.0)"
+    "weatherAttribution": "Prognoză: Open-Meteo.com (CC BY 4.0)",
+    "invalidVehicle": "Date invalide pentru mașină.",
+    "vehicleLimit": "Ai atins limita de 12 mașini."
   },
   "location": {
     "notifications": {
@@ -287,11 +286,11 @@
     "electric": "Încărcare electrică",
     "unitPerLitre": "€/l",
     "unitPerKwh": "€/kWh",
-    "estimateDisclaimer":
-      "Estimare după consum mediu și preț de referință — nu este prețul de la stație.",
+    "estimateDisclaimer": "Estimare după consum mediu și preț de referință — nu este prețul de la stație.",
     "attributionFuelo": "Date: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
-    "eurSuffix": "€"
+    "eurSuffix": "€",
+    "kwhec63": "€/kWh"
   },
   "tripHeuristic": {
     "restTitle": "Pauză",
@@ -301,16 +300,11 @@
     "overnightNear": "Cazare lângă {name}",
     "evChargeTitle": "Încărcare electrică",
     "fuelTitle": "Alimentare cu combustibil",
-    "evChargeDescription":
-      "Alegeți o stație de încărcare confirmată și verificați disponibilitatea înainte de plecare.",
-    "fuelDescription":
-      "Alegeți o stație pe traseu și verificați prețul la fața locului.",
-    "warningLongRoute":
-      "Traseul este lung. Confirmați cel puțin o oprire de noapte înainte de plecare.",
-    "warningEv":
-      "Disponibilitatea încărcătoarelor nu este garantată — confirmați fiecare oprire cu operatorul.",
-    "warningCalculatedStops":
-      "Unele opriri sunt doar orientative. Alegeți un loc concret înainte de călătorie."
+    "evChargeDescription": "Alegeți o stație de încărcare confirmată și verificați disponibilitatea înainte de plecare.",
+    "fuelDescription": "Alegeți o stație pe traseu și verificați prețul la fața locului.",
+    "warningLongRoute": "Traseul este lung. Confirmați cel puțin o oprire de noapte înainte de plecare.",
+    "warningEv": "Disponibilitatea încărcătoarelor nu este garantată — confirmați fiecare oprire cu operatorul.",
+    "warningCalculatedStops": "Unele opriri sunt doar orientative. Alegeți un loc concret înainte de călătorie."
   },
   "maneuvers": {
     "types": {
@@ -362,6 +356,57 @@
     "attributionDataFrom": "Date de la",
     "groupSections": "Zone cu atenție sporită",
     "groupIncidents": "Incidente rutiere",
-    "groupHazards": "Pericole pe traseu"
+    "groupHazards": "Pericole pe traseu",
+    "zoomForStations": "Mărește harta pentru a vedea benzinăriile și stațiile de încărcare."
+  },
+  "favorites": {
+    "cancel": "Anulează",
+    "clearAll": "Șterge toate rutele",
+    "confirmClearAll": "Ștergi toate cele {count} rute favorite?",
+    "confirmRemove": "Ștergi „{name}”?",
+    "edit": "Modifică",
+    "editing": "Editezi ruta salvată: {name}",
+    "removeFailed": "Nu am putut șterge. Încearcă din nou.",
+    "rename": "Redenumește",
+    "renameFailed": "Nu am putut salva numele. Încearcă din nou.",
+    "renameLabel": "Numele rutei",
+    "save": "Salvează",
+    "stopEditing": "Salvează ca rută nouă",
+    "updateFailed": "Ruta nu a putut fi actualizată.",
+    "updateRoute": "Actualizează ruta salvată",
+    "updated": "Ruta salvată a fost actualizată."
+  },
+  "garage": {
+    "active": "Principală",
+    "add": "Adaugă o mașină",
+    "cancel": "Anulează",
+    "consumption": "Consum mediu în afara localității",
+    "consumptionHint": "Folosit pentru opriri de alimentare și costul călătoriei. Îl poți introduce și manual.",
+    "edit": "Modifică",
+    "empty": "Nu ai salvat încă nicio mașină. Adaugă una pentru opriri și costuri precise.",
+    "findConsumption": "Găsește consumul mediu",
+    "finding": "Se caută…",
+    "lookupFailed": "Căutarea a eșuat. Încearcă din nou sau introdu consumul manual.",
+    "makeActive": "Fă-o principală",
+    "migrationHint": "Rulează drizzle/0005_user_vehicles.sql în baza de date pentru a salva mașini.",
+    "name": "Marcă, model, an",
+    "namePlaceholder": "ex. VW Passat 2018 2.0 TDI",
+    "noMatch": "Nu am găsit acest model. Introdu consumul manual.",
+    "pickCandidate": "Alege cea mai apropiată variantă:",
+    "remove": "Șterge",
+    "removeFailed": "Mașina nu a putut fi ștearsă.",
+    "save": "Salvează mașina",
+    "saveFailed": "Mașina nu a putut fi salvată.",
+    "saving": "Se salvează…",
+    "signIn": "Autentifică-te pentru a salva mașini.",
+    "sourceEstimate": "Estimare aproximativă — verific-o",
+    "sourceKnown": "Valoare cunoscută (US EPA)",
+    "sourceManual": "Introdus manual",
+    "title": "Mașinile mele",
+    "unavailable": "Mașinile se salvează după activarea bazei de date.",
+    "unitKwh": "kWh/100 km",
+    "unitLiters": "L/100 km",
+    "use": "Folosește",
+    "importProfile": "Adaugă „{name}” din profil"
   }
 }

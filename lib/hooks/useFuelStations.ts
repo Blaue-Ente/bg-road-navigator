@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { FuelApiResponse } from "@/types/fuel.types";
 import type { BoundingBox } from "@/types/map.types";
 
@@ -31,5 +31,6 @@ export function useFuelStations(
     },
     staleTime: 1000 * 60 * 60,
     enabled: options?.enabled ?? true,
+    placeholderData: keepPreviousData,
   });
 }

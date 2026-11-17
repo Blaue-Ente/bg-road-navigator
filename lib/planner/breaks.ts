@@ -78,9 +78,13 @@ export interface MergeBreaksInput {
 const DEFAULT_OVERNIGHT_AT_MIN = 600;
 
 /**
- * Rest about every 2–2.5 h of driving. An overnight window appears once the
- * driving time passes ~10.5 h, then again each further block of driving.
- * A rest or overnight within `mergeWithinMin` of a fuel stop is folded into it.
+ * Rest after `breakEveryMin` of driving since the last stop of any kind.
+ * Fuel, charge and overnight stops are breaks too: they reset the clock, so a
+ * longer interval chosen by the driver is not undercut by extra rests between
+ * them. A rest due within `mergeWithinMin` before a forced stop is folded into
+ * it, and a forced stop up to `mergeWithinMin` after the due time delays the
+ * rest to that stop. An overnight window appears once the driving time passes
+ * `overnightAfterMin`, then again each further block of driving.
  */
 export function mergeDrivingBreaks(input: MergeBreaksInput): TimedStop[] {
   const driveMin = Math.max(0, input.driveMin);
@@ -89,13 +93,13 @@ export function mergeDrivingBreaks(input: MergeBreaksInput): TimedStop[] {
   const overnightAfter = input.overnightAfterMin;
   const overnightAt = input.overnightAtMin ?? DEFAULT_OVERNIGHT_AT_MIN;
   const distanceKm = Math.max(0, input.distanceKm);
-  const drafts: TimedStop[] = [];
+  const forcedDrafts: TimedStop[] = [];
   const atKm = (minute: number) =>
     driveMin <= 0 ? 0 : Math.round((minute / driveMin) * distanceKm * 10) / 10;
 
   for (const fuel of input.fuelStops) {
     if (fuel.etaMin >= driveMin - 5) continue;
-    drafts.push({
+    forcedDrafts.push({
       kinds: [fuel.kind],
       distanceKm: fuel.distanceKm,
       etaMin: fuel.etaMin,
@@ -108,7 +112,7 @@ export function mergeDrivingBreaks(input: MergeBreaksInput): TimedStop[] {
       minute < driveMin - 45;
       minute += overnightAt
     ) {
-      drafts.push({
+      forcedDrafts.push({
         kinds: ["overnight"],
         distanceKm: atKm(minute),
         etaMin: minute,
@@ -116,16 +120,30 @@ export function mergeDrivingBreaks(input: MergeBreaksInput): TimedStop[] {
     }
   }
 
-  for (let minute = every; minute < driveMin - 30; minute += every) {
-    drafts.push({
-      kinds: ["rest"],
-      distanceKm: atKm(minute),
-      etaMin: minute,
-    });
-  }
+  forcedDrafts.sort((a, b) => a.etaMin - b.etaMin);
+  const forced = cluster(forcedDrafts, within);
 
-  drafts.sort((a, b) => a.etaMin - b.etaMin);
-  return cluster(drafts, within);
+  const result: TimedStop[] = [];
+  let lastStopMin = 0;
+  let nextForced = 0;
+  for (;;) {
+    const due = lastStopMin + every;
+    const upcoming = forced[nextForced];
+    if (upcoming && upcoming.etaMin <= due + within) {
+      const isOvernight = upcoming.kinds.includes("overnight");
+      if (!isOvernight && upcoming.etaMin >= due - within) {
+        upcoming.kinds.push("rest");
+      }
+      result.push(upcoming);
+      lastStopMin = upcoming.etaMin;
+      nextForced += 1;
+      continue;
+    }
+    if (due >= driveMin - 30) break;
+    result.push({ kinds: ["rest"], distanceKm: atKm(due), etaMin: due });
+    lastStopMin = due;
+  }
+  return result;
 }
 
 function cluster(drafts: TimedStop[], withinMin: number): TimedStop[] {

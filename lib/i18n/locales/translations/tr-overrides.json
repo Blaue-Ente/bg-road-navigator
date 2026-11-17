@@ -5,7 +5,11 @@
   },
   "planning": {
     "departYourTime": "{datetime} — sizin saatiniz ({zone})",
-    "departOriginTime": "{place} için bu saat {time}."
+    "departOriginTime": "{place} için bu saat {time}.",
+    "carChoose": "Bu yolculuk için araç",
+    "carConsumption": "Ortalama tüketim: {value} {unit}",
+    "carDefault": "Varsayılan araç",
+    "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin."
   },
   "sheet": {
     "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",
@@ -54,14 +58,11 @@
       "warningAlongRoute": "Güzergâhta yaklaşık {km} km civarında, {eta}.",
       "alongRouteSample": "Güzergâh üzerinde",
       "alertPassTitle": "Dikkat: {name}",
-      "alertPassDescription":
-        "Geçit civarında kar, rüzgâr veya kaygan yol olabilir. Yola çıkmadan önce hava durumunu kontrol edin.",
+      "alertPassDescription": "Geçit civarında kar, rüzgâr veya kaygan yol olabilir. Yola çıkmadan önce hava durumunu kontrol edin.",
       "alertHighWindTitle": "Güzergâhta kuvvetli rüzgâr",
-      "alertHighWindDescription":
-        "50 km/s üzeri rüzgâr — yüksek araçlarda dikkatli olun.",
+      "alertHighWindDescription": "50 km/s üzeri rüzgâr — yüksek araçlarda dikkatli olun.",
       "alertLowVisibilityTitle": "Görüş azaldı",
-      "alertLowVisibilityDescription":
-        "2 km altı görüş — farları açın ve yavaşlayın."
+      "alertLowVisibilityDescription": "2 km altı görüş — farları açın ve yavaşlayın."
     },
     "hotspots": {
       "attentionTitle": "Dikkat gerektiren kesim",
@@ -92,8 +93,7 @@
       "signalOne": "uyarı",
       "signalOther": "uyarı",
       "reasonTitle": "Yol ajansı bildirimi",
-      "reasonDetail":
-        "Bulgaristan bölümünde {count} bildirim ({kinds}).{place}",
+      "reasonDetail": "Bulgaristan bölümünde {count} bildirim ({kinds}).{place}",
       "reasonTrOne": "Bu güzergâhta 1 Bulgar yol ajansı uyarısı var ({kinds}).{place}",
       "reasonTrOther": "Bu güzergâhta {count} Bulgar yol ajansı uyarısı var ({kinds}).{place}",
       "reasonExample": " Örnek: {place}.",
@@ -101,15 +101,12 @@
       "lineUntil": "{label}: {where}{text}{until}"
     },
     "proximity": {
-      "hotspotAhead":
-        "{meters} m sonra: sık kaza olan bir kesim. Dikkatli sürün.",
+      "hotspotAhead": "{meters} m sonra: sık kaza olan bir kesim. Dikkatli sürün.",
       "hazardAhead": "{meters} m sonra: yolda tehlike. Dikkatli sürün."
     },
     "why": {
-      "twoDriversDay":
-        "İki sürücüyle günde {hours} saate kadar sürebiliriz; bu yüzden gece konaklaması yolun ilerisindedir ve sabaha daha az yol kalır.",
-      "childrenBreaks":
-        "Çocuklarla molalar her {minutes} dk’da bir olur ve {dwell} dk sürer; bu yaklaşık {total} dk ekler."
+      "twoDriversDay": "İki sürücüyle günde {hours} saate kadar sürebiliriz; bu yüzden gece konaklaması yolun ilerisindedir ve sabaha daha az yol kalır.",
+      "childrenBreaks": "Çocuklarla molalar her {minutes} dk’da bir olur ve {dwell} dk sürer; bu yaklaşık {total} dk ekler."
     },
     "fuel": {
       "diesel": "dizel",
@@ -154,7 +151,9 @@
     "databaseError": "Kaydedilemedi",
     "invalidPoints": "Geçersiz noktalar",
     "weatherFetchFailed": "Hava durumu yüklenemedi",
-    "weatherAttribution": "Tahmin: Open-Meteo.com (CC BY 4.0)"
+    "weatherAttribution": "Tahmin: Open-Meteo.com (CC BY 4.0)",
+    "invalidVehicle": "Geçersiz araç bilgisi.",
+    "vehicleLimit": "12 araç sınırına ulaştınız."
   },
   "location": {
     "notifications": {
@@ -284,11 +283,11 @@
     "electric": "Elektrikli şarj",
     "unitPerLitre": "€/l",
     "unitPerKwh": "€/kWh",
-    "estimateDisclaimer":
-      "Ortalama tüketim ve referans fiyata göre tahmin — istasyon fiyatı değil.",
+    "estimateDisclaimer": "Ortalama tüketim ve referans fiyata göre tahmin — istasyon fiyatı değil.",
     "attributionFuelo": "Veri: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
-    "eurSuffix": "€"
+    "eurSuffix": "€",
+    "kwhec63": "€/kWh"
   },
   "tripHeuristic": {
     "restTitle": "Mola",
@@ -298,16 +297,11 @@
     "overnightNear": "{name} yakınında geceleme",
     "evChargeTitle": "Elektrikli şarj",
     "fuelTitle": "Yakıt dolumu",
-    "evChargeDescription":
-      "Onaylı bir şarj istasyonu seçin ve yola çıkmadan önce uygunluğu kontrol edin.",
-    "fuelDescription":
-      "Güzergâhtaki bir istasyonu seçin ve fiyatı yerinde kontrol edin.",
-    "warningLongRoute":
-      "Güzergâh uzun. Yola çıkmadan en az bir gecelemeyi onaylayın.",
-    "warningEv":
-      "Şarj noktası müsaitliği garanti değil — her durağı işletmeciyle teyit edin.",
-    "warningCalculatedStops":
-      "Bazı duraklar yalnızca yön gösterici. Yola çıkmadan somut bir yer seçin."
+    "evChargeDescription": "Onaylı bir şarj istasyonu seçin ve yola çıkmadan önce uygunluğu kontrol edin.",
+    "fuelDescription": "Güzergâhtaki bir istasyonu seçin ve fiyatı yerinde kontrol edin.",
+    "warningLongRoute": "Güzergâh uzun. Yola çıkmadan en az bir gecelemeyi onaylayın.",
+    "warningEv": "Şarj noktası müsaitliği garanti değil — her durağı işletmeciyle teyit edin.",
+    "warningCalculatedStops": "Bazı duraklar yalnızca yön gösterici. Yola çıkmadan somut bir yer seçin."
   },
   "maneuvers": {
     "types": {
@@ -359,6 +353,57 @@
     "attributionDataFrom": "Veri kaynağı:",
     "groupSections": "Dikkat gereken bölümler",
     "groupIncidents": "Yol olayları",
-    "groupHazards": "Güzergâhtaki tehlikeler"
+    "groupHazards": "Güzergâhtaki tehlikeler",
+    "zoomForStations": "Akaryakıt istasyonlarını ve şarj noktalarını görmek için yakınlaştırın."
+  },
+  "favorites": {
+    "cancel": "İptal",
+    "clearAll": "Tüm rotaları sil",
+    "confirmClearAll": "Tüm {count} favori rota silinsin mi?",
+    "confirmRemove": "“{name}” silinsin mi?",
+    "edit": "Düzenle",
+    "editing": "Kayıtlı rotayı düzenliyorsunuz: {name}",
+    "removeFailed": "Silinemedi. Lütfen tekrar deneyin.",
+    "rename": "Yeniden adlandır",
+    "renameFailed": "Ad kaydedilemedi. Lütfen tekrar deneyin.",
+    "renameLabel": "Rota adı",
+    "save": "Kaydet",
+    "stopEditing": "Yeni rota olarak kaydet",
+    "updateFailed": "Rota güncellenemedi.",
+    "updateRoute": "Kayıtlı rotayı güncelle",
+    "updated": "Kayıtlı rota güncellendi."
+  },
+  "garage": {
+    "active": "Varsayılan",
+    "add": "Araç ekle",
+    "cancel": "İptal",
+    "consumption": "Şehir dışı ortalama tüketim",
+    "consumptionHint": "Yakıt molaları ve yolculuk maliyeti için kullanılır. Elle de girebilirsiniz.",
+    "edit": "Düzenle",
+    "empty": "Henüz kayıtlı araç yok. Doğru yakıt molaları ve maliyetler için bir tane ekleyin.",
+    "findConsumption": "Ortalama tüketimi bul",
+    "finding": "Aranıyor…",
+    "lookupFailed": "Arama başarısız. Tekrar deneyin veya tüketimi elle girin.",
+    "makeActive": "Varsayılan yap",
+    "migrationHint": "Araçları kaydetmek için veritabanında drizzle/0005_user_vehicles.sql çalıştırın.",
+    "name": "Marka, model, yıl",
+    "namePlaceholder": "örn. VW Passat 2018 2.0 TDI",
+    "noMatch": "Bu model bulunamadı. Tüketimi elle girin.",
+    "pickCandidate": "En yakın eşleşmeyi seçin:",
+    "remove": "Sil",
+    "removeFailed": "Araç silinemedi.",
+    "save": "Aracı kaydet",
+    "saveFailed": "Araç kaydedilemedi.",
+    "saving": "Kaydediliyor…",
+    "signIn": "Araç kaydetmek için giriş yapın.",
+    "sourceEstimate": "Yaklaşık tahmin — lütfen kontrol edin",
+    "sourceKnown": "Bilinen değer (US EPA)",
+    "sourceManual": "Elle girildi",
+    "title": "Araçlarım",
+    "unavailable": "Araçlar veritabanı etkinleştirildiğinde kaydedilir.",
+    "unitKwh": "kWh/100 km",
+    "unitLiters": "L/100 km",
+    "use": "Kullan",
+    "importProfile": "Profildeki “{name}” aracını ekle"
   }
 }

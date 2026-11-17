@@ -102,7 +102,10 @@ import type { ProvidedRoadRoute } from "@/lib/api-clients/road-route";
 
 const ON_PATH_KM = 12;
 const MAX_VIA = 3;
-const PRICE_LOOKUPS = 8;
+/** Price lookups per plan, and how many stations to try near each fuel stop. */
+const PRICE_LOOKUPS = 16;
+const PRICE_LOOKUPS_PER_STOP = 4;
+const FUEL_LOOKBACK_KM = 40;
 
 export interface TripPlanRequest {
   origin: { label: string; coords: GeoPoint; countryCode?: string | null };
@@ -515,6 +518,8 @@ export async function runTripPlan(input: TripPlanRequest) {
   const attentionSegments = hotspotsAlongRoute(loadHotspots(), chosenLine);
 
   const places = dedupeChargers([...corridor.places, ...chargers], chosenLine);
+  const annotatedPlaces = annotatePlaces(chosenLine, roadKm, places);
+  const fuelStopCandidates = fuelStopStations(annotatedPlaces, merged);
   const [flagRows, reportRows, officialPrices] = await Promise.all([
     safeFlags(places.map((place) => place.id)),
     safeReports(
@@ -522,12 +527,12 @@ export async function runTripPlan(input: TripPlanRequest) {
       bulletinFuel,
       now
     ),
-    officialPricesFor(places, bulletinFuel, now),
+    officialPricesFor(places, fuelStopCandidates, bulletinFuel, now),
   ]);
   const flags = aggregateFlags(flagRows, now);
   const reports = newestReport(reportRows);
 
-  const annotated = annotatePlaces(chosenLine, roadKm, places).map((place) =>
+  const annotated = annotatedPlaces.map((place) =>
     applyPrice(place, officialPrices, reports, flags.get(place.id)?.weights)
   );
   const { attachments, sights } = attachStops({
@@ -699,30 +704,80 @@ function applyPrice(
   return { ...place, flagWeights };
 }
 
+/**
+ * Stations worth a price lookup: the few nearest the route in the 40 km before
+ * each fuel stop. The old "first eight along the whole route" left every stop
+ * after the first hundred kilometres without a price.
+ */
+export function fuelStopStations(
+  places: Array<{
+    id: string;
+    kind: string;
+    lat: number;
+    lng: number;
+    alongKm: number;
+    detourKm: number;
+  }>,
+  merged: Array<{ kinds: string[]; distanceKm: number }>
+): string[] {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const stop of merged) {
+    if (!stop.kinds.includes("fuel")) continue;
+    const near = places
+      .filter(
+        (place) =>
+          place.kind === "fuel" &&
+          place.alongKm >= stop.distanceKm - FUEL_LOOKBACK_KM &&
+          place.alongKm <= stop.distanceKm
+      )
+      .sort((a, b) => a.detourKm - b.detourKm)
+      .slice(0, PRICE_LOOKUPS_PER_STOP);
+    for (const place of near) {
+      if (seen.has(place.id)) continue;
+      seen.add(place.id);
+      ids.push(place.id);
+    }
+  }
+  return ids;
+}
+
 async function officialPricesFor(
   places: CorridorPlace[],
+  stopStationIds: string[],
   fuel: "petrol" | "diesel" | null,
   now: Date
 ): Promise<Map<string, KnownPrice>> {
   const found = new Map<string, KnownPrice>();
   if (!fuel) return found;
-  const candidates = places
-    .filter((place) => place.kind === "fuel")
+  const wanted = new Set(stopStationIds);
+  const fuelPlaces = places.filter((place) => place.kind === "fuel");
+  // Stations at planned stops first, then the old "first on the route" ones.
+  const ordered = [
+    ...fuelPlaces.filter((place) => wanted.has(place.id)),
+    ...fuelPlaces.filter((place) => !wanted.has(place.id)),
+  ];
+  const candidates = ordered
     .filter((place) => {
       const country = countryCodeAtPoint(place.lng, place.lat);
       return country === "AT" || country === "DE";
     })
     .slice(0, PRICE_LOOKUPS);
-  const looked = await Promise.all(
-    candidates.map(async (place) => {
-      const country = countryCodeAtPoint(place.lng, place.lat);
-      const result = await resolveStationPrice(
-        { countryCode: country, fuel, lat: place.lat, lng: place.lng },
-        { now }
-      );
-      return result.price ? ([place.id, result.price] as const) : null;
-    })
-  );
+  // Small batches keep the free price APIs (Tankerkönig, E-Control) within their rate limits.
+  const looked: Array<readonly [string, KnownPrice] | null> = [];
+  for (let i = 0; i < candidates.length; i += 4) {
+    const batch = await Promise.all(
+      candidates.slice(i, i + 4).map(async (place) => {
+        const country = countryCodeAtPoint(place.lng, place.lat);
+        const result = await resolveStationPrice(
+          { countryCode: country, fuel, lat: place.lat, lng: place.lng },
+          { now }
+        );
+        return result.price ? ([place.id, result.price] as const) : null;
+      })
+    );
+    looked.push(...batch);
+  }
   for (const row of looked) {
     if (row) found.set(row[0], row[1]);
   }

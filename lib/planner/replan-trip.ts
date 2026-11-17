@@ -42,6 +42,7 @@ export async function replanTrip(
       fuel_level: plan.vehicle.level,
       reserve_margin: plan.vehicle.reserve,
       preferences: prefs,
+      ...(plan.vehicle.vehicle_id ? { vehicle_id: plan.vehicle.vehicle_id } : {}),
       vehicle: {
         vehicle_type: plan.vehicle.vehicle_type,
         fuel_type: plan.vehicle.fuel_type,

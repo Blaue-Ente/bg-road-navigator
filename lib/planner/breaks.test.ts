@@ -33,7 +33,7 @@ describe("mergeDrivingBreaks", () => {
       )
     ).toBe(false);
     expect(
-      stops.some((stop) => stop.etaMin === 260 && stop.kinds.includes("rest"))
+      stops.some((stop) => stop.etaMin === 255 && stop.kinds.includes("rest"))
     ).toBe(true);
     expect(stops.some((stop) => stop.kinds.includes("overnight"))).toBe(false);
   });
@@ -235,5 +235,44 @@ describe("sleepShifts", () => {
     expect(destination.toISOString()).toBe("2026-11-17T10:40:00.000Z");
     expect(sleepMinutesBefore(600, resolved)).toBe(0);
     expect(sleepMinutesBefore(601, resolved)).toBe(14 * 60);
+  });
+});
+
+describe("mergeDrivingBreaks interval", () => {
+  const base = {
+    driveMin: 992,
+    distanceKm: 1861,
+    mergeWithinMin: 30,
+    overnightAfterMin: 630,
+    overnightAtMin: 600,
+    fuelStops: [
+      { kind: "fuel" as const, distanceKm: 520, etaMin: 280 },
+      { kind: "fuel" as const, distanceKm: 1370, etaMin: 730 },
+    ],
+  };
+
+  it("a longer interval never adds stops", () => {
+    const short = mergeDrivingBreaks({ ...base, breakEveryMin: 120 });
+    const long = mergeDrivingBreaks({ ...base, breakEveryMin: 240 });
+    expect(long.length).toBeLessThan(short.length);
+  });
+
+  it("counts fuel and overnight stops as breaks", () => {
+    const stops = mergeDrivingBreaks({ ...base, breakEveryMin: 240 });
+    const times = stops.map((stop) => stop.etaMin);
+    for (let i = 1; i < times.length; i++) {
+      expect(times[i]! - times[i - 1]!).toBeLessThanOrEqual(240 + 30);
+    }
+    const rests = stops.filter(
+      (stop) => stop.kinds.length === 1 && stop.kinds[0] === "rest"
+    );
+    expect(rests.length).toBeLessThanOrEqual(2);
+  });
+
+  it("does not label an overnight as a rest", () => {
+    const stops = mergeDrivingBreaks({ ...base, breakEveryMin: 120 });
+    for (const stop of stops.filter((s) => s.kinds.includes("overnight"))) {
+      expect(stop.kinds).not.toContain("rest");
+    }
   });
 });

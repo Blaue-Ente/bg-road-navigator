@@ -597,7 +597,7 @@
   "Потвърдено": "Confirmat",
   "Потребителско име": "Nume de utilizator",
   "Почивка": "Pauză",
-  "Почивка след около 2–2.5 часа шофиране.": "Pauză după circa 2–2,5 ore de condus.",
+  "Почивка след около {every} шофиране.": "Pauză după circa {every} de condus.",
   "Почивката съвпада със зареждането.": "Pauza coincide cu încărcarea.",
   "Почивки": "Pauze",
   "Почивки и нощувки": "Pauze și cazări",

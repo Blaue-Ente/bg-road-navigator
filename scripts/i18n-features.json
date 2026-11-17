@@ -1,0 +1,326 @@
+{
+ "favorites.rename": [
+  "Преименувай",
+  "Rename",
+  "Yeniden adlandır",
+  "Redenumește"
+ ],
+ "favorites.renameLabel": [
+  "Име на маршрута",
+  "Route name",
+  "Rota adı",
+  "Numele rutei"
+ ],
+ "favorites.save": [
+  "Запази",
+  "Save",
+  "Kaydet",
+  "Salvează"
+ ],
+ "favorites.cancel": [
+  "Отказ",
+  "Cancel",
+  "İptal",
+  "Anulează"
+ ],
+ "favorites.confirmRemove": [
+  "Да изтрия ли „{name}“?",
+  "Delete “{name}”?",
+  "“{name}” silinsin mi?",
+  "Ștergi „{name}”?"
+ ],
+ "favorites.removeFailed": [
+  "Не успяхме да изтрием. Опитайте отново.",
+  "We couldn't delete it. Please try again.",
+  "Silinemedi. Lütfen tekrar deneyin.",
+  "Nu am putut șterge. Încearcă din nou."
+ ],
+ "favorites.renameFailed": [
+  "Не успяхме да запазим името. Опитайте отново.",
+  "We couldn't save the name. Please try again.",
+  "Ad kaydedilemedi. Lütfen tekrar deneyin.",
+  "Nu am putut salva numele. Încearcă din nou."
+ ],
+ "favorites.clearAll": [
+  "Изтрий всички маршрути",
+  "Delete all routes",
+  "Tüm rotaları sil",
+  "Șterge toate rutele"
+ ],
+ "favorites.confirmClearAll": [
+  "Да изтрия ли всички {count} любими маршрута?",
+  "Delete all {count} favourite routes?",
+  "Tüm {count} favori rota silinsin mi?",
+  "Ștergi toate cele {count} rute favorite?"
+ ],
+ "favorites.updateRoute": [
+  "Обнови запазения маршрут",
+  "Update saved route",
+  "Kayıtlı rotayı güncelle",
+  "Actualizează ruta salvată"
+ ],
+ "favorites.editing": [
+  "Редактирате запазен маршрут: {name}",
+  "Editing saved route: {name}",
+  "Kayıtlı rotayı düzenliyorsunuz: {name}",
+  "Editezi ruta salvată: {name}"
+ ],
+ "favorites.stopEditing": [
+  "Запази като нов маршрут",
+  "Save as a new route",
+  "Yeni rota olarak kaydet",
+  "Salvează ca rută nouă"
+ ],
+ "favorites.updated": [
+  "Запазеният маршрут е обновен.",
+  "Saved route updated.",
+  "Kayıtlı rota güncellendi.",
+  "Ruta salvată a fost actualizată."
+ ],
+ "favorites.updateFailed": [
+  "Маршрутът не можа да се обнови.",
+  "The route could not be updated.",
+  "Rota güncellenemedi.",
+  "Ruta nu a putut fi actualizată."
+ ],
+ "favorites.edit": [
+  "Промени",
+  "Edit",
+  "Düzenle",
+  "Modifică"
+ ],
+ "api.invalidVehicle": [
+  "Невалидни данни за автомобила.",
+  "Invalid vehicle details.",
+  "Geçersiz araç bilgisi.",
+  "Date invalide pentru mașină."
+ ],
+ "api.vehicleLimit": [
+  "Достигнахте лимита от 12 автомобила.",
+  "You have reached the limit of 12 cars.",
+  "12 araç sınırına ulaştınız.",
+  "Ai atins limita de 12 mașini."
+ ],
+ "garage.title": [
+  "Моите автомобили",
+  "My cars",
+  "Araçlarım",
+  "Mașinile mele"
+ ],
+ "garage.empty": [
+  "Още няма запазен автомобил. Добавете един за точни спирания за гориво и разходи.",
+  "No car saved yet. Add one for accurate fuel stops and costs.",
+  "Henüz kayıtlı araç yok. Doğru yakıt molaları ve maliyetler için bir tane ekleyin.",
+  "Nu ai salvat încă nicio mașină. Adaugă una pentru opriri și costuri precise."
+ ],
+ "garage.add": [
+  "Добави автомобил",
+  "Add a car",
+  "Araç ekle",
+  "Adaugă o mașină"
+ ],
+ "garage.name": [
+  "Марка, модел, година",
+  "Make, model, year",
+  "Marka, model, yıl",
+  "Marcă, model, an"
+ ],
+ "garage.namePlaceholder": [
+  "напр. VW Passat 2018 2.0 TDI",
+  "e.g. VW Passat 2018 2.0 TDI",
+  "örn. VW Passat 2018 2.0 TDI",
+  "ex. VW Passat 2018 2.0 TDI"
+ ],
+ "garage.findConsumption": [
+  "Намери среден разход",
+  "Find average consumption",
+  "Ortalama tüketimi bul",
+  "Găsește consumul mediu"
+ ],
+ "garage.finding": [
+  "Търсим…",
+  "Searching…",
+  "Aranıyor…",
+  "Se caută…"
+ ],
+ "garage.noMatch": [
+  "Не намерихме този модел. Въведете разхода ръчно.",
+  "We couldn't find this model. Enter the consumption by hand.",
+  "Bu model bulunamadı. Tüketimi elle girin.",
+  "Nu am găsit acest model. Introdu consumul manual."
+ ],
+ "garage.lookupFailed": [
+  "Търсенето не успя. Опитайте пак или въведете разхода ръчно.",
+  "The search failed. Try again or enter the consumption by hand.",
+  "Arama başarısız. Tekrar deneyin veya tüketimi elle girin.",
+  "Căutarea a eșuat. Încearcă din nou sau introdu consumul manual."
+ ],
+ "garage.pickCandidate": [
+  "Изберете най-близкия вариант:",
+  "Pick the closest match:",
+  "En yakın eşleşmeyi seçin:",
+  "Alege cea mai apropiată variantă:"
+ ],
+ "garage.use": [
+  "Използвай",
+  "Use",
+  "Kullan",
+  "Folosește"
+ ],
+ "garage.consumption": [
+  "Среден разход извън града",
+  "Average extra-urban consumption",
+  "Şehir dışı ortalama tüketim",
+  "Consum mediu în afara localității"
+ ],
+ "garage.consumptionHint": [
+  "Използва се за спирания за гориво и цената на пътуването. Може да го въведете и ръчно.",
+  "Used for fuel stops and trip cost. You can also enter it by hand.",
+  "Yakıt molaları ve yolculuk maliyeti için kullanılır. Elle de girebilirsiniz.",
+  "Folosit pentru opriri de alimentare și costul călătoriei. Îl poți introduce și manual."
+ ],
+ "garage.unitLiters": [
+  "л/100 км",
+  "L/100 km",
+  "L/100 km",
+  "L/100 km"
+ ],
+ "garage.unitKwh": [
+  "kWh/100 км",
+  "kWh/100 km",
+  "kWh/100 km",
+  "kWh/100 km"
+ ],
+ "garage.sourceKnown": [
+  "Известен разход (US EPA)",
+  "Known figure (US EPA)",
+  "Bilinen değer (US EPA)",
+  "Valoare cunoscută (US EPA)"
+ ],
+ "garage.sourceManual": [
+  "Въведен ръчно",
+  "Entered by hand",
+  "Elle girildi",
+  "Introdus manual"
+ ],
+ "garage.sourceEstimate": [
+  "Приблизителна оценка — проверете я",
+  "Rough estimate — please check it",
+  "Yaklaşık tahmin — lütfen kontrol edin",
+  "Estimare aproximativă — verific-o"
+ ],
+ "garage.active": [
+  "Основен",
+  "Default",
+  "Varsayılan",
+  "Principală"
+ ],
+ "garage.makeActive": [
+  "Направи основен",
+  "Make default",
+  "Varsayılan yap",
+  "Fă-o principală"
+ ],
+ "garage.edit": [
+  "Промени",
+  "Edit",
+  "Düzenle",
+  "Modifică"
+ ],
+ "garage.remove": [
+  "Изтрий",
+  "Delete",
+  "Sil",
+  "Șterge"
+ ],
+ "garage.save": [
+  "Запази автомобила",
+  "Save car",
+  "Aracı kaydet",
+  "Salvează mașina"
+ ],
+ "garage.saving": [
+  "Записване…",
+  "Saving…",
+  "Kaydediliyor…",
+  "Se salvează…"
+ ],
+ "garage.saveFailed": [
+  "Автомобилът не можа да се запази.",
+  "The car could not be saved.",
+  "Araç kaydedilemedi.",
+  "Mașina nu a putut fi salvată."
+ ],
+ "garage.removeFailed": [
+  "Автомобилът не можа да се изтрие.",
+  "The car could not be deleted.",
+  "Araç silinemedi.",
+  "Mașina nu a putut fi ștearsă."
+ ],
+ "garage.unavailable": [
+  "Автомобилите се пазят след включена база данни.",
+  "Cars are saved once the database is enabled.",
+  "Araçlar veritabanı etkinleştirildiğinde kaydedilir.",
+  "Mașinile se salvează după activarea bazei de date."
+ ],
+ "garage.migrationHint": [
+  "Изпълнете drizzle/0005_user_vehicles.sql в базата, за да запазвате автомобили.",
+  "Run drizzle/0005_user_vehicles.sql on the database to save cars.",
+  "Araçları kaydetmek için veritabanında drizzle/0005_user_vehicles.sql çalıştırın.",
+  "Rulează drizzle/0005_user_vehicles.sql în baza de date pentru a salva mașini."
+ ],
+ "garage.signIn": [
+  "Влезте, за да запазвате автомобили.",
+  "Sign in to save cars.",
+  "Araç kaydetmek için giriş yapın.",
+  "Autentifică-te pentru a salva mașini."
+ ],
+ "garage.cancel": [
+  "Отказ",
+  "Cancel",
+  "İptal",
+  "Anulează"
+ ],
+ "planning.carChoose": [
+  "Автомобил за този маршрут",
+  "Car for this trip",
+  "Bu yolculuk için araç",
+  "Mașina pentru această călătorie"
+ ],
+ "planning.carDefault": [
+  "Основен автомобил",
+  "Default car",
+  "Varsayılan araç",
+  "Mașina principală"
+ ],
+ "planning.carConsumption": [
+  "Среден разход: {value} {unit}",
+  "Average consumption: {value} {unit}",
+  "Ortalama tüketim: {value} {unit}",
+  "Consum mediu: {value} {unit}"
+ ],
+ "planning.carNoGarage": [
+  "Добавете автомобил в профила за по-точен план.",
+  "Add a car in your profile for a more accurate plan.",
+  "Daha doğru bir plan için profilinize araç ekleyin.",
+  "Adaugă o mașină în profil pentru un plan mai precis."
+ ],
+ "garage.importProfile": [
+  "Добави „{name}“ от профила",
+  "Add “{name}” from your profile",
+  "Profildeki “{name}” aracını ekle",
+  "Adaugă „{name}” din profil"
+ ],
+ "map.zoomForStations": [
+  "Приближете картата, за да видите бензиностанции и зарядни.",
+  "Zoom in to see fuel stations and chargers.",
+  "Akaryakıt istasyonlarını ve şarj noktalarını görmek için yakınlaştırın.",
+  "Mărește harta pentru a vedea benzinăriile și stațiile de încărcare."
+ ],
+ "fuel.kwhec63": [
+  "€/kWh",
+  "€/kWh",
+  "€/kWh",
+  "€/kWh"
+ ]
+}

@@ -14,6 +14,9 @@ export interface PlannerDraft {
   /** Value of the datetime-local input (Europe/Sofia morning default when unset). */
   departLocal: string;
   fuelPercent: number;
+  /** Set while a saved favorite route is being edited, so saving updates it. */
+  favoriteId: string | null;
+  favoriteName: string | null;
 }
 
 export interface DraftStorage {
@@ -33,6 +36,8 @@ export function createPlannerDraft(input: {
   preferences?: TripPreferences;
   departLocal?: string;
   fuelPercent?: number;
+  favoriteId?: string | null;
+  favoriteName?: string | null;
 }): PlannerDraft {
   return {
     origin: input.origin ?? null,
@@ -42,6 +47,8 @@ export function createPlannerDraft(input: {
     preferences: input.preferences ?? resolveTripPreferences(),
     departLocal: input.departLocal ?? proposedDepartLocalValue(),
     fuelPercent: clampFuel(input.fuelPercent ?? 80),
+    favoriteId: input.favoriteId ?? null,
+    favoriteName: input.favoriteName ?? null,
   };
 }
 
@@ -67,6 +74,8 @@ export function serializePlannerDraft(draft: PlannerDraft): string {
     preferences: draft.preferences,
     departLocal: draft.departLocal,
     fuelPercent: draft.fuelPercent,
+    favoriteId: draft.favoriteId,
+    favoriteName: draft.favoriteName,
   });
 }
 
@@ -97,6 +106,9 @@ export function parsePlannerDraft(raw: string | null): PlannerDraft | null {
       preferences: resolveTripPreferences(row.preferences),
       departLocal,
       fuelPercent: clampFuel(row.fuelPercent),
+      favoriteId: typeof row.favoriteId === "string" ? row.favoriteId : null,
+      favoriteName:
+        typeof row.favoriteName === "string" ? row.favoriteName : null,
     };
   } catch {
     return null;

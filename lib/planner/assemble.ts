@@ -39,7 +39,10 @@ import type {
   TripPlannerResult,
   WhyReason,
 } from "@/lib/planner/types";
-import type { TripPreferences } from "@/lib/planner/preferences";
+import {
+  effectiveBreakEveryMin,
+  type TripPreferences,
+} from "@/lib/planner/preferences";
 import { OSM_ATTRIBUTION } from "@/lib/planner/osm-attribution";
 import type { ResolvedVehicle } from "@/lib/planner/vehicle";
 import type { GeoPoint } from "@/types/route.types";
@@ -411,7 +414,8 @@ function toPlanStop(
       eta,
       wakeZone,
       p.stops,
-      input.locale ?? "bg"
+      input.locale ?? "bg",
+      effectiveBreakEveryMin(input.preferences)
     ),
     coords,
     distance_from_start_km: Math.round(stop.distanceKm),
@@ -581,7 +585,8 @@ function reasonFor(
   arrivalIso: string,
   wakeTimeZone: string | null,
   stops: PlannerCopy["stops"],
-  locale: Locale
+  locale: Locale,
+  breakEveryMin: number
 ): string {
   const parts: string[] = [];
   if (kinds.includes("fuel") || kinds.includes("charge")) {
@@ -597,8 +602,12 @@ function reasonFor(
     (kinds.includes("fuel") || kinds.includes("charge"))
   ) {
     parts.push(stops.restWithCharge);
-  } else if (kinds.includes("rest")) {
-    parts.push(stops.restAfterDrive);
+  } else if (kinds.includes("rest") && !kinds.includes("overnight")) {
+    parts.push(
+      formatTemplate(stops.restAfterDrive, {
+        every: formatClockDuration(breakEveryMin, unitsFrom(catalog(locale))),
+      })
+    );
   }
   if (kinds.includes("overnight") && sleepMin != null && sleepMin > 0) {
     const zone = wakeTimeZone ?? "Europe/Sofia";

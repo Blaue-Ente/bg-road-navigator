@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import { useVehicles } from "@/lib/hooks/useVehicles";
 import { ChevronDown, Star } from "lucide-react";
 import { LocationSearchInput } from "@/components/route/LocationSearchInput";
 import {
@@ -29,6 +31,7 @@ import {
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore, type Profile } from "@/lib/stores/user.store";
 import type { MessageCatalog } from "@/lib/i18n/locales/bg";
+import type { UserVehicle } from "@/lib/vehicles/types";
 import { localeTag } from "@/lib/i18n/locale";
 import {
   useLocale,
@@ -41,6 +44,8 @@ export interface PlanningSubmit {
   preferences: TripPreferences;
   departAt: string | null;
   fuelLevel: number;
+  /** Garage car for this trip. Omitted: the server uses the default car. */
+  vehicleId?: string;
 }
 
 export function PlanningForm({
@@ -74,8 +79,13 @@ export function PlanningForm({
   const session = useUserStore((state) => state.session);
   const setProfile = useUserStore((state) => state.setProfile);
   const tripPlan = useRouteStore((state) => state.tripPlan);
+  const queryClient = useQueryClient();
+  const { vehicles, activeVehicle } = useVehicles(Boolean(session));
+  const [pickedVehicleId, setPickedVehicleId] = useState<string | null>(null);
+  const tripVehicle =
+    vehicles.find((vehicle) => vehicle.id === pickedVehicleId) ?? activeVehicle;
   const [note, setNote] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"settings" | "star" | null>(null);
+  const [busy, setBusy] = useState<"settings" | "star" | "update" | null>(null);
   const { origin, destination, via } = draft;
   const prefs = draft.preferences;
   const depart = draft.departLocal;
@@ -139,6 +149,58 @@ export function PlanningForm({
       setNote(m.planning.settingsSaved);
     } catch {
       setNote(m.planning.settingsFailed);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const favoritePayload = () => {
+    if (!origin || !destination) return null;
+    const preferences = currentPrefs();
+    return {
+      origin: {
+        label: origin.label,
+        lng: origin.coords.lng,
+        lat: origin.coords.lat,
+      },
+      destination: {
+        label: destination.label,
+        lng: destination.coords.lng,
+        lat: destination.coords.lat,
+      },
+      preferences,
+      plan: buildFavoriteEnvelope(
+        {
+          via: via
+            ? [{ label: via.label, lng: via.coords.lng, lat: via.coords.lat }]
+            : [],
+          depart_at: preferences.depart_at,
+          fuel_level: fuel / 100,
+        },
+        tripPlan
+      ),
+    };
+  };
+
+  const updateFavorite = async () => {
+    const payload = favoritePayload();
+    if (!payload || !draft.favoriteId) return;
+    setBusy("update");
+    setNote(null);
+    try {
+      const response = await fetch(`/api/favorites/routes/${draft.favoriteId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        setNote(await readApiError(response, m.favorites.updateFailed));
+        return;
+      }
+      void queryClient.invalidateQueries({ queryKey: ["favorite-routes"] });
+      setNote(m.favorites.updated);
+    } catch {
+      setNote(m.favorites.updateFailed);
     } finally {
       setBusy(null);
     }
@@ -240,8 +302,60 @@ export function PlanningForm({
         })
       : null;
 
+  const submitNow = () =>
+    onSubmit({
+      preferences: currentPrefs(),
+      departAt: fromDatetimeLocalValue(depart || proposedDepart),
+      fuelLevel: fuel / 100,
+      ...(tripVehicle ? { vehicleId: tripVehicle.id } : {}),
+    });
+  const calculateControls = (idSuffix: string) => (
+    <>
+      {error && (
+        <p className="text-sm text-[var(--waze-danger)]" role="alert">
+          {error}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={submitNow}
+        disabled={sameEnds}
+        aria-busy={calculating}
+        aria-describedby={sameEnds ? `same-ends-${idSuffix}` : undefined}
+        className={`waze-btn-primary min-h-11 w-full py-3.5 text-sm ${
+          calculating ? "" : "disabled:opacity-50"
+        }`}
+      >
+        {calculating ? m.planning.calculating : m.planning.calculate}
+      </button>
+      {sameEnds && (
+        <p
+          id={`same-ends-${idSuffix}`}
+          className="text-sm text-[var(--waze-danger)]"
+        >
+          {m.planning.sameEnds}
+        </p>
+      )}
+      {calculating && (
+        <p className="text-sm text-[var(--waze-text-secondary)]" role="status">
+          {m.planning.calculatingStatus}
+        </p>
+      )}
+    </>
+  );
+
   return (
     <WazeCard className="space-y-4">
+      {draft.favoriteId && (
+        <p
+          className="rounded-xl bg-[var(--waze-accent-muted)] px-3 py-2 text-sm text-[var(--waze-accent-text)]"
+          role="status"
+        >
+          {formatTemplate(m.favorites.editing, {
+            name: draft.favoriteName ?? "",
+          })}
+        </p>
+      )}
       <LocationSearchInput
         id="origin"
         label={m.planning.from}
@@ -285,34 +399,7 @@ export function PlanningForm({
         {m.planning.departProposed}
       </p>
 
-      {error && (
-        <p className="text-sm text-[var(--waze-danger)]" role="alert">
-          {error}
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={() =>
-          onSubmit({
-            preferences: currentPrefs(),
-            departAt: fromDatetimeLocalValue(depart || proposedDepart),
-            fuelLevel: fuel / 100,
-          })
-        }
-        disabled={sameEnds}
-        aria-busy={calculating}
-        className={`waze-btn-primary min-h-11 w-full py-3.5 text-sm ${
-          calculating ? "" : "disabled:opacity-50"
-        }`}
-      >
-        {calculating ? m.planning.calculating : m.planning.calculate}
-      </button>
-      {calculating && (
-        <p className="text-sm text-[var(--waze-text-secondary)]" role="status">
-          {m.planning.calculatingStatus}
-        </p>
-      )}
+      {calculateControls("top")}
 
       <div className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)]">
         <button
@@ -357,10 +444,34 @@ export function PlanningForm({
               >
                 {m.planning.car}
               </h2>
+              {vehicles.length > 1 && (
+                <label className="mt-2 block text-sm text-[var(--waze-text)]">
+                  {m.planning.carChoose}
+                  <select
+                    value={tripVehicle?.id ?? ""}
+                    onChange={(event) => setPickedVehicleId(event.target.value)}
+                    className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+                  >
+                    {vehicles.map((vehicle) => (
+                      <option key={vehicle.id} value={vehicle.id}>
+                        {vehicle.name}
+                        {vehicle.is_active ? ` · ${m.planning.carDefault}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
-                {carSummary(profile, m)}
+                {tripVehicle
+                  ? vehicleSummary(tripVehicle, m)
+                  : carSummary(profile, m)}
               </p>
-              {profile && (
+              {session && !tripVehicle && (
+                <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
+                  {m.planning.carNoGarage}
+                </p>
+              )}
+              {(tripVehicle || profile) && (
                 <p className="mt-1 text-xs text-[var(--waze-accent-text)]">
                   {m.planning.carFromProfile}
                 </p>
@@ -432,6 +543,16 @@ export function PlanningForm({
                   ? m.planning.savingSettings
                   : m.planning.saveSettings}
               </button>
+              {draft.favoriteId && (
+                <button
+                  type="button"
+                  onClick={() => void updateFavorite()}
+                  disabled={!origin || !destination || busy !== null}
+                  className="waze-btn-primary inline-flex min-h-11 items-center gap-2 px-4 py-2 text-sm disabled:opacity-50"
+                >
+                  {m.favorites.updateRoute}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => void starRoute()}
@@ -439,7 +560,7 @@ export function PlanningForm({
                 className="waze-btn-secondary inline-flex min-h-11 items-center gap-2 px-4 py-2 text-sm disabled:opacity-50"
               >
                 <Star className="h-4 w-4" aria-hidden />
-                {m.planning.starRoute}
+                {draft.favoriteId ? m.favorites.stopEditing : m.planning.starRoute}
               </button>
             </div>
             {note && (
@@ -468,8 +589,33 @@ export function PlanningForm({
           </div>
         )}
       </div>
+
+      {calculateControls("bottom")}
     </WazeCard>
   );
+}
+
+function vehicleSummary(vehicle: UserVehicle, m: MessageCatalog): string {
+  const unit =
+    vehicle.fuel_type === "electric" ? m.garage.unitKwh : m.garage.unitLiters;
+  const consumption =
+    vehicle.consumption_per_100 != null
+      ? formatTemplate(m.planning.carConsumption, {
+          value: String(vehicle.consumption_per_100),
+          unit,
+        })
+      : null;
+  const size =
+    vehicle.fuel_type === "electric"
+      ? vehicle.ev_range_km
+        ? `${vehicle.ev_range_km} ${m.planning.km}`
+        : null
+      : vehicle.tank_capacity_liters
+        ? `${vehicle.tank_capacity_liters} ${m.planning.liters}`
+        : null;
+  return [vehicle.name, m.fuel[vehicle.fuel_type], size, consumption]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function carSummary(profile: Profile | null, m: MessageCatalog): string {

@@ -1,5 +1,6 @@
 "use client";
 
+import { MapPin } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
@@ -451,6 +452,12 @@ function WeatherSegmentRow({
           {formatWhen(segment.eta)} · {segment.distance_from_start_km}{" "}
           {m.planning.km}
         </p>
+        {segment.place ? (
+          <p className="inline-flex items-center gap-1 text-[var(--waze-text-secondary)]">
+            <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            {segment.place}
+          </p>
+        ) : null}
         {segment.summary_bg ? (
           <p className="text-[var(--waze-text-secondary)]">
             {segment.summary_bg}

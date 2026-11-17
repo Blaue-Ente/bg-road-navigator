@@ -40,6 +40,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 4. След него изпълнете и `drizzle/0002_trip_planner_cache.sql`. Той пази споделения кеш на Nakordoni и заявките към POI за плана на пътуването.
 5. След него изпълнете `drizzle/0003_planner_places.sql`. Той добавя предпочитанията в профила, националните средни цени, докладите за цена, флаговете за места и любимите маршрути и места. Не се прилага автоматично.
 6. След това `drizzle/0004_nakordoni_rate.sql` — глобално ограничаване на честотата към Nakordoni (една таблица `nakordoni_rate`).
+7. След това `drizzle/0005_user_vehicles.sql` — гараж с няколко автомобила на акаунт (таблица `user_vehicles`: среден разход извън града, резервоар/обхват, основен автомобил). Без нея профилът и плановете работят както досега, а „Моите автомобили“ показва подсказка да се приложи файлът.
 
 Същото през `psql`, без да записвате паролата в git:
 
@@ -48,6 +49,7 @@ psql "$DATABASE_URL" -f drizzle/0001_better_auth_and_community.sql
 psql "$DATABASE_URL" -f drizzle/0002_trip_planner_cache.sql
 psql "$DATABASE_URL" -f drizzle/0003_planner_places.sql
 psql "$DATABASE_URL" -f drizzle/0004_nakordoni_rate.sql
+psql "$DATABASE_URL" -f drizzle/0005_user_vehicles.sql
 ```
 
 Първият файл създава таблиците на Better Auth (`user`, `session`, `account`, `verification`) и `profiles`, `saved_places`, `saved_routes`, `community_pins`, `pin_comments`, `community_pin_votes`, `community_pin_reports`. Вторият създава `nakordoni_cache`, `nakordoni_budget` и `osm_query_cache`.

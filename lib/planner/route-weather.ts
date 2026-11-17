@@ -3,6 +3,7 @@ import type { BreakKind, SleepShift } from "@/lib/planner/breaks";
 import { dwellMinutesBefore, wallClockEta } from "@/lib/planner/breaks";
 import { pointAtDistance, lineLengthKm } from "@/lib/planner/line";
 import type { RouteWeather, RouteWeatherWarning } from "@/lib/planner/types";
+import { placesForSamples } from "@/lib/planner/weather-place";
 import { weatherCondition } from "@/lib/utils/weather-codes";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { formatTemplate } from "@/lib/i18n/format-template";
@@ -38,9 +39,13 @@ export async function weatherAlongRoute(input: {
   const wx = catalog(locale).planner.weather;
   const hourlyEmpty = wx.hourlyEmpty;
   const samples = samplePoints(input);
+  const places = input.fetchImpl
+    ? samples.map(() => null)
+    : await placesForSamples(samples, locale);
   const empty: RouteWeather = {
-    segments: samples.map((sample) => ({
+    segments: samples.map((sample, index) => ({
       ...sample,
+      place: places[index] ?? null,
       temperature_c: null,
       weather_code: null,
       wind_kmh: null,
@@ -72,6 +77,7 @@ export async function weatherAlongRoute(input: {
           }`;
     return {
       ...sample,
+      place: places[index] ?? null,
       temperature_c: temperature == null ? null : Math.round(temperature),
       weather_code: code,
       wind_kmh: wind == null ? null : Math.round(wind),
@@ -112,7 +118,9 @@ function samplePoints(input: {
 }) {
   const geometryKm = lineLengthKm(input.line);
   if (geometryKm <= 0) return [];
-  const fractions = [0, 0.35, 0.7, 1];
+  // One forecast about every 400 km, between four and seven in all.
+  const count = Math.min(7, Math.max(4, Math.ceil(input.distanceKm / 400) + 1));
+  const fractions = Array.from({ length: count }, (_, i) => i / (count - 1));
   const sleepShifts = input.sleepShifts ?? [];
   const borderWaitMin = input.borderWaitMin ?? 0;
   return fractions.map((fraction) => {
