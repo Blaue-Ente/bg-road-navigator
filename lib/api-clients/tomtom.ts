@@ -19,8 +19,10 @@ export interface TrafficIncident {
     | "accident"
     | "road_closure"
     | "construction"
+    | "lane_restriction"
     | "congestion"
     | "weather"
+    | "hazard"
     | "other";
   title: string;
   description: string;
@@ -51,14 +53,16 @@ interface TomTomIncidentRaw {
 const TYPE_BY_ICON: Record<number, TrafficIncident["type"]> = {
   1: "accident",
   2: "weather",
+  3: "hazard",
   4: "weather",
   5: "weather",
   6: "congestion",
-  7: "construction",
+  7: "lane_restriction",
   8: "road_closure",
   9: "construction",
   10: "weather",
   11: "weather",
+  14: "hazard",
 };
 
 const SEVERITY_BY_MAGNITUDE: Record<number, TrafficIncident["severity"]> = {

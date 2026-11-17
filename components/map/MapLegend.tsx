@@ -8,15 +8,19 @@ import { hazardLabel } from "@/lib/hazards/present";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import type { RoadHazardKind } from "@/lib/hazards/types";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { poiIconSvg } from "@/lib/map/poi-icons";
+import {
+  TRAFFIC_GROUPS,
+  TRAFFIC_GROUP_KINDS,
+  TRAFFIC_KIND_STYLE,
+} from "@/lib/map/traffic-kinds";
 
-const TRAFFIC_KEYS = [
-  "trafficCritical",
-  "trafficMajor",
-  "trafficModerate",
-  "trafficMinor",
-] as const;
-
-const TRAFFIC_COLORS = ["#C0392B", "#E74C3C", "#F39C12", "#27AE60"] as const;
+const GROUP_LABEL = {
+  crashes: "groupCrashes",
+  closures: "groupClosures",
+  works: "groupWorks",
+  slowdowns: "groupSlowdowns",
+} as const;
 
 const HOTSPOT_KEYS = [
   "hotspotHigh",
@@ -94,6 +98,9 @@ export function MapLegend() {
   const hasAlt = useRouteStore((s) => s.alternativeRoutes.length > 0);
   const plan = useRouteStore((s) => s.tripPlan);
   const hotspotsOn = useMapStore((s) => s.layers.hotspots);
+  const trafficOn = useMapStore((s) => s.layers.traffic);
+  const trafficGroups = useMapStore((s) => s.trafficGroups);
+  const toggleTrafficGroup = useMapStore((s) => s.toggleTrafficGroup);
   const hazardKinds = useMemo(() => {
     const kinds = new Set<RoadHazardKind>();
     for (const hazard of plan?.road_hazards ?? []) kinds.add(hazard.kind);
@@ -160,15 +167,48 @@ export function MapLegend() {
           </>
         )}
 
-        <LegendGroupHeading>{m.map.groupIncidents}</LegendGroupHeading>
-        {TRAFFIC_KEYS.map((key, index) => (
-          <LegendRow
-            key={key}
-            color={TRAFFIC_COLORS[index]!}
-            label={m.map[key]}
-            triangle
-          />
-        ))}
+        {trafficOn && (
+          <>
+            <LegendGroupHeading>{m.map.groupIncidents}</LegendGroupHeading>
+            {TRAFFIC_GROUPS.map((group) => (
+              <label
+                key={group}
+                className="flex min-h-9 cursor-pointer items-start gap-2 text-xs text-[var(--waze-text-secondary)]"
+              >
+                <input
+                  type="checkbox"
+                  checked={trafficGroups[group]}
+                  onChange={() => toggleTrafficGroup(group)}
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                />
+                <span className="flex flex-col gap-1">
+                  <span className="font-medium text-[var(--waze-text)]">
+                    {m.trafficKind[GROUP_LABEL[group]]}
+                  </span>
+                  {TRAFFIC_GROUP_KINDS[group].map((kind) => (
+                    <span key={kind} className="flex items-center gap-1.5">
+                      <span
+                        className="inline-flex shrink-0"
+                        aria-hidden
+                        dangerouslySetInnerHTML={{
+                          __html: poiIconSvg(
+                            TRAFFIC_KIND_STYLE[kind].icon,
+                            TRAFFIC_KIND_STYLE[kind].color,
+                            18
+                          ),
+                        }}
+                      />
+                      {m.trafficKind[kind]}
+                    </span>
+                  ))}
+                </span>
+              </label>
+            ))}
+            <p className="text-[11px] leading-snug text-[var(--waze-text-muted)]">
+              {m.trafficKind.size}
+            </p>
+          </>
+        )}
 
         <p className="mt-1 text-[11px] leading-snug text-[var(--waze-text-muted)]">
           {m.map.bilingualHint}

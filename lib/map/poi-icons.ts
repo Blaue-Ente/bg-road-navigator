@@ -13,9 +13,14 @@ export type PoiIcon =
   | "bed"
   | "pin"
   | "shortcut"
-  | "info";
+  | "info"
+  | "siren"
+  | "ban"
+  | "lanes"
+  | "cloud";
 
 const PATHS: Record<PoiIcon, string[]> = {
+  siren: [], ban: [], lanes: [], cloud: [],
   border: [], webcam: [], speed: [], alert: [], car: [], shield: [], cone: [], bed: [], pin: [], shortcut: [], info: [],
   fuel: [
     "M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5",
@@ -69,7 +74,37 @@ PATHS.info = [
   "M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z",
 ];
 
+PATHS.siren = [
+  "M7 18v-6a5 5 0 1 1 10 0v6",
+  "M5 21a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1z",
+  "M21 12h1",
+  "M18.5 4.5 18 5",
+  "M2 12h1",
+  "M12 2v1",
+  "m4.929 4.929.707.707",
+  "M12 12v6",
+];
+PATHS.ban = ["M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z", "m4.9 4.9 14.2 14.2"];
+PATHS.lanes = ["m8 6 4-4 4 4", "M12 2v10.3a4 4 0 0 1-1.172 2.872L4 22", "m20 22-5-5"];
+PATHS.cloud = [
+  "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+  "M16 14v6",
+  "M8 14v6",
+  "M12 16v6",
+];
+
 export const POI_ICON_SIZE = 44;
+
+/** The same pin as an SVG string, for DOM markers. */
+export function poiIconSvg(icon: PoiIcon, color: string, size = 28): string {
+  const paths = PATHS[icon].map((d) => `<path d="${d}"/>`).join("");
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="${size}" height="${size}" aria-hidden="true">` +
+    `<circle cx="22" cy="22" r="20" fill="${color}" stroke="#fff" stroke-width="3"/>` +
+    `<g transform="translate(11 11) scale(0.9167)" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</g>` +
+    `</svg>`
+  );
+}
 
 export function poiIconId(icon: PoiIcon, color: string): string {
   return `poi-icon-${icon}-${color.replace("#", "")}`;

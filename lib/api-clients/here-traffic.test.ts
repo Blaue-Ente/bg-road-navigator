@@ -54,6 +54,18 @@ describe("mapHereIncident", () => {
   });
 });
 
+describe("kinds of event", () => {
+  const kind = (type: string) =>
+    mapHereIncident({ ...crash, incidentDetails: { ...crash.incidentDetails, type } })?.type;
+  it("tells narrowed roads and hazards from the rest", () => {
+    expect(kind("laneRestriction")).toBe("lane_restriction");
+    expect(kind("roadHazard")).toBe("hazard");
+    expect(kind("disabledVehicle")).toBe("hazard");
+    expect(kind("construction")).toBe("construction");
+    expect(kind("roadClosure")).toBe("road_closure");
+  });
+});
+
 describe("mergeIncidents", () => {
   const base: TrafficIncident = {
     id: "t1",

@@ -9,6 +9,8 @@ import type { TrafficIncident } from "@/types/traffic.types";
 import { escapeHtml } from "@/lib/geo/escape-html";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { useMapStore } from "@/lib/stores/map.store";
+import { poiIconSvg } from "@/lib/map/poi-icons";
+import { TRAFFIC_KIND_STYLE, trafficPinSize } from "@/lib/map/traffic-kinds";
 
 export interface TrafficLayerProps {
   map: Map | null;
@@ -18,6 +20,7 @@ export interface TrafficLayerProps {
 export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
   const m = useMessages();
   const enabled = useMapStore((s) => s.layers.traffic);
+  const groups = useMapStore((s) => s.trafficGroups);
 
   useEffect(() => {
     if (!map || !enabled) return;
@@ -25,34 +28,38 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
     const markers: maplibregl.Marker[] = [];
 
     incidents.forEach((incident) => {
+      const style = TRAFFIC_KIND_STYLE[incident.type] ?? TRAFFIC_KIND_STYLE.other;
+      if (!groups[style.group]) return;
+
+      const size = trafficPinSize(incident.severity);
       const el = document.createElement("div");
-      el.className = "flex h-7 w-7 items-center justify-center rounded-full";
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
+      el.style.filter = "drop-shadow(0 1px 2px rgba(0,0,0,.4))";
+      el.innerHTML = poiIconSvg(style.icon, style.color, size);
 
-      const colors = {
-        minor: "#27AE60",
-        moderate: "#F39C12",
-        major: "#E74C3C",
-        critical: "#C0392B",
-      };
-
-      el.style.backgroundColor = colors[incident.severity];
-      el.style.border = "2px solid #fff";
-      el.style.boxShadow = "0 1px 3px rgba(0,0,0,.35)";
-      el.innerHTML =
-        '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
-
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([incident.coords.lng, incident.coords.lat])
-        .setPopup(
-          new maplibregl.Popup({ offset: 25 }).setHTML(`
-          <div class="p-2 text-sm">
-            <strong>${escapeHtml(incident.title)}</strong>
-            <p>${escapeHtml(
+      const label = m.trafficKind[incident.type] ?? m.trafficKind.other;
+      const delay =
+        incident.delay_min > 0
+          ? `<p>${escapeHtml(
               formatTemplate(m.map.trafficDelay, {
                 minutes: String(incident.delay_min),
                 minUnit: m.units.min,
               })
-            )}</p>
+            )}</p>`
+          : "";
+      const title =
+        incident.title && incident.title !== label
+          ? `<p>${escapeHtml(incident.title)}</p>`
+          : "";
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([incident.coords.lng, incident.coords.lat])
+        .setPopup(
+          new maplibregl.Popup({ offset: size / 2 + 6 }).setHTML(`
+          <div class="p-2 text-sm">
+            <strong style="color:${style.color}">${escapeHtml(label)}</strong>
+            ${title}${delay}
           </div>
         `)
         )
@@ -64,7 +71,7 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
     return () => {
       markers.forEach((marker) => marker.remove());
     };
-  }, [map, incidents, enabled, m]);
+  }, [map, incidents, enabled, groups, m]);
 
   return null;
 }

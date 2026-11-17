@@ -88,3 +88,17 @@ describe("getTomTomIncidents", () => {
     expect(errors).toEqual(["403 Forbidden"]);
   });
 });
+
+describe("kinds of event", () => {
+  const base = { geometry: { type: "Point", coordinates: [22.5, 43.1] } };
+  const kind = (iconCategory: number, magnitudeOfDelay = 3) =>
+    mapTomTomIncident({ ...base, properties: { id: "k", iconCategory, magnitudeOfDelay } })?.type;
+  it("tells closures, narrowed roads, works and hazards apart", () => {
+    expect(kind(8, 4)).toBe("road_closure");
+    expect(kind(7)).toBe("lane_restriction");
+    expect(kind(9)).toBe("construction");
+    expect(kind(3)).toBe("hazard");
+    expect(kind(14)).toBe("hazard");
+    expect(kind(1)).toBe("accident");
+  });
+});

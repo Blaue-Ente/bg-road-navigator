@@ -838,5 +838,83 @@
   "The expected wait was about {minutes} min. Enter how long you really waited.",
   "Beklenen süre yaklaşık {minutes} dk idi. Gerçekte ne kadar beklediğinizi girin.",
   "Timpul estimat era de aproximativ {minutes} min. Introdu cât ai așteptat de fapt."
+ ],
+ "trafficKind.accident": [
+  "Катастрофа",
+  "Crash",
+  "Kaza",
+  "Accident"
+ ],
+ "trafficKind.hazard": [
+  "Опасност на пътя",
+  "Road hazard",
+  "Yolda tehlike",
+  "Pericol pe drum"
+ ],
+ "trafficKind.road_closure": [
+  "Затворен път",
+  "Road closed",
+  "Yol kapalı",
+  "Drum închis"
+ ],
+ "trafficKind.lane_restriction": [
+  "Стеснен път",
+  "Lane closed",
+  "Şerit daraldı",
+  "Bandă blocată"
+ ],
+ "trafficKind.construction": [
+  "Ремонт на пътя",
+  "Road works",
+  "Yol çalışması",
+  "Lucrări pe drum"
+ ],
+ "trafficKind.congestion": [
+  "Задръстване",
+  "Congestion",
+  "Trafik yoğunluğu",
+  "Aglomerație"
+ ],
+ "trafficKind.weather": [
+  "Опасно време",
+  "Bad weather",
+  "Kötü hava",
+  "Vreme rea"
+ ],
+ "trafficKind.other": [
+  "Друго събитие",
+  "Other event",
+  "Diğer olay",
+  "Alt eveniment"
+ ],
+ "trafficKind.groupCrashes": [
+  "Катастрофи и опасности",
+  "Crashes and hazards",
+  "Kazalar ve tehlikeler",
+  "Accidente și pericole"
+ ],
+ "trafficKind.groupClosures": [
+  "Затворени и стеснени",
+  "Closed and narrowed",
+  "Kapalı ve daralan",
+  "Închise și îngustate"
+ ],
+ "trafficKind.groupWorks": [
+  "Ремонти",
+  "Road works",
+  "Yol çalışmaları",
+  "Lucrări"
+ ],
+ "trafficKind.groupSlowdowns": [
+  "Задръствания и друго",
+  "Slowdowns and other",
+  "Yoğunluk ve diğer",
+  "Aglomerări și altele"
+ ],
+ "trafficKind.size": [
+  "По-голям знак = по-сериозно събитие.",
+  "A bigger sign means a more serious event.",
+  "Daha büyük işaret daha ciddi olay demektir.",
+  "Un semn mai mare înseamnă un eveniment mai grav."
  ]
 }

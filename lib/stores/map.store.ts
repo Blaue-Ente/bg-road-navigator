@@ -3,6 +3,7 @@ import {
   DEFAULT_LAYER_VISIBILITY,
   type LayerKey,
 } from "@/lib/constants/map-layers";
+import { TRAFFIC_GROUPS, type TrafficGroup } from "@/lib/map/traffic-kinds";
 import type { GeoPoint } from "@/types/route.types";
 
 export type LocateStatus =
@@ -13,6 +14,8 @@ interface MapState {
   locateStatus: LocateStatus;
   userLocation: (GeoPoint & { accuracy?: number }) | null;
   layers: Record<LayerKey, boolean>;
+  /** Which kinds of road events are shown while the incidents layer is on. */
+  trafficGroups: Record<TrafficGroup, boolean>;
   layersPanelOpen: boolean;
   mapError: string | null;
   view: {
@@ -25,6 +28,7 @@ interface MapState {
   setLocateStatus: (status: LocateStatus) => void;
   setUserLocation: (point: MapState["userLocation"]) => void;
   toggleLayer: (key: LayerKey) => void;
+  toggleTrafficGroup: (group: TrafficGroup) => void;
   setLayer: (key: LayerKey, visible: boolean) => void;
   setLayersPanelOpen: (open: boolean) => void;
   setMapError: (message: string | null) => void;
@@ -36,6 +40,9 @@ export const useMapStore = create<MapState>((set) => ({
   locateStatus: "idle",
   userLocation: null,
   layers: { ...DEFAULT_LAYER_VISIBILITY },
+  trafficGroups: Object.fromEntries(
+    TRAFFIC_GROUPS.map((group) => [group, true])
+  ) as Record<TrafficGroup, boolean>,
   layersPanelOpen: false,
   mapError: null,
   view: { center: [23.3219, 42.6977], zoom: 7 },
@@ -46,6 +53,10 @@ export const useMapStore = create<MapState>((set) => ({
   toggleLayer: (key) =>
     set((state) => ({
       layers: { ...state.layers, [key]: !state.layers[key] },
+    })),
+  toggleTrafficGroup: (group) =>
+    set((state) => ({
+      trafficGroups: { ...state.trafficGroups, [group]: !state.trafficGroups[group] },
     })),
   setLayer: (key, visible) =>
     set((state) => ({ layers: { ...state.layers, [key]: visible } })),

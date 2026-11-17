@@ -502,5 +502,20 @@
     "unavailable": "Partajarea nu este activată pe acest site.",
     "unsure": "Nu a fost semnal o parte din timp, verifică numărul.",
     "estimated": "Timpul estimat era de aproximativ {minutes} min. Introdu cât ai așteptat de fapt."
+  },
+  "trafficKind": {
+    "accident": "Accident",
+    "congestion": "Aglomerație",
+    "construction": "Lucrări pe drum",
+    "groupClosures": "Închise și îngustate",
+    "groupCrashes": "Accidente și pericole",
+    "groupSlowdowns": "Aglomerări și altele",
+    "groupWorks": "Lucrări",
+    "hazard": "Pericol pe drum",
+    "lane_restriction": "Bandă blocată",
+    "other": "Alt eveniment",
+    "road_closure": "Drum închis",
+    "size": "Un semn mai mare înseamnă un eveniment mai grav.",
+    "weather": "Vreme rea"
   }
 }

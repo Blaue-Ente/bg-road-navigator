@@ -14,8 +14,10 @@ export interface TrafficIncident {
     | "accident"
     | "road_closure"
     | "construction"
+    | "lane_restriction"
     | "congestion"
     | "weather"
+    | "hazard"
     | "other";
   title: string;
   description: string;

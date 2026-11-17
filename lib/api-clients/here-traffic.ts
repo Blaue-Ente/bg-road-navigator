@@ -47,6 +47,9 @@ const TYPES: Record<string, TrafficIncident["type"]> = {
   congestion: "congestion",
   construction: "construction",
   roadClosure: "road_closure",
+  laneRestriction: "lane_restriction",
+  roadHazard: "hazard",
+  disabledVehicle: "hazard",
   weather: "weather",
 };
 
