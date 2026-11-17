@@ -10,6 +10,7 @@ import { PlanChecklist } from "@/components/plan/PlanChecklist";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
+import { TripGuide } from "@/components/plan/TripGuide";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
 import { AiTripNote } from "@/components/plan/AiTripNote";
@@ -378,6 +379,8 @@ function DetailBody({
         onToggle={onToggleStop}
         focusedStopId={focusedStopId}
       />
+
+      <TripGuide plan={plan} />
 
       <section aria-labelledby="plan-border">
         <h3

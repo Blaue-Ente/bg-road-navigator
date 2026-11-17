@@ -289,6 +289,17 @@ export interface RouteOptionsBlock {
     | "constraints";
 }
 
+/** A chain restaurant close to the road, with the time the plan expects to pass it. */
+export interface PlanFoodSpot {
+  id: string;
+  chain: string;
+  name: string;
+  coords: GeoPoint;
+  distance_from_start_km: number;
+  eta: string;
+  detour_km: number;
+}
+
 export interface TripPlannerResult {
   generated_at: string;
   planner: "deterministic";
@@ -356,6 +367,8 @@ export interface TripPlannerResult {
   preferences: TripPreferences;
   attribution: OsmAttribution;
   checklist: PlanChecklist;
+  /** Fast-food chains along the way. Absent on plans saved before it existed. */
+  food_spots?: PlanFoodSpot[];
   /** АПИ situations on the Bulgarian part of the route. Empty when none match. */
   road_hazards: RoadHazard[];
   road_hazard_attribution: string | null;

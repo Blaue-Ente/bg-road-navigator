@@ -109,6 +109,11 @@ export function wazeNavigateUrl(point: GeoPoint): string {
   return `https://waze.com/ul?ll=${formatLatLng(point)}&navigate=yes`;
 }
 
+/** Google Maps pin for a place; the coordinates are what make it land on the right door. */
+export function googleMapsPlaceUrl(point: GeoPoint): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formatLatLng(point))}`;
+}
+
 function dedupeStops(stops: MapStop[]): MapStop[] {
   const out: MapStop[] = [];
   for (const stop of stops) {

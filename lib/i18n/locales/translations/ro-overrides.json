@@ -577,5 +577,32 @@
   },
   "itinerary": {
     "download": "Descarcă ca fișier"
+  },
+  "guide": {
+    "aiAsk": "Sfat pentru cazare și mese (AI)",
+    "aiFailed": "Sfatul nu a putut fi generat. Încearcă din nou în curând.",
+    "aiLoading": "AI pregătește sfatul…",
+    "check": "Verifică înainte să rezervi",
+    "foodLine": "în jur de {time} · la {km} km de start · {detour} km de drum",
+    "foodNote": "Locuri din OpenStreetMap, cu ora la care planul trece pe acolo. Verifică programul.",
+    "foodTitle": "Fast food pe drum",
+    "fuelTitle": "Benzinării pe drum",
+    "lead": "Opririle pentru combustibil, lanțurile fast-food de pe drum și, cu AI, unde să dormi și ce să mănânci în funcție de cine călătorește.",
+    "mealsTitle": "Mese pe drum",
+    "openMap": "Hartă",
+    "overnightTitle": "Unde să dormi și de ce",
+    "reason": {
+      "cheap": "preț bun",
+      "clean": "curată (semnalări)",
+      "dirty": "murdară (semnalări ale șoferilor)",
+      "expensive": "scumpă",
+      "noPrice": "fără date de preț",
+      "unsafe": "nesigură (semnalări)"
+    },
+    "tipsTitle": "Alte sfaturi",
+    "title": "Sfaturi pentru drum",
+    "verdictAvoid": "Evită",
+    "verdictGood": "Alegere bună",
+    "verdictOk": "În regulă"
   }
 }

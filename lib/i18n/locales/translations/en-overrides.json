@@ -572,5 +572,32 @@
   },
   "itinerary": {
     "download": "Download as a file"
+  },
+  "guide": {
+    "aiAsk": "Sleep and meals advice (AI)",
+    "aiFailed": "The advice could not be made. Try again shortly.",
+    "aiLoading": "The AI is preparing advice…",
+    "check": "Check before you book",
+    "foodLine": "around {time} · {km} km from the start · {detour} km off the road",
+    "foodNote": "Places from OpenStreetMap, with the time the plan passes them. Check opening hours.",
+    "foodTitle": "Fast food on the way",
+    "fuelTitle": "Fuel stations on the way",
+    "lead": "Fuel stops, fast-food chains on the way and, with AI, where to sleep and what to eat for who is travelling.",
+    "mealsTitle": "Meals on the way",
+    "openMap": "Map",
+    "overnightTitle": "Where to sleep, and why",
+    "reason": {
+      "cheap": "good price",
+      "clean": "clean (reports)",
+      "dirty": "dirty (drivers' reports)",
+      "expensive": "expensive",
+      "noPrice": "no price data",
+      "unsafe": "unsafe (reports)"
+    },
+    "tipsTitle": "More tips",
+    "title": "Trip advice",
+    "verdictAvoid": "Avoid",
+    "verdictGood": "Good pick",
+    "verdictOk": "Fine"
   }
 }

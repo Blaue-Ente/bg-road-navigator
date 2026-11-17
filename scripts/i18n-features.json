@@ -1204,5 +1204,143 @@
   "Download as a file",
   "Dosya olarak indir",
   "Descarcă ca fișier"
+ ],
+ "guide.title": [
+  "Съвети за пътуването",
+  "Trip advice",
+  "Yolculuk tavsiyeleri",
+  "Sfaturi pentru drum"
+ ],
+ "guide.lead": [
+  "Спирките за гориво, веригите за бързо хранене по пътя и, с ИИ, къде да спите и какво да ядете според това кой пътува.",
+  "Fuel stops, fast-food chains on the way and, with AI, where to sleep and what to eat for who is travelling.",
+  "Yakıt durakları, yoldaki fast-food zincirleri ve yapay zekâ ile kimin yolculuk ettiğine göre nerede kalınıp ne yeneceği.",
+  "Opririle pentru combustibil, lanțurile fast-food de pe drum și, cu AI, unde să dormi și ce să mănânci în funcție de cine călătorește."
+ ],
+ "guide.fuelTitle": [
+  "Бензиностанции по пътя",
+  "Fuel stations on the way",
+  "Yoldaki benzin istasyonları",
+  "Benzinării pe drum"
+ ],
+ "guide.verdictGood": [
+  "Добра",
+  "Good pick",
+  "İyi seçim",
+  "Alegere bună"
+ ],
+ "guide.verdictOk": [
+  "Може",
+  "Fine",
+  "Olur",
+  "În regulă"
+ ],
+ "guide.verdictAvoid": [
+  "Избягвай",
+  "Avoid",
+  "Kaçının",
+  "Evită"
+ ],
+ "guide.reason.expensive": [
+  "скъпа",
+  "expensive",
+  "pahalı",
+  "scumpă"
+ ],
+ "guide.reason.dirty": [
+  "мръсна (по сигнали на шофьори)",
+  "dirty (drivers' reports)",
+  "kirli (sürücü bildirimleri)",
+  "murdară (semnalări ale șoferilor)"
+ ],
+ "guide.reason.unsafe": [
+  "несигурна (по сигнали)",
+  "unsafe (reports)",
+  "güvensiz (bildirimler)",
+  "nesigură (semnalări)"
+ ],
+ "guide.reason.cheap": [
+  "изгодна цена",
+  "good price",
+  "uygun fiyat",
+  "preț bun"
+ ],
+ "guide.reason.clean": [
+  "чиста (по сигнали)",
+  "clean (reports)",
+  "temiz (bildirimler)",
+  "curată (semnalări)"
+ ],
+ "guide.reason.noPrice": [
+  "няма данни за цена",
+  "no price data",
+  "fiyat bilgisi yok",
+  "fără date de preț"
+ ],
+ "guide.foodTitle": [
+  "Бързо хранене по пътя",
+  "Fast food on the way",
+  "Yolda fast food",
+  "Fast food pe drum"
+ ],
+ "guide.foodLine": [
+  "около {time} · {km} км от началото · {detour} км встрани",
+  "around {time} · {km} km from the start · {detour} km off the road",
+  "yaklaşık {time} · başlangıçtan {km} km · yoldan {detour} km",
+  "în jur de {time} · la {km} km de start · {detour} km de drum"
+ ],
+ "guide.foodNote": [
+  "Места от OpenStreetMap, с часа, в който планът минава оттам. Провери работното време.",
+  "Places from OpenStreetMap, with the time the plan passes them. Check opening hours.",
+  "Yerler OpenStreetMap'ten, planın oradan geçtiği saatle. Çalışma saatlerini kontrol edin.",
+  "Locuri din OpenStreetMap, cu ora la care planul trece pe acolo. Verifică programul."
+ ],
+ "guide.openMap": [
+  "Карта",
+  "Map",
+  "Harita",
+  "Hartă"
+ ],
+ "guide.aiAsk": [
+  "Съвет за нощувка и хранене (ИИ)",
+  "Sleep and meals advice (AI)",
+  "Konaklama ve yemek tavsiyesi (YZ)",
+  "Sfat pentru cazare și mese (AI)"
+ ],
+ "guide.aiLoading": [
+  "ИИ подготвя съвета…",
+  "The AI is preparing advice…",
+  "YZ tavsiyeyi hazırlıyor…",
+  "AI pregătește sfatul…"
+ ],
+ "guide.aiFailed": [
+  "Съветът не се получи. Опитайте пак след малко.",
+  "The advice could not be made. Try again shortly.",
+  "Tavsiye oluşturulamadı. Biraz sonra tekrar deneyin.",
+  "Sfatul nu a putut fi generat. Încearcă din nou în curând."
+ ],
+ "guide.overnightTitle": [
+  "Къде да спите и защо",
+  "Where to sleep, and why",
+  "Nerede kalınmalı ve neden",
+  "Unde să dormi și de ce"
+ ],
+ "guide.check": [
+  "Провери преди да резервираш",
+  "Check before you book",
+  "Rezervasyondan önce kontrol edin",
+  "Verifică înainte să rezervi"
+ ],
+ "guide.mealsTitle": [
+  "Хранене по пътя",
+  "Meals on the way",
+  "Yolda yemek",
+  "Mese pe drum"
+ ],
+ "guide.tipsTitle": [
+  "Още съвети",
+  "More tips",
+  "Diğer ipuçları",
+  "Alte sfaturi"
  ]
 }

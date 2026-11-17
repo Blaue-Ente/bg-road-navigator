@@ -574,5 +574,32 @@
   },
   "itinerary": {
     "download": "Dosya olarak indir"
+  },
+  "guide": {
+    "aiAsk": "Konaklama ve yemek tavsiyesi (YZ)",
+    "aiFailed": "Tavsiye oluşturulamadı. Biraz sonra tekrar deneyin.",
+    "aiLoading": "YZ tavsiyeyi hazırlıyor…",
+    "check": "Rezervasyondan önce kontrol edin",
+    "foodLine": "yaklaşık {time} · başlangıçtan {km} km · yoldan {detour} km",
+    "foodNote": "Yerler OpenStreetMap'ten, planın oradan geçtiği saatle. Çalışma saatlerini kontrol edin.",
+    "foodTitle": "Yolda fast food",
+    "fuelTitle": "Yoldaki benzin istasyonları",
+    "lead": "Yakıt durakları, yoldaki fast-food zincirleri ve yapay zekâ ile kimin yolculuk ettiğine göre nerede kalınıp ne yeneceği.",
+    "mealsTitle": "Yolda yemek",
+    "openMap": "Harita",
+    "overnightTitle": "Nerede kalınmalı ve neden",
+    "reason": {
+      "cheap": "uygun fiyat",
+      "clean": "temiz (bildirimler)",
+      "dirty": "kirli (sürücü bildirimleri)",
+      "expensive": "pahalı",
+      "noPrice": "fiyat bilgisi yok",
+      "unsafe": "güvensiz (bildirimler)"
+    },
+    "tipsTitle": "Diğer ipuçları",
+    "title": "Yolculuk tavsiyeleri",
+    "verdictAvoid": "Kaçının",
+    "verdictGood": "İyi seçim",
+    "verdictOk": "Olur"
   }
 }

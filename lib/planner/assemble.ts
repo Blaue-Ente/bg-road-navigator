@@ -69,6 +69,8 @@ export interface StopAttachment {
   distanceKm?: number;
 }
 
+import type { FoodSpotDraft } from "@/lib/planner/food-spots";
+
 export interface AssembleInput {
   now: Date;
   departAt: Date;
@@ -94,6 +96,7 @@ export interface AssembleInput {
   roadHazards?: RoadHazard[];
   attentionSegments?: Hotspot[];
   sights?: StopAttachment[];
+  foodSpots?: FoodSpotDraft[];
   fuelAverages: FuelCountryAverage[];
   countryAt: (lng: number, lat: number) => string | null;
   averageFor: (country: string) => KnownAverage | null;
@@ -227,6 +230,24 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       note: borderNoteText,
     },
     stops,
+    food_spots: (input.foodSpots ?? []).map((spot) => ({
+      id: spot.id,
+      chain: spot.chain,
+      name: spot.name,
+      coords: { lat: spot.lat, lng: spot.lng },
+      distance_from_start_km: spot.alongKm,
+      eta: wallClockEta({
+        departAt: input.departAt,
+        drivingMin: spot.etaMin,
+        extraWaitMin:
+          borderAlongKm != null && spot.alongKm >= borderAlongKm - 1
+            ? waitMin
+            : 0,
+        sleepShifts: input.sleepShifts,
+        dwellMin: dwellMinutesBefore(spot.etaMin, breakStops, withChildren),
+      }).toISOString(),
+      detour_km: spot.detourKm,
+    })),
     fuel_averages: input.fuelAverages,
     community: {
       penalty_min: input.community.penaltyMin,
