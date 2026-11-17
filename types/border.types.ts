@@ -28,6 +28,8 @@ export interface BorderStatus {
   vehicle_types_allowed?: string[];
   /** Truck/bus waits are derived when Nakordoni does not publish them. */
   derived_heavy_wait?: boolean;
+  /** What drivers who just crossed reported (middle value of the last hours). */
+  driver_reports?: { minutes: number; count: number; latest_at: string };
 }
 
 export interface BorderWebcamFeed {

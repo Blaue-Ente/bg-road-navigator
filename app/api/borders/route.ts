@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { fetchBorderStatus } from "@/lib/api-clients/border-scraper";
+import { isDatabaseConfigured } from "@/lib/db";
+import { driverReportSummaries } from "@/lib/db/border-reports";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/i18n/locale";
 
 const BorderQuerySchema = z.object({
@@ -54,7 +56,21 @@ export async function GET(request: NextRequest) {
       locale,
     });
 
-    return NextResponse.json(borderStatus);
+    // What drivers who just crossed reported. Missing table or database: skip.
+    let reports = new Map<string, { minutes: number; count: number; latest_at: string }>();
+    if (isDatabaseConfigured()) {
+      try {
+        reports = await driverReportSummaries(borderStatus.map((b) => b.crossing_id));
+      } catch {
+        // The migration may not be applied yet: the page works without it.
+      }
+    }
+    return NextResponse.json(
+      borderStatus.map((border) => {
+        const driver = reports.get(border.crossing_id);
+        return driver ? { ...border, driver_reports: driver } : border;
+      })
+    );
   } catch (error) {
     console.error("Borders API error:", error);
     return NextResponse.json(

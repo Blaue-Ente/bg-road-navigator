@@ -19,6 +19,16 @@ export const TripPushPlanSchema = z.object({
       })
     )
     .max(40),
+  /** The border the route crosses, so a push can ask how the wait went. */
+  border: z
+    .object({
+      id: z.string().max(60),
+      name: z.string().max(120),
+      eta: z.string().datetime(),
+      wait_min: z.number().finite().min(0).max(720),
+    })
+    .nullable()
+    .optional(),
   weather: z
     .array(
       z.object({
@@ -40,12 +50,16 @@ export interface ScheduledPush {
   title: string;
   body: string;
   tag: string;
+  /** Where a tap opens the app; the home map when absent. */
+  url?: string;
 }
 
 const STOP_LEAD_MIN = 12;
 const FUEL_LEAD_MIN = 30;
 const WEATHER_LEAD_MIN = 45;
 const MAX_PUSHES = 30;
+/** After the expected crossing, wait this long before asking how it went. */
+const BORDER_AFTER_MIN = 25;
 
 /**
  * Pushes timed from the plan's own arrival times, shifted by how late the
@@ -108,6 +122,17 @@ export function buildPushSchedule(input: {
         .replace(/\s{2,}/g, " ")
         .trim(),
       tag: `weather-${index}`,
+    });
+  }
+
+  if (plan.border) {
+    // The wait is a guess, so the question comes well after the expected crossing.
+    out.push({
+      sendAt: at(plan.border.eta, -(plan.border.wait_min + BORDER_AFTER_MIN)),
+      title: t.noticeTitle,
+      body: formatTemplate(t.pushBorderAfter, { name: plan.border.name }),
+      tag: `border-${plan.border.id}`,
+      url: `/?border=${encodeURIComponent(plan.border.id)}&wait=${Math.round(plan.border.wait_min)}`,
     });
   }
 

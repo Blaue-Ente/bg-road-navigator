@@ -63,6 +63,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Never kept: Tripadvisor Terra content (its caching policy allows only the Location ID).
 - Traffic: `GET /api/traffic?bbox=w,s,e,n` merges TomTom Incident Details **v5** (`lib/api-clients/tomtom.ts`; the old v4-style call never returned anything) with HERE Traffic v7 (`HERE_API_KEY`, `lib/api-clients/here-traffic.ts`). Both providers refuse areas over about one degree, so the view is split into grid-aligned 1-degree tiles (`lib/traffic/tiles.ts`, at most 6, nearest the centre) that drivers share. Serious incidents only; near-identical reports of the same type within 250 m are merged. The map sends its real visible area (`useMapStore.view.bounds`), only while the traffic layer is on and zoom is 7 or more. `?debug=1` adds `tomtom_configured`, `tomtom_error`, `here_configured` and `here_error` (status and message, never a key). `GET /api/config/status` lists `here`, `tripadvisor` and `routestack` as booleans.
 
+### Border waits from drivers
+
+- `lib/borders/crossing-watch.ts` (pure, tested): with positions only, it measures the wait from the first slow fix within 3 km of a crossing to the first fast fix after the country changed. A pass that turns round, a stretch with no fixes (marks it unreliable) and waits under 5 minutes produce nothing. It works only while the page is open and receiving positions; browsers give no location in the background, especially on iPhone.
+- `useBorderCrossingWatch` runs during trip mode with location allowed (`BorderTimeWatcher` on the map); the country outlines (130 KB) load only within 15 km of a crossing. `BorderTimePrompt` asks the driver to confirm or correct the minutes; a signed-in driver sends it to `POST /api/borders/reports` (writes need an account; one report per driver and crossing per 30 minutes; only crossing, minutes and times are stored, never the route). Needs `drizzle/0007_border_reports.sql`.
+- `/api/borders` adds `driver_reports` (middle value of the last 3 hours, with count and latest time) per crossing; `BorderCard` shows it. Missing table: it is simply left out.
+- Closed app: the trip push plan carries `border` (id, name, expected arrival, expected wait). `buildPushSchedule` sends "Did you cross X?" about 25 minutes after the expected crossing; it opens `/?border=<id>&wait=<min>`, which asks for the real wait (`origin: "estimate"`).
+- Tankerkönig prices are shared per 5 km cell for `TANKERKOENIG_CACHE_MINUTES` (default 10, open data, kept in Neon); Fuelo country averages already use a 24-hour Next data cache.
+
 ### Keys-only readiness
 
 - Code is ready for operators to paste env vars only (+ one-shot Neon SQL).

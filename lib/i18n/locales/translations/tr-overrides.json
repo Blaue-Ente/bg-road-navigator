@@ -153,7 +153,9 @@
     "weatherFetchFailed": "Hava durumu yüklenemedi",
     "weatherAttribution": "Tahmin: Open-Meteo.com (CC BY 4.0)",
     "invalidVehicle": "Geçersiz araç bilgisi.",
-    "vehicleLimit": "12 araç sınırına ulaştınız."
+    "vehicleLimit": "12 araç sınırına ulaştınız.",
+    "borderReportTooSoon": "Bu sınır için zaten bir süre paylaştınız. Teşekkürler!",
+    "invalidBorderReport": "Geçersiz sınır bekleme verisi."
   },
   "location": {
     "notifications": {
@@ -451,7 +453,8 @@
     "pushFailed": "Bildirimler açılamadı.",
     "pushOn": "Uygulama kapalıyken de bildirimler",
     "pushStopSoon": "Yaklaşık {minutes} dk sonra: {title}.",
-    "pushUnsupported": "Bu tarayıcı uygulama kapalıyken bildirim gönderemez. iPhone'da siteyi Ana Ekrana ekleyin."
+    "pushUnsupported": "Bu tarayıcı uygulama kapalıyken bildirim gönderemez. iPhone'da siteyi Ana Ekrana ekleyin.",
+    "pushBorderAfter": "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur."
   },
   "ai": {
     "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",
@@ -477,5 +480,24 @@
     "freeCancellation": "Ücretsiz iptal",
     "payAtHotel": "Otelde ödeme",
     "distanceKm": "{km} km"
+  },
+  "borderTime": {
+    "drivers": "Sürücüler yaklaşık {minutes} dk bildiriyor ({count})",
+    "driversAgo": "son {ago}",
+    "failed": "Gönderilemedi. Tekrar deneyin.",
+    "later": "Şimdi değil",
+    "less": "Daha az",
+    "measured": "Uygulama yaklaşık {minutes} dk ölçtü. Yanlışsa düzeltin.",
+    "minutes": "{minutes} dk",
+    "more": "Daha fazla",
+    "privacy": "Yalnızca kapıyı ve dakikayı saklarız, rotanızı değil.",
+    "question": "Sınırda ne kadar beklediniz?",
+    "send": "Gönder",
+    "signIn": "Süreyi paylaşmak için giriş yapın.",
+    "thanks": "Teşekkürler! Sonraki sürücüler görecek.",
+    "title": "{name} sınırını geçtiniz",
+    "unavailable": "Paylaşım bu sitede açık değil.",
+    "unsure": "Bir süre sinyal yoktu, bu yüzden sayıyı kontrol edin.",
+    "estimated": "Beklenen süre yaklaşık {minutes} dk idi. Gerçekte ne kadar beklediğinizi girin."
   }
 }

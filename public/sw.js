@@ -51,7 +51,12 @@ self.addEventListener("notificationclick", (event) => {
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windows) => {
         for (const client of windows) {
-          if ("focus" in client) return client.focus();
+          if (!("focus" in client)) continue;
+          // Open the target page (for example the border question), then show it.
+          if (url !== "/" && "navigate" in client) {
+            return client.navigate(url).then((moved) => (moved || client).focus());
+          }
+          return client.focus();
         }
         return self.clients.openWindow(url);
       })

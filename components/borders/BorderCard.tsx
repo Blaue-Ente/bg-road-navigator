@@ -9,6 +9,7 @@ import type { BorderDocument } from "@/lib/constants/border-crossings";
 import type { BorderStatus } from "@/types/border.types";
 import { officialLinksForCrossing } from "@/lib/constants/border-official-links";
 import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
+import { formatPinAge } from "@/lib/constants/community-pins";
 
 interface BorderCardProps {
   border: BorderStatus;
@@ -103,6 +104,21 @@ export function BorderCard({ border, onComment }: BorderCardProps) {
           </span>
         ))}
       </div>
+
+      {border.driver_reports && (
+        <p className="mb-3 text-xs font-medium text-[var(--waze-text)]">
+          {formatTemplate(m.borderTime.drivers, {
+            minutes: String(border.driver_reports.minutes),
+            count: String(border.driver_reports.count),
+          })}
+          <span className="font-normal text-[var(--waze-text-muted)]">
+            {" · "}
+            {formatTemplate(m.borderTime.driversAgo, {
+              ago: formatPinAge(border.driver_reports.latest_at, locale),
+            })}
+          </span>
+        </p>
+      )}
 
       <div className="mb-3 text-xs text-[var(--waze-text-muted)]">
         {m.borders.workingHours} {border.working_hours}

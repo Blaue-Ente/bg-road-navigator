@@ -43,6 +43,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 7. След това `drizzle/0005_user_vehicles.sql` — гараж с няколко автомобила на акаунт (таблица `user_vehicles`: среден разход извън града, резервоар/обхват, основен автомобил). Без нея профилът и плановете работят както досега, а „Моите автомобили“ показва подсказка да се приложи файлът.
 8. След това `drizzle/0006_push.sql` — известия при затворено приложение (`push_subscriptions`, `trip_push_queue`). Нужни са още `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` и ежеминутно извикване на `GET /api/cron/push-due` (безплатният cron на Vercel е дневен; на Oracle VM: `* * * * * curl -s -H "Authorization: Bearer $CRON_SECRET" https://ВАШИЯТ-АДРЕС/api/cron/push-due`).
 
+9. След това `drizzle/0007_border_reports.sql` — времето на границата, което шофьорите споделят (`border_wait_reports`: пункт, минути, часове, без маршрут). Без нея `/borders` работи както досега, а картата „Минахте границата“ показва, че споделянето не е включено.
+
 Същото през `psql`, без да записвате паролата в git:
 
 ```bash
@@ -52,6 +54,7 @@ psql "$DATABASE_URL" -f drizzle/0003_planner_places.sql
 psql "$DATABASE_URL" -f drizzle/0004_nakordoni_rate.sql
 psql "$DATABASE_URL" -f drizzle/0005_user_vehicles.sql
 psql "$DATABASE_URL" -f drizzle/0006_push.sql
+psql "$DATABASE_URL" -f drizzle/0007_border_reports.sql
 ```
 
 Първият файл създава таблиците на Better Auth (`user`, `session`, `account`, `verification`) и `profiles`, `saved_places`, `saved_routes`, `community_pins`, `pin_comments`, `community_pin_votes`, `community_pin_reports`. Вторият създава `nakordoni_cache`, `nakordoni_budget` и `osm_query_cache`.
