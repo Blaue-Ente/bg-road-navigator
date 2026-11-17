@@ -19,6 +19,8 @@ export interface ClusterPoi {
   color?: string;
   subtitle?: string;
   glyph?: string;
+  /** Own pictogram; overrides the layer icon. */
+  icon?: PoiIcon;
 }
 
 interface ClusteredPoiLayerProps {
@@ -88,12 +90,19 @@ export function ClusteredPoiLayer({
 
     cleanup(map, sourceId);
 
-    const iconId = icon ? poiIconId(icon, color) : null;
-    if (icon && iconId && !map.hasImage(iconId)) {
-      const image = drawPoiIcon(icon, color);
-      if (image) map.addImage(iconId, image, { pixelRatio: 2 });
-    }
-    const useIcon = Boolean(iconId && map.hasImage(iconId));
+    // Each point's pin is its own pictogram on its own colour; one image per pair.
+    const pinIds = points.map((point) => {
+      const pinIcon = point.icon ?? icon;
+      if (!pinIcon) return null;
+      const pinColor = point.color ?? color;
+      const id = poiIconId(pinIcon, pinColor);
+      if (!map.hasImage(id)) {
+        const image = drawPoiIcon(pinIcon, pinColor);
+        if (image) map.addImage(id, image, { pixelRatio: 2 });
+      }
+      return map.hasImage(id) ? id : null;
+    });
+    const useIcon = pinIds.length > 0 && pinIds.every(Boolean);
 
     map.addSource(sourceId, {
       type: "geojson",
@@ -102,7 +111,7 @@ export function ClusteredPoiLayer({
       clusterRadius: 48,
       data: {
         type: "FeatureCollection",
-        features: points.map((point) => ({
+        features: points.map((point, index) => ({
           type: "Feature",
           geometry: { type: "Point", coordinates: [point.lng, point.lat] },
           properties: {
@@ -111,6 +120,7 @@ export function ClusteredPoiLayer({
             subtitle: point.subtitle ?? "",
             color: point.color ?? color,
             glyph: point.glyph ?? "",
+            iconId: pinIds[index] ?? "",
           },
         })),
       },
@@ -142,14 +152,14 @@ export function ClusteredPoiLayer({
       paint: { "text-color": "#0b0f14" },
     });
 
-    if (useIcon && iconId) {
+    if (useIcon) {
       map.addLayer({
         id: `${sourceId}-points`,
         type: "symbol",
         source: sourceId,
         filter: ["!", ["has", "point_count"]],
         layout: {
-          "icon-image": iconId,
+          "icon-image": ["get", "iconId"],
           "icon-size": 0.85,
           "icon-allow-overlap": true,
         },

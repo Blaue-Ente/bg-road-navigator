@@ -1,7 +1,22 @@
 /** Pictograms (24×24 stroke paths) drawn on a coloured pin for map points. */
-export type PoiIcon = "fuel" | "ev" | "rest";
+export type PoiIcon =
+  | "fuel"
+  | "ev"
+  | "rest"
+  | "border"
+  | "webcam"
+  | "speed"
+  | "alert"
+  | "car"
+  | "shield"
+  | "cone"
+  | "bed"
+  | "pin"
+  | "shortcut"
+  | "info";
 
 const PATHS: Record<PoiIcon, string[]> = {
+  border: [], webcam: [], speed: [], alert: [], car: [], shield: [], cone: [], bed: [], pin: [], shortcut: [], info: [],
   fuel: [
     "M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5",
     "M14 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16",
@@ -18,6 +33,41 @@ const PATHS: Record<PoiIcon, string[]> = {
     "M6 2v2",
   ],
 };
+
+PATHS.border = [
+  "M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528",
+];
+PATHS.webcam = [
+  "M4 6h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z",
+  "m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5",
+];
+PATHS.speed = ["m12 14 4-4", "M3.34 19a10 10 0 1 1 17.32 0"];
+PATHS.alert = [
+  "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",
+  "M12 9v4",
+  "M12 17h.01",
+];
+PATHS.car = [
+  "M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2",
+  "M7 17h10",
+  "M9 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0z",
+  "M19 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0z",
+];
+PATHS.shield = [
+  "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+];
+PATHS.cone = ["M9.5 4h5l4 14h-13z", "M3 21h18", "M7.5 12h9"];
+PATHS.bed = ["M2 4v16", "M2 8h18a2 2 0 0 1 2 2v10", "M2 17h20", "M6 8v9"];
+PATHS.pin = [
+  "M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0",
+  "M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
+];
+PATHS.shortcut = ["M7 7h10v10", "M7 17 17 7"];
+PATHS.info = [
+  "M12 16v-4",
+  "M12 8h.01",
+  "M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z",
+];
 
 export const POI_ICON_SIZE = 44;
 

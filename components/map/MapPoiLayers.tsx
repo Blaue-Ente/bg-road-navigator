@@ -223,6 +223,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-borders"
+        icon="border"
         navigateLabel={m.map.navigateTo}
         points={borderPoints}
         color="#38bdf8"
@@ -240,6 +241,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-speed-cameras"
+        icon="speed"
         navigateLabel={m.map.navigateTo}
         points={speedCameraPoints}
         color="#0f766e"
@@ -248,6 +250,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
       <ClusteredPoiLayer
         map={map}
         sourceId="poi-cameras"
+        icon="webcam"
         navigateLabel={m.map.navigateTo}
         points={cameraPoints}
         color="#fb7185"

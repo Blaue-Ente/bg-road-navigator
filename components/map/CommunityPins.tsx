@@ -3,7 +3,7 @@
 import type { Map } from "maplibre-gl";
 import type { CommunityPin } from "@/types/community.types";
 import { useLocale } from "@/components/i18n/LocaleProvider";
-import { communityPinColor, communityPinGlyph, communityPinLabel, formatPinAge } from "@/lib/constants/community-pins";
+import { COMMUNITY_PIN_ICONS, communityPinColor, communityPinGlyph, communityPinLabel, formatPinAge } from "@/lib/constants/community-pins";
 import { ClusteredPoiLayer } from "@/components/map/ClusteredPoiLayer";
 import { useMapStore } from "@/lib/stores/map.store";
 
@@ -23,6 +23,7 @@ export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
     subtitle: `${communityPinLabel(pin.category, locale)} · ${formatPinAge(pin.created_at, locale)}`,
     color: communityPinColor(pin.category),
     glyph: communityPinGlyph(pin.category),
+    icon: COMMUNITY_PIN_ICONS[pin.category] ?? ("info" as const),
   }));
 
   return (

@@ -26,7 +26,7 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
 
     incidents.forEach((incident) => {
       const el = document.createElement("div");
-      el.className = "flex h-6 w-6 items-center justify-center rounded-full";
+      el.className = "flex h-7 w-7 items-center justify-center rounded-full";
 
       const colors = {
         minor: "#27AE60",
@@ -36,8 +36,12 @@ export function TrafficLayer({ map, incidents = [] }: TrafficLayerProps) {
       };
 
       el.style.backgroundColor = colors[incident.severity];
+      el.style.border = "2px solid #fff";
+      el.style.boxShadow = "0 1px 3px rgba(0,0,0,.35)";
+      el.innerHTML =
+        '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
 
-      const marker = new maplibregl.Marker(el)
+      const marker = new maplibregl.Marker({ element: el })
         .setLngLat([incident.coords.lng, incident.coords.lat])
         .setPopup(
           new maplibregl.Popup({ offset: 25 }).setHTML(`
