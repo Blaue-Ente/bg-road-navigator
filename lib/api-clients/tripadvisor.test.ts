@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nearbyStays, rankStays, tripadvisorKey } from "@/lib/api-clients/tripadvisor";
+import { nearbyStays, rankStays, siteReferer, tripadvisorKey } from "@/lib/api-clients/tripadvisor";
 import {
   airbnbSearchUrl,
   bookingSearchUrl,
@@ -30,6 +30,17 @@ describe("tripadvisorKey", () => {
       "ABCDEF0123456789ABCDEF"
     );
     expect(tripadvisorKey(env({ TRIPADVISOR_NOTE: "not a key" }))).toBeNull();
+  });
+});
+
+describe("siteReferer", () => {
+  it("uses the public app address, else the Vercel production domain", () => {
+    const env = (value: Record<string, string>) => value as unknown as NodeJS.ProcessEnv;
+    expect(siteReferer(env({ NEXT_PUBLIC_APP_URL: "https://x.app/" }))).toBe("https://x.app");
+    expect(siteReferer(env({ VERCEL_PROJECT_PRODUCTION_URL: "y.vercel.app" }))).toBe(
+      "https://y.vercel.app"
+    );
+    expect(siteReferer(env({ NEXT_PUBLIC_APP_URL: "http://localhost:3000" }))).toBeNull();
   });
 });
 

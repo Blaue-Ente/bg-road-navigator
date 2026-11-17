@@ -41,6 +41,14 @@ export function tripadvisorKey(env: NodeJS.ProcessEnv = process.env): string | n
   return null;
 }
 
+/** The public address Tripadvisor sees as the referring site. */
+export function siteReferer(env: NodeJS.ProcessEnv = process.env): string | null {
+  const value = (env.NEXT_PUBLIC_APP_URL ?? env.BETTER_AUTH_URL ?? "").trim();
+  if (/^https:\/\//.test(value)) return value.replace(/\/+$/, "");
+  const vercel = env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  return vercel ? `https://${vercel}` : null;
+}
+
 async function get<T>(
   url: string,
   fetchImpl: typeof fetch,
@@ -48,7 +56,11 @@ async function get<T>(
 ): Promise<T | null> {
   try {
     const response = await fetchImpl(url, {
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        // Keys can be limited to a site; Tripadvisor checks the Referer for that.
+        ...(siteReferer() ? { Referer: siteReferer()! } : {}),
+      },
       signal: AbortSignal.timeout(TIMEOUT_MS),
       next: { revalidate: 21_600 },
     } as RequestInit);
