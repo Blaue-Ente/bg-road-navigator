@@ -86,6 +86,12 @@ export async function GET(request: NextRequest) {
           .catch(() => null)
       : place;
   const city = (cityName ?? place).split(",")[0]?.trim() || place;
+  // The links search by the Latin "Town, Country" name (Booking and Airbnb do not
+  // find a Cyrillic village). A country alone would search the whole country.
+  const linkQuery = {
+    ...stayQuery,
+    place: cityName?.includes(",") ? cityName : stayQuery.place,
+  };
   let tripadvisorError: string | null = null;
   // Hotel prices for the same city, night and party are shared for a while, so
   // drivers on similar routes do not each spend a partner call.
@@ -145,8 +151,8 @@ export async function GET(request: NextRequest) {
     {
       place,
       links: {
-        booking: bookingSearchUrl(stayQuery, affiliateId),
-        airbnb: airbnbSearchUrl(stayQuery),
+        booking: bookingSearchUrl(linkQuery, affiliateId),
+        airbnb: airbnbSearchUrl(linkQuery),
         booking_partner: Boolean(affiliateId),
       },
       tripadvisor: stays,
