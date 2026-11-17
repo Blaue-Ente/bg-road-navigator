@@ -81,8 +81,14 @@ export async function GET(request: NextRequest) {
           .catch(() => null)
       : place;
   const city = (cityName ?? place).split(",")[0]?.trim() || place;
+  let tripadvisorError: string | null = null;
   const [stays, partner] = await Promise.all([
-    tripadvisorKey() ? nearbyStays({ lat, lng }) : Promise.resolve(null),
+    tripadvisorKey()
+      ? nearbyStays(
+          { lat, lng },
+          { onError: (message) => (tripadvisorError = message) }
+        )
+      : Promise.resolve(null),
     routeStackConfig()
       ? searchHotels({
           city,
@@ -127,6 +133,7 @@ export async function GET(request: NextRequest) {
             partner_shape: partner.shape ?? null,
             partner_error: partner.error ?? null,
             partner_city: city,
+            tripadvisor_error: tripadvisorError,
             partner_base: routeStackConfig()?.baseUrl ?? null,
           }
         : {}),
