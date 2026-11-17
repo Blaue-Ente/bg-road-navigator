@@ -470,6 +470,9 @@
     "tripadvisorCredit": "Ratings: Tripadvisor. Open the link for current prices and reviews.",
     "available": "Hotels available that night",
     "availableNote": "Prices and availability from our partner. Check the terms and the final price before booking.",
-    "fromPrice": "from {price} {currency}"
+    "fromPrice": "{price} {currency} for the night",
+    "breakfast": "Breakfast",
+    "freeCancellation": "Free cancellation",
+    "payAtHotel": "Pay at the hotel"
   }
 }

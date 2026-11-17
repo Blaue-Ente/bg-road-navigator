@@ -83,6 +83,49 @@ describe("parseHotels", () => {
   });
 });
 
+describe("the live response shape", () => {
+  const payload = {
+    success: true,
+    result: {
+      currency: "EUR",
+      result: [
+        {
+          id: "39694073",
+          name: "Ambasador Hotel",
+          starRating: 5,
+          ourprice: 88.5,
+          heroImage: "https://img/a.jpg",
+          distancekm: 1.4,
+          payAtHotel: true,
+          options: { freeBreakfast: true, refundable: false, freeCancellation: true },
+          contact: { address: { line1: "Dušanova 1", city: { name: "Niš" } } },
+        },
+        { id: "39694073", name: "Ambasador Hotel", starRating: 5, ourprice: 79 },
+        { id: "2", name: "Boutique", starRating: 3.5, ourprice: 41 },
+      ],
+    },
+  };
+  it("maps price, currency, image, address and options, one row per hotel", () => {
+    const hotels = parseHotels(payload);
+    expect(hotels).toHaveLength(2);
+    const a = hotels.find((hotel) => hotel.id === "39694073");
+    expect(a).toMatchObject({
+      price: 79,
+      currency: "EUR",
+      rating: 5,
+    });
+    const rich = parseHotels({ result: { currency: "EUR", result: [payload.result.result[0]] } })[0];
+    expect(rich).toMatchObject({
+      image: "https://img/a.jpg",
+      address: "Dušanova 1, Niš",
+      free_cancellation: true,
+      pay_at_hotel: true,
+      free_breakfast: true,
+      distance_km: 1.4,
+    });
+  });
+});
+
 describe("searchHotels", () => {
   beforeEach(() => clearRouteStackTokenForTests());
 

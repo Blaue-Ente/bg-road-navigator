@@ -21,6 +21,7 @@ export interface TripadvisorStay {
 /** Also accepts the names people tend to use for the Traveler-API key. */
 const KEY_NAMES = [
   "TRIPADVISOR_API_KEY",
+  "TRIPADVISOR_API",
   "TRIPADVISOR_TRAVELER_API",
   "TRIPADVISOR_TRAVALER_API",
 ] as const;
@@ -29,6 +30,13 @@ export function tripadvisorKey(env: NodeJS.ProcessEnv = process.env): string | n
   for (const name of KEY_NAMES) {
     const value = env[name]?.trim();
     if (value) return value;
+  }
+  // Any other TRIPADVISOR_* variable that holds a single token-like value.
+  for (const [name, raw] of Object.entries(env)) {
+    const value = raw?.trim();
+    if (name.startsWith("TRIPADVISOR") && value && /^[\w-]{16,}$/.test(value)) {
+      return value;
+    }
   }
   return null;
 }
