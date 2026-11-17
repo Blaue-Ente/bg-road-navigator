@@ -55,6 +55,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - `GET /api/stays?lat&lng&checkin&adults&children&locale&pet[&debug=1]` (rate limited, `no-store`). Tripadvisor comes from **Terra** (`terra.tripadvisor.com/api`, header `X-API-Key`, `?version=1`), not the retired Content API: `lib/api-clients/tripadvisor.ts` calls `/catalog/locations/nearby` (hotels, radius max 8 km, one billable unit per returned place). Its key may be named `TRIPADVISOR_API_KEY` or `TRIPADVISOR_API`. Terra forbids keeping content (no fetch cache, no DB copy, `Cache-Control: no-store`), requires links back to Tripadvisor (name, review count) and the credit line, and bans review text in page source, so only rating, count, link and the bubble icon are used. Cost guards: `TRIPADVISOR_RESULT_SIZE` (default 6) and `TRIPADVISOR_DAILY_LIMIT` (per server, default 200); `debug=1` shows `tripadvisor_error` (status and message, never the key).
 - RouteStack (`lib/api-clients/routestack.ts`) lists bookable hotels with prices; its rows have no booking link yet.
 
+### Shared cache (saves provider calls)
+
+- `lib/cache/shared-cache.ts` (`cachedValue`): memory first, then Neon table `osm_query_cache` (already created by `drizzle/0002`, so no new SQL), identical simultaneous calls share one request, failures are never kept. `persist: true` only for data whose terms allow keeping it; `persist: false` keeps it in this server's memory for a short time.
+- Kept in Neon: RouteStack hotel prices per city, night and party (`ROUTESTACK_CACHE_MINUTES`, default 60; confirm RouteStack allows it) and OpenChargeMap by about 5 km cell (`OPENCHARGE_CACHE_MINUTES`, default 360; open data). Distances are recomputed from the real point.
+- Memory only: TomTom fuel stations (`TOMTOM_PLACES_CACHE_MINUTES`, 30), `/api/traffic` (`TRAFFIC_CACHE_SECONDS`, 90) and HERE incident tiles (`HERE_CACHE_SECONDS`, 300), because those terms do not clearly allow storing.
+- Never kept: Tripadvisor Terra content (its caching policy allows only the Location ID).
+- Traffic: `/api/traffic` merges TomTom with HERE Traffic v7 incidents (`HERE_API_KEY`, `lib/api-clients/here-traffic.ts`, 2-degree tiles, serious incidents only, near-identical reports dropped). `?debug=1` adds `here_configured` and `here_error`. `GET /api/config/status` lists `here`, `tripadvisor` and `routestack` as booleans.
+
 ### Keys-only readiness
 
 - Code is ready for operators to paste env vars only (+ one-shot Neon SQL).
