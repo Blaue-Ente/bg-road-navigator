@@ -3,6 +3,7 @@ import { z } from "zod";
 import { fetchBorderStatus } from "@/lib/api-clients/border-scraper";
 import { isDatabaseConfigured } from "@/lib/db";
 import { driverReportSummaries } from "@/lib/db/border-reports";
+import { withTimeout } from "@/lib/server/with-timeout";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/i18n/locale";
 
 const BorderQuerySchema = z.object({
@@ -46,7 +47,10 @@ export async function GET(request: NextRequest) {
     }
 
     const locale = parseLocale(request.cookies.get(LOCALE_COOKIE)?.value);
+    const started = Date.now();
+    const diagnostics: string[] = [];
     const borderStatus = await fetchBorderStatus({
+      diagnostics,
       crossingId: parsed.data.crossing_id,
       region: parsed.data.region,
       corridorId: parsed.data.corridor_id,
@@ -60,7 +64,12 @@ export async function GET(request: NextRequest) {
     let reports = new Map<string, { minutes: number; count: number; latest_at: string }>();
     if (isDatabaseConfigured()) {
       try {
-        reports = await driverReportSummaries(borderStatus.map((b) => b.crossing_id));
+        reports = await withTimeout(
+          driverReportSummaries(borderStatus.map((b) => b.crossing_id)),
+          3_000,
+          reports,
+          () => diagnostics.push("driver reports timed out")
+        );
       } catch {
         // The migration may not be applied yet: the page works without it.
       }
@@ -69,7 +78,18 @@ export async function GET(request: NextRequest) {
       borderStatus.map((border) => {
         const driver = reports.get(border.crossing_id);
         return driver ? { ...border, driver_reports: driver } : border;
-      })
+      }),
+      // Only the timings and the names of slow sources: no data, no keys.
+      searchParams.get("debug") === "1"
+        ? {
+            headers: {
+              "X-Border-Timings": JSON.stringify({
+                ms: Date.now() - started,
+                slow: diagnostics,
+              }),
+            },
+          }
+        : undefined
     );
   } catch (error) {
     console.error("Borders API error:", error);
