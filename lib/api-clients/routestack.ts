@@ -308,6 +308,8 @@ export async function searchHotels(
         checkIn: query.checkIn,
         checkOut: query.checkOut,
         rooms: 1,
+        // The app prices in euros; the service quoted dollars without this.
+        currency: "EUR",
         adults: query.adults ?? 2,
         children: query.children ?? 0,
       }),

@@ -43,7 +43,8 @@ export function tripadvisorKey(env: NodeJS.ProcessEnv = process.env): string | n
 
 async function get<T>(
   url: string,
-  fetchImpl: typeof fetch
+  fetchImpl: typeof fetch,
+  onError?: (message: string) => void
 ): Promise<T | null> {
   try {
     const response = await fetchImpl(url, {
@@ -51,9 +52,30 @@ async function get<T>(
       signal: AbortSignal.timeout(TIMEOUT_MS),
       next: { revalidate: 21_600 },
     } as RequestInit);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      if (onError) {
+        let detail = "";
+        try {
+          const body = (await response.json()) as {
+            error?: { message?: unknown } | string;
+            message?: unknown;
+          };
+          const raw =
+            typeof body.error === "string"
+              ? body.error
+              : (body.error?.message ?? body.message);
+          detail = typeof raw === "string" ? raw.slice(0, 200) : "";
+        } catch {
+          detail = "";
+        }
+        // Never echo the URL: it carries the key.
+        onError(`${response.status} ${detail}`.trim());
+      }
+      return null;
+    }
     return (await response.json()) as T;
   } catch {
+    onError?.("the service did not answer");
     return null;
   }
 }
@@ -79,7 +101,12 @@ function num(value: unknown): number | null {
 /** Best-rated places to stay near a point, with Tripadvisor's own link for each. */
 export async function nearbyStays(
   input: { lat: number; lng: number; radiusKm?: number },
-  deps: { key?: string | null; fetchImpl?: typeof fetch } = {}
+  deps: {
+    key?: string | null;
+    fetchImpl?: typeof fetch;
+    /** Called with why a request failed, without the key. */
+    onError?: (message: string) => void;
+  } = {}
 ): Promise<TripadvisorStay[] | null> {
   const key = deps.key === undefined ? tripadvisorKey() : deps.key;
   if (!key) return null;
@@ -94,7 +121,8 @@ export async function nearbyStays(
   });
   const nearby = await get<{ data?: NearbyRow[] }>(
     `${BASE}/nearby_search?${params}`,
-    fetchImpl
+    fetchImpl,
+    deps.onError
   );
   if (!nearby) return null;
   const rows = (nearby.data ?? []).filter((row) => row.location_id).slice(0, 6);
