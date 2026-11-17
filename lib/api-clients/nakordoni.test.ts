@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   configureNakordoniMeteredForTests,
   nakordoniMeteredFetch,
+  NAKORDONI_MAX_PACE_WAIT_MS,
   NAKORDONI_MIN_GAP_MS,
   resetNakordoniMeteredForTests,
   seedNakordoniStaleCacheForTests,
@@ -58,6 +59,26 @@ describe("nakordoniMeteredFetch", () => {
         NAKORDONI_MIN_GAP_MS
       );
     }
+  });
+
+  it("skips a call whose global slot is too far away instead of sleeping for minutes", async () => {
+    let now = 1_000;
+    const slept: number[] = [];
+    const fetcher = vi.fn(async () => new Response("{}", { status: 200 }));
+    configureNakordoniMeteredForTests({
+      now: () => now,
+      sleep: (ms) => {
+        slept.push(ms);
+        now += ms;
+        return Promise.resolve();
+      },
+      fetcher: fetcher as typeof fetch,
+      reserveGlobalSlot: async (at) => at + NAKORDONI_MAX_PACE_WAIT_MS + 60_000,
+    });
+    const result = await nakordoniMeteredFetch("/api/v1/data/queue?ppid=far");
+    expect(result.ok).toBe(false);
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(slept).toEqual([]);
   });
 
   it("dedupes identical in-flight paths", async () => {

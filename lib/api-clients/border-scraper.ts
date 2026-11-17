@@ -28,6 +28,7 @@ import { loadHatarinfo } from "@/lib/borders/hatarinfo";
 import type { HatarinfoPanel } from "@/lib/borders/hatarinfo-parse";
 import { isDatabaseConfigured } from "@/lib/db";
 import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
+import { withTimeout } from "@/lib/server/with-timeout";
 import { isCrossingLicensed } from "@/lib/nakordoni/markets";
 import { parseDayStats, parseForecast } from "@/lib/nakordoni/parse";
 import {
@@ -40,7 +41,12 @@ import { catalog, type Locale } from "@/lib/i18n/locale";
 import type { WaitSource } from "@/lib/planner/types";
 import type { BorderStatus } from "@/types/border.types";
 
+/** How long each source may take before the page answers without it. */
+const SOURCE_TIMEOUT_MS = 8_000;
+
 export interface BorderFetchOptions {
+  /** Filled with the name of each source that was too slow. */
+  diagnostics?: string[];
   crossingId?: string;
   region?: EuropeanBorderRegion;
   corridorId?: string;
@@ -274,12 +280,15 @@ export async function fetchBorderStatus(
         .filter((ppid): ppid is string => Boolean(ppid))
     ),
   ];
+  // A slow source must not hold the whole page: answer with what is at hand
+  // and say which one was late (see the X-Border-Timings header with ?debug=1).
+  const slow = (name: string) => () => options.diagnostics?.push(`${name} timed out`);
   const [liveQueues, hatarinfo, waits] = await Promise.all([
-    fetchNakordoniQueues(now),
+    withTimeout(fetchNakordoniQueues(now), SOURCE_TIMEOUT_MS, [], slow("nakordoni")),
     crossings.some((crossing) => isHatarinfoCrossingId(crossing.id))
-      ? loadHatarinfo()
+      ? withTimeout(loadHatarinfo(), SOURCE_TIMEOUT_MS, null, slow("hatarinfo"))
       : Promise.resolve(null),
-    loadWaitsFromCache(ppids, now),
+    withTimeout(loadWaitsFromCache(ppids, now), SOURCE_TIMEOUT_MS, new Map(), slow("waits")),
   ]);
   const queueByCrossing = Object.fromEntries(
     liveQueues.map((q) => [q.crossingId, q])

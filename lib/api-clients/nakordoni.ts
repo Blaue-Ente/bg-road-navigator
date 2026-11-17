@@ -23,6 +23,8 @@ export const NAKORDONI_DATA_ROOT = "https://nakordoni.eu";
 export const NAKORDONI_MIN_GAP_MS = 600;
 export const NAKORDONI_RESPONSE_CACHE_MS = 15 * 60 * 1000;
 const MAX_429_RETRIES = 2;
+/** A request that would have to wait longer than this for its slot is skipped, not queued. */
+export const NAKORDONI_MAX_PACE_WAIT_MS = 5_000;
 const ADVISORY_LOCK_KEY = 915_001;
 
 export interface NakordoniMeteredResult {
@@ -222,7 +224,8 @@ async function reserveNakordoniSlotInDb(nowMs: number): Promise<number> {
   }
 }
 
-async function paceBeforeRequest(): Promise<void> {
+/** False when the slot is too far away: the caller answers from what it has. */
+async function paceBeforeRequest(): Promise<boolean> {
   const now = deps.now();
   let globalFireAt = now;
   try {
@@ -235,8 +238,10 @@ async function paceBeforeRequest(): Promise<void> {
   const localGap = Math.max(0, lastLocalFireMs + NAKORDONI_MIN_GAP_MS - now);
   const globalGap = Math.max(0, globalFireAt - now);
   const wait = Math.max(localGap, globalGap);
+  if (wait > NAKORDONI_MAX_PACE_WAIT_MS) return false;
   if (wait > 0) await deps.sleep(wait);
   lastLocalFireMs = deps.now();
+  return true;
 }
 
 async function httpGetOnce(
@@ -281,7 +286,9 @@ async function httpGetWith429Backoff(
     : `${NAKORDONI_DATA_ROOT}${path.startsWith("/") ? path : `/${path}`}`;
   let backoffMs = 2000;
   for (let attempt = 0; attempt <= MAX_429_RETRIES; attempt++) {
-    await paceBeforeRequest();
+    if (!(await paceBeforeRequest())) {
+      return { ok: false, status: 0, json: null };
+    }
     const response = await httpGetOnce(url, apiKey);
     if (response.status !== 429 || attempt >= MAX_429_RETRIES) {
       const { retryAfterMs: _r, ...rest } = response;
