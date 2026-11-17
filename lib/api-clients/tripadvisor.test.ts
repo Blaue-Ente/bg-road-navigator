@@ -25,6 +25,11 @@ describe("tripadvisorKey", () => {
     expect(tripadvisorKey(env({ TRIPADVISOR_API_KEY: "a" }))).toBe("a");
     expect(tripadvisorKey(env({ TRIPADVISOR_TRAVELER_API: " b " }))).toBe("b");
     expect(tripadvisorKey(env({ TRIPADVISOR_TRAVALER_API: "c" }))).toBe("c");
+    expect(tripadvisorKey(env({ TRIPADVISOR_API: "d" }))).toBe("d");
+    expect(tripadvisorKey(env({ TRIPADVISOR_WHATEVER: "ABCDEF0123456789ABCDEF" }))).toBe(
+      "ABCDEF0123456789ABCDEF"
+    );
+    expect(tripadvisorKey(env({ TRIPADVISOR_NOTE: "not a key" }))).toBeNull();
   });
 });
 
