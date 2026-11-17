@@ -1,14 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
   BedDouble,
+  Bell,
   Coffee,
   Flag,
   Fuel,
   MapPinOff,
   Navigation,
+  RotateCw,
+  Undo2,
+  X,
   Zap,
 } from "lucide-react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
@@ -22,6 +29,14 @@ import type { PlanStop, TripPlannerResult } from "@/lib/planner/types";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
+import { lineLengthKm } from "@/lib/planner/line";
+import { tripNotices, type TripNotice } from "@/lib/trip/notices";
+import {
+  nextTurn,
+  placeManeuvers,
+  turnArrow,
+  type TurnArrow,
+} from "@/lib/trip/next-turn";
 import { OFF_ROUTE_KM, tripProgress } from "@/lib/trip/progress";
 import { wazeNavigateUrl } from "@/lib/utils/maps-handoff";
 
@@ -33,6 +48,61 @@ function StopIcon({ stop }: { stop: PlanStop | null }) {
   if (stop.kinds.includes("charge")) return <Zap className={className} aria-hidden />;
   if (stop.kinds.includes("fuel")) return <Fuel className={className} aria-hidden />;
   return <Coffee className={className} aria-hidden />;
+}
+
+const TURN_BETA_KEY = "bg-road-turn-beta";
+
+function subscribeTurnBeta(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener("bg-turn-beta", onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener("bg-turn-beta", onChange);
+  };
+}
+
+function readTurnBeta(): boolean {
+  try {
+    return localStorage.getItem(TURN_BETA_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeTurnBeta(on: boolean) {
+  try {
+    if (on) localStorage.setItem(TURN_BETA_KEY, "1");
+    else localStorage.removeItem(TURN_BETA_KEY);
+  } catch {
+    // Private mode: the choice then only lasts until the page reloads.
+  }
+  window.dispatchEvent(new Event("bg-turn-beta"));
+}
+
+function TurnIcon({ arrow }: { arrow: TurnArrow }) {
+  const className = "h-9 w-9";
+  if (arrow === "left") return <ArrowLeft className={className} aria-hidden />;
+  if (arrow === "right") return <ArrowRight className={className} aria-hidden />;
+  if (arrow === "uturn") return <Undo2 className={className} aria-hidden />;
+  if (arrow === "roundabout") return <RotateCw className={className} aria-hidden />;
+  if (arrow === "arrive") return <Flag className={className} aria-hidden />;
+  return <ArrowUp className={className} aria-hidden />;
+}
+
+function showSystemNotice(title: string, body: string, tag: string, lang: string) {
+  if (typeof Notification === "undefined") return;
+  if (Notification.permission !== "granted") return;
+  // In the foreground the on-screen card is enough.
+  if (document.visibilityState === "visible") return;
+  const options = { body, tag, lang };
+  const worker = navigator.serviceWorker;
+  if (worker?.ready) {
+    void worker.ready
+      .then((registration) => registration.showNotification(title, options))
+      .catch(() => new Notification(title, options));
+  } else {
+    new Notification(title, options);
+  }
 }
 
 function isApple(): boolean {
@@ -66,6 +136,13 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
   const geoSupported = typeof navigator !== "undefined" && "geolocation" in navigator;
   const gpsFailed = gpsDenied || !geoSupported;
   const awake = useWakeLock(true);
+  const turnBetaOn = useSyncExternalStore(subscribeTurnBeta, readTurnBeta, () => false);
+  const [showConsent, setShowConsent] = useState(false);
+  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
+  const [notifyPermission, setNotifyPermission] = useState<NotificationPermission | "none">(
+    () => (typeof Notification === "undefined" ? "none" : Notification.permission)
+  );
+  const announced = useRef<Set<string>>(new Set());
 
   // Starting the trip is the opt-in: follow the position until it ends.
   useEffect(() => {
@@ -109,6 +186,52 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     }).format(new Date(ms));
 
   const next = progress.next;
+
+  const notices = useMemo(() => tripNotices({ plan, progress }), [plan, progress]);
+  const noticeText = (notice: TripNotice) =>
+    formatTemplate(
+      {
+        rest: m.trip.noticeRest,
+        restSoon: m.trip.noticeRestSoon,
+        weather: m.trip.noticeWeather,
+        fuel: m.trip.noticeFuel,
+      }[notice.kind],
+      notice.values
+    )
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  const visibleNotices = notices.filter((notice) => !dismissed.has(notice.id));
+
+  // Tell the driver once per notice, also when the app is in the background.
+  useEffect(() => {
+    for (const notice of notices) {
+      if (announced.current.has(notice.id)) continue;
+      announced.current.add(notice.id);
+      showSystemNotice(
+        m.trip.noticeTitle,
+        noticeText(notice),
+        `trip-${notice.id}`,
+        locale
+      );
+    }
+    // noticeText only reads m and notice.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notices, m, locale]);
+
+  const line = useMemo(
+    () =>
+      plan.route.geometry.coordinates.map(
+        (point) => [point[0]!, point[1]!] as [number, number]
+      ),
+    [plan]
+  );
+  const turns = useMemo(() => {
+    if (!turnBetaOn || !plan.route.maneuvers?.length) return null;
+    const geometryKm = lineLengthKm(line);
+    const scale = geometryKm > 0 ? plan.route.distance_km / geometryKm : 1;
+    return placeManeuvers(plan.route.maneuvers, line, scale);
+  }, [turnBetaOn, plan, line]);
+  const upcomingTurn = turns ? nextTurn(turns, progress.alongKm) : null;
   const destination = plan.route.destination;
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const arrivalZone =
@@ -123,7 +246,7 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     <section
       aria-label={m.trip.title}
       data-trip-dashboard
-      className="pointer-events-auto fixed inset-x-3 z-30 rounded-3xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-4 shadow-2xl bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:inset-x-auto md:bottom-6 md:left-3 md:w-[26rem]"
+      className="pointer-events-auto fixed inset-x-3 z-30 max-h-[calc(100dvh-11rem)] overflow-y-auto overscroll-contain rounded-3xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-4 shadow-2xl bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:inset-x-auto md:bottom-6 md:left-3 md:w-[26rem]"
     >
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-accent-text)]">
@@ -155,6 +278,90 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
           ) : null}
         </div>
       </div>
+
+      {visibleNotices.map((notice) => (
+        <div
+          key={notice.id}
+          role="status"
+          className="mt-3 flex items-start gap-2 rounded-2xl bg-[#fff7ed] px-3 py-2 text-base font-medium text-[#7c2d12]"
+        >
+          <p className="min-w-0 flex-1">{noticeText(notice)}</p>
+          <button
+            type="button"
+            aria-label={m.trip.noticeDismiss}
+            onClick={() => setDismissed((current) => new Set(current).add(notice.id))}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+      ))}
+
+      {turnBetaOn ? (
+        <div className="mt-3 rounded-2xl bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)]">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-accent-text)]">
+              {m.trip.turnBeta}
+            </p>
+            <button
+              type="button"
+              onClick={() => writeTurnBeta(false)}
+              className="min-h-11 text-xs text-[var(--waze-text-muted)] underline"
+            >
+              {m.trip.turnOff}
+            </button>
+          </div>
+          {!plan.route.maneuvers?.length ? (
+            <p className="text-sm">{m.trip.turnUnavailable}</p>
+          ) : upcomingTurn ? (
+            <div className="flex items-center gap-3">
+              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[var(--waze-accent)] text-white">
+                <TurnIcon arrow={turnArrow(upcomingTurn.turn.maneuver)} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-2xl font-bold leading-tight">
+                  {upcomingTurn.distanceM >= 1000
+                    ? formatTemplate(m.trip.turnInKm, {
+                        distance: (upcomingTurn.distanceM / 1000).toFixed(1),
+                      })
+                    : formatTemplate(m.trip.turnInM, {
+                        distance: String(Math.round(upcomingTurn.distanceM / 10) * 10),
+                      })}
+                </p>
+                <p className="text-base text-[var(--waze-text-secondary)]">
+                  {upcomingTurn.turn.maneuver.instruction_bg}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm">{m.trip.turnNone}</p>
+          )}
+        </div>
+      ) : showConsent ? (
+        <div className="mt-3 rounded-2xl border border-[var(--waze-border)] px-3 py-3 text-[var(--waze-text)]" role="dialog" aria-label={m.trip.turnConsentTitle}>
+          <p className="text-base font-bold">{m.trip.turnConsentTitle}</p>
+          <p className="mt-1 text-sm leading-snug">{m.trip.turnConsentBody}</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                writeTurnBeta(true);
+                setShowConsent(false);
+              }}
+              className="min-h-12 rounded-2xl bg-[var(--waze-accent)] px-3 text-sm font-bold text-white"
+            >
+              {m.trip.turnAccept}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowConsent(false)}
+              className="min-h-12 rounded-2xl border border-[var(--waze-border)] px-3 text-sm font-semibold"
+            >
+              {m.trip.turnDecline}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-3 grid grid-cols-2 gap-2 text-[var(--waze-text)]">
         <div className="rounded-2xl bg-[var(--waze-surface-elevated)] px-3 py-2">
@@ -204,6 +411,27 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
       )}
 
       <div className="mt-3 grid grid-cols-2 gap-2">
+        {!turnBetaOn && !showConsent && (
+          <button
+            type="button"
+            onClick={() => setShowConsent(true)}
+            className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[var(--waze-border)] px-3 text-sm font-semibold text-[var(--waze-text)]"
+          >
+            {m.trip.turnBeta}
+          </button>
+        )}
+        {notifyPermission === "default" && (
+          <button
+            type="button"
+            onClick={() =>
+              void Notification.requestPermission().then(setNotifyPermission)
+            }
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[var(--waze-border)] px-3 text-sm font-semibold text-[var(--waze-text)]"
+          >
+            <Bell className="h-4 w-4" aria-hidden />
+            {m.trip.notifyOn}
+          </button>
+        )}
         <a
           href={navigateUrl(target)}
           target="_blank"

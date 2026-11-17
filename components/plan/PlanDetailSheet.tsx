@@ -12,6 +12,7 @@ import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
+import { AiTripNote } from "@/components/plan/AiTripNote";
 import { weatherSegmentsForDisplay } from "@/lib/planner/road-notes-view";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { showAllWeatherLabel } from "@/lib/i18n/show-all-labels";
@@ -344,6 +345,7 @@ function DetailBody({
         <p className="mt-1 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
           {summary || m.sheet.whyEmpty}
         </p>
+        <AiTripNote plan={plan} />
       </section>
 
       <StopTimeline
