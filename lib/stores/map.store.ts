@@ -15,7 +15,12 @@ interface MapState {
   layers: Record<LayerKey, boolean>;
   layersPanelOpen: boolean;
   mapError: string | null;
-  view: { center: [number, number]; zoom: number };
+  view: {
+    center: [number, number];
+    zoom: number;
+    /** The visible area, set when the map stops moving. */
+    bounds?: { w: number; s: number; e: number; n: number };
+  };
   setLocating: (locating: boolean) => void;
   setLocateStatus: (status: LocateStatus) => void;
   setUserLocation: (point: MapState["userLocation"]) => void;

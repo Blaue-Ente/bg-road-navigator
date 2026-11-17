@@ -1,6 +1,7 @@
 import { cachedValue } from "@/lib/cache/shared-cache";
 import { haversineKm } from "@/lib/geo/haversine";
 import type { TrafficIncident } from "@/lib/api-clients/tomtom";
+import { tilesFor, type Bbox } from "@/lib/traffic/tiles";
 
 /**
  * HERE Traffic API v7 (incidents). The key is server-side only and goes in the
@@ -10,21 +11,11 @@ import type { TrafficIncident } from "@/lib/api-clients/tomtom";
  */
 const BASE = "https://data.traffic.hereapi.com/v7/incidents";
 const TIMEOUT_MS = 8_000;
-/** Tile side in degrees: HERE limits the size of an incidents area. */
-const TILE_DEG = 2;
-const MAX_TILES = 12;
 const MAX_PER_TILE = 150;
 
-export interface Bbox {
-  w: number;
-  s: number;
-  e: number;
-  n: number;
-}
-
 /**
- * Seconds a tile is reused (HERE_CACHE_SECONDS, default 300). Twelve tiles cover
- * Bulgaria, so a short lifetime would burn a free monthly quota in days.
+ * Seconds a tile is reused (HERE_CACHE_SECONDS, default 300). One-degree tiles add
+ * up quickly, so a short lifetime would burn a free monthly quota in days.
  */
 export function hereTtlSeconds(env: NodeJS.ProcessEnv = process.env): number {
   const parsed = Number.parseInt(env.HERE_CACHE_SECONDS ?? "", 10);
@@ -33,21 +24,6 @@ export function hereTtlSeconds(env: NodeJS.ProcessEnv = process.env): number {
 
 export function hereKey(env: NodeJS.ProcessEnv = process.env): string | null {
   return env.HERE_API_KEY?.trim() || null;
-}
-
-/** Grid-aligned tiles that cover a bbox, so every driver shares the same tiles. */
-export function tilesFor(bbox: Bbox, step = TILE_DEG): Bbox[] {
-  const tiles: Bbox[] = [];
-  const w0 = Math.floor(bbox.w / step);
-  const e0 = Math.floor(bbox.e / step);
-  const s0 = Math.floor(bbox.s / step);
-  const n0 = Math.floor(bbox.n / step);
-  for (let x = w0; x <= e0; x++) {
-    for (let y = s0; y <= n0; y++) {
-      tiles.push({ w: x * step, s: y * step, e: (x + 1) * step, n: (y + 1) * step });
-    }
-  }
-  return tiles.slice(0, MAX_TILES);
 }
 
 interface HereIncident {

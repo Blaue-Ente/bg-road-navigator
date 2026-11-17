@@ -5,7 +5,6 @@ import {
   hereKey,
   mapHereIncident,
   mergeIncidents,
-  tilesFor,
 } from "@/lib/api-clients/here-traffic";
 import type { TrafficIncident } from "@/lib/api-clients/tomtom";
 
@@ -28,19 +27,6 @@ describe("hereKey", () => {
     const env = (value: Record<string, string>) => value as unknown as NodeJS.ProcessEnv;
     expect(hereKey(env({}))).toBeNull();
     expect(hereKey(env({ HERE_API_KEY: " k " }))).toBe("k");
-  });
-});
-
-describe("tilesFor", () => {
-  it("covers a bbox with grid-aligned tiles shared between drivers", () => {
-    const tiles = tilesFor({ w: 22.0, s: 41.0, e: 29.0, n: 44.5 });
-    expect(tiles).toHaveLength(12);
-    expect(tiles[0]).toEqual({ w: 22, s: 40, e: 24, n: 42 });
-    const again = tilesFor({ w: 22.3, s: 41.2, e: 23.9, n: 41.9 });
-    expect(again).toEqual([{ w: 22, s: 40, e: 24, n: 42 }]);
-  });
-  it("never asks for more than twelve tiles", () => {
-    expect(tilesFor({ w: -10, s: 35, e: 40, n: 60 }).length).toBeLessThanOrEqual(12);
   });
 });
 
@@ -111,7 +97,7 @@ describe("getHereIncidents", () => {
     expect(urls).toHaveLength(1);
     const url = new URL(urls[0]!);
     expect(url.origin + url.pathname).toBe("https://data.traffic.hereapi.com/v7/incidents");
-    expect(url.searchParams.get("in")).toBe("bbox:22,40,24,42");
+    expect(url.searchParams.get("in")).toBe("bbox:22,41,23,42");
     expect(url.searchParams.get("apiKey")).toBe("secret");
   });
 

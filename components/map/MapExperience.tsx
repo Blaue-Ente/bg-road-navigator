@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import type { Map } from "maplibre-gl";
 import { useState } from "react";
@@ -38,8 +38,10 @@ import {
   routeChoiceFromAlternative,
 } from "@/lib/planner/route-options";
 import { replanTrip } from "@/lib/planner/replan-trip";
+import { snapOutward } from "@/lib/traffic/tiles";
 
-const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
+/** Below this zoom the view is too wide for incident markers to mean anything. */
+const TRAFFIC_MIN_ZOOM = 7;
 
 export function MapExperience() {
   const pathname = usePathname();
@@ -62,7 +64,18 @@ export function MapExperience() {
   const tripActive = useTripSessionStore((s) => s.active);
   const showTripDashboard = onHome && tripActive && tripPlan != null && !planOpen;
 
-  const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
+  const viewBounds = useMapStore((s) => s.view.bounds);
+  const viewZoom = useMapStore((s) => s.view.zoom);
+  const trafficOn = useMapStore((s) => s.layers.traffic);
+  // The visible area, widened to whole degrees so a small pan does not refetch.
+  const trafficBbox = useMemo(
+    () =>
+      onHome && trafficOn && viewBounds && viewZoom >= TRAFFIC_MIN_ZOOM
+        ? snapOutward(viewBounds)
+        : null,
+    [onHome, trafficOn, viewBounds, viewZoom]
+  );
+  const { data: traffic } = useTraffic(trafficBbox, viewZoom);
   const { data: communityData } = useCommunityPins({
     bbox: DEFAULT_COMMUNITY_BBOX,
     enabled: onHome,
