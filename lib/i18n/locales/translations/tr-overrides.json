@@ -458,7 +458,13 @@
     "pushUnsupported": "Bu tarayıcı uygulama kapalıyken bildirim gönderemez. iPhone'da siteyi Ana Ekrana ekleyin.",
     "pushBorderAfter": "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur.",
     "panelLess": "Paneli daralt",
-    "panelMore": "Daha fazla"
+    "panelMore": "Daha fazla",
+    "pushHintBrowser": "Tarayıcı abone olamadı. iPhone'da siteyi Safari'den değil Ana Ekran simgesinden açın.",
+    "pushHintDatabase": "Veritabanı henüz bildirimler için hazır değil (tablo eksik).",
+    "pushHintKeys": "Sunucuda bildirim anahtarları ayarlı değil.",
+    "pushHintOther": "Biraz sonra tekrar deneyin.",
+    "pushHintPermission": "Bildirim izni reddedildi — telefon ayarlarından bu site için açın.",
+    "pushHintPlan": "Sunucu bildirimler için planı kabul etmedi."
   },
   "ai": {
     "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",

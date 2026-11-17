@@ -42,6 +42,7 @@ import {
   startTripPush,
   vapidPublicKey,
   stopTripPush,
+  type PushFailure,
 } from "@/lib/push/client";
 import { lineLengthKm } from "@/lib/planner/line";
 import { tripNotices, type TripNotice } from "@/lib/trip/notices";
@@ -53,6 +54,34 @@ import {
 } from "@/lib/trip/next-turn";
 import { OFF_ROUTE_KM, tripProgress } from "@/lib/trip/progress";
 import { wazeNavigateUrl } from "@/lib/utils/maps-handoff";
+
+function pushFailureHint(
+  failure: PushFailure,
+  t: {
+    pushHintPermission: string;
+    pushHintBrowser: string;
+    pushHintKeys: string;
+    pushHintDatabase: string;
+    pushHintPlan: string;
+    pushHintOther: string;
+  }
+): string {
+  const code = [failure.stage, failure.status, failure.detail]
+    .filter((part) => part != null && part !== "")
+    .join(" ");
+  let hint = t.pushHintOther;
+  if (failure.stage === "permission") hint = t.pushHintPermission;
+  else if (failure.stage === "worker" || failure.stage === "subscribe") {
+    hint = t.pushHintBrowser;
+  } else if (failure.detail?.startsWith("VAPID_MISSING")) hint = t.pushHintKeys;
+  else if (
+    failure.detail?.startsWith("DATABASE_UNAVAILABLE") ||
+    failure.detail?.startsWith("MIGRATION_REQUIRED")
+  ) {
+    hint = t.pushHintDatabase;
+  } else if (failure.detail?.startsWith("INVALID_PLAN")) hint = t.pushHintPlan;
+  return `${hint} (${code})`;
+}
 
 function StopIcon({ stop }: { stop: PlanStop | null }) {
   const className = "h-7 w-7";
@@ -180,6 +209,7 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
   const [pushState, setPushState] = useState<
     "off" | "on" | "failed" | "unsupported"
   >("off");
+  const [pushFailure, setPushFailure] = useState<PushFailure | null>(null);
   const pushEndpoint = useRef<string | null>(null);
   const tripStartedAt = useRef(new Date());
 
@@ -231,13 +261,13 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     let cancelled = false;
     void existingSubscription().then(async (subscription) => {
       if (cancelled || !subscription) return;
-      const ok = await startTripPush({
+      const failure = await startTripPush({
         endpoint: subscription.endpoint,
         plan,
         startedAt: tripStartedAt.current,
         locale,
       });
-      if (cancelled || !ok) return;
+      if (cancelled || failure) return;
       pushEndpoint.current = subscription.endpoint;
       setPushState("on");
     });
@@ -257,24 +287,27 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
       return;
     }
     try {
-      const subscription = await enablePush(locale);
-      if (!subscription) {
+      const result = await enablePush(locale);
+      if (!result.ok) {
         setNotifyPermission(
           typeof Notification === "undefined" ? "none" : Notification.permission
         );
+        setPushFailure(result.failure);
         setPushState("failed");
         return;
       }
-      const ok = await startTripPush({
-        endpoint: subscription.endpoint,
+      const failure = await startTripPush({
+        endpoint: result.subscription.endpoint,
         plan,
         startedAt: tripStartedAt.current,
         locale,
       });
-      pushEndpoint.current = ok ? subscription.endpoint : null;
+      pushEndpoint.current = failure ? null : result.subscription.endpoint;
       setNotifyPermission("granted");
-      setPushState(ok ? "on" : "failed");
+      setPushFailure(failure);
+      setPushState(failure ? "failed" : "on");
     } catch {
+      setPushFailure(null);
       setPushState("failed");
     }
   };
@@ -589,6 +622,7 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
       {pushState === "failed" && (
         <p className="mt-3 text-sm text-[var(--waze-danger)]" role="alert">
           {m.trip.pushFailed}
+          {pushFailure ? ` ${pushFailureHint(pushFailure, m.trip)}` : ""}
         </p>
       )}
 

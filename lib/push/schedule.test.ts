@@ -78,3 +78,14 @@ describe("buildPushSchedule", () => {
     expect(late[0]?.sendAt.toISOString()).toBe("2026-11-17T10:48:00.000Z");
   });
 });
+
+describe("plan sent from a phone", () => {
+  it("accepts weather rows with missing optional numbers", async () => {
+    const { TripPushPlanSchema } = await import("@/lib/push/schedule");
+    const parsed = TripPushPlanSchema.safeParse({
+      ...plan,
+      weather: [{ eta: "2026-11-17T14:00:00.000Z", summary: "Clear" }],
+    });
+    expect(parsed.success).toBe(true);
+  });
+});

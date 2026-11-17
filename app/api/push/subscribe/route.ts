@@ -18,9 +18,20 @@ const Schema = z.object({
 /** Remembers a browser's push address so trip notices can reach it later. */
 export async function POST(request: NextRequest) {
   if (!vapidConfigured() || !isDatabaseConfigured()) {
-    return NextResponse.json({ ok: false, configured: false }, { status: 503 });
+    return NextResponse.json(
+      {
+        ok: false,
+        configured: false,
+        code: vapidConfigured() ? "DATABASE_UNAVAILABLE" : "VAPID_MISSING",
+      },
+      { status: 503 }
+    );
   }
-  const limit = rateLimit(`push-sub:${clientIpFromHeaders(request.headers)}`, 10, 60_000);
+  const limit = rateLimit(
+    `push-sub:${clientIpFromHeaders(request.headers)}`,
+    10,
+    60_000
+  );
   if (!limit.ok) return NextResponse.json({ ok: false }, { status: 429 });
   const parsed = Schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });

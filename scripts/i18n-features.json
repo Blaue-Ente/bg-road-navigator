@@ -1024,5 +1024,41 @@
   "Collapse panel",
   "Paneli daralt",
   "Restrânge panoul"
+ ],
+ "trip.pushHintPermission": [
+  "Разрешението за известия е отказано — включи го от настройките на телефона за този сайт.",
+  "Notification permission was refused — turn it on for this site in your phone settings.",
+  "Bildirim izni reddedildi — telefon ayarlarından bu site için açın.",
+  "Permisiunea pentru notificări a fost refuzată — activeaz-o pentru acest site din setările telefonului."
+ ],
+ "trip.pushHintBrowser": [
+  "Браузърът не успя да се абонира. На iPhone отвори сайта от иконата на началния екран (Добави към началния екран), не от Safari.",
+  "The browser could not subscribe. On iPhone, open the site from its Home Screen icon, not from Safari.",
+  "Tarayıcı abone olamadı. iPhone'da siteyi Safari'den değil Ana Ekran simgesinden açın.",
+  "Browserul nu s-a putut abona. Pe iPhone, deschide site-ul din pictograma de pe ecranul principal, nu din Safari."
+ ],
+ "trip.pushHintKeys": [
+  "Сървърът няма настроени ключове за известия.",
+  "The server has no notification keys set up.",
+  "Sunucuda bildirim anahtarları ayarlı değil.",
+  "Serverul nu are chei de notificare configurate."
+ ],
+ "trip.pushHintDatabase": [
+  "Базата още не е готова за известия (таблицата липсва).",
+  "The database is not ready for notifications yet (table missing).",
+  "Veritabanı henüz bildirimler için hazır değil (tablo eksik).",
+  "Baza de date nu este încă pregătită pentru notificări (lipsește tabelul)."
+ ],
+ "trip.pushHintPlan": [
+  "Планът не се прие от сървъра за известия.",
+  "The server did not accept the plan for notices.",
+  "Sunucu bildirimler için planı kabul etmedi.",
+  "Serverul nu a acceptat planul pentru notificări."
+ ],
+ "trip.pushHintOther": [
+  "Опитай пак след малко.",
+  "Try again in a moment.",
+  "Biraz sonra tekrar deneyin.",
+  "Încearcă din nou în curând."
  ]
 }

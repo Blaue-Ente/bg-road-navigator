@@ -23,12 +23,30 @@ const Stop = z.object({
 /** Plans the trip's notices on the server, so they arrive with the page closed. */
 export async function POST(request: NextRequest) {
   if (!vapidConfigured() || !isDatabaseConfigured()) {
-    return NextResponse.json({ ok: false, configured: false }, { status: 503 });
+    return NextResponse.json(
+      {
+        ok: false,
+        configured: false,
+        code: vapidConfigured() ? "DATABASE_UNAVAILABLE" : "VAPID_MISSING",
+      },
+      { status: 503 }
+    );
   }
-  const limit = rateLimit(`push-trip:${clientIpFromHeaders(request.headers)}`, 10, 60_000);
+  const limit = rateLimit(
+    `push-trip:${clientIpFromHeaders(request.headers)}`,
+    10,
+    60_000
+  );
   if (!limit.ok) return NextResponse.json({ ok: false }, { status: 429 });
   const parsed = Start.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
+  if (!parsed.success) {
+    // Only where it went wrong, never the value, so the phone can show what to fix.
+    const field = parsed.error.issues[0]?.path.join(".").slice(0, 60) ?? "";
+    return NextResponse.json(
+      { ok: false, code: "INVALID_PLAN", field },
+      { status: 400 }
+    );
+  }
   const { endpoint, trip_id, started_at, locale, plan } = parsed.data;
   const pushes = buildPushSchedule({
     plan,
