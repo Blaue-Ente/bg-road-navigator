@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chatText, extraBodyFromEnv, openRouterConfig } from "@/lib/ai/provider";
+import { aiConfig, chatText, extraBodyFromEnv, openRouterConfig } from "@/lib/ai/provider";
 
 const config = { url: "https://ai.example/v1/chat", key: "secret-key", model: "m" };
 const reply = (status: number, body: unknown) =>
@@ -82,5 +82,31 @@ describe("openRouterConfig", () => {
       openRouterConfig("m", env({ OPENROUTER_TOKEN: "sk-or-v1-abcdef0123456789" }))?.key
     ).toBe("sk-or-v1-abcdef0123456789");
     expect(openRouterConfig("m", env({ OPENROUTER_NOTE: "not a key" }))).toBeNull();
+  });
+});
+
+describe("aiConfig", () => {
+  const env = (value: Record<string, string>) => value as unknown as NodeJS.ProcessEnv;
+  it("uses NVIDIA or AI_* settings by default", () => {
+    expect(aiConfig(env({}))).toBeNull();
+    expect(aiConfig(env({ NVIDIA_API_KEY: "n" }))).toMatchObject({ key: "n" });
+    expect(aiConfig(env({ AI_API_KEY: "a", AI_BASE_URL: "https://x/v1", AI_MODEL: "m" }))).toEqual({
+      url: "https://x/v1",
+      key: "a",
+      model: "m",
+    });
+  });
+  it("runs on OpenRouter with its own key when AI_PROVIDER=openrouter", () => {
+    expect(
+      aiConfig(env({ AI_PROVIDER: "OpenRouter", OPENROUTER_API_KEY: "or-key", NVIDIA_API_KEY: "n" }))
+    ).toEqual({
+      url: "https://openrouter.ai/api/v1/chat/completions",
+      key: "or-key",
+      model: "particle-ai/particle-1:free",
+    });
+    expect(
+      aiConfig(env({ AI_PROVIDER: "openrouter", OPENROUTER_API_KEY: "k", AI_MODEL: "x/y:free" }))?.model
+    ).toBe("x/y:free");
+    expect(aiConfig(env({ AI_PROVIDER: "openrouter" }))).toBeNull();
   });
 });

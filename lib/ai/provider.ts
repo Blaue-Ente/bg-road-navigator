@@ -38,7 +38,17 @@ export function openRouterConfig(
   return key ? { url: OPENROUTER_URL, key, model } : null;
 }
 
+const OPENROUTER_DEFAULT_MODEL = "particle-ai/particle-1:free";
+
+/**
+ * AI_PROVIDER=openrouter runs the app on OpenRouter with the OpenRouter key
+ * already set for the benchmark, so the key is not copied into AI_API_KEY.
+ * Otherwise AI_API_KEY / AI_BASE_URL / AI_MODEL (or the NVIDIA names) apply.
+ */
 export function aiConfig(env: NodeJS.ProcessEnv = process.env): AiConfig | null {
+  if (env.AI_PROVIDER?.trim().toLowerCase() === "openrouter") {
+    return openRouterConfig(env.AI_MODEL?.trim() || OPENROUTER_DEFAULT_MODEL, env);
+  }
   const key = (env.AI_API_KEY ?? env.NVIDIA_API_KEY ?? "").trim();
   if (!key) return null;
   return {
