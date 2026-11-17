@@ -12,12 +12,16 @@ import { RouteWeatherTimeline } from "@/components/weather/RouteWeatherTimeline"
 import { PageHeader } from "@/components/ui/PageHeader";
 import { WazeCard } from "@/components/ui/WazeCard";
 import { PageSkeleton, ErrorState } from "@/components/ui/PageSkeleton";
+import { PlanWeatherCards } from "@/components/weather/PlanWeatherCards";
 import { sampleWeatherPoints } from "@/lib/utils/route-weather-points";
 
 export default function WeatherPage() {
   const m = useMessages();
   const locale = useLocale();
-  const { activeRoute } = useRouteStore();
+  const { activeRoute, tripPlan } = useRouteStore();
+  // A trip plan already carries place and time per forecast point.
+  const planWeather =
+    tripPlan && tripPlan.weather.segments.length > 0 ? tripPlan : null;
   const samples = useMemo(
     () => (activeRoute ? sampleWeatherPoints(activeRoute, 6, locale) : []),
     [activeRoute, locale]
@@ -26,7 +30,9 @@ export default function WeatherPage() {
     () => samples.map((p) => ({ lng: p.lng, lat: p.lat })),
     [samples]
   );
-  const { data, isLoading, error, refetch } = useWeather(queryPoints);
+  const { data, isLoading, error, refetch } = useWeather(
+    planWeather ? [] : queryPoints
+  );
 
   const merged = useMemo(() => {
     if (!data?.points) return [];
@@ -45,10 +51,10 @@ export default function WeatherPage() {
     ? `${activeRoute.origin.label} → ${activeRoute.destination.label}`
     : m.weatherPage.msgc96f2c4ba8;
 
-  if (activeRoute && isLoading) {
+  if (activeRoute && !planWeather && isLoading) {
     return <PageSkeleton label={m.weatherPage.msg98e1692afb} />;
   }
-  if (activeRoute && error) {
+  if (activeRoute && !planWeather && error) {
     return (
       <ErrorState
         message={m.weatherPage.msg91ee2475bb}
@@ -85,19 +91,25 @@ export default function WeatherPage() {
               {m.weatherPage.openMeteo9763}
             </p>
 
-            <WeatherAlertBanner alerts={data?.alerts ?? []} />
+            {planWeather ? (
+              <PlanWeatherCards plan={planWeather} />
+            ) : (
+              <>
+                <WeatherAlertBanner alerts={data?.alerts ?? []} />
 
-            <RouteWeatherTimeline weatherPoints={merged} />
+                <RouteWeatherTimeline weatherPoints={merged} />
 
-            <div className="mt-6 grid grid-cols-1 gap-3">
-              {merged.map((point, idx) => (
-                <WeatherCard
-                  key={`${point.coords.lng}-${point.coords.lat}-${idx}`}
-                  weather={point}
-                  distance={point.distance_from_origin_km}
-                />
-              ))}
-            </div>
+                <div className="mt-6 grid grid-cols-1 gap-3">
+                  {merged.map((point, idx) => (
+                    <WeatherCard
+                      key={`${point.coords.lng}-${point.coords.lat}-${idx}`}
+                      weather={point}
+                      distance={point.distance_from_origin_km}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
 
             <p className="mt-8 text-center text-xs text-[var(--waze-text-muted)]">
               {m.weatherPage.forecastFrom}{" "}
