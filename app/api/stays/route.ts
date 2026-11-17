@@ -70,7 +70,17 @@ export async function GET(request: NextRequest) {
   };
   const affiliateId = process.env.BOOKING_AFFILIATE_ID?.trim() || null;
 
-  const city = place.split(",")[0]?.trim() || place;
+  // Hotel services expect the Latin city name, whatever language the page is in.
+  const cityName =
+    q.locale === "bg"
+      ? await Promise.race([
+          reversePlace(lat, lng, { lang: "en" }),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 3_000)),
+        ])
+          .then((latin) => weatherPlaceLabel(latin, null, "en"))
+          .catch(() => null)
+      : place;
+  const city = (cityName ?? place).split(",")[0]?.trim() || place;
   const [stays, partner] = await Promise.all([
     tripadvisorKey() ? nearbyStays({ lat, lng }) : Promise.resolve(null),
     routeStackConfig()
@@ -112,7 +122,14 @@ export async function GET(request: NextRequest) {
       tripadvisor_configured: Boolean(tripadvisorKey()),
       available_hotels: partner ? { ok: partner.ok, items: available } : null,
       // Key names only, to fix a changed partner response without exposing data.
-      ...(q.debug === "1" && partner ? { partner_shape: partner.shape ?? null } : {}),
+      ...(q.debug === "1" && partner
+        ? {
+            partner_shape: partner.shape ?? null,
+            partner_error: partner.error ?? null,
+            partner_city: city,
+            partner_base: routeStackConfig()?.baseUrl ?? null,
+          }
+        : {}),
       why,
     },
     { headers: { "Cache-Control": "private, max-age=600" } }

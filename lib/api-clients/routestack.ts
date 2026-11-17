@@ -51,15 +51,29 @@ export function tokenExpiry(token: string): number | null {
   }
 }
 
+export type TokenResult = { token: string } | { error: string };
+
 let cached: { token: string; refreshAtMs: number; key: string } | null = null;
 
-export async function partnerToken(
+/** What the service said when it refused, without any secret. */
+async function reason(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { code?: unknown; message?: unknown };
+    const code = typeof body.code === "string" ? body.code : "";
+    const message = typeof body.message === "string" ? body.message.slice(0, 160) : "";
+    return `${response.status} ${code} ${message}`.trim();
+  } catch {
+    return String(response.status);
+  }
+}
+
+export async function partnerTokenOrError(
   config: RouteStackConfig,
   fetchImpl: typeof fetch = fetch,
   nowMs = Date.now()
-): Promise<string | null> {
+): Promise<TokenResult> {
   if (cached && cached.key === config.apiKey && cached.refreshAtMs > nowMs) {
-    return cached.token;
+    return { token: cached.token };
   }
   const timestamp = Math.floor(nowMs / 1000);
   const nonce = randomUUID();
@@ -75,19 +89,28 @@ export async function partnerToken(
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-    if (!response.ok) return null;
+    if (!response.ok) return { error: `auth ${await reason(response)}` };
     const { token } = (await response.json()) as { token?: string };
-    if (!token) return null;
+    if (!token) return { error: "auth: no token in the response" };
     const exp = tokenExpiry(token);
     cached = {
       token,
       key: config.apiKey,
       refreshAtMs: exp ? (exp - REFRESH_MARGIN_S) * 1000 : nowMs + 4 * 60_000,
     };
-    return token;
+    return { token };
   } catch {
-    return null;
+    return { error: "auth: the service did not answer" };
   }
+}
+
+export async function partnerToken(
+  config: RouteStackConfig,
+  fetchImpl: typeof fetch = fetch,
+  nowMs = Date.now()
+): Promise<string | null> {
+  const result = await partnerTokenOrError(config, fetchImpl, nowMs);
+  return "token" in result ? result.token : null;
 }
 
 export function clearRouteStackTokenForTests() {
@@ -212,6 +235,8 @@ export interface RouteStackResult {
   hotels: RouteStackHotel[];
   ok: boolean;
   shape?: unknown;
+  /** Why it failed, for the debug view. Never contains keys. */
+  error?: string;
 }
 
 export async function searchHotels(
@@ -221,8 +246,9 @@ export async function searchHotels(
   const config = deps.config === undefined ? routeStackConfig() : deps.config;
   if (!config) return null;
   const fetchImpl = deps.fetchImpl ?? fetch;
-  const token = await partnerToken(config, fetchImpl);
-  if (!token) return { hotels: [], ok: false };
+  const auth = await partnerTokenOrError(config, fetchImpl);
+  if (!("token" in auth)) return { hotels: [], ok: false, error: auth.error };
+  const token = auth.token;
   try {
     const response = await fetchImpl(`${config.baseUrl}/mcp/hotel/search-hotels`, {
       method: "POST",
@@ -240,10 +266,12 @@ export async function searchHotels(
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (response.status === 401) cached = null;
-    if (!response.ok) return { hotels: [], ok: false };
+    if (!response.ok) {
+      return { hotels: [], ok: false, error: `search ${await reason(response)}` };
+    }
     const payload = (await response.json()) as unknown;
     return { hotels: parseHotels(payload), ok: true, shape: describeShape(payload) };
   } catch {
-    return { hotels: [], ok: false };
+    return { hotels: [], ok: false, error: "search: the service did not answer" };
   }
 }
