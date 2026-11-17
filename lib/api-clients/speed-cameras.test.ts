@@ -72,11 +72,14 @@ describe("loadSpeedCameras", () => {
 
     const down = (async () =>
       new Response("busy", { status: 504 })) as unknown as typeof fetch;
+    // A different area: the first one is now kept, so it would not ask again.
     const failed = await loadSpeedCameras(
-      { w: 23.1, s: 42.6, e: 23.4, n: 42.9 },
+      { w: 25.1, s: 42.6, e: 25.4, n: 42.9 },
       down
     );
     expect(failed).toEqual({ cameras: [], ok: false });
+    const again = await loadSpeedCameras({ w: 23.1, s: 42.6, e: 23.4, n: 42.9 }, down);
+    expect(again.ok).toBe(true);
   });
 });
 
