@@ -25,7 +25,9 @@
     "roadNotesSummaryOther": "Güzergâhta {count} uyarı — en önemlileri gösteriyoruz.",
     "roadNotesSummaryRoOne": "RO one placeholder",
     "roadNotesSummaryRoFew": "RO few placeholder",
-    "roadNotesSummaryRoMany": "RO many placeholder"
+    "roadNotesSummaryRoMany": "RO many placeholder",
+    "headerLess": "Daha az",
+    "headerMore": "Daha fazla ayrıntı"
   },
   "routeChoice": {
     "waitSuffix": "dk bekleme",

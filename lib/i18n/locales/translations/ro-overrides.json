@@ -27,7 +27,9 @@
     "roadNotesSummaryOther": "{count} semnale pe traseu — arătăm cele mai importante.",
     "roadNotesSummaryRoOne": "Un semnal pe traseu — detaliile sunt mai jos.",
     "roadNotesSummaryRoFew": "{count} semnale pe traseu — arătăm cele mai importante.",
-    "roadNotesSummaryRoMany": "{count} de semnale pe traseu — arătăm cele mai importante."
+    "roadNotesSummaryRoMany": "{count} de semnale pe traseu — arătăm cele mai importante.",
+    "headerLess": "Mai puțin",
+    "headerMore": "Mai multe detalii"
   },
   "routeChoice": {
     "waitSuffix": "min așteptare",

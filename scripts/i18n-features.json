@@ -1000,5 +1000,17 @@
   "Keep exactly my interval",
   "Seçtiğim aralığı aynen uygula",
   "Respectă exact intervalul meu"
+ ],
+ "sheet.headerMore": [
+  "Още данни",
+  "More details",
+  "Daha fazla ayrıntı",
+  "Mai multe detalii"
+ ],
+ "sheet.headerLess": [
+  "По-малко",
+  "Less",
+  "Daha az",
+  "Mai puțin"
  ]
 }

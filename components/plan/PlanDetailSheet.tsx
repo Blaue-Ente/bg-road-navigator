@@ -47,6 +47,7 @@ export function PlanDetailSheet() {
   const focusedStopId = useRouteStore((state) => state.focusedStopId);
   const setOpen = useRouteStore((state) => state.setPlanDetailOpen);
   const [minimized, setMinimized] = useState(false);
+  const [headerOpen, setHeaderOpen] = useState(false);
   const [view, setView] = useState<"detail" | "itinerary">("detail");
   const [included, setIncluded] = useState<Record<string, boolean>>({});
   const [checks, setChecks] = useState<Record<string, boolean>>({});
@@ -167,44 +168,67 @@ export function PlanDetailSheet() {
           <p className="mt-2 font-medium text-[var(--waze-text)]">
             {plan.route.origin.label} → {plan.route.destination.label}
           </p>
-          <dl className="mt-2 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-            <Stat
-              label={m.sheet.distance}
-              value={`${plan.route.distance_km} ${m.planning.km}`}
-            />
-            <Stat
-              label={m.sheet.driving}
-              value={formatClockDuration(plan.route.duration_min, units)}
-            />
-            <Stat
-              label={m.sheet.total}
-              value={formatClockDuration(plan.route.total_min, units)}
-            />
-            <Stat
-              label={m.sheet.eta}
-              value={formatPlanInstant(
-                arrival.toISOString(),
-                locale,
-                plan.route.destination.time_zone
-              )}
-            />
-          </dl>
-          {arrivalSubline ? (
-            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
-              {arrivalSubline}
-            </p>
+          <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
+            {plan.route.distance_km} {m.planning.km} ·{" "}
+            {formatClockDuration(plan.route.total_min, units)} ·{" "}
+            {formatPlanInstant(
+              arrival.toISOString(),
+              locale,
+              plan.route.destination.time_zone
+            )}
+          </p>
+          {headerOpen ? (
+            <>
+              <dl className="mt-2 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+                <Stat
+                  label={m.sheet.distance}
+                  value={`${plan.route.distance_km} ${m.planning.km}`}
+                />
+                <Stat
+                  label={m.sheet.driving}
+                  value={formatClockDuration(plan.route.duration_min, units)}
+                />
+                <Stat
+                  label={m.sheet.total}
+                  value={formatClockDuration(plan.route.total_min, units)}
+                />
+                <Stat
+                  label={m.sheet.eta}
+                  value={formatPlanInstant(
+                    arrival.toISOString(),
+                    locale,
+                    plan.route.destination.time_zone
+                  )}
+                />
+              </dl>
+              {arrivalSubline ? (
+                <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+                  {arrivalSubline}
+                </p>
+              ) : null}
+              {hasOvernightSleep ? (
+                <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+                  {m.sheet.includesOvernight}{" "}
+                  {formatClockDuration(plan.route.duration_min, units)}.
+                </p>
+              ) : plan.preferences.overnight ? (
+                <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
+                  {m.sheet.fitsOneDay}
+                </p>
+              ) : null}
+            </>
           ) : null}
-          {hasOvernightSleep ? (
-            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
-              {m.sheet.includesOvernight}{" "}
-              {formatClockDuration(plan.route.duration_min, units)}.
-            </p>
-          ) : plan.preferences.overnight ? (
-            <p className="mt-2 text-sm text-[var(--waze-text-secondary)]">
-              {m.sheet.fitsOneDay}
-            </p>
-          ) : null}
-          <TripMode />
+          <div className="plan-no-print mt-2 flex flex-wrap items-center gap-2">
+            <TripMode />
+            <button
+              type="button"
+              onClick={() => setHeaderOpen((open) => !open)}
+              aria-expanded={headerOpen}
+              className="waze-btn-secondary px-3 py-1.5 text-xs"
+            >
+              {headerOpen ? m.sheet.headerLess : m.sheet.headerMore}
+            </button>
+          </div>
         </div>
 
         <div className="space-y-6 px-4 py-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
@@ -285,7 +309,7 @@ function TripMode() {
   );
   const locationOn = raw ? currentLocationPreference().location_opt_in : false;
   return (
-    <div className="mt-3">
+    <>
       <button
         type="button"
         onClick={() => {
@@ -302,11 +326,11 @@ function TripMode() {
         {active ? m.sheet.endTrip : m.sheet.onTrip}
       </button>
       {active && !locationOn && (
-        <p className="mt-2 text-xs text-[var(--waze-text-muted)]">
+        <p className="basis-full text-xs text-[var(--waze-text-muted)]">
           {m.sheet.tripNeedsLocation}
         </p>
       )}
-    </div>
+    </>
   );
 }
 
@@ -534,7 +558,10 @@ function PlanWeatherSection({ plan }: { plan: TripPlannerResult }) {
           ) : null}
           <ul className="mt-2 space-y-2">
             {featured.map((segment) => (
-              <WeatherSegmentRow key={`w-${segment.eta}-${segment.distance_from_start_km}`} segment={segment} />
+              <WeatherSegmentRow
+                key={`w-${segment.eta}-${segment.distance_from_start_km}`}
+                segment={segment}
+              />
             ))}
             {rest.length === 1 ? (
               <WeatherSegmentRow segment={rest[0]!} />

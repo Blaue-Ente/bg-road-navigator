@@ -23,7 +23,9 @@
     "roadNotesSummaryOther": "{count} alerts along the route — showing the most important.",
     "roadNotesSummaryRoOne": "One alert on the route (RO plural).",
     "roadNotesSummaryRoFew": "{count} alerts on the route (RO few).",
-    "roadNotesSummaryRoMany": "{count} alerts on the route (RO many)."
+    "roadNotesSummaryRoMany": "{count} alerts on the route (RO many).",
+    "headerLess": "Less",
+    "headerMore": "More details"
   },
   "routeChoice": {
     "waitSuffix": "min wait",
