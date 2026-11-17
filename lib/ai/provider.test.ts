@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chatText, extraBodyFromEnv } from "@/lib/ai/provider";
+import { chatText, extraBodyFromEnv, openRouterConfig } from "@/lib/ai/provider";
 
 const config = { url: "https://ai.example/v1/chat", key: "secret-key", model: "m" };
 const reply = (status: number, body: unknown) =>
@@ -65,5 +65,22 @@ describe("extraBodyFromEnv", () => {
     ).toEqual({ chat_template_kwargs: { enable_thinking: false } });
     expect(extraBodyFromEnv(env({ AI_EXTRA_BODY: "not json" }))).toEqual({});
     expect(extraBodyFromEnv(env({ AI_EXTRA_BODY: "[1]" }))).toEqual({});
+  });
+});
+
+describe("openRouterConfig", () => {
+  const env = (value: Record<string, string>) => value as unknown as NodeJS.ProcessEnv;
+  it("finds the key under the usual names and is null without one", () => {
+    expect(openRouterConfig("m", env({}))).toBeNull();
+    expect(openRouterConfig("m", env({ OPENROUTER_API_KEY: " k1 " }))).toMatchObject({
+      key: "k1",
+      model: "m",
+      url: "https://openrouter.ai/api/v1/chat/completions",
+    });
+    expect(openRouterConfig("m", env({ OPENROUTER_API: "k2" }))?.key).toBe("k2");
+    expect(
+      openRouterConfig("m", env({ OPENROUTER_TOKEN: "sk-or-v1-abcdef0123456789" }))?.key
+    ).toBe("sk-or-v1-abcdef0123456789");
+    expect(openRouterConfig("m", env({ OPENROUTER_NOTE: "not a key" }))).toBeNull();
   });
 });

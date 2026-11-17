@@ -15,6 +15,29 @@ export interface AiConfig {
   model: string;
 }
 
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+
+/**
+ * An OpenRouter key under any of the usual names. Used by the benchmark; to
+ * run the app on OpenRouter, set AI_BASE_URL, AI_API_KEY and AI_MODEL instead.
+ */
+export function openRouterConfig(
+  model: string,
+  env: NodeJS.ProcessEnv = process.env
+): AiConfig | null {
+  let key = (env.OPENROUTER_API_KEY ?? env.OPENROUTER_API ?? "").trim();
+  if (!key) {
+    for (const [name, raw] of Object.entries(env)) {
+      const value = raw?.trim();
+      if (name.startsWith("OPENROUTER") && value && /^[\w-]{16,}$/.test(value)) {
+        key = value;
+        break;
+      }
+    }
+  }
+  return key ? { url: OPENROUTER_URL, key, model } : null;
+}
+
 export function aiConfig(env: NodeJS.ProcessEnv = process.env): AiConfig | null {
   const key = (env.AI_API_KEY ?? env.NVIDIA_API_KEY ?? "").trim();
   if (!key) return null;

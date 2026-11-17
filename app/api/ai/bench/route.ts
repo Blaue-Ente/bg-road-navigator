@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aiConfig, chatText } from "@/lib/ai/provider";
+import { aiConfig, chatText, openRouterConfig } from "@/lib/ai/provider";
 import { stayPrompt } from "@/lib/ai/stay-why";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
@@ -19,6 +19,19 @@ const CANDIDATES = [
   "mistralai/mistral-large-4-1t-a52b",
 ] as const;
 
+/** Free OpenRouter models worth comparing (from its public catalogue). */
+const OPENROUTER_CANDIDATES = [
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "nvidia/nemotron-3.5-lightning:free",
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "inclusionai/ling-3.2-flash:free",
+  "baidu/ernie-5.5-flash-preview:free",
+  "thinkingmachines/inkling-2-small:free",
+  "particle-ai/particle-1:free",
+  "openrouter/free",
+] as const;
+
 /** A made-up sample, only to compare models: it is never stored or shown to drivers. */
 const SAMPLE = {
   place: "Ниш, Сърбия",
@@ -35,18 +48,23 @@ const SAMPLE = {
  * once a model is chosen. Limited to a few calls per ten minutes.
  */
 export async function GET(request: NextRequest) {
-  const config = aiConfig();
-  if (!config) return NextResponse.json({ error: "AI is not configured" }, { status: 503 });
+  const viaOpenRouter = request.nextUrl.searchParams.get("provider") === "openrouter";
+  const config = viaOpenRouter ? openRouterConfig("") : aiConfig();
+  if (!config) {
+    return NextResponse.json(
+      { error: viaOpenRouter ? "OpenRouter key not found" : "AI is not configured" },
+      { status: 503 }
+    );
+  }
+  const candidates: readonly string[] = viaOpenRouter ? OPENROUTER_CANDIDATES : CANDIDATES;
   const limit = rateLimit(`ai-bench:${clientIpFromHeaders(request.headers)}`, 3, 10 * 60_000);
   if (!limit.ok) return NextResponse.json({ error: "Try again later" }, { status: 429 });
 
   const asked = (request.nextUrl.searchParams.get("models") ?? "")
     .split(",")
     .map((name) => name.trim())
-    .filter((name): name is (typeof CANDIDATES)[number] =>
-      (CANDIDATES as readonly string[]).includes(name)
-    );
-  const models = asked.length > 0 ? asked : [...CANDIDATES];
+    .filter((name) => candidates.includes(name));
+  const models = asked.length > 0 ? asked : [...candidates];
   const wanted = Number.parseInt(request.nextUrl.searchParams.get("timeout") ?? "", 10);
   const timeoutMs = Number.isFinite(wanted) ? Math.min(25, Math.max(3, wanted)) * 1000 : 9_000;
 
@@ -62,12 +80,25 @@ export async function GET(request: NextRequest) {
       const started = Date.now();
       let error: string | null = null;
       const raw = await chatText(
-        { ...prompt, maxTokens, timeoutMs, ...(thinkOff ? { extraBody: { chat_template_kwargs: { enable_thinking: false } } } : {}) },
+        { ...prompt, maxTokens, timeoutMs, ...(thinkOff
+            ? {
+                extraBody: viaOpenRouter
+                  ? { reasoning: { enabled: false } }
+                  : { chat_template_kwargs: { enable_thinking: false } },
+              }
+            : {}),
+        },
         { config: { ...config, model }, onError: (message) => (error = message) }
       );
       const text = raw ? raw.replace(/[*_`#]+/g, "").trim().slice(0, 700) : null;
       return { model, ms: Date.now() - started, ok: text !== null, error, text };
     })
   );
-  return NextResponse.json({ current: config.model, thinkOff, maxTokens, results });
+  return NextResponse.json({
+    provider: viaOpenRouter ? "openrouter" : "nvidia",
+    current: viaOpenRouter ? null : config.model,
+    thinkOff,
+    maxTokens,
+    results,
+  });
 }
