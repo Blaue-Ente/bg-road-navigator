@@ -514,5 +514,20 @@
     "road_closure": "Yol kapalı",
     "size": "Daha büyük işaret daha ciddi olay demektir.",
     "weather": "Kötü hava"
+  },
+  "mapStyle": {
+    "auto": "Otomatik",
+    "bright": "Parlak",
+    "dark": "Koyu",
+    "liberty": "Ayrıntılı",
+    "positron": "Açık",
+    "title": "Harita stili"
+  },
+  "trafficFlow": {
+    "closed": "Kapalı",
+    "free": "Akıcı",
+    "heavy": "Yoğun",
+    "slow": "Yavaş",
+    "title": "Trafik yoğunluğu"
   }
 }

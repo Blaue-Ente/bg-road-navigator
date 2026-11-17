@@ -95,6 +95,14 @@ export const bgFeatures = {
     zoomForCameras: "Приближете картата, за да видите камерите за скорост.",
     zoomForStations: "Приближете картата, за да видите бензиностанции и зарядни.",
   },
+  mapStyle: {
+    auto: "Автоматично",
+    bright: "Ярък",
+    dark: "Тъмен",
+    liberty: "Подробен",
+    positron: "Светъл",
+    title: "Стил на картата",
+  },
   planning: {
     carChoose: "Автомобил за този маршрут",
     carConsumption: "Среден разход: {value} {unit}",
@@ -118,6 +126,13 @@ export const bgFeatures = {
     reviews: "{count} мнения",
     searchNote: "Връзките водят към търсене в Booking.com и Airbnb за тази вечер. Цените и наличността са там.",
     tripadvisorCredit: "Оценките са от Tripadvisor. Отворете връзката за актуални цени и мнения.",
+  },
+  trafficFlow: {
+    closed: "Затворено",
+    free: "Свободно",
+    heavy: "Задръстване",
+    slow: "Забавено",
+    title: "Интензивност на трафика",
   },
   trafficKind: {
     accident: "Катастрофа",

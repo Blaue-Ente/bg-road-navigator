@@ -99,6 +99,7 @@ export function MapLegend() {
   const plan = useRouteStore((s) => s.tripPlan);
   const hotspotsOn = useMapStore((s) => s.layers.hotspots);
   const trafficOn = useMapStore((s) => s.layers.traffic);
+  const flowOn = useMapStore((s) => s.layers.trafficFlow);
   const trafficGroups = useMapStore((s) => s.trafficGroups);
   const toggleTrafficGroup = useMapStore((s) => s.toggleTrafficGroup);
   const hazardKinds = useMemo(() => {
@@ -164,6 +165,16 @@ export function MapLegend() {
                 diamond
               />
             ))}
+          </>
+        )}
+
+        {flowOn && (
+          <>
+            <LegendGroupHeading>{m.trafficFlow.title}</LegendGroupHeading>
+            <LegendRow color="#2BC82B" label={m.trafficFlow.free} line />
+            <LegendRow color="#FFFF37" label={m.trafficFlow.slow} line />
+            <LegendRow color="#FF2323" label={m.trafficFlow.heavy} line />
+            <LegendRow color="#801212" label={m.trafficFlow.closed} line />
           </>
         )}
 

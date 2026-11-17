@@ -8,6 +8,7 @@ import { MapCanvas } from "@/components/map/MapCanvas";
 import { MapControls } from "@/components/map/MapControls";
 import { RouteLayer } from "@/components/map/RouteLayer";
 import { TrafficLayer } from "@/components/map/TrafficLayer";
+import { TrafficFlowLayer } from "@/components/map/TrafficFlowLayer";
 import { CommunityPins } from "@/components/map/CommunityPins";
 import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
@@ -25,6 +26,7 @@ import { TripProximity } from "@/components/location/TripProximity";
 import { BorderTimeWatcher } from "@/components/borders/BorderTimeWatcher";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useThemeStore } from "@/lib/stores/theme.store";
+import { useMapStyleStore } from "@/lib/stores/map-style.store";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useTraffic } from "@/lib/hooks/useTraffic";
@@ -42,11 +44,12 @@ import { replanTrip } from "@/lib/planner/replan-trip";
 import { snapOutward } from "@/lib/traffic/tiles";
 
 /** Below this zoom the view is too wide for incident markers to mean anything. */
-const TRAFFIC_MIN_ZOOM = 7;
+const TRAFFIC_MIN_ZOOM = 8;
 
 export function MapExperience() {
   const pathname = usePathname();
   const scheme = useThemeStore((s) => s.scheme);
+  const styleChoice = useMapStyleStore((s) => s.choice);
   const activeRoute = useRouteStore((s) => s.activeRoute);
   const planOpen = useRouteStore((s) => s.planDetailOpen);
   const alternativeRoutes = useRouteStore((s) => s.alternativeRoutes);
@@ -184,7 +187,7 @@ export function MapExperience() {
   return (
     <div className="relative h-[100dvh] w-full">
       <MapCanvas
-        key={scheme}
+        key={`${scheme}-${styleChoice}`}
         onMapLoad={handleMapLoad}
         onMapUnload={handleMapUnload}
         onMapClick={handleMapClick}
@@ -223,6 +226,7 @@ export function MapExperience() {
       />
       {onHome && (
         <>
+          <TrafficFlowLayer map={mapInstance} />
           <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
           <CommunityPins
             map={mapInstance}

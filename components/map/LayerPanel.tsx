@@ -5,6 +5,9 @@ import { pickText } from "@/lib/i18n/localized-field";
 
 import { MAP_LAYERS, type LayerKey } from "@/lib/constants/map-layers";
 import { useMapStore } from "@/lib/stores/map.store";
+import { useMapStyleStore } from "@/lib/stores/map-style.store";
+import { MAP_STYLE_CHOICES } from "@/lib/constants/map-style";
+import { flowTilesKey } from "@/components/map/TrafficFlowLayer";
 
 export function LayerPanel({
   className = "",
@@ -17,6 +20,9 @@ export function LayerPanel({
   const locale = useLocale();
   const layers = useMapStore((s) => s.layers);
   const toggleLayer = useMapStore((s) => s.toggleLayer);
+  const styleChoice = useMapStyleStore((s) => s.choice);
+  const setStyleChoice = useMapStyleStore((s) => s.setChoice);
+  const flowAvailable = flowTilesKey() !== null;
 
   return (
     <section
@@ -32,7 +38,7 @@ export function LayerPanel({
         {m.mapControls.layers}
       </p>
       <ul className="space-y-0.5">
-        {MAP_LAYERS.map((layer) => (
+        {MAP_LAYERS.filter((layer) => layer.key !== "trafficFlow" || flowAvailable).map((layer) => (
           <li key={layer.key}>
             <label className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-[var(--waze-text)] hover:bg-[var(--waze-surface-elevated)]">
               <input
@@ -51,6 +57,27 @@ export function LayerPanel({
           </li>
         ))}
       </ul>
+      <p className="mt-2 px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-secondary)]">
+        {m.mapStyle.title}
+      </p>
+      <div className="flex flex-wrap gap-1.5 px-2 pb-1" role="radiogroup" aria-label={m.mapStyle.title}>
+        {MAP_STYLE_CHOICES.map((choice) => (
+          <button
+            key={choice}
+            type="button"
+            role="radio"
+            aria-checked={styleChoice === choice}
+            onClick={() => setStyleChoice(choice)}
+            className={`rounded-full border px-3 py-1 text-xs ${
+              styleChoice === choice
+                ? "border-[var(--waze-accent)] bg-[var(--waze-accent)] text-white"
+                : "border-[var(--waze-border)] text-[var(--waze-text)]"
+            }`}
+          >
+            {m.mapStyle[choice]}
+          </button>
+        ))}
+      </div>
     </section>
   );
 }

@@ -4,12 +4,19 @@ import { tilesFor, type Bbox } from "@/lib/traffic/tiles";
 /**
  * TomTom Traffic Incident Details v5. The key is server-side only. TomTom limits
  * an area to 10,000 km2, so a view is split into one-degree tiles, each kept in
- * this server's memory for a short time (TRAFFIC_CACHE_SECONDS, default 120)
+ * this server's memory for a short time (TRAFFIC_CACHE_SECONDS, default 300: Incident Details has only 2,500 calls a day)
  * and never stored: TomTom's terms do not clearly allow that.
  */
 const BASE_URL = "https://api.tomtom.com/traffic/services/5/incidentDetails";
 const TIMEOUT_MS = 8_000;
 const MAX_PER_TILE = 150;
+/** When TomTom says the daily allowance is used up, stop asking for this long. */
+const PAUSE_MS = 10 * 60_000;
+let pausedUntilMs = 0;
+
+export function resetTomTomPauseForTests(): void {
+  pausedUntilMs = 0;
+}
 const FIELDS =
   "{incidents{type,geometry{type,coordinates},properties{id,iconCategory,magnitudeOfDelay,events{description,iconCategory},startTime,endTime,from,to,delay,roadNumbers}}}";
 
@@ -139,6 +146,10 @@ async function fetchTile(
       cache: "no-store",
     });
     if (!response.ok) {
+      // 429 (rate) and 403 (allowance) mean more calls only waste what is left.
+      if (response.status === 429 || response.status === 403) {
+        pausedUntilMs = Date.now() + PAUSE_MS;
+      }
       let detail = "";
       try {
         const body = (await response.json()) as { error?: unknown; detailedError?: { message?: unknown } };
@@ -174,9 +185,13 @@ export async function getTomTomIncidents(
 ): Promise<TrafficIncident[]> {
   const key = deps.key === undefined ? tomtomKey() : deps.key;
   if (!key) return [];
+  if (Date.now() < pausedUntilMs) {
+    deps.onError?.("paused for a few minutes after TomTom refused (allowance or rate)");
+    return [];
+  }
   const fetchImpl = deps.fetchImpl ?? fetch;
   const ttlSeconds =
-    deps.ttlSeconds ?? minutesFromEnv(process.env.TRAFFIC_CACHE_SECONDS, 120, 600);
+    deps.ttlSeconds ?? minutesFromEnv(process.env.TRAFFIC_CACHE_SECONDS, 300, 900);
   const tiles = await Promise.all(
     tilesFor(bbox).map((tile) =>
       cachedValue<TrafficIncident[]>({

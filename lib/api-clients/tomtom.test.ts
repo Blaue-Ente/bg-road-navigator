@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { clearSharedCacheForTests } from "@/lib/cache/shared-cache";
-import { getTomTomIncidents, mapTomTomIncident } from "@/lib/api-clients/tomtom";
+import { getTomTomIncidents, mapTomTomIncident, resetTomTomPauseForTests } from "@/lib/api-clients/tomtom";
 
-beforeEach(() => clearSharedCacheForTests());
+beforeEach(() => {
+  clearSharedCacheForTests();
+  resetTomTomPauseForTests();
+});
 
 const crash = {
   geometry: { type: "Point", coordinates: [22.5, 43.1] },
@@ -100,5 +103,25 @@ describe("kinds of event", () => {
     expect(kind(3)).toBe("hazard");
     expect(kind(14)).toBe("hazard");
     expect(kind(1)).toBe("accident");
+  });
+});
+
+describe("allowance protection", () => {
+  it("stops asking for a while after TomTom refuses with 429 or 403", async () => {
+    let calls = 0;
+    const refused = (async () => {
+      calls += 1;
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+    }) as unknown as typeof fetch;
+    const errors: string[] = [];
+    await getTomTomIncidents({ w: 22.2, s: 41.2, e: 22.8, n: 41.8 }, { key: "k", fetchImpl: refused });
+    expect(calls).toBe(1);
+    // A different tile: still paused, so no call is made.
+    await getTomTomIncidents(
+      { w: 25.2, s: 41.2, e: 25.8, n: 41.8 },
+      { key: "k", fetchImpl: refused, onError: (m) => errors.push(m) }
+    );
+    expect(calls).toBe(1);
+    expect(errors[0]).toContain("paused");
   });
 });
