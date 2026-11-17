@@ -15,7 +15,7 @@ import type {
 const NVIDIA_CHAT_URL =
   process.env.NVIDIA_API_URL ??
   "https://integrate.api.nvidia.com/v1/chat/completions";
-const NVIDIA_MODEL = process.env.NVIDIA_MODEL ?? "meta/llama-3.1-8b-instruct";
+const NVIDIA_MODEL = process.env.NVIDIA_MODEL ?? process.env.AI_MODEL ?? "mistralai/mistral-large-4-1t-a52b";
 const REQUEST_TIMEOUT_MS = 12_000;
 
 const AiStopSchema = z.object({

@@ -18,6 +18,7 @@ import type { PlanStop, StopKind } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useUserStore } from "@/lib/stores/user.store";
 import { formatClockDuration } from "@/lib/planner/itinerary";
+import { StayOptions } from "@/components/plan/StayOptions";
 import { formatPlanInstant } from "@/lib/planner/plan-time";
 import { stopPriceCopy } from "@/lib/planner/stop-price";
 
@@ -317,6 +318,7 @@ function HotelBlock({
       <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
         {m.hotel.reason}: {stop.lodging_note ?? stop.reason}
       </p>
+      <StayOptions stop={stop} />
     </div>
   );
 }

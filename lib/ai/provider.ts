@@ -5,7 +5,8 @@
  * the rule-based text and nothing breaks.
  */
 const DEFAULT_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
-const DEFAULT_MODEL = "meta/llama-3.1-8b-instruct";
+/** Present on NVIDIA's free catalog and strong in Bulgarian. Override with AI_MODEL. */
+const DEFAULT_MODEL = "mistralai/mistral-large-4-1t-a52b";
 const TIMEOUT_MS = 20_000;
 
 export interface AiConfig {
@@ -53,7 +54,10 @@ export async function chatText(
     const payload = (await response.json()) as {
       choices?: Array<{ message?: { content?: string } }>;
     };
-    const text = payload.choices?.[0]?.message?.content?.trim();
+    // Reasoning models put their thinking in <think> blocks; keep the answer only.
+    const text = payload.choices?.[0]?.message?.content
+      ?.replace(/<think>[\s\S]*?<\/think>/g, "")
+      .trim();
     return text ? text : null;
   } catch {
     return null;
