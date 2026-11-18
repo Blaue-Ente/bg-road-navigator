@@ -2908,5 +2908,11 @@
   "Delete my account",
   "Hesabımı sil",
   "Șterge contul meu"
+ ],
+ "mapControls.onlyThis": [
+  "Само това",
+  "Only this",
+  "Sadece bu",
+  "Doar asta"
  ]
 }

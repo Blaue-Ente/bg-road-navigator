@@ -15,7 +15,9 @@ export interface CommunityPinsProps {
 export function CommunityPins({ map, pins = [] }: CommunityPinsProps) {
   const locale = useLocale();
   const enabled = useMapStore((s) => s.layers.community);
-  const points = pins.map((pin) => ({
+  const chosen = useMapStore((s) => s.communityCategories);
+  const shown = chosen.length === 0 ? pins : pins.filter((pin) => chosen.includes(pin.category));
+  const points = shown.map((pin) => ({
     id: pin.id,
     lng: pin.coords.lng,
     lat: pin.coords.lat,

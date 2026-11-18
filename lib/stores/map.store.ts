@@ -4,7 +4,20 @@ import {
   type LayerKey,
 } from "@/lib/constants/map-layers";
 import { TRAFFIC_GROUPS, type TrafficGroup } from "@/lib/map/traffic-kinds";
+import type { ConnectorGroup } from "@/lib/fuel/filters";
+import type { CommunityPinCategory } from "@/types/community.types";
+import type { FuelTypeCode } from "@/types/fuel.types";
 import type { GeoPoint } from "@/types/route.types";
+
+/** What the fuel and charger layers show; an empty choice means everything. */
+export interface MapFuelFilter {
+  fuels: FuelTypeCode[];
+  minKw: number;
+  connectors: ConnectorGroup[];
+}
+
+const toggled = <T,>(list: T[], item: T): T[] =>
+  list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
 
 export type LocateStatus =
   "idle" | "locating" | "success" | "denied" | "unavailable" | "timeout";
@@ -16,6 +29,13 @@ interface MapState {
   layers: Record<LayerKey, boolean>;
   /** Which kinds of road events are shown while the incidents layer is on. */
   trafficGroups: Record<TrafficGroup, boolean>;
+  /** Community categories shown; empty means all. */
+  communityCategories: CommunityPinCategory[];
+  fuelFilter: MapFuelFilter;
+  toggleCommunityCategory: (category: CommunityPinCategory) => void;
+  setFuelFilter: (filter: MapFuelFilter) => void;
+  /** Turns every other layer off, so only this one shows. */
+  showOnly: (key: LayerKey) => void;
   layersPanelOpen: boolean;
   mapError: string | null;
   view: {
@@ -46,6 +66,17 @@ export const useMapStore = create<MapState>((set) => ({
   trafficGroups: Object.fromEntries(
     TRAFFIC_GROUPS.map((group) => [group, true])
   ) as Record<TrafficGroup, boolean>,
+  communityCategories: [],
+  fuelFilter: { fuels: [], minKw: 0, connectors: [] },
+  toggleCommunityCategory: (category) =>
+    set((state) => ({ communityCategories: toggled(state.communityCategories, category) })),
+  setFuelFilter: (fuelFilter) => set({ fuelFilter }),
+  showOnly: (key) =>
+    set((state) => ({
+      layers: Object.fromEntries(
+        (Object.keys(state.layers) as LayerKey[]).map((layer) => [layer, layer === key])
+      ) as Record<LayerKey, boolean>,
+    })),
   layersPanelOpen: false,
   mapError: null,
   view: { center: [23.3219, 42.6977], zoom: 7 },

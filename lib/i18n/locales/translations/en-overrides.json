@@ -895,5 +895,8 @@
     "themeDark": "Dark theme",
     "themeLight": "Light theme",
     "title": "Settings"
+  },
+  "mapControls": {
+    "onlyThis": "Only this"
   }
 }

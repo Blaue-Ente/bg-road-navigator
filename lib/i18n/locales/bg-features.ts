@@ -278,6 +278,9 @@ export const bgFeatures = {
     zoomForCameras: "Приближете картата, за да видите камерите за скорост.",
     zoomForStations: "Приближете картата, за да видите бензиностанции и зарядни.",
   },
+  mapControls: {
+    onlyThis: "Само това",
+  },
   mapStyle: {
     auto: "Автоматично",
     bright: "Ярък",

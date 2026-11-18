@@ -897,5 +897,8 @@
     "themeDark": "Koyu tema",
     "themeLight": "Açık tema",
     "title": "Ayarlar"
+  },
+  "mapControls": {
+    "onlyThis": "Sadece bu"
   }
 }

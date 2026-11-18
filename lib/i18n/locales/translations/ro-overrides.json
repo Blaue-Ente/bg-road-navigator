@@ -900,5 +900,8 @@
     "themeDark": "Temă întunecată",
     "themeLight": "Temă luminoasă",
     "title": "Setări"
+  },
+  "mapControls": {
+    "onlyThis": "Doar asta"
   }
 }
