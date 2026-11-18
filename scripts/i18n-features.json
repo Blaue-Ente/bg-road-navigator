@@ -2398,5 +2398,11 @@
   "The swap times are a guide from the plan: if anyone is tired, swap sooner.",
   "Değişim saatleri plana göre bir rehberdir: biri yorulursa daha erken değiştirin.",
   "Orele de schimb sunt orientative: dacă cineva e obosit, schimbați mai devreme."
+ ],
+ "sights.roadLongTrip": [
+  "На толкова дълъг път живописен вариант не се търси: би добавил часове. Интересните места и междинните точки го правят интересен.",
+  "A scenic road is not tried on a trip this long: it would add hours. The places and via points make it interesting.",
+  "Bu kadar uzun bir yolda manzaralı yol denenmez: saatler ekler. Yerler ve ara noktalar onu ilginç kılar.",
+  "Pe un drum atât de lung nu se încearcă varianta pitorească: ar adăuga ore. Locurile și punctele intermediare îl fac interesant."
  ]
 }

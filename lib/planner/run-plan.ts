@@ -99,7 +99,6 @@ import {
   fetchDirectRoute,
   fetchRouteThrough,
   withScenic,
-  withScenicLastLeg,
 } from "@/lib/planner/via-route";
 import type { RouteChoice } from "@/lib/planner/types";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
@@ -189,18 +188,11 @@ export async function runTripPlan(input: TripPlanRequest) {
     .map((point) => point.coords);
   const [direct, viaList, pins, waits, traffic, hatarinfo] = await Promise.all([
     viaCoords.length === 0
-      ? scenicPace && prefs.scenic_last_share > 0
-        ? withScenicLastLeg(
-            input.origin.coords,
-            input.destination.coords,
-            costing,
-            prefs.scenic_last_share
-          )
-        : withScenic(
-            scenicPace,
-            (c) => fetchDirectRoute(input.origin.coords, input.destination.coords, c),
-            costing
-          )
+      ? withScenic(
+          scenicPace,
+          (c) => fetchDirectRoute(input.origin.coords, input.destination.coords, c),
+          costing
+        )
       : withScenic(
           scenicPace,
           (c) =>

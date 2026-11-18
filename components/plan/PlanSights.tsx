@@ -87,6 +87,7 @@ export function PlanSights({ plan }: { plan: TripPlannerResult }) {
             {
               applied: m.sights.roadApplied,
               too_long: m.sights.roadTooLong,
+              long_trip: m.sights.roadLongTrip,
               same: m.sights.roadSame,
               unsupported: m.sights.roadUnsupported,
             }[plan.route.scenic.reason],
