@@ -1,5 +1,6 @@
 "use client";
 
+import { TripLoadingIcons } from "@/components/ui/TripLoadingIcons";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
@@ -341,7 +342,8 @@ export function PlanningForm({
         </p>
       )}
       {calculating && (
-        <p className="text-sm text-[var(--waze-text-secondary)]" role="status">
+        <p className="flex items-center gap-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+          <TripLoadingIcons />
           {m.planning.calculatingStatus}
         </p>
       )}
