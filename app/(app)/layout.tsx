@@ -8,6 +8,7 @@ import { LocaleOffer } from "@/components/i18n/LocaleOffer";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { MenuProvider } from "@/components/layout/MenuContext";
 import { MapHost } from "@/components/map/MapHost";
+import { HistoryRecorder } from "@/components/profile/HistoryRecorder";
 import { PlanDetailSheet } from "@/components/plan/PlanDetailSheet";
 import { isReadingRoute } from "@/lib/constants/reading-routes";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -40,6 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </main>
           <BottomNav />
           <PlanDetailSheet />
+          <HistoryRecorder />
           <Sidebar />
           <OfflineBanner />
         </div>

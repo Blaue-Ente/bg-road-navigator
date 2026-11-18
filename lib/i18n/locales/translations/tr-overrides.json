@@ -748,5 +748,36 @@
     "title": "Yol üzerindeki ilginç yerler",
     "total": "Seçilen: {count}, toplam +{min} dk. Varış yaklaşık {time}.",
     "unavailable": "İlginç yerler için yapay zekâ açık olmalı."
+  },
+  "history": {
+    "clear": "Geçmişi temizle",
+    "col": {
+      "cost": "Toplam maliyet",
+      "distance": "Mesafe",
+      "driving": "Sürüş",
+      "nights": "Geceler",
+      "person": "Kişi başı",
+      "stops": "Duraklar",
+      "total": "Toplam süre"
+    },
+    "compare": "Karşılaştır",
+    "compareHint": "Farkı görmek için iki plan seçin.",
+    "compareTitle": "Karşılaştırma (ikinci, birinciye göre)",
+    "confirmClear": "Geçmişteki {count} planın hepsi silinsin mi?",
+    "cost": "Toplam yaklaşık {eur} €, kişi başı {person} €",
+    "departs": "Kalkış {date}",
+    "empty": "Henüz plan yok. Oluşturduğunuz her plan burada görünecek.",
+    "failed": "Geçmiş yüklenemedi.",
+    "favorite": "Favori olarak kaydet",
+    "favoriteFailed": "Kaydedilemedi.",
+    "favorited": "Favorilere kaydedildi",
+    "intro": "Son 30 planınız otomatik saklanır. Eski bir planı yeniden çalıştırmak için açın veya ikisini karşılaştırın.",
+    "line": "{km} km · {drive} · {nights} gece · {stops} durak",
+    "open": "Aç ve yeniden çalıştır",
+    "remove": "Sil",
+    "removeFailed": "Silinemedi.",
+    "same": "aynı",
+    "title": "Rota geçmişi",
+    "unavailable": "Geçmiş sunucuda henüz kurulmadı."
   }
 }

@@ -2110,5 +2110,167 @@
   "{limit} h on the road today. Time for a rest or a night stop: arriving safe matters most.",
   "Bugün yolda {limit} saat oldu. Mola veya konaklama zamanı: sağ salim varmak en önemlisi.",
   "{limit} h pe drum azi. E timpul pentru pauză sau cazare: contează să ajungi sănătos."
+ ],
+ "history.title": [
+  "История на маршрутите",
+  "Route history",
+  "Rota geçmişi",
+  "Istoricul traseelor"
+ ],
+ "history.intro": [
+  "Последните ти 30 плана се запазват сами. Отвори стар план, за да го пуснеш пак, или сравни два.",
+  "Your last 30 plans are kept automatically. Open an old plan to run it again, or compare two.",
+  "Son 30 planınız otomatik saklanır. Eski bir planı yeniden çalıştırmak için açın veya ikisini karşılaştırın.",
+  "Ultimele tale 30 de planuri se păstrează automat. Deschide unul vechi ca să-l rulezi din nou sau compară două."
+ ],
+ "history.empty": [
+  "Още няма планове. Всеки план, който генерираш, ще се появи тук.",
+  "No plans yet. Every plan you make will show up here.",
+  "Henüz plan yok. Oluşturduğunuz her plan burada görünecek.",
+  "Încă nu sunt planuri. Fiecare plan generat va apărea aici."
+ ],
+ "history.unavailable": [
+  "Историята още не е настроена на сървъра.",
+  "History is not set up on the server yet.",
+  "Geçmiş sunucuda henüz kurulmadı.",
+  "Istoricul nu este încă configurat pe server."
+ ],
+ "history.failed": [
+  "Не успях да заредя историята.",
+  "I could not load the history.",
+  "Geçmiş yüklenemedi.",
+  "Nu am putut încărca istoricul."
+ ],
+ "history.line": [
+  "{km} км · {drive} · {nights} нощувки · {stops} спирки",
+  "{km} km · {drive} · {nights} nights · {stops} stops",
+  "{km} km · {drive} · {nights} gece · {stops} durak",
+  "{km} km · {drive} · {nights} nopți · {stops} opriri"
+ ],
+ "history.cost": [
+  "Около {eur} € общо, {person} € на човек",
+  "About {eur} € in all, {person} € per person",
+  "Toplam yaklaşık {eur} €, kişi başı {person} €",
+  "Aproximativ {eur} € în total, {person} € pe persoană"
+ ],
+ "history.departs": [
+  "Тръгване {date}",
+  "Leaves {date}",
+  "Kalkış {date}",
+  "Plecare {date}"
+ ],
+ "history.open": [
+  "Отвори и пусни пак",
+  "Open and run again",
+  "Aç ve yeniden çalıştır",
+  "Deschide și rulează din nou"
+ ],
+ "history.favorite": [
+  "Запази като любим",
+  "Save as favorite",
+  "Favori olarak kaydet",
+  "Salvează ca favorit"
+ ],
+ "history.favorited": [
+  "Запазен в любимите",
+  "Saved to favorites",
+  "Favorilere kaydedildi",
+  "Salvat la favorite"
+ ],
+ "history.favoriteFailed": [
+  "Не успях да го запазя.",
+  "I could not save it.",
+  "Kaydedilemedi.",
+  "Nu am putut salva."
+ ],
+ "history.remove": [
+  "Изтрий",
+  "Delete",
+  "Sil",
+  "Șterge"
+ ],
+ "history.removeFailed": [
+  "Не успях да го изтрия.",
+  "I could not delete it.",
+  "Silinemedi.",
+  "Nu am putut șterge."
+ ],
+ "history.clear": [
+  "Изчисти историята",
+  "Clear the history",
+  "Geçmişi temizle",
+  "Șterge istoricul"
+ ],
+ "history.confirmClear": [
+  "Да изтрия ли всички {count} плана от историята?",
+  "Delete all {count} plans from the history?",
+  "Geçmişteki {count} planın hepsi silinsin mi?",
+  "Ștergi toate cele {count} planuri din istoric?"
+ ],
+ "history.compare": [
+  "Сравни",
+  "Compare",
+  "Karşılaştır",
+  "Compară"
+ ],
+ "history.compareHint": [
+  "Избери два плана, за да видиш разликата.",
+  "Pick two plans to see the difference.",
+  "Farkı görmek için iki plan seçin.",
+  "Alege două planuri ca să vezi diferența."
+ ],
+ "history.compareTitle": [
+  "Сравнение (второто спрямо първото)",
+  "Comparison (the second against the first)",
+  "Karşılaştırma (ikinci, birinciye göre)",
+  "Comparație (al doilea față de primul)"
+ ],
+ "history.col.distance": [
+  "Разстояние",
+  "Distance",
+  "Mesafe",
+  "Distanță"
+ ],
+ "history.col.driving": [
+  "Каране",
+  "Driving",
+  "Sürüş",
+  "Condus"
+ ],
+ "history.col.total": [
+  "Общо време",
+  "Total time",
+  "Toplam süre",
+  "Timp total"
+ ],
+ "history.col.nights": [
+  "Нощувки",
+  "Nights",
+  "Geceler",
+  "Nopți"
+ ],
+ "history.col.stops": [
+  "Спирки",
+  "Stops",
+  "Duraklar",
+  "Opriri"
+ ],
+ "history.col.cost": [
+  "Общи разходи",
+  "Total cost",
+  "Toplam maliyet",
+  "Cost total"
+ ],
+ "history.col.person": [
+  "На човек",
+  "Per person",
+  "Kişi başı",
+  "Pe persoană"
+ ],
+ "history.same": [
+  "същото",
+  "same",
+  "aynı",
+  "la fel"
  ]
 }

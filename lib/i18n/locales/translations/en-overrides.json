@@ -746,5 +746,36 @@
     "title": "Interesting places on the way",
     "total": "Chosen: {count}, +{min} min in all. Arrival around {time}.",
     "unavailable": "Interesting places need the AI to be on."
+  },
+  "history": {
+    "clear": "Clear the history",
+    "col": {
+      "cost": "Total cost",
+      "distance": "Distance",
+      "driving": "Driving",
+      "nights": "Nights",
+      "person": "Per person",
+      "stops": "Stops",
+      "total": "Total time"
+    },
+    "compare": "Compare",
+    "compareHint": "Pick two plans to see the difference.",
+    "compareTitle": "Comparison (the second against the first)",
+    "confirmClear": "Delete all {count} plans from the history?",
+    "cost": "About {eur} € in all, {person} € per person",
+    "departs": "Leaves {date}",
+    "empty": "No plans yet. Every plan you make will show up here.",
+    "failed": "I could not load the history.",
+    "favorite": "Save as favorite",
+    "favoriteFailed": "I could not save it.",
+    "favorited": "Saved to favorites",
+    "intro": "Your last 30 plans are kept automatically. Open an old plan to run it again, or compare two.",
+    "line": "{km} km · {drive} · {nights} nights · {stops} stops",
+    "open": "Open and run again",
+    "remove": "Delete",
+    "removeFailed": "I could not delete it.",
+    "same": "same",
+    "title": "Route history",
+    "unavailable": "History is not set up on the server yet."
   }
 }

@@ -156,6 +156,48 @@ export const userChecklists = pgTable(
   (table) => [unique("user_checklists_user_plan").on(table.userId, table.planKey)]
 );
 
+/** What a past plan needs to be run again, and a short summary to compare. */
+export interface HistoryInputs {
+  origin: { label: string; lng: number; lat: number };
+  destination: { label: string; lng: number; lat: number };
+  via: Array<{ label: string; lng: number; lat: number }>;
+  preferences: TripPreferences;
+  depart_at: string | null;
+  return_at: string | null;
+  fuel_level: number;
+}
+
+export interface HistorySummary {
+  distance_km: number;
+  duration_min: number;
+  /** Driving plus stops, waits and sleep. */
+  total_min: number;
+  depart_at: string;
+  arrive_at: string;
+  nights: number;
+  stops: number;
+  border: string | null;
+  cost_total_eur: number | null;
+  cost_per_person_eur: number | null;
+}
+
+/** The last plans a driver generated. */
+export const routeHistory = pgTable(
+  "route_history",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => profiles.userId, { onDelete: "cascade" }),
+    planKey: text("plan_key").notNull(),
+    name: text("name").notNull(),
+    inputs: jsonb("inputs").$type<HistoryInputs>().notNull(),
+    summary: jsonb("summary").$type<HistorySummary>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique("route_history_user_plan").on(table.userId, table.planKey)]
+);
+
 export const borderWaitReports = pgTable("border_wait_reports", {
   id: uuid("id").primaryKey().defaultRandom(),
   crossingId: text("crossing_id").notNull(),
