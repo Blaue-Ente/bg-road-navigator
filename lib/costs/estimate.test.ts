@@ -68,6 +68,14 @@ describe("trip cost estimate", () => {
     expect(costs.lines.some((line) => line.country === "DE")).toBe(false);
   });
 
+  it("counts only the tolled part of Poland and reports those kilometres", () => {
+    const costs = estimatePlanCosts(input({ countryKm: { DE: 100, PL: 550, SK: 150 } }));
+    const pl = costs.lines.find((line) => line.id === "tolls" && line.country === "PL")!;
+    // 550 km, 30% of it tolled, at 0.06 EUR/km.
+    expect(pl.detail.km).toBe(165);
+    expect(pl.eur).toBeCloseTo(9.9, 1);
+  });
+
   it("doubles the road costs for a round trip and chooses vignettes for the whole stay", () => {
     const oneWay = estimatePlanCosts(input());
     const back = estimatePlanCosts(input({ returnAt: new Date("2027-01-03T06:00:00Z") }));
