@@ -46,7 +46,8 @@
   },
   "nav": {
     "weather": "Vremea",
-    "hotels": "Locuri de odihnă"
+    "hotels": "Locuri de odihnă",
+    "closeToMap": "Închide și mergi la hartă"
   },
   "tipsPage": {
     "msg343e2ece52": "Important"

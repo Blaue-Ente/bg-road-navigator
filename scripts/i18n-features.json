@@ -1342,5 +1342,11 @@
   "More tips",
   "Diğer ipuçları",
   "Alte sfaturi"
+ ],
+ "nav.closeToMap": [
+  "Затвори и към картата",
+  "Close and go to the map",
+  "Kapat ve haritaya dön",
+  "Închide și mergi la hartă"
  ]
 }

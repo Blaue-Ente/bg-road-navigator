@@ -136,6 +136,9 @@ export const bgFeatures = {
     positron: "Светъл",
     title: "Стил на картата",
   },
+  nav: {
+    closeToMap: "Затвори и към картата",
+  },
   planner: {
     checklist: {
       prepBooking: "Резервация за нощувка",

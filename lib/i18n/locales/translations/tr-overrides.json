@@ -44,7 +44,8 @@
   },
   "nav": {
     "weather": "Hava durumu",
-    "hotels": "Dinlenme yerleri"
+    "hotels": "Dinlenme yerleri",
+    "closeToMap": "Kapat ve haritaya dön"
   },
   "tipsPage": {
     "msg343e2ece52": "Önemli"

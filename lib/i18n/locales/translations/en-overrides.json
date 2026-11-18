@@ -42,7 +42,8 @@
   },
   "nav": {
     "weather": "Weather",
-    "hotels": "Rest stops"
+    "hotels": "Rest stops",
+    "closeToMap": "Close and go to the map"
   },
   "tipsPage": {
     "msg343e2ece52": "Important"
