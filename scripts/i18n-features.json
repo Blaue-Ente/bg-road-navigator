@@ -1426,5 +1426,41 @@
   "HVO",
   "HVO",
   "HVO"
+ ],
+ "guide.evTitle": [
+  "Зареждане на електромобила",
+  "Charging your EV",
+  "Elektrikli aracı şarj etme",
+  "Încărcarea mașinii electrice"
+ ],
+ "guide.evPeakBadge": [
+  "Пиков час",
+  "Busy hours",
+  "Yoğun saat",
+  "Ore aglomerate"
+ ],
+ "guide.evCalmBadge": [
+  "По-спокойно",
+  "Quieter",
+  "Daha sakin",
+  "Mai liniștit"
+ ],
+ "guide.evPeak": [
+  "Обикновено е натоварено (връщане от работа или почивен ден). Ако операторът позволява резервация, направи я през неговото приложение; иначе провери наличността малко преди това и имай резерв в заряда за втора станция.",
+  "Usually busy (commute or weekend traffic). If the operator allows booking, book through its app; otherwise check availability shortly before and keep enough charge for a second station.",
+  "Genellikle yoğun (iş dönüşü veya hafta sonu). İşletmeci rezervasyona izin veriyorsa uygulaması üzerinden yapın; aksi hâlde kısa süre önce doluluğu kontrol edin ve ikinci bir istasyon için yeterli şarj bırakın.",
+  "De obicei aglomerat (navetă sau weekend). Dacă operatorul permite rezervarea, fă-o din aplicația lui; altfel verifică disponibilitatea cu puțin timp înainte și păstrează încărcare pentru o a doua stație."
+ ],
+ "guide.evCalm": [
+  "Обикновено е по-тихо по това време. Провери наличността в приложението на оператора преди да тръгнеш към станцията.",
+  "Usually quieter at this hour. Check availability in the operator's app before heading there.",
+  "Bu saatte genellikle daha sakin. İstasyona gitmeden önce işletmecinin uygulamasında doluluğu kontrol edin.",
+  "De obicei mai liniștit la această oră. Verifică disponibilitatea în aplicația operatorului înainte să mergi acolo."
+ ],
+ "guide.evNote": [
+  "Пиковите часове са ориентир (делнични пътувания до и от работа, обяд през почивните дни), не данни на живо за зарядното.",
+  "Busy hours are a rule of thumb (weekday commutes, weekend midday), not live data for the charger.",
+  "Yoğun saatler bir göstergedir (hafta içi iş gidiş-dönüşü, hafta sonu öğle), şarj istasyonu için canlı veri değildir.",
+  "Orele aglomerate sunt orientative (naveta de peste săptămână, amiaza de weekend), nu date în direct despre stație."
  ]
 }

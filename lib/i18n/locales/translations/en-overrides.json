@@ -612,6 +612,12 @@
     "title": "Trip advice",
     "verdictAvoid": "Avoid",
     "verdictGood": "Good pick",
-    "verdictOk": "Fine"
+    "verdictOk": "Fine",
+    "evCalm": "Usually quieter at this hour. Check availability in the operator's app before heading there.",
+    "evCalmBadge": "Quieter",
+    "evNote": "Busy hours are a rule of thumb (weekday commutes, weekend midday), not live data for the charger.",
+    "evPeak": "Usually busy (commute or weekend traffic). If the operator allows booking, book through its app; otherwise check availability shortly before and keep enough charge for a second station.",
+    "evPeakBadge": "Busy hours",
+    "evTitle": "Charging your EV"
   }
 }

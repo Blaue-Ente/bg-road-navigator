@@ -617,6 +617,12 @@
     "title": "Sfaturi pentru drum",
     "verdictAvoid": "Evită",
     "verdictGood": "Alegere bună",
-    "verdictOk": "În regulă"
+    "verdictOk": "În regulă",
+    "evCalm": "De obicei mai liniștit la această oră. Verifică disponibilitatea în aplicația operatorului înainte să mergi acolo.",
+    "evCalmBadge": "Mai liniștit",
+    "evNote": "Orele aglomerate sunt orientative (naveta de peste săptămână, amiaza de weekend), nu date în direct despre stație.",
+    "evPeak": "De obicei aglomerat (navetă sau weekend). Dacă operatorul permite rezervarea, fă-o din aplicația lui; altfel verifică disponibilitatea cu puțin timp înainte și păstrează încărcare pentru o a doua stație.",
+    "evPeakBadge": "Ore aglomerate",
+    "evTitle": "Încărcarea mașinii electrice"
   }
 }

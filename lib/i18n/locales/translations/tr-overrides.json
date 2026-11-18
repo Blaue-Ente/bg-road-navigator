@@ -614,6 +614,12 @@
     "title": "Yolculuk tavsiyeleri",
     "verdictAvoid": "Kaçının",
     "verdictGood": "İyi seçim",
-    "verdictOk": "Olur"
+    "verdictOk": "Olur",
+    "evCalm": "Bu saatte genellikle daha sakin. İstasyona gitmeden önce işletmecinin uygulamasında doluluğu kontrol edin.",
+    "evCalmBadge": "Daha sakin",
+    "evNote": "Yoğun saatler bir göstergedir (hafta içi iş gidiş-dönüşü, hafta sonu öğle), şarj istasyonu için canlı veri değildir.",
+    "evPeak": "Genellikle yoğun (iş dönüşü veya hafta sonu). İşletmeci rezervasyona izin veriyorsa uygulaması üzerinden yapın; aksi hâlde kısa süre önce doluluğu kontrol edin ve ikinci bir istasyon için yeterli şarj bırakın.",
+    "evPeakBadge": "Yoğun saat",
+    "evTitle": "Elektrikli aracı şarj etme"
   }
 }

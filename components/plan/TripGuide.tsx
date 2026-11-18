@@ -8,6 +8,7 @@ import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { TripGuide as Guide } from "@/lib/ai/trip-guide";
 import { guideInputFromPlan } from "@/lib/ai/trip-guide-input";
 import { formatTemplate } from "@/lib/i18n/format-template";
+import { isPeakChargingTime } from "@/lib/planner/ev-peak";
 import { fuelVerdict } from "@/lib/planner/fuel-verdict";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { googleMapsPlaceUrl } from "@/lib/utils/maps-handoff";
@@ -32,6 +33,9 @@ export function TripGuide({ plan }: { plan: TripPlannerResult }) {
 
   const fuelStops = plan.stops.filter(
     (stop) => !stop.optional && stop.kinds.includes("fuel")
+  );
+  const chargeStops = plan.stops.filter(
+    (stop) => !stop.optional && stop.kinds.includes("charge")
   );
   const foodSpots = plan.food_spots ?? [];
   const countries = [
@@ -126,6 +130,48 @@ export function TripGuide({ plan }: { plan: TripPlannerResult }) {
               );
             })}
           </ul>
+        </div>
+      )}
+
+      {chargeStops.length > 0 && (
+        <div>
+          <h4 className="text-sm font-semibold text-[var(--waze-text)]">
+            {m.guide.evTitle}
+          </h4>
+          <ul className="mt-2 space-y-2">
+            {chargeStops.map((stop) => {
+              const peak = isPeakChargingTime(stop.eta, stop.time_zone);
+              return (
+                <li
+                  key={stop.id}
+                  className="rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm text-[var(--waze-text)]"
+                >
+                  <p className="font-medium">
+                    {stop.place_name ?? stop.title}
+                    <span
+                      className={`ml-2 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        peak
+                          ? "bg-amber-500/20 text-[var(--waze-warning)]"
+                          : "bg-emerald-500/15 text-emerald-700"
+                      }`}
+                    >
+                      {peak ? m.guide.evPeakBadge : m.guide.evCalmBadge}
+                    </span>
+                  </p>
+                  <p className="text-[var(--waze-text-secondary)]">
+                    {formatWhen(stop.eta)} · {stop.distance_from_start_km}{" "}
+                    {m.units.km}
+                  </p>
+                  <p className="mt-1 text-[var(--waze-text-secondary)]">
+                    {peak ? m.guide.evPeak : m.guide.evCalm}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-1 text-xs text-[var(--waze-text-muted)]">
+            {m.guide.evNote}
+          </p>
         </div>
       )}
 
