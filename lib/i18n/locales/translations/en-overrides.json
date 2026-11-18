@@ -589,7 +589,8 @@
     "carComfortCompact": "Small or cramped",
     "carComfortHint": "In a small car people tire sooner: stops come more often and the driving day is shorter.",
     "carComfortRoomy": "Roomy (van, minibus, large SUV)",
-    "carComfortStandard": "Standard (sedan, estate)"
+    "carComfortStandard": "Standard (sedan, estate)",
+    "scenic": "Interesting road (places to see)"
   },
   "checklist": {
     "prep": "Getting ready for the road"
@@ -712,5 +713,33 @@
     "spentOnly": "Spent: {spent} €",
     "title": "Trip balance",
     "under": "{diff} € less than estimated"
+  },
+  "sights": {
+    "add": "Add to the route",
+    "added": "Added",
+    "extra": "+{min} min with the drive and the visit",
+    "failed": "I could not load the places. Try again in a moment.",
+    "family": "Fine for children and a pet",
+    "intro": "Nature, history, architecture and attractions near the road. Add what you like: it counts in the arrival time and in the printed plan.",
+    "kind": {
+      "architecture": "Architecture",
+      "attraction": "Attraction",
+      "festival": "Festival",
+      "history": "History",
+      "nature": "Nature",
+      "walk": "Walk",
+      "zoo": "Zoo"
+    },
+    "loading": "Looking for places on the way…",
+    "none": "I found no checked places near this road.",
+    "note": "The places are suggested by the AI and checked on the map; check hours and prices before you go.",
+    "offRoad": "{km} km off the road, near km {at} of the route",
+    "pdfHeading": "Interesting places on the way",
+    "remove": "Remove",
+    "replacesRest": "Could replace the rest around km {km}.",
+    "show": "Show interesting places",
+    "title": "Interesting places on the way",
+    "total": "Chosen: {count}, +{min} min in all. Arrival around {time}.",
+    "unavailable": "Interesting places need the AI to be on."
   }
 }

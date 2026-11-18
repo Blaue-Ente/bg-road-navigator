@@ -76,6 +76,12 @@ export interface MergeBreaksInput {
 }
 
 const DEFAULT_OVERNIGHT_AT_MIN = 600;
+/**
+ * The first overnight stop is kept when only a little driving is left (the day
+ * limit is passed). A further one needs this much driving left after it,
+ * otherwise the driver simply pushes on to the end.
+ */
+export const OVERNIGHT_MIN_REMAINING_MIN = 180;
 
 /**
  * Rest after `breakEveryMin` of driving since the last stop of any kind.
@@ -109,7 +115,7 @@ export function mergeDrivingBreaks(input: MergeBreaksInput): TimedStop[] {
   if (driveMin > overnightAfter) {
     for (
       let minute = overnightAt;
-      minute < driveMin - 45;
+      minute < driveMin - (minute === overnightAt ? 45 : OVERNIGHT_MIN_REMAINING_MIN);
       minute += overnightAt
     ) {
       forcedDrafts.push({
@@ -191,7 +197,9 @@ export function sleepShifts(input: {
   const shifts: SleepShift[] = [];
   for (
     let minute = overnightAt;
-    minute < input.driveMin - 45;
+    minute <
+    input.driveMin -
+      (minute === overnightAt ? 45 : OVERNIGHT_MIN_REMAINING_MIN);
     minute += overnightAt
   ) {
     shifts.push({ afterDrivingMin: minute, sleepMin: 0 });

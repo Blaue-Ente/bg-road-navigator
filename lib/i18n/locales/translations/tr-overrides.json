@@ -591,7 +591,8 @@
     "carComfortCompact": "Küçük veya dar",
     "carComfortHint": "Küçük bir araçta insanlar daha çabuk yorulur: molalar sıklaşır, sürüş günü kısalır.",
     "carComfortRoomy": "Geniş (minivan, minibüs, büyük SUV)",
-    "carComfortStandard": "Standart (sedan, station)"
+    "carComfortStandard": "Standart (sedan, station)",
+    "scenic": "İlginç rota (görülecek yerler)"
   },
   "checklist": {
     "prep": "Yola hazırlık"
@@ -714,5 +715,33 @@
     "spentOnly": "Harcanan: {spent} €",
     "title": "Yolculuk dökümü",
     "under": "Tahminden {diff} € az"
+  },
+  "sights": {
+    "add": "Rotaya ekle",
+    "added": "Eklendi",
+    "extra": "+{min} dk yol ve gezi dahil",
+    "failed": "Yerler yüklenemedi. Biraz sonra tekrar deneyin.",
+    "family": "Çocuklar ve evcil hayvan için uygun",
+    "intro": "Doğa, tarih, mimari ve yola yakın cazibe merkezleri. Beğendiğinizi ekleyin: varış saatine ve basılı plana yansır.",
+    "kind": {
+      "architecture": "Mimari",
+      "attraction": "Cazibe merkezi",
+      "festival": "Festival",
+      "history": "Tarih",
+      "nature": "Doğa",
+      "walk": "Yürüyüş",
+      "zoo": "Hayvanat bahçesi"
+    },
+    "loading": "Yolda yerler aranıyor…",
+    "none": "Bu yol yakınında doğrulanmış yer bulamadım.",
+    "note": "Yerler yapay zekâ tarafından önerildi ve haritada doğrulandı; gitmeden önce saat ve fiyatları kontrol edin.",
+    "offRoad": "yoldan {km} km, rotanın yaklaşık {at}. km'si",
+    "pdfHeading": "Yol üzerindeki ilginç yerler",
+    "remove": "Kaldır",
+    "replacesRest": "Km {km} civarındaki molanın yerini alabilir.",
+    "show": "İlginç yerleri göster",
+    "title": "Yol üzerindeki ilginç yerler",
+    "total": "Seçilen: {count}, toplam +{min} dk. Varış yaklaşık {time}.",
+    "unavailable": "İlginç yerler için yapay zekâ açık olmalı."
   }
 }

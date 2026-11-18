@@ -39,14 +39,17 @@ export const TripGuideInputSchema = z.object({
   max_day_driving_h: z.number().finite().min(0).max(24).optional(),
   /** Places the driver asked to pass through, in order. */
   via: z.array(Text(120)).max(3).default([]),
-  /** Towns along the road, used for scenic trips. The server fills in `town`. */
-  along: z
+  /** Places the driver added to the trip from the checked list. */
+  chosen_sights: z
     .array(
       z.object({
-        km: z.number().finite().min(0).max(20_000),
-        lat: z.number().finite().min(-90).max(90),
-        lng: z.number().finite().min(-180).max(180),
-        town: Text(120).nullable().optional(),
+        name: Text(120),
+        town: Text(120),
+        kind: Text(20),
+        along_km: z.number().finite().min(0).max(20_000),
+        extra_min: z.number().finite().min(0).max(600),
+        why: Text(400),
+        history: Text(700),
       })
     )
     .max(8)
@@ -186,7 +189,7 @@ Rules:
 - "overnight": one entry per stop whose kind includes "overnight" (stop_id copied exactly). The stop's "place" can be a filling station: NEVER present it as where to sleep. "where" is the "hotel" if the facts give one, otherwise the "town" (and say it is the area to look in). "why" is one or two sentences from the facts only (arrival time, how far is left the next day, services nearby, a small detour). "check" lists what to confirm in the listing before booking, shaped by the travellers (parking, a pet policy answer, a family room, early breakfast, self check-in). Do not claim a place is clean, safe or cheap.
 - Human load (always): the plan must not push people past what is sensible. Use "car_comfort": in a "compact" car (small, cramped) say plainly that the stops are closer together and the driving day shorter because people tire sooner, and suggest stretching legs at every stop; in a "roomy" car it is easier to rest and sleep on the way. With "drivers" 2 or more, advise swapping at stops (about every 2 to 3 hours), the resting driver really sleeping, and nobody driving tired. With "leaves_at_night" true, say honestly that starting in the evening means the first stretch is overnight driving, that the first long rest falls in the daytime and is for sleeping, and that the trip takes longer overall than a straight run: this is deliberate, not a mistake. Never praise pushing on without sleep.
 - "Why this route" section (use a heading like that, place it second to last): explain, from the facts only, why the plan looks the way it does: the places in "via" the driver asked to pass through (say that they shape the road and may make it longer than the direct way), the border crossing chosen and its wait, "pace" (a scenic pace asks for sights along the road but does not make the road itself more scenic), the rest rhythm, the driving day length and where the nights fall, and what to relax if the driver wants it shorter (fewer via points, leave in the morning, another border). Be honest about trade-offs. 3 to 6 sentences.
-- Sights: when "pace" is "scenic" and "along" has towns, add one section headed like "Worth a stop on the way" with at most 6 places: well-known natural, architectural or historical sights, attractions, zoos or festivals that really exist in or right next to the towns listed in "along", "via" or the stops (name the town for each, and say roughly how far off the road it is only when you know). Use only widely known landmarks you are sure of. Never invent a place, an opening hour, a ticket price or a festival date: for festivals and events say "check the dates", and say hours and prices must be checked before going. Skip the section when you are not sure of anything real.
+- Chosen sights: when "chosen_sights" is not empty, add one section (heading like "Places you chose") that tells the driver, in road order, what each place is and why it suits this group, using only the "why" and "history" given and adding no facts. Say how much time they add in all and that hours and prices must be checked before going. Never suggest places that are not in "chosen_sights".
 - "closing": one warm sentence to end on.
 - If a fact is missing, leave it out. Do not apologise for missing data. No legal or safety guarantees.`;
 

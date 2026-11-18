@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { PlanSight } from "@/lib/sights/types";
 import { clearRouteTripSession, tripSessionStorage } from "@/lib/stores/route-trip-session";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import type { PlaceFlagSummary, TripPlannerResult } from "@/lib/planner/types";
@@ -22,6 +23,14 @@ export interface PlanningVia {
   lat: number;
 }
 
+/** Places worth a stop on an "interesting" road, and the ones the driver took. */
+export interface SightsState {
+  /** Which plan they were found for: origin, destination, distance and via. */
+  key: string;
+  items: PlanSight[];
+  chosen: string[];
+}
+
 interface RouteState {
   origin: GeoPoint | null;
   destination: GeoPoint | null;
@@ -37,6 +46,9 @@ interface RouteState {
   planMinimized: boolean;
   focusedStopId: string | null;
   planningVia: PlanningVia[];
+  sights: SightsState | null;
+  setSights: (sights: SightsState | null) => void;
+  toggleSight: (id: string) => void;
   replanDraft: ReplanDraft | null;
   /** Stable route-choice card order (`border_id` or `source` keys). */
   choiceCardOrderKeys: string[] | null;
@@ -70,6 +82,16 @@ export const useRouteStore = create<RouteState>((set) => ({
   planMinimized: false,
   focusedStopId: null,
   planningVia: [],
+  sights: null,
+  setSights: (sights) => set({ sights }),
+  toggleSight: (id) =>
+    set((state) => {
+      if (!state.sights) return {};
+      const chosen = state.sights.chosen.includes(id)
+        ? state.sights.chosen.filter((item) => item !== id)
+        : [...state.sights.chosen, id];
+      return { sights: { ...state.sights, chosen } };
+    }),
   replanDraft: null,
   choiceCardOrderKeys: null,
   setOrigin: (point) => set({ origin: point, choiceCardOrderKeys: null }),
@@ -90,7 +112,7 @@ export const useRouteStore = create<RouteState>((set) => ({
     set({
       tripPlan: plan,
       focusedStopId: null,
-      ...(plan ? {} : { planDetailOpen: false }),
+      ...(plan ? {} : { planDetailOpen: false, sights: null }),
     }),
   // Asking for the plan always shows it in full, also when it was collapsed.
   setPlanDetailOpen: (open) => set({ planDetailOpen: open, planMinimized: false }),
@@ -134,6 +156,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       planMinimized: false,
       focusedStopId: null,
       planningVia: [],
+      sights: null,
       choiceCardOrderKeys: null,
     });
   },

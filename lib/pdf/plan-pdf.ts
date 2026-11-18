@@ -1,6 +1,7 @@
 import type { TripGuide } from "@/lib/ai/trip-guide";
 import type { StoredChecklistGroup } from "@/lib/db/schema";
 import type { PdfChecklistGroup, TripPdfInput } from "@/lib/pdf/trip-pdf";
+import type { PlanSight } from "@/lib/sights/types";
 import type { ChecklistItem, TripPlannerResult } from "@/lib/planner/types";
 
 /** Words the PDF needs, taken from the page's own message catalog. */
@@ -22,6 +23,7 @@ export interface PlanPdfLabels {
   distanceUnit: string;
   drivingWord: string;
   arrivalWord: string;
+  sights: string;
 }
 
 /** A short stable key for "this trip", so replanning it keeps one saved checklist. */
@@ -119,6 +121,8 @@ export function tripPdfInputFromPlan(input: {
   duration: (minutes: number) => string;
   /** The cost lines already worded in the page's language. */
   costs?: TripPdfInput["costs"];
+  /** Places the driver added, told as short stories for the printed plan. */
+  sights?: PlanSight[];
 }): TripPdfInput {
   const { plan, guide, labels, locale } = input;
   const route = plan.route;
@@ -183,6 +187,21 @@ export function tripPdfInputFromPlan(input: {
         : []),
     ];
     closing = "";
+  }
+
+  const chosen = [...(input.sights ?? [])].sort((a, b) => a.along_km - b.along_km);
+  if (chosen.length > 0) {
+    sections = [
+      ...sections,
+      {
+        heading: labels.sights,
+        text: chosen.map((sight) => `${sight.name} (${sight.town})`).join(", "),
+      },
+      ...chosen.map((sight) => ({
+        heading: `${sight.name} \u00b7 ${sight.town}`,
+        text: [sight.history, sight.why].filter(Boolean).join(" "),
+      })),
+    ];
   }
 
   const groups = checklistGroups(plan, labels);
