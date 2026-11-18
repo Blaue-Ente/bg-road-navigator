@@ -1744,5 +1744,167 @@
   "Official vignette shops: see “Vignettes”.",
   "Resmî vinyet mağazaları: “Vinyetler” bölümüne bakın.",
   "Magazinele oficiale pentru rovinete: vezi „Rovinete”."
+ ],
+ "ledger.title": [
+  "Равносметка на пътуването",
+  "Trip balance",
+  "Yolculuk dökümü",
+  "Bilanțul călătoriei"
+ ],
+ "ledger.hint": [
+  "По желание: километражът и реалните разходи, за да видиш колко е струвало пътуването спрямо очакваното.",
+  "Optional: the odometer and what you really spent, to see what the trip cost against the estimate.",
+  "İsteğe bağlı: kilometre sayacı ve gerçek harcamalar; yolculuğun tahmine göre ne kadar tuttuğunu görün.",
+  "Opțional: kilometrajul și cheltuielile reale, ca să vezi cât a costat călătoria față de estimare."
+ ],
+ "ledger.odoStart": [
+  "Километраж при тръгване",
+  "Odometer at the start",
+  "Başlangıçta kilometre",
+  "Kilometraj la plecare"
+ ],
+ "ledger.odoEnd": [
+  "Километраж при връщане",
+  "Odometer on return",
+  "Dönüşte kilometre",
+  "Kilometraj la întoarcere"
+ ],
+ "ledger.driven": [
+  "Изминати: {km} км",
+  "Driven: {km} km",
+  "Gidilen: {km} km",
+  "Parcurși: {km} km"
+ ],
+ "ledger.expenses": [
+  "Какво е похарчено",
+  "What was spent",
+  "Neler harcandı",
+  "Ce s-a cheltuit"
+ ],
+ "ledger.add": [
+  "Добави разход",
+  "Add an expense",
+  "Harcama ekle",
+  "Adaugă o cheltuială"
+ ],
+ "ledger.amount": [
+  "Сума в €",
+  "Amount in €",
+  "Tutar (€)",
+  "Sumă în €"
+ ],
+ "ledger.note": [
+  "Бележка",
+  "Note",
+  "Not",
+  "Notă"
+ ],
+ "ledger.remove": [
+  "Премахни",
+  "Remove",
+  "Kaldır",
+  "Elimină"
+ ],
+ "ledger.save": [
+  "Запази равносметката",
+  "Save the balance",
+  "Dökümü kaydet",
+  "Salvează bilanțul"
+ ],
+ "ledger.saved": [
+  "Запазено.",
+  "Saved.",
+  "Kaydedildi.",
+  "Salvat."
+ ],
+ "ledger.saveFailed": [
+  "Не се запази. Опитай пак.",
+  "It did not save. Try again.",
+  "Kaydedilemedi. Tekrar deneyin.",
+  "Nu s-a salvat. Încearcă din nou."
+ ],
+ "ledger.spent": [
+  "Похарчено: {spent} € (очаквано {estimate} €)",
+  "Spent: {spent} € (estimated {estimate} €)",
+  "Harcanan: {spent} € (tahmin {estimate} €)",
+  "Cheltuit: {spent} € (estimat {estimate} €)"
+ ],
+ "ledger.spentOnly": [
+  "Похарчено: {spent} €",
+  "Spent: {spent} €",
+  "Harcanan: {spent} €",
+  "Cheltuit: {spent} €"
+ ],
+ "ledger.over": [
+  "{diff} € повече от очакваното",
+  "{diff} € more than estimated",
+  "Tahminden {diff} € fazla",
+  "Cu {diff} € peste estimare"
+ ],
+ "ledger.under": [
+  "{diff} € по-малко от очакваното",
+  "{diff} € less than estimated",
+  "Tahminden {diff} € az",
+  "Cu {diff} € sub estimare"
+ ],
+ "ledger.per100": [
+  "Реален разход на гориво: {price} € на 100 км",
+  "Real fuel cost: {price} € per 100 km",
+  "Gerçek yakıt maliyeti: 100 km'de {price} €",
+  "Cost real al combustibilului: {price} € la 100 km"
+ ],
+ "ledger.perPerson": [
+  "Това са {per} € на човек",
+  "That is {per} € per person",
+  "Bu kişi başı {per} €",
+  "Adică {per} € de persoană"
+ ],
+ "ledger.cat.fuel": [
+  "Гориво",
+  "Fuel",
+  "Yakıt",
+  "Combustibil"
+ ],
+ "ledger.cat.vignette": [
+  "Винетки",
+  "Vignettes",
+  "Vinyetler",
+  "Rovinete"
+ ],
+ "ledger.cat.tolls": [
+  "Пътни такси",
+  "Road tolls",
+  "Yol ücretleri",
+  "Taxe de drum"
+ ],
+ "ledger.cat.bridge": [
+  "Мост или ферибот",
+  "Bridge or ferry",
+  "Köprü veya feribot",
+  "Pod sau bac"
+ ],
+ "ledger.cat.lodging": [
+  "Нощувки",
+  "Overnight",
+  "Konaklama",
+  "Cazare"
+ ],
+ "ledger.cat.meals": [
+  "Храна",
+  "Meals",
+  "Yemek",
+  "Mese"
+ ],
+ "ledger.cat.coffee": [
+  "Кафе и закуски",
+  "Coffee and snacks",
+  "Kahve ve atıştırmalık",
+  "Cafea și gustări"
+ ],
+ "ledger.cat.other": [
+  "Друго",
+  "Other",
+  "Diğer",
+  "Altele"
  ]
 }

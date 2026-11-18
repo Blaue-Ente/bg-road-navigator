@@ -678,5 +678,36 @@
     "tolls": "{country} yol ücreti: yaklaşık {km} km ücretli otoyol",
     "total": "Toplam yaklaşık {total} € ({low} ile {high} € arası)",
     "vignette": "{country} vinyeti: {count} × {days} gün (her biri {each} €)"
+  },
+  "ledger": {
+    "add": "Harcama ekle",
+    "amount": "Tutar (€)",
+    "cat": {
+      "bridge": "Köprü veya feribot",
+      "coffee": "Kahve ve atıştırmalık",
+      "fuel": "Yakıt",
+      "lodging": "Konaklama",
+      "meals": "Yemek",
+      "other": "Diğer",
+      "tolls": "Yol ücretleri",
+      "vignette": "Vinyetler"
+    },
+    "driven": "Gidilen: {km} km",
+    "expenses": "Neler harcandı",
+    "hint": "İsteğe bağlı: kilometre sayacı ve gerçek harcamalar; yolculuğun tahmine göre ne kadar tuttuğunu görün.",
+    "note": "Not",
+    "odoEnd": "Dönüşte kilometre",
+    "odoStart": "Başlangıçta kilometre",
+    "over": "Tahminden {diff} € fazla",
+    "per100": "Gerçek yakıt maliyeti: 100 km'de {price} €",
+    "perPerson": "Bu kişi başı {per} €",
+    "remove": "Kaldır",
+    "save": "Dökümü kaydet",
+    "saveFailed": "Kaydedilemedi. Tekrar deneyin.",
+    "saved": "Kaydedildi.",
+    "spent": "Harcanan: {spent} € (tahmin {estimate} €)",
+    "spentOnly": "Harcanan: {spent} €",
+    "title": "Yolculuk dökümü",
+    "under": "Tahminden {diff} € az"
   }
 }

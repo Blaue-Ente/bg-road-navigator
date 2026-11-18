@@ -146,6 +146,20 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
             depart_at: plan.depart_at,
             groups: checklistGroups(plan, labels),
             checks,
+            ...(plan.costs
+              ? {
+                  estimate: {
+                    total_eur: plan.costs.total_eur,
+                    total_low: plan.costs.total_low,
+                    total_high: plan.costs.total_high,
+                    lines: plan.costs.lines.map((line) => ({
+                      id: line.id,
+                      country: line.country ?? null,
+                      eur: line.eur,
+                    })),
+                  },
+                }
+              : {}),
           }),
         }).catch(() => null);
         saved = response?.ok ? "profile" : "failed";

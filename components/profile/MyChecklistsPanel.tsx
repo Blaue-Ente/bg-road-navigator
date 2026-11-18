@@ -9,6 +9,7 @@ import type { ChecklistRow } from "@/lib/db/checklists";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { makeTripPdf, pdfFilename, savePdfFile } from "@/lib/pdf/make-trip-pdf";
 import { pdfGroupsWithChecks } from "@/lib/pdf/plan-pdf";
+import { TripLedger } from "@/components/profile/TripLedger";
 
 function progress(row: ChecklistRow): { done: number; total: number } {
   const ids = row.groups.flatMap((group) => group.items.map((item) => item.id));
@@ -179,6 +180,30 @@ export function MyChecklistsPanel() {
                         </ul>
                       </div>
                     ))}
+                    <TripLedger
+                      key={`${row.id}-${row.updated_at}`}
+                      row={row}
+                      onSaved={(log) =>
+                        queryClient.setQueryData<{
+                          checklists: ChecklistRow[];
+                          configured: boolean;
+                        }>(["my-checklists"], (current) =>
+                          current
+                            ? {
+                                ...current,
+                                checklists: current.checklists.map((item) =>
+                                  item.id === row.id
+                                    ? {
+                                        ...item,
+                                        trip_log: { ...item.trip_log, ...log },
+                                      }
+                                    : item
+                                ),
+                              }
+                            : current
+                        )
+                      }
+                    />
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"

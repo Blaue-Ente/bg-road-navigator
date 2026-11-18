@@ -7,9 +7,38 @@ import { requestLocale } from "@/lib/i18n/request-locale";
 import { toDbResponse } from "@/lib/server/db-http";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
-const PatchSchema = z.object({
-  checks: z.record(z.string().max(80), z.boolean()),
-});
+const km = z.number().finite().min(0).max(2_000_000).nullable();
+const PatchSchema = z
+  .object({
+    checks: z.record(z.string().max(80), z.boolean()).optional(),
+    trip_log: z
+      .object({
+        odometer_start_km: km.optional(),
+        odometer_end_km: km.optional(),
+        expenses: z
+          .array(
+            z.object({
+              id: z.string().trim().min(1).max(40),
+              category: z.enum([
+                "fuel",
+                "vignette",
+                "tolls",
+                "bridge",
+                "lodging",
+                "meals",
+                "coffee",
+                "other",
+              ]),
+              amount_eur: z.number().finite().min(0).max(100_000),
+              note: z.string().trim().max(120).optional(),
+            })
+          )
+          .max(80)
+          .optional(),
+      })
+      .optional(),
+  })
+  .refine((value) => value.checks !== undefined || value.trip_log !== undefined);
 
 export async function PATCH(
   request: NextRequest,
@@ -28,6 +57,7 @@ export async function PATCH(
       userId: auth.user.id,
       id: params.data.id,
       checks: body.data.checks,
+      tripLog: body.data.trip_log,
     });
     if (!checklist) return apiError(request, "invalidId", "NOT_FOUND", 404);
     return NextResponse.json({ checklist });

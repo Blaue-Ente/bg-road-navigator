@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { userChecklists, type StoredChecklistGroup } from "@/lib/db/schema";
+import { userChecklists, type StoredChecklistGroup, type TripLog } from "@/lib/db/schema";
 
 export interface ChecklistRow {
   id: string;
@@ -10,6 +10,7 @@ export interface ChecklistRow {
   depart_at: string | null;
   groups: StoredChecklistGroup[];
   checks: Record<string, boolean>;
+  trip_log: TripLog | null;
   updated_at: string;
 }
 
@@ -22,6 +23,7 @@ function toRow(row: typeof userChecklists.$inferSelect): ChecklistRow {
     depart_at: row.departAt ? row.departAt.toISOString() : null,
     groups: row.groups,
     checks: row.checks,
+    trip_log: row.tripLog ?? null,
     updated_at: row.updatedAt.toISOString(),
   };
 }
@@ -48,6 +50,8 @@ export async function upsertChecklist(input: {
   departAt: Date | null;
   groups: StoredChecklistGroup[];
   checks: Record<string, boolean>;
+  /** The estimate made with this plan; kept next to the real spending. */
+  estimate?: TripLog["estimate"];
 }): Promise<ChecklistRow> {
   const [row] = await getDb()
     .insert(userChecklists)
@@ -59,6 +63,7 @@ export async function upsertChecklist(input: {
       departAt: input.departAt,
       groups: input.groups,
       checks: input.checks,
+      tripLog: input.estimate ? { estimate: input.estimate } : null,
     })
     .onConflictDoUpdate({
       target: [userChecklists.userId, userChecklists.planKey],
@@ -69,6 +74,12 @@ export async function upsertChecklist(input: {
         groups: input.groups,
         // What the driver already ticked stays; new ticks from this save are added.
         checks: sql`${userChecklists.checks} || ${JSON.stringify(input.checks)}::jsonb`,
+        // A fresh estimate replaces the old one; the odometer and the expenses stay.
+        ...(input.estimate
+          ? {
+              tripLog: sql`coalesce(${userChecklists.tripLog}, '{}'::jsonb) || ${JSON.stringify({ estimate: input.estimate })}::jsonb`,
+            }
+          : {}),
         updatedAt: new Date(),
       },
     })
@@ -79,11 +90,21 @@ export async function upsertChecklist(input: {
 export async function updateChecks(input: {
   userId: string;
   id: string;
-  checks: Record<string, boolean>;
+  checks?: Record<string, boolean>;
+  /** Odometer and expenses; the stored estimate is never overwritten from here. */
+  tripLog?: Pick<TripLog, "odometer_start_km" | "odometer_end_km" | "expenses">;
 }): Promise<ChecklistRow | null> {
   const [row] = await getDb()
     .update(userChecklists)
-    .set({ checks: input.checks, updatedAt: new Date() })
+    .set({
+      ...(input.checks ? { checks: input.checks } : {}),
+      ...(input.tripLog
+        ? {
+            tripLog: sql`coalesce(${userChecklists.tripLog}, '{}'::jsonb) || ${JSON.stringify(input.tripLog)}::jsonb`,
+          }
+        : {}),
+      updatedAt: new Date(),
+    })
     .where(and(eq(userChecklists.id, input.id), eq(userChecklists.userId, input.userId)))
     .returning();
   return row ? toRow(row) : null;

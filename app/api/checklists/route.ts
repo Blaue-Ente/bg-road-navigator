@@ -30,6 +30,22 @@ const SaveChecklistSchema = z.object({
     )
     .max(10),
   checks: z.record(z.string().max(80), z.boolean()).default({}),
+  estimate: z
+    .object({
+      total_eur: z.number().finite(),
+      total_low: z.number().finite(),
+      total_high: z.number().finite(),
+      lines: z
+        .array(
+          z.object({
+            id: z.string().max(20),
+            country: z.string().max(8).nullable(),
+            eur: z.number().finite().nullable(),
+          })
+        )
+        .max(30),
+    })
+    .optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -80,6 +96,7 @@ export async function POST(request: NextRequest) {
       departAt: parsed.data.depart_at ? new Date(parsed.data.depart_at) : null,
       groups: parsed.data.groups,
       checks: parsed.data.checks,
+      estimate: parsed.data.estimate,
     });
     return NextResponse.json({ checklist });
   } catch (error) {

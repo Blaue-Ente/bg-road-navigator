@@ -676,5 +676,36 @@
     "tolls": "{country} road toll: about {km} km of tolled motorway",
     "total": "Total about {total} € (between {low} and {high} €)",
     "vignette": "{country} vignette: {count} × {days} days ({each} € each)"
+  },
+  "ledger": {
+    "add": "Add an expense",
+    "amount": "Amount in €",
+    "cat": {
+      "bridge": "Bridge or ferry",
+      "coffee": "Coffee and snacks",
+      "fuel": "Fuel",
+      "lodging": "Overnight",
+      "meals": "Meals",
+      "other": "Other",
+      "tolls": "Road tolls",
+      "vignette": "Vignettes"
+    },
+    "driven": "Driven: {km} km",
+    "expenses": "What was spent",
+    "hint": "Optional: the odometer and what you really spent, to see what the trip cost against the estimate.",
+    "note": "Note",
+    "odoEnd": "Odometer on return",
+    "odoStart": "Odometer at the start",
+    "over": "{diff} € more than estimated",
+    "per100": "Real fuel cost: {price} € per 100 km",
+    "perPerson": "That is {per} € per person",
+    "remove": "Remove",
+    "save": "Save the balance",
+    "saveFailed": "It did not save. Try again.",
+    "saved": "Saved.",
+    "spent": "Spent: {spent} € (estimated {estimate} €)",
+    "spentOnly": "Spent: {spent} €",
+    "title": "Trip balance",
+    "under": "{diff} € less than estimated"
   }
 }

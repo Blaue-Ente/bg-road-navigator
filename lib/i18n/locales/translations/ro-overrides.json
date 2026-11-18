@@ -681,5 +681,36 @@
     "tolls": "Taxă de drum {country}: circa {km} km de autostradă cu taxă",
     "total": "Total circa {total} € (între {low} și {high} €)",
     "vignette": "Rovinietă {country}: {count} × {days} zile ({each} € fiecare)"
+  },
+  "ledger": {
+    "add": "Adaugă o cheltuială",
+    "amount": "Sumă în €",
+    "cat": {
+      "bridge": "Pod sau bac",
+      "coffee": "Cafea și gustări",
+      "fuel": "Combustibil",
+      "lodging": "Cazare",
+      "meals": "Mese",
+      "other": "Altele",
+      "tolls": "Taxe de drum",
+      "vignette": "Rovinete"
+    },
+    "driven": "Parcurși: {km} km",
+    "expenses": "Ce s-a cheltuit",
+    "hint": "Opțional: kilometrajul și cheltuielile reale, ca să vezi cât a costat călătoria față de estimare.",
+    "note": "Notă",
+    "odoEnd": "Kilometraj la întoarcere",
+    "odoStart": "Kilometraj la plecare",
+    "over": "Cu {diff} € peste estimare",
+    "per100": "Cost real al combustibilului: {price} € la 100 km",
+    "perPerson": "Adică {per} € de persoană",
+    "remove": "Elimină",
+    "save": "Salvează bilanțul",
+    "saveFailed": "Nu s-a salvat. Încearcă din nou.",
+    "saved": "Salvat.",
+    "spent": "Cheltuit: {spent} € (estimat {estimate} €)",
+    "spentOnly": "Cheltuit: {spent} €",
+    "title": "Bilanțul călătoriei",
+    "under": "Cu {diff} € sub estimare"
   }
 }
