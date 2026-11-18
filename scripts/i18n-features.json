@@ -2542,5 +2542,65 @@
   "Show on the map",
   "Haritada göster",
   "Arată pe hartă"
+ ],
+ "tipsPage.countryTitle": [
+  "Държава",
+  "Country",
+  "Ülke",
+  "Țară"
+ ],
+ "tipsPage.allCountries": [
+  "Всички държави",
+  "All countries",
+  "Tüm ülkeler",
+  "Toate țările"
+ ],
+ "tipsPage.generalTitle": [
+  "Общи съвети",
+  "General tips",
+  "Genel ipuçları",
+  "Sfaturi generale"
+ ],
+ "tipsPage.countryTipsTitle": [
+  "Съвети за {country}",
+  "Tips for {country}",
+  "{country} için ipuçları",
+  "Sfaturi pentru {country}"
+ ],
+ "tipsPage.countryNoTips": [
+  "За тази държава още нямаме специални съвети. Вижте общите по-долу.",
+  "We have no country-specific tips for this one yet. See the general ones below.",
+  "Bu ülke için henüz özel ipucumuz yok. Aşağıdaki genel ipuçlarına bakın.",
+  "Pentru această țară nu avem încă sfaturi speciale. Vedeți cele generale de mai jos."
+ ],
+ "tipsPage.factsTitle": [
+  "Накратко за {country}",
+  "{country} at a glance",
+  "{country} kısaca",
+  "{country} pe scurt"
+ ],
+ "tipsPage.factEmergency": [
+  "Спешни: полиция {police}, линейка {ambulance}, 112",
+  "Emergency: police {police}, ambulance {ambulance}, 112",
+  "Acil: polis {police}, ambulans {ambulance}, 112",
+  "Urgențe: poliție {police}, ambulanță {ambulance}, 112"
+ ],
+ "tipsPage.factWinter": [
+  "Зима: {summary}",
+  "Winter: {summary}",
+  "Kış: {summary}",
+  "Iarna: {summary}"
+ ],
+ "tipsPage.factVignette": [
+  "Официален сайт за такса за път",
+  "Official road-charge site",
+  "Resmî yol ücreti sitesi",
+  "Site oficial pentru taxa de drum"
+ ],
+ "tipsPage.factOpenEmergency": [
+  "Всички спешни номера",
+  "All emergency numbers",
+  "Tüm acil numaralar",
+  "Toate numerele de urgență"
  ]
 }

@@ -49,7 +49,17 @@
     "closeToMap": "Close and go to the map"
   },
   "tipsPage": {
-    "msg343e2ece52": "Important"
+    "msg343e2ece52": "Important",
+    "allCountries": "All countries",
+    "countryNoTips": "We have no country-specific tips for this one yet. See the general ones below.",
+    "countryTipsTitle": "Tips for {country}",
+    "countryTitle": "Country",
+    "factEmergency": "Emergency: police {police}, ambulance {ambulance}, 112",
+    "factOpenEmergency": "All emergency numbers",
+    "factVignette": "Official road-charge site",
+    "factWinter": "Winter: {summary}",
+    "factsTitle": "{country} at a glance",
+    "generalTitle": "General tips"
   },
   "planner": {
     "stops": {

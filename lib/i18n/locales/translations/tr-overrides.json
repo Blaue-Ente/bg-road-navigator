@@ -51,7 +51,17 @@
     "closeToMap": "Kapat ve haritaya dön"
   },
   "tipsPage": {
-    "msg343e2ece52": "Önemli"
+    "msg343e2ece52": "Önemli",
+    "allCountries": "Tüm ülkeler",
+    "countryNoTips": "Bu ülke için henüz özel ipucumuz yok. Aşağıdaki genel ipuçlarına bakın.",
+    "countryTipsTitle": "{country} için ipuçları",
+    "countryTitle": "Ülke",
+    "factEmergency": "Acil: polis {police}, ambulans {ambulance}, 112",
+    "factOpenEmergency": "Tüm acil numaralar",
+    "factVignette": "Resmî yol ücreti sitesi",
+    "factWinter": "Kış: {summary}",
+    "factsTitle": "{country} kısaca",
+    "generalTitle": "Genel ipuçları"
   },
   "planner": {
     "stops": {

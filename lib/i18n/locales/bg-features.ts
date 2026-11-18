@@ -427,6 +427,18 @@ export const bgFeatures = {
     searchNote: "Връзките водят към търсене в Booking.com и Airbnb за тази вечер. Цените и наличността са там.",
     tripadvisorCredit: "Оценките са от Tripadvisor. Отворете връзката за актуални цени и мнения.",
   },
+  tipsPage: {
+    allCountries: "Всички държави",
+    countryNoTips: "За тази държава още нямаме специални съвети. Вижте общите по-долу.",
+    countryTipsTitle: "Съвети за {country}",
+    countryTitle: "Държава",
+    factEmergency: "Спешни: полиция {police}, линейка {ambulance}, 112",
+    factOpenEmergency: "Всички спешни номера",
+    factVignette: "Официален сайт за такса за път",
+    factWinter: "Зима: {summary}",
+    factsTitle: "Накратко за {country}",
+    generalTitle: "Общи съвети",
+  },
   trafficFlow: {
     closed: "Затворено",
     free: "Свободно",

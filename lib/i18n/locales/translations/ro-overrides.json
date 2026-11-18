@@ -53,7 +53,17 @@
     "closeToMap": "Închide și mergi la hartă"
   },
   "tipsPage": {
-    "msg343e2ece52": "Important"
+    "msg343e2ece52": "Important",
+    "allCountries": "Toate țările",
+    "countryNoTips": "Pentru această țară nu avem încă sfaturi speciale. Vedeți cele generale de mai jos.",
+    "countryTipsTitle": "Sfaturi pentru {country}",
+    "countryTitle": "Țară",
+    "factEmergency": "Urgențe: poliție {police}, ambulanță {ambulance}, 112",
+    "factOpenEmergency": "Toate numerele de urgență",
+    "factVignette": "Site oficial pentru taxa de drum",
+    "factWinter": "Iarna: {summary}",
+    "factsTitle": "{country} pe scurt",
+    "generalTitle": "Sfaturi generale"
   },
   "planner": {
     "stops": {
