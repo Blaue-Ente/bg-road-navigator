@@ -81,6 +81,23 @@ export function PlanSights({ plan }: { plan: TripPlannerResult }) {
         <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">{m.sights.intro}</p>
       </div>
 
+      {plan.route.scenic ? (
+        <p className="rounded-xl bg-[var(--waze-accent-muted)] px-3 py-2 text-sm text-[var(--waze-accent-text)]">
+          {formatTemplate(
+            {
+              applied: m.sights.roadApplied,
+              too_long: m.sights.roadTooLong,
+              same: m.sights.roadSame,
+              unsupported: m.sights.roadUnsupported,
+            }[plan.route.scenic.reason],
+            {
+              km: String(Math.round(plan.route.scenic.extra_km ?? 0)),
+              min: String(Math.round(plan.route.scenic.extra_min ?? 0)),
+            }
+          )}
+        </p>
+      ) : null}
+
       {!current ? (
         <div className="space-y-2">
           <button

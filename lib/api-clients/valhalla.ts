@@ -99,7 +99,12 @@ export interface ValhallaMiss {
   outcome: UpstreamFailure;
 }
 
+/** Valhalla's use_highways runs 0 to 1; 1 is the default. */
+export const SCENIC_USE_HIGHWAYS = 0.3;
+
 export interface ValhallaCosting {
+  /** Prefer smaller roads: a lower use_highways, not none at all. */
+  scenic?: boolean;
   useHighways?: boolean;
   useTolls?: boolean;
 }
@@ -121,6 +126,7 @@ export function buildValhallaRouteBody(
   };
   const auto: Record<string, number> = {};
   if (costing?.useHighways === false) auto.use_highways = 0;
+  else if (costing?.scenic) auto.use_highways = SCENIC_USE_HIGHWAYS;
   if (costing?.useTolls === false) auto.use_tolls = 0;
   if (Object.keys(auto).length > 0) {
     body.costing_options = { auto };

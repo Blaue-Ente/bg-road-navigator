@@ -339,6 +339,8 @@ export interface TripPlannerResult {
     /** Sum of stop dwell minutes on the route. */
     breaks_min?: number;
     routing_source: "valhalla" | "osrm";
+    /** What an "interesting road" request did to the road; absent on the fast pace. */
+    scenic?: import("@/lib/api-clients/road-route").ScenicInfo;
     origin: {
       label: string;
       lng: number;

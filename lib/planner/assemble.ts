@@ -86,6 +86,7 @@ export interface AssembleInput {
   geometry: GeoJSON.LineString;
   maneuvers?: RouteManeuver[];
   routingSource: "valhalla" | "osrm";
+  scenic?: import("@/lib/api-clients/road-route").ScenicInfo | null;
   borders: ScoredBorder[];
   borderAlongKm: number | null;
   merged: TimedStop[];
@@ -206,6 +207,7 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
       arrive_at: arriveIso,
       breaks_min: breaksMin > 0 ? breaksMin : undefined,
       routing_source: input.routingSource,
+      ...(input.scenic ? { scenic: input.scenic } : {}),
       origin: {
         label: input.origin.label,
         lng: input.origin.coords.lng,
