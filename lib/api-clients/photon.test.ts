@@ -29,6 +29,43 @@ describe("mapPhotonCollection", () => {
     );
   });
 
+  it("picks the real city when Photon writes it in Bulgarian and villages keep the German name", () => {
+    const features = [
+      place({
+        name: "München",
+        osm_value: "village",
+        osm_key: "place",
+        countrycode: "DE",
+        coordinates: [13.3121574, 51.6073396],
+      }),
+      place({
+        name: "München",
+        osm_value: "village",
+        osm_key: "place",
+        countrycode: "DE",
+        coordinates: [11.2535193, 50.8699757],
+      }),
+      place({
+        name: "Münchenstein",
+        osm_value: "municipality",
+        osm_key: "place",
+        countrycode: "CH",
+        coordinates: [7.6174515, 47.5187909],
+      }),
+      place({
+        name: "Мюнхен",
+        osm_value: "city",
+        osm_key: "place",
+        countrycode: "DE",
+        coordinates: [11.5755, 48.1374],
+        extent: [11.36, 48.25, 11.72, 48.06],
+      }),
+    ];
+    const places = mapPhotonCollection({ features }, "München");
+    expect(places[0]?.label).toBe("Мюнхен");
+    expect(places[0]?.coords.lat).toBeCloseTo(48.1374, 3);
+  });
+
   it("keeps a street address ahead of the city centroid", () => {
     const places = mapPhotonCollection(
       {
