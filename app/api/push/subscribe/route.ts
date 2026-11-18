@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { isDatabaseConfigured } from "@/lib/db";
-import { saveSubscription } from "@/lib/db/push";
+import { removeSubscription, saveSubscription } from "@/lib/db/push";
 import { toDbResponse } from "@/lib/server/db-http";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 import { vapidConfigured } from "@/lib/push/send";
@@ -42,6 +42,27 @@ export async function POST(request: NextRequest) {
       auth: parsed.data.keys.auth,
       locale: parsed.data.locale,
     });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return toDbResponse(error);
+  }
+}
+
+/** Stops all pushes to one browser (the settings page "turn off" button). */
+export async function DELETE(request: NextRequest) {
+  if (!isDatabaseConfigured()) return NextResponse.json({ ok: true });
+  const limit = rateLimit(
+    `push-unsub:${clientIpFromHeaders(request.headers)}`,
+    10,
+    60_000
+  );
+  if (!limit.ok) return NextResponse.json({ ok: false }, { status: 429 });
+  const parsed = z
+    .object({ endpoint: z.string().url().max(600) })
+    .safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
+  try {
+    await removeSubscription(parsed.data.endpoint);
     return NextResponse.json({ ok: true });
   } catch (error) {
     return toDbResponse(error);

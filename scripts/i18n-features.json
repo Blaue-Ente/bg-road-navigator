@@ -2602,5 +2602,311 @@
   "All emergency numbers",
   "Tüm acil numaralar",
   "Toate numerele de urgență"
+ ],
+ "nav.settings": [
+  "Настройки",
+  "Settings",
+  "Ayarlar",
+  "Setări"
+ ],
+ "settings.title": [
+  "Настройки",
+  "Settings",
+  "Ayarlar",
+  "Setări"
+ ],
+ "settings.subtitle": [
+  "Тема, език, местоположение, известия и какви данни пазим.",
+  "Theme, language, location, notifications and what data we keep.",
+  "Tema, dil, konum, bildirimler ve hangi verileri sakladığımız.",
+  "Tema, limba, locația, notificările și ce date păstrăm."
+ ],
+ "settings.appearance": [
+  "Външен вид и език",
+  "Appearance and language",
+  "Görünüm ve dil",
+  "Aspect și limbă"
+ ],
+ "settings.appearanceHint": [
+  "Светла или тъмна тема (картата сменя стила си заедно с нея) и език на приложението.",
+  "Light or dark theme (the map switches style with it) and the app language.",
+  "Açık veya koyu tema (harita da stilini değiştirir) ve uygulama dili.",
+  "Temă luminoasă sau întunecată (harta își schimbă stilul odată cu ea) și limba aplicației."
+ ],
+ "settings.themeDark": [
+  "Тъмна тема",
+  "Dark theme",
+  "Koyu tema",
+  "Temă întunecată"
+ ],
+ "settings.themeLight": [
+  "Светла тема",
+  "Light theme",
+  "Açık tema",
+  "Temă luminoasă"
+ ],
+ "settings.notifications": [
+  "Известия",
+  "Notifications",
+  "Bildirimler",
+  "Notificări"
+ ],
+ "settings.notificationsHint": [
+  "Разрешението за известия е в „Местоположение“ по-горе. Тук можете да спрете известията за пътуване към това устройство.",
+  "Permission for notifications is in “Location” above. Here you can stop trip notifications to this device.",
+  "Bildirim izni yukarıdaki “Konum” bölümündedir. Burada bu cihaza giden yolculuk bildirimlerini durdurabilirsiniz.",
+  "Permisiunea pentru notificări este în „Locație” de mai sus. Aici puteți opri notificările de călătorie către acest dispozitiv."
+ ],
+ "settings.pushOff": [
+  "Спри известията на това устройство",
+  "Stop notifications on this device",
+  "Bu cihazdaki bildirimleri durdur",
+  "Oprește notificările pe acest dispozitiv"
+ ],
+ "settings.pushIsOff": [
+  "Известията са спрени.",
+  "Notifications are off.",
+  "Bildirimler kapatıldı.",
+  "Notificările sunt oprite."
+ ],
+ "settings.pushNone": [
+  "На това устройство няма включени известия.",
+  "No notifications are on for this device.",
+  "Bu cihazda açık bildirim yok.",
+  "Nu sunt notificări pornite pe acest dispozitiv."
+ ],
+ "settings.pushFailed": [
+  "Не успяхме да ги спрем. Опитайте отново.",
+  "We couldn't stop them. Please try again.",
+  "Durdurulamadı. Lütfen tekrar deneyin.",
+  "Nu le-am putut opri. Încercați din nou."
+ ],
+ "settings.pushUnsupported": [
+  "Този браузър не поддържа известия.",
+  "This browser does not support notifications.",
+  "Bu tarayıcı bildirimleri desteklemiyor.",
+  "Acest browser nu acceptă notificări."
+ ],
+ "settings.privacy": [
+  "Поверителност и история",
+  "Privacy and history",
+  "Gizlilik ve geçmiş",
+  "Confidențialitate și istoric"
+ ],
+ "settings.noTrail": [
+  "Не пазим следа от движението ви. Позицията се ползва само на устройството, докато пътувате.",
+  "We do not keep a trail of your movements. Your position is used only on your device while you travel.",
+  "Hareketlerinizin izini tutmuyoruz. Konumunuz yalnızca yolculuk sırasında cihazınızda kullanılır.",
+  "Nu păstrăm urma deplasărilor dvs. Poziția este folosită doar pe dispozitiv cât călătoriți."
+ ],
+ "settings.historyRecording": [
+  "Записвай историята на маршрутите",
+  "Record route history",
+  "Rota geçmişini kaydet",
+  "Salvează istoricul rutelor"
+ ],
+ "settings.historyRecordingHint": [
+  "Само за влезли в профила: последните 30 плана за повторно пускане.",
+  "Signed-in drivers only: the last 30 plans to run again.",
+  "Yalnızca oturum açanlar için: tekrar çalıştırmak üzere son 30 plan.",
+  "Doar pentru conectați: ultimele 30 de planuri, de rulat din nou."
+ ],
+ "settings.borderWatch": [
+  "Измервай чакането на границата",
+  "Measure border waits",
+  "Sınır beklemesini ölç",
+  "Măsoară așteptarea la frontieră"
+ ],
+ "settings.borderWatchHint": [
+  "Работи само при пътуване, с разрешено местоположение и отворена страница.",
+  "Works only during a trip, with location allowed and the page open.",
+  "Yalnızca yolculukta, konum izniyle ve sayfa açıkken çalışır.",
+  "Funcționează doar în călătorie, cu locația permisă și pagina deschisă."
+ ],
+ "settings.clearHistory": [
+  "Изчисти историята на маршрутите",
+  "Clear route history",
+  "Rota geçmişini temizle",
+  "Șterge istoricul rutelor"
+ ],
+ "settings.clearHistoryConfirm": [
+  "Да изтрия ли цялата история на маршрутите?",
+  "Delete all route history?",
+  "Tüm rota geçmişi silinsin mi?",
+  "Ștergi tot istoricul rutelor?"
+ ],
+ "settings.historyCleared": [
+  "Историята е изтрита.",
+  "History cleared.",
+  "Geçmiş silindi.",
+  "Istoricul a fost șters."
+ ],
+ "settings.clearDevice": [
+  "Изчисти данните на това устройство",
+  "Clear data on this device",
+  "Bu cihazdaki verileri temizle",
+  "Șterge datele de pe acest dispozitiv"
+ ],
+ "settings.clearDeviceConfirm": [
+  "Това изчиства запомнените избори на това устройство (не и профила ви). Продължавате ли?",
+  "This clears remembered choices on this device (not your account). Continue?",
+  "Bu cihazda hatırlanan seçimler temizlenir (hesabınız değil). Devam edilsin mi?",
+  "Aceasta șterge alegerile memorate pe acest dispozitiv (nu și contul). Continuați?"
+ ],
+ "settings.actionFailed": [
+  "Не се получи. Опитайте отново.",
+  "That did not work. Please try again.",
+  "Olmadı. Lütfen tekrar deneyin.",
+  "Nu a mers. Încercați din nou."
+ ],
+ "settings.retention": [
+  "Колко време пазим данните",
+  "How long we keep data",
+  "Verileri ne kadar saklıyoruz",
+  "Cât păstrăm datele"
+ ],
+ "settings.keepProfile": [
+  "Профил, автомобили, любими, чек листове",
+  "Profile, cars, favourites, checklists",
+  "Profil, araçlar, favoriler, kontrol listeleri",
+  "Profil, mașini, favorite, liste de verificare"
+ ],
+ "settings.keepProfileHow": [
+  "Докато не ги изтриете или не изтриете профила.",
+  "Until you delete them or your account.",
+  "Siz silene veya hesabı silene kadar.",
+  "Până le ștergeți sau ștergeți contul."
+ ],
+ "settings.keepHistory": [
+  "История на маршрутите",
+  "Route history",
+  "Rota geçmişi",
+  "Istoricul rutelor"
+ ],
+ "settings.keepHistoryHow": [
+  "Последните 30; по-старите се изтриват сами.",
+  "The newest 30; older ones are removed automatically.",
+  "En yeni 30; eskiler otomatik silinir.",
+  "Ultimele 30; cele mai vechi se șterg automat."
+ ],
+ "settings.keepSignals": [
+  "Сигнали от общността",
+  "Community signals",
+  "Topluluk bildirimleri",
+  "Semnale din comunitate"
+ ],
+ "settings.keepSignalsHow": [
+  "Показват се ограничено време според вида. След изтриване на профила остават без автор.",
+  "Shown for a limited time depending on the kind. After you delete your account they stay without an author.",
+  "Türüne göre sınırlı süre gösterilir. Hesabı sildikten sonra yazarsız kalır.",
+  "Se afișează un timp limitat, în funcție de tip. După ștergerea contului rămân fără autor."
+ ],
+ "settings.keepBorder": [
+  "Времена на границата от шофьори",
+  "Border waits from drivers",
+  "Sürücülerden sınır süreleri",
+  "Timpi de frontieră de la șoferi"
+ ],
+ "settings.keepBorderHow": [
+  "Пазим само граничния пункт, минутите и часовете, не маршрута. Показват се тези от последните 3 часа.",
+  "We keep only the crossing, minutes and times, never the route. Those from the last 3 hours are shown.",
+  "Yalnızca geçişi, dakikaları ve saatleri saklarız; rotayı asla. Son 3 saatteki süreler gösterilir.",
+  "Păstrăm doar punctul, minutele și orele, niciodată ruta. Se afișează cele din ultimele 3 ore."
+ ],
+ "settings.keepPush": [
+  "Адрес за известия",
+  "Notification address",
+  "Bildirim adresi",
+  "Adresa pentru notificări"
+ ],
+ "settings.keepPushHow": [
+  "Докато не спрете известията или браузърът го откаже.",
+  "Until you stop notifications or the browser revokes it.",
+  "Bildirimleri durdurana veya tarayıcı iptal edene kadar.",
+  "Până opriți notificările sau browserul îl revocă."
+ ],
+ "settings.keepLocation": [
+  "Местоположение",
+  "Location",
+  "Konum",
+  "Locație"
+ ],
+ "settings.keepLocationHow": [
+  "Не се записва. Остава в браузъра само изборът ви (разрешено или не).",
+  "Not stored. Only your choice (allowed or not) stays in the browser.",
+  "Saklanmaz. Tarayıcıda yalnızca seçiminiz (izin var/yok) kalır.",
+  "Nu se stochează. În browser rămâne doar alegerea dvs. (permis sau nu)."
+ ],
+ "settings.account": [
+  "Профил и данни",
+  "Account and data",
+  "Hesap ve veriler",
+  "Cont și date"
+ ],
+ "settings.signedOutHint": [
+  "Влезте, за да изтеглите или изтриете данните си.",
+  "Sign in to download or delete your data.",
+  "Verilerinizi indirmek veya silmek için oturum açın.",
+  "Conectați-vă pentru a descărca sau șterge datele."
+ ],
+ "settings.signIn": [
+  "Към вход",
+  "Go to sign in",
+  "Girişe git",
+  "La autentificare"
+ ],
+ "settings.exportData": [
+  "Изтегли моите данни (JSON)",
+  "Download my data (JSON)",
+  "Verilerimi indir (JSON)",
+  "Descarcă datele mele (JSON)"
+ ],
+ "settings.exportHint": [
+  "Всичко, което пазим за вас, в един файл.",
+  "Everything we keep about you, in one file.",
+  "Sakladığımız her şey tek dosyada.",
+  "Tot ce păstrăm despre dvs., într-un singur fișier."
+ ],
+ "settings.deleteTitle": [
+  "Изтриване на профила",
+  "Delete account",
+  "Hesabı sil",
+  "Șterge contul"
+ ],
+ "settings.deleteHint": [
+  "Профилът, автомобилите, любимите, историята и чек листовете се изтриват завинаги.",
+  "Your profile, cars, favourites, history and checklists are deleted for good.",
+  "Profiliniz, araçlarınız, favorileriniz, geçmişiniz ve kontrol listeleriniz kalıcı olarak silinir.",
+  "Profilul, mașinile, favoritele, istoricul și listele de verificare se șterg definitiv."
+ ],
+ "settings.deletePosts": [
+  "Изтрий и моите сигнали и коментари",
+  "Also delete my signals and comments",
+  "Sinyallerimi ve yorumlarımı da sil",
+  "Șterge și semnalele și comentariile mele"
+ ],
+ "settings.deletePostsHint": [
+  "Иначе остават без автор, за да помагат на другите.",
+  "Otherwise they stay without an author to keep helping others.",
+  "Aksi halde başkalarına yardım etmeye devam etmeleri için yazarsız kalır.",
+  "Altfel rămân fără autor, ca să ajute în continuare."
+ ],
+ "settings.deleteType": [
+  "Напишете ИЗТРИЙ за потвърждение",
+  "Type DELETE to confirm",
+  "Onaylamak için SİL yazın",
+  "Scrieți ȘTERGE pentru confirmare"
+ ],
+ "settings.deleteWord": [
+  "ИЗТРИЙ",
+  "DELETE",
+  "SİL",
+  "ȘTERGE"
+ ],
+ "settings.deleteButton": [
+  "Изтрий профила ми",
+  "Delete my account",
+  "Hesabımı sil",
+  "Șterge contul meu"
  ]
 }

@@ -20,6 +20,7 @@ const MORE_HREFS = new Set([
   "/hotels",
   "/tips",
   "/profile",
+  "/settings",
   "/setup",
 ]);
 

@@ -8,6 +8,7 @@ import {
   subscribeLocationPreference,
 } from "@/lib/location/browser-pref";
 import { shouldWatchLocation } from "@/lib/location/preference";
+import { useSettingsStore } from "@/lib/stores/settings.store";
 import { useBorderCrossingWatch } from "@/lib/hooks/useBorderCrossingWatch";
 import { useBorderTimeStore } from "@/lib/stores/border-time.store";
 import { useTripSessionStore } from "@/lib/stores/trip-session.store";
@@ -57,6 +58,9 @@ export function BorderTimeWatcher() {
     }
   }, [hydrate]);
 
-  useBorderCrossingWatch(shouldWatchLocation({ locationOptIn, tripActive }));
+  const borderWatch = useSettingsStore((state) => state.borderWatch);
+  useBorderCrossingWatch(
+    borderWatch && shouldWatchLocation({ locationOptIn, tripActive })
+  );
   return <BorderTimePrompt />;
 }
