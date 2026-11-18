@@ -56,6 +56,7 @@ import {
 import { buildChecklist } from "@/lib/planner/checklist";
 import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
+import { buildDriverPlan } from "@/lib/planner/driver-plan";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import {
   isHuRomaniaPreferenceId,
@@ -84,6 +85,7 @@ import {
   drivingDayLimits,
   effectiveBreakEveryMin,
   scenicTypes,
+  swapActive,
   type TripPreferences,
 } from "@/lib/planner/preferences";
 import { weatherAlongRoute } from "@/lib/planner/route-weather";
@@ -93,7 +95,12 @@ import { whyThisRoute } from "@/lib/planner/why-route";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { buildRouteOptions } from "@/lib/planner/route-options";
 import { routeThroughPoints } from "@/lib/planner/via-points";
-import { fetchDirectRoute, fetchRouteThrough, withScenic } from "@/lib/planner/via-route";
+import {
+  fetchDirectRoute,
+  fetchRouteThrough,
+  withScenic,
+  withScenicLastLeg,
+} from "@/lib/planner/via-route";
 import type { RouteChoice } from "@/lib/planner/types";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import type { CommunityPin } from "@/types/community.types";
@@ -182,11 +189,18 @@ export async function runTripPlan(input: TripPlanRequest) {
     .map((point) => point.coords);
   const [direct, viaList, pins, waits, traffic, hatarinfo] = await Promise.all([
     viaCoords.length === 0
-      ? withScenic(
-          scenicPace,
-          (c) => fetchDirectRoute(input.origin.coords, input.destination.coords, c),
-          costing
-        )
+      ? scenicPace && prefs.scenic_last_share > 0
+        ? withScenicLastLeg(
+            input.origin.coords,
+            input.destination.coords,
+            costing,
+            prefs.scenic_last_share
+          )
+        : withScenic(
+            scenicPace,
+            (c) => fetchDirectRoute(input.origin.coords, input.destination.coords, c),
+            costing
+          )
       : withScenic(
           scenicPace,
           (c) =>
@@ -702,7 +716,24 @@ export async function runTripPlan(input: TripPlanRequest) {
     locale,
   });
 
-  return { ...plan, route_options };
+  const driver_plan = swapActive(prefs)
+    ? buildDriverPlan({
+        drivers: prefs.drivers,
+        stops: plan.stops,
+        startLabel: plan.route.origin.label,
+        startEta: plan.depart_at,
+        endLabel: plan.route.destination.label,
+        endEta:
+          plan.route.arrive_at ??
+          new Date(
+            Date.parse(plan.depart_at) + plan.route.total_min * 60_000
+          ).toISOString(),
+        totalKm: plan.route.distance_km,
+        totalDrivingMin: plan.route.duration_min,
+      })
+    : null;
+
+  return { ...plan, route_options, driver_plan };
 }
 
 function applyPrice(

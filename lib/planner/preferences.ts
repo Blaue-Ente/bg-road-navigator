@@ -15,6 +15,12 @@ export const TripPreferencePatchSchema = z.object({
   children_ages: z.array(z.number().int().min(0).max(17)).max(8).optional(),
   drivers: z.number().int().min(1).max(4).optional(),
   car_comfort: z.enum(["roomy", "standard", "compact"]).optional(),
+  /** With two or more drivers: sleep at night, or keep going and swap. */
+  night_mode: z.enum(["sleep", "swap"]).optional(),
+  /** Tuning: how much a scenic road avoids highways (0.1 most, 1 not at all). */
+  scenic_strength: z.number().min(0.1).max(1).optional(),
+  /** Tuning: the scenic road starts this share of the way before the end (0 = whole trip). */
+  scenic_last_share: z.number().min(0).max(0.9).optional(),
   adults: z.number().int().min(1).max(8).optional(),
   depart_at: z.string().datetime().nullable().optional(),
   avoid_borders: z.array(z.string().trim().min(1).max(64)).max(12).optional(),
@@ -43,6 +49,9 @@ export interface TripPreferences {
   drivers: number;
   /** How roomy the car is: a van or SUV is easier on a long day than a small car. */
   car_comfort: "roomy" | "standard" | "compact";
+  night_mode: "sleep" | "swap";
+  scenic_strength: number;
+  scenic_last_share: number;
   /** Adults in the car, used for the hotel search. Drivers are among them. */
   adults: number;
   depart_at: string | null;
@@ -69,6 +78,9 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   children_ages: [],
   drivers: 1,
   car_comfort: "standard",
+  night_mode: "sleep",
+  scenic_strength: 0.3,
+  scenic_last_share: 0,
   adults: 1,
   depart_at: null,
   avoid_borders: [],
@@ -81,6 +93,7 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
 export interface ValhallaCosting {
   useHighways: boolean;
   useTolls: boolean;
+  scenicStrength?: number;
 }
 
 export interface DrivingDayLimits {
@@ -159,7 +172,16 @@ export function drivingDayHours(prefs: TripPreferences): number {
  * children, 8 with them. A warning level and a cap for the planned day.
  */
 export function healthDayLimitH(prefs: TripPreferences): number {
+  if (swapActive(prefs)) {
+    // Drivers take turns: about seven hours each, and no more than this in a day.
+    return Math.min(7 * prefs.drivers, prefs.with_children ? 12 : 16);
+  }
   return prefs.with_children ? 8 : 10;
+}
+
+/** Two or more drivers who chose to keep going at night and swap. */
+export function swapActive(prefs: TripPreferences): boolean {
+  return prefs.night_mode === "swap" && prefs.drivers >= 2;
 }
 
 export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
@@ -170,9 +192,12 @@ export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
       overnightAtMin: 24 * 60,
     };
   }
-  const extraHours = prefs.drivers >= 2 ? 2 : 0;
+  // Swapping already lifts the limit through healthDayLimitH.
+  const extraHours = prefs.drivers >= 2 && !swapActive(prefs) ? 2 : 0;
   const comfortCut = prefs.car_comfort === "compact" ? COMPACT_DAY_CUT_H : 0;
-  const baseHours = Math.min(prefs.max_driving_hours, healthDayLimitH(prefs));
+  const baseHours = swapActive(prefs)
+    ? healthDayLimitH(prefs)
+    : Math.min(prefs.max_driving_hours, healthDayLimitH(prefs));
   const hours = Math.max(
     4,
     Math.min(14, baseHours + extraHours - comfortCut)
@@ -191,6 +216,7 @@ export function costingFromPreferences(
   return {
     useHighways: !prefs.avoid_motorways,
     useTolls: !prefs.avoid_tolls,
+    scenicStrength: prefs.scenic_strength,
   };
 }
 

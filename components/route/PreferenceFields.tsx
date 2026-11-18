@@ -188,6 +188,26 @@ export function TravelerPreferenceFields({
         </select>
       </label>
 
+      {value.drivers >= 2 ? (
+        <label className="block text-sm text-[var(--waze-text)]" htmlFor="night-mode">
+          {m.prefs.nightMode}
+          <select
+            id="night-mode"
+            value={value.night_mode}
+            onChange={(event) =>
+              patch({ night_mode: event.target.value as TripPreferences["night_mode"] })
+            }
+            className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+          >
+            <option value="sleep">{m.prefs.nightSleep}</option>
+            <option value="swap">{m.prefs.nightSwap}</option>
+          </select>
+          <span className="mt-1 block text-xs text-[var(--waze-text-muted)]">
+            {m.prefs.nightHint}
+          </span>
+        </label>
+      ) : null}
+
       <label className="block text-sm text-[var(--waze-text)]" htmlFor="car-comfort">
         {m.prefs.carComfort}
         <select
