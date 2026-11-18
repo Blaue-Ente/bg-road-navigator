@@ -1,8 +1,10 @@
 "use client";
 
+import { FuelFilterBar, EMPTY_FUEL_FILTER, type FuelFilterState } from "@/components/fuel/FuelFilterBar";
+import { filterChargers, filterStationsByFuel } from "@/lib/fuel/filters";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useFuelStations } from "@/lib/hooks/useFuelStations";
@@ -80,6 +82,7 @@ function FuelPageContent() {
         }
       : null;
   const bbox = routePolyline ? undefined : (nearUser ?? DEFAULT_BBOX);
+  const [filter, setFilter] = useState<FuelFilterState>(EMPTY_FUEL_FILTER);
   const { data, isLoading, isError, refetch, isFetching } = useFuelStations(
     bbox,
     {
@@ -122,6 +125,8 @@ function FuelPageContent() {
     );
   }
 
+  const shownStations = filterStationsByFuel(data.fuelStations, filter.fuels);
+  const shownChargers = filterChargers(data.evStations, filter);
   const alongRoute = data.mode === "route";
   const centerLat = data.bbox ? (data.bbox.s + data.bbox.n) / 2 : 42.7;
   const centerLng = data.bbox ? (data.bbox.w + data.bbox.e) / 2 : 23.32;
@@ -166,16 +171,26 @@ function FuelPageContent() {
         </div>
       )}
 
+      <FuelFilterBar value={filter} onChange={setFilter} />
+
       <div className="grid grid-cols-1 gap-8">
         <section>
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
             {formatTemplate(m.fuelPage.sectionHeading, {
               label: m.fuelPage.stations,
-              count: String(data.fuelStations.length),
+              count:
+                shownStations.length === data.fuelStations.length
+                  ? String(data.fuelStations.length)
+                  : formatTemplate(m.fuelFilter.shown, {
+                      shown: String(shownStations.length),
+                      total: String(data.fuelStations.length),
+                    }),
             })}
           </h2>
           <div className="space-y-3">
-            {data.fuelStations.length === 0 ? (
+            {data.fuelStations.length > 0 && shownStations.length === 0 ? (
+              <p className="text-sm text-[var(--waze-text-secondary)]">{m.fuelFilter.noMatch}</p>
+            ) : data.fuelStations.length === 0 ? (
               <div className="space-y-3">
                 <p className="text-sm text-[var(--waze-text-secondary)]">
                   {emptyMessage ?? m.fuelPage.emptyStations}
@@ -207,7 +222,7 @@ function FuelPageContent() {
                 ) : null}
               </div>
             ) : (
-              data.fuelStations.map((station) => (
+              shownStations.map((station) => (
                 <FuelStationCard key={station.id} station={station} />
               ))
             )}
@@ -218,7 +233,13 @@ function FuelPageContent() {
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[var(--waze-accent-text)]">
             {formatTemplate(m.fuelPage.sectionHeading, {
               label: m.fuelPage.ev,
-              count: String(data.evStations.length),
+              count:
+                shownChargers.length === data.evStations.length
+                  ? String(data.evStations.length)
+                  : formatTemplate(m.fuelFilter.shown, {
+                      shown: String(shownChargers.length),
+                      total: String(data.evStations.length),
+                    }),
             })}
           </h2>
           <div className="space-y-3">
@@ -226,8 +247,10 @@ function FuelPageContent() {
               <p className="text-sm text-[var(--waze-text-secondary)]">
                 {m.fuelPage.emptyEv}
               </p>
+            ) : shownChargers.length === 0 ? (
+              <p className="text-sm text-[var(--waze-text-secondary)]">{m.fuelFilter.noMatch}</p>
             ) : (
-              data.evStations.map((station) => (
+              shownChargers.map((station) => (
                 <EVChargerCard key={station.id} station={station} />
               ))
             )}

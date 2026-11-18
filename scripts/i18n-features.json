@@ -2404,5 +2404,143 @@
   "A scenic road is not tried on a trip this long: it would add hours. The places and via points make it interesting.",
   "Bu kadar uzun bir yolda manzaralı yol denenmez: saatler ekler. Yerler ve ara noktalar onu ilginç kılar.",
   "Pe un drum atât de lung nu se încearcă varianta pitorească: ar adăuga ore. Locurile și punctele intermediare îl fac interesant."
+ ],
+ "fuelPage.title": [
+  "Гориво и зарядни станции",
+  "Fuel and charging stations",
+  "Yakıt ve şarj istasyonları",
+  "Combustibil și stații de încărcare"
+ ],
+ "fuelPage.loadError": [
+  "Не може да се заредят данните за гориво и зарядни станции.",
+  "Fuel and charging station data could not be loaded.",
+  "Yakıt ve şarj istasyonu verileri yüklenemedi.",
+  "Datele despre combustibil și stațiile de încărcare nu au putut fi încărcate."
+ ],
+ "fuelPage.msg3435c7cdc4": [
+  "Не може да се заредят данните за гориво и зарядни станции.",
+  "Fuel and charging station data could not be loaded.",
+  "Yakıt ve şarj istasyonu verileri yüklenemedi.",
+  "Datele despre combustibil și stațiile de încărcare nu au putut fi încărcate."
+ ],
+ "fuelFilter.fuelTitle": [
+  "Вид гориво",
+  "Fuel type",
+  "Yakıt türü",
+  "Tip de combustibil"
+ ],
+ "fuelFilter.chargeTitle": [
+  "Зарядни станции: мощност и щекер",
+  "Charging: power and plug",
+  "Şarj: güç ve fiş",
+  "Încărcare: putere și mufă"
+ ],
+ "fuelFilter.anyPower": [
+  "Всякаква мощност",
+  "Any power",
+  "Her güç",
+  "Orice putere"
+ ],
+ "fuelFilter.minPower": [
+  "от {kw} kW",
+  "from {kw} kW",
+  "{kw} kW ve üzeri",
+  "de la {kw} kW"
+ ],
+ "fuelFilter.shown": [
+  "Показани {shown} от {total}",
+  "Showing {shown} of {total}",
+  "{total} içinden {shown} gösteriliyor",
+  "Se afișează {shown} din {total}"
+ ],
+ "fuelFilter.clear": [
+  "Покажи всички",
+  "Show all",
+  "Tümünü göster",
+  "Arată toate"
+ ],
+ "fuelFilter.noMatch": [
+  "Няма станции с този избор. Махни филтър.",
+  "No stations match this choice. Remove a filter.",
+  "Bu seçime uyan istasyon yok. Bir filtreyi kaldırın.",
+  "Nicio stație nu se potrivește. Elimină un filtru."
+ ],
+ "fuelFilter.fuel.diesel": [
+  "Дизел",
+  "Diesel",
+  "Dizel",
+  "Motorină"
+ ],
+ "fuelFilter.fuel.petrol95": [
+  "Бензин A95",
+  "Petrol 95",
+  "Benzin 95",
+  "Benzină 95"
+ ],
+ "fuelFilter.fuel.petrol98": [
+  "Бензин 98+",
+  "Petrol 98+",
+  "Benzin 98+",
+  "Benzină 98+"
+ ],
+ "fuelFilter.fuel.lpg": [
+  "Газ (LPG)",
+  "LPG",
+  "LPG",
+  "GPL"
+ ],
+ "fuelFilter.fuel.cng": [
+  "Метан (CNG)",
+  "CNG",
+  "CNG",
+  "CNG"
+ ],
+ "fuelFilter.fuel.hvo": [
+  "HVO",
+  "HVO",
+  "HVO",
+  "HVO"
+ ],
+ "fuelFilter.fuel.e85": [
+  "E85",
+  "E85",
+  "E85",
+  "E85"
+ ],
+ "fuelFilter.fuel.adblue": [
+  "AdBlue",
+  "AdBlue",
+  "AdBlue",
+  "AdBlue"
+ ],
+ "fuelFilter.plug.ccs": [
+  "CCS",
+  "CCS",
+  "CCS",
+  "CCS"
+ ],
+ "fuelFilter.plug.type2": [
+  "Type 2",
+  "Type 2",
+  "Type 2",
+  "Type 2"
+ ],
+ "fuelFilter.plug.chademo": [
+  "CHAdeMO",
+  "CHAdeMO",
+  "CHAdeMO",
+  "CHAdeMO"
+ ],
+ "fuelFilter.plug.other": [
+  "Друг щекер",
+  "Other plug",
+  "Diğer fiş",
+  "Altă mufă"
+ ],
+ "community.showOnMap": [
+  "Покажи на картата",
+  "Show on the map",
+  "Haritada göster",
+  "Arată pe hartă"
  ]
 }

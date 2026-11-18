@@ -33,6 +33,9 @@ interface MapState {
   setLayersPanelOpen: (open: boolean) => void;
   setMapError: (message: string | null) => void;
   setView: (view: MapState["view"]) => void;
+  /** Ask the map to fly to a place; a new token makes a new request. */
+  flyRequest: { lng: number; lat: number; zoom: number; token: number } | null;
+  requestFly: (target: { lng: number; lat: number; zoom?: number }) => void;
 }
 
 export const useMapStore = create<MapState>((set) => ({
@@ -63,4 +66,14 @@ export const useMapStore = create<MapState>((set) => ({
   setLayersPanelOpen: (layersPanelOpen) => set({ layersPanelOpen }),
   setMapError: (mapError) => set({ mapError }),
   setView: (view) => set({ view }),
+  flyRequest: null,
+  requestFly: (target) =>
+    set((state) => ({
+      flyRequest: {
+        lng: target.lng,
+        lat: target.lat,
+        zoom: target.zoom ?? 12,
+        token: (state.flyRequest?.token ?? 0) + 1,
+      },
+    })),
 }));

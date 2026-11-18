@@ -405,7 +405,10 @@
     "unavailable": "The station list is not responding — the POI service may be missing or down.",
     "planRouteHint": "Plan a route — fuel stops are in the trip plan.",
     "planRouteLink": "Plan route",
-    "subtitleNearPlace": "Petrol and EV chargers near the selected area"
+    "subtitleNearPlace": "Petrol and EV chargers near the selected area",
+    "loadError": "Fuel and charging station data could not be loaded.",
+    "msg3435c7cdc4": "Fuel and charging station data could not be loaded.",
+    "title": "Fuel and charging stations"
   },
   "fuelEstimate": {
     "costLine": "{amount} {unit} · ≈ {cost}"
@@ -681,7 +684,8 @@
     "badRoadPointOnly": "Just a point, no end",
     "badRoadPublish": "Publish the stretch",
     "badRoadSegment": "Stretch of {km} km: from {a} to {b}",
-    "badRoadTooLong": "The stretch is too long (at most {max} km). Pick a closer point."
+    "badRoadTooLong": "The stretch is too long (at most {max} km). Pick a closer point.",
+    "showOnMap": "Show on the map"
   },
   "costs": {
     "bridge": "Danube bridge or ferry ({crossings} crossing): the fee is not included, check with the operator",
@@ -803,5 +807,30 @@
     "title": "Who drives when",
     "total": "Driving in all: {list}",
     "turn": "Driver {driver}: {from} → {until}, about {drive}"
+  },
+  "fuelFilter": {
+    "anyPower": "Any power",
+    "chargeTitle": "Charging: power and plug",
+    "clear": "Show all",
+    "fuel": {
+      "adblue": "AdBlue",
+      "cng": "CNG",
+      "diesel": "Diesel",
+      "e85": "E85",
+      "hvo": "HVO",
+      "lpg": "LPG",
+      "petrol95": "Petrol 95",
+      "petrol98": "Petrol 98+"
+    },
+    "fuelTitle": "Fuel type",
+    "minPower": "from {kw} kW",
+    "noMatch": "No stations match this choice. Remove a filter.",
+    "plug": {
+      "ccs": "CCS",
+      "chademo": "CHAdeMO",
+      "other": "Other plug",
+      "type2": "Type 2"
+    },
+    "shown": "Showing {shown} of {total}"
   }
 }

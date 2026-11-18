@@ -395,7 +395,10 @@
     "unavailable": "Lista de stații nu răspunde — serviciul POI poate lipsi sau fi indisponibil.",
     "planRouteHint": "Planifică ruta — opririle la combustibil sunt în plan.",
     "planRouteLink": "La planificare",
-    "subtitleNearPlace": "Benzinării și încărcare lângă zona selectată"
+    "subtitleNearPlace": "Benzinării și încărcare lângă zona selectată",
+    "loadError": "Datele despre combustibil și stațiile de încărcare nu au putut fi încărcate.",
+    "msg3435c7cdc4": "Datele despre combustibil și stațiile de încărcare nu au putut fi încărcate.",
+    "title": "Combustibil și stații de încărcare"
   },
   "fuelEstimate": {
     "costLine": "{amount} {unit} · ≈ {cost}"
@@ -686,7 +689,8 @@
     "badRoadPointOnly": "Doar un punct, fără capăt",
     "badRoadPublish": "Publică porțiunea",
     "badRoadSegment": "Porțiune de {km} km: de la {a} la {b}",
-    "badRoadTooLong": "Porțiunea este prea lungă (cel mult {max} km). Alege un punct mai apropiat."
+    "badRoadTooLong": "Porțiunea este prea lungă (cel mult {max} km). Alege un punct mai apropiat.",
+    "showOnMap": "Arată pe hartă"
   },
   "costs": {
     "bridge": "Pod sau bac peste Dunăre ({crossings} traversare): taxa nu este inclusă, verifică la operator",
@@ -808,5 +812,30 @@
     "title": "Cine conduce și când",
     "total": "Condus în total: {list}",
     "turn": "Șofer {driver}: {from} → {until}, aproximativ {drive}"
+  },
+  "fuelFilter": {
+    "anyPower": "Orice putere",
+    "chargeTitle": "Încărcare: putere și mufă",
+    "clear": "Arată toate",
+    "fuel": {
+      "adblue": "AdBlue",
+      "cng": "CNG",
+      "diesel": "Motorină",
+      "e85": "E85",
+      "hvo": "HVO",
+      "lpg": "GPL",
+      "petrol95": "Benzină 95",
+      "petrol98": "Benzină 98+"
+    },
+    "fuelTitle": "Tip de combustibil",
+    "minPower": "de la {kw} kW",
+    "noMatch": "Nicio stație nu se potrivește. Elimină un filtru.",
+    "plug": {
+      "ccs": "CCS",
+      "chademo": "CHAdeMO",
+      "other": "Altă mufă",
+      "type2": "Type 2"
+    },
+    "shown": "Se afișează {shown} din {total}"
   }
 }

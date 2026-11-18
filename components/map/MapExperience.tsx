@@ -10,6 +10,7 @@ import { RouteLayer } from "@/components/map/RouteLayer";
 import { TrafficLayer } from "@/components/map/TrafficLayer";
 import { TrafficFlowLayer } from "@/components/map/TrafficFlowLayer";
 import { CommunityPins } from "@/components/map/CommunityPins";
+import { SelectedPinMarker } from "@/components/map/SelectedPinMarker";
 import { CommunitySegments } from "@/components/map/CommunitySegments";
 import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
@@ -92,6 +93,16 @@ export function MapExperience() {
   const handleMapLoad = useCallback((map: Map) => {
     setMapInstance(map);
   }, []);
+
+  const flyRequest = useMapStore((s) => s.flyRequest);
+  useEffect(() => {
+    if (!mapInstance || !flyRequest) return;
+    mapInstance.flyTo({
+      center: [flyRequest.lng, flyRequest.lat],
+      zoom: flyRequest.zoom,
+      essential: true,
+    });
+  }, [mapInstance, flyRequest]);
 
   const handleMapUnload = useCallback(() => {
     setMapInstance(null);
@@ -237,6 +248,7 @@ export function MapExperience() {
             map={mapInstance}
             pins={communityData?.pins ?? localPins}
           />
+          <SelectedPinMarker map={mapInstance} />
           <CommunitySegments
             map={mapInstance}
             pins={communityData?.pins ?? localPins}

@@ -53,6 +53,8 @@ export function useInitialLocation(map: Map | null, enabled: boolean) {
         lat: position.coords.latitude,
       };
       if (!shouldFlyToPosition(point)) return;
+      // A place the driver asked to see (a signal opened from the list) wins.
+      if (useMapStore.getState().flyRequest) return;
       map.flyTo({ center: [point.lng, point.lat], zoom: START_ZOOM });
     })();
 
