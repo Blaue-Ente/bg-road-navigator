@@ -270,6 +270,11 @@ export const bgFeatures = {
     breakCapped: "С малко дете почивките са най-много на всеки {minutes} мин, дори да си избрал повече.",
     breakExact: "Спазвай точно моя интервал",
     breakExactOn: "Почивките ще са точно през избрания от теб интервал.",
+    carComfort: "Размер на колата",
+    carComfortCompact: "Малка или тясна",
+    carComfortHint: "В малка кола хората се уморяват по-бързо: почивките са по-чести, а денят зад волана е по-кратък.",
+    carComfortRoomy: "Просторна (миниван, бус, голям SUV)",
+    carComfortStandard: "Обикновена (седан, комби)",
   },
   profile: {
     checklistsClose: "Свий",

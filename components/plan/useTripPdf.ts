@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouteStore } from "@/lib/stores/route.store";
+
 import { useCallback, useState } from "react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { TripGuide } from "@/lib/ai/trip-guide";
@@ -31,13 +33,14 @@ export type PdfState =
 export async function fetchGuide(
   plan: TripPlannerResult,
   locale: Parameters<typeof guideInputFromPlan>[1],
-  countries: string[]
+  countries: string[],
+  via: string[] = []
 ): Promise<{ guide: TripGuide | null; available: boolean }> {
   try {
     const response = await fetch("/api/ai/trip-guide", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(guideInputFromPlan(plan, locale, countries)),
+      body: JSON.stringify(guideInputFromPlan(plan, locale, countries, via)),
     });
     const payload = (await response.json()) as {
       guide: TripGuide | null;
@@ -80,7 +83,12 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
       const store = useTripGuideStore.getState();
       let guide: TripGuide | null = store.guides[planKey] ?? null;
       if (!guide) {
-        const result = await fetchGuide(plan, locale, routeCountries(plan));
+        const result = await fetchGuide(
+          plan,
+          locale,
+          routeCountries(plan),
+          useRouteStore.getState().planningVia.map((point) => point.label)
+        );
         guide = result.guide;
         if (guide) store.setGuide(planKey, guide);
       }

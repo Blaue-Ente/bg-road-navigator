@@ -14,6 +14,7 @@ export const TripPreferencePatchSchema = z.object({
   with_children: z.boolean().optional(),
   children_ages: z.array(z.number().int().min(0).max(17)).max(8).optional(),
   drivers: z.number().int().min(1).max(4).optional(),
+  car_comfort: z.enum(["roomy", "standard", "compact"]).optional(),
   adults: z.number().int().min(1).max(8).optional(),
   depart_at: z.string().datetime().nullable().optional(),
   avoid_borders: z.array(z.string().trim().min(1).max(64)).max(12).optional(),
@@ -40,6 +41,8 @@ export interface TripPreferences {
   with_children: boolean;
   children_ages: number[];
   drivers: number;
+  /** How roomy the car is: a van or SUV is easier on a long day than a small car. */
+  car_comfort: "roomy" | "standard" | "compact";
   /** Adults in the car, used for the hotel search. Drivers are among them. */
   adults: number;
   depart_at: string | null;
@@ -65,6 +68,7 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   with_children: false,
   children_ages: [],
   drivers: 1,
+  car_comfort: "standard",
   adults: 1,
   depart_at: null,
   avoid_borders: [],
@@ -122,13 +126,32 @@ export function childBreakCapMin(prefs: TripPreferences): number | null {
   return 110;
 }
 
+/** A small car tires people sooner: stops come at least this often. */
+const COMPACT_BREAK_CAP_MIN = 105;
+/** A small car also shortens the driving day by this many hours. */
+const COMPACT_DAY_CUT_H = 1.5;
+
 export function effectiveBreakEveryMin(prefs: TripPreferences): number {
+  const base = childAdjustedBreakMin(prefs);
+  if (prefs.car_comfort === "compact" && !prefs.break_exact) {
+    return Math.min(base, COMPACT_BREAK_CAP_MIN);
+  }
+  return base;
+}
+
+function childAdjustedBreakMin(prefs: TripPreferences): number {
   if (!prefs.with_children || prefs.break_exact) return prefs.break_every_min;
   const youngest =
     prefs.children_ages.length === 0 ? 2 : Math.min(...prefs.children_ages);
   if (youngest <= 4) return Math.min(prefs.break_every_min, 75);
   if (youngest <= 8) return Math.min(prefs.break_every_min, 90);
   return Math.min(prefs.break_every_min, 110);
+}
+
+/** Hours of driving after which an overnight stop is planned. */
+export function drivingDayHours(prefs: TripPreferences): number {
+  const limits = drivingDayLimits(prefs);
+  return limits.overnight ? Math.round((limits.overnightAfterMin / 60) * 10) / 10 : 24;
 }
 
 export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
@@ -140,7 +163,11 @@ export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
     };
   }
   const extraHours = prefs.drivers >= 2 ? 2 : 0;
-  const hours = Math.min(14, prefs.max_driving_hours + extraHours);
+  const comfortCut = prefs.car_comfort === "compact" ? COMPACT_DAY_CUT_H : 0;
+  const hours = Math.max(
+    4,
+    Math.min(14, prefs.max_driving_hours + extraHours - comfortCut)
+  );
   const after = Math.round(hours * 60);
   return {
     overnight: true,

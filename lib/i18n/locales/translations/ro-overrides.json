@@ -589,7 +589,12 @@
     "breakExact": "Respectă exact intervalul meu",
     "breakExactOn": "Pauzele vor urma exact intervalul ales.",
     "adults": "Adulți în mașină",
-    "adultsHint": "Include șoferii. Se folosește la căutarea hotelului (camere și oaspeți)."
+    "adultsHint": "Include șoferii. Se folosește la căutarea hotelului (camere și oaspeți).",
+    "carComfort": "Dimensiunea mașinii",
+    "carComfortCompact": "Mică sau îngustă",
+    "carComfortHint": "Într-o mașină mică oamenii obosesc mai repede: opririle sunt mai dese, iar ziua la volan e mai scurtă.",
+    "carComfortRoomy": "Spațioasă (monovolum, microbuz, SUV mare)",
+    "carComfortStandard": "Standard (berlină, break)"
   },
   "checklist": {
     "prep": "Pregătirea pentru drum"

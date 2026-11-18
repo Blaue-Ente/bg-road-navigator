@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouteStore } from "@/lib/stores/route.store";
 import { useState } from "react";
 import { FileDown, MapPin, Sparkles } from "lucide-react";
 import { StayOptions } from "@/components/plan/StayOptions";
@@ -55,7 +56,12 @@ export function TripGuide({
   const foodSpots = plan.food_spots ?? [];
   const ask = async () => {
     setAi({ status: "loading" });
-    const result = await fetchGuide(plan, locale, routeCountries(plan));
+    const result = await fetchGuide(
+      plan,
+      locale,
+      routeCountries(plan),
+      useRouteStore.getState().planningVia.map((point) => point.label)
+    );
     if (result.guide) {
       setGuide(planKey, result.guide);
       setAi({ status: "idle" });

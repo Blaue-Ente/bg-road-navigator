@@ -584,7 +584,12 @@
     "breakExact": "Keep exactly my interval",
     "breakExactOn": "Breaks will follow exactly the interval you chose.",
     "adults": "Adults in the car",
-    "adultsHint": "Includes the drivers. Used for the hotel search (rooms and guests)."
+    "adultsHint": "Includes the drivers. Used for the hotel search (rooms and guests).",
+    "carComfort": "Car size",
+    "carComfortCompact": "Small or cramped",
+    "carComfortHint": "In a small car people tire sooner: stops come more often and the driving day is shorter.",
+    "carComfortRoomy": "Roomy (van, minibus, large SUV)",
+    "carComfortStandard": "Standard (sedan, estate)"
   },
   "checklist": {
     "prep": "Getting ready for the road"
