@@ -459,9 +459,10 @@ function toPlanStop(
     dwellMin: dwellBefore,
   }).toISOString();
   const overnight = stop.kinds.includes("overnight");
-  const sleepShift = input.sleepShifts.find(
-    (shift) => Math.abs(shift.afterDrivingMin - stop.etaMin) < 0.5
-  );
+  // A fuel stop folded into the overnight stop can move it a little along the road.
+  const sleepShift = overnight
+    ? nearestSleepShift(input.sleepShifts, stop.etaMin)
+    : undefined;
   const sleepMin =
     overnight && sleepShift && sleepShift.sleepMin > 0
       ? sleepShift.sleepMin
@@ -744,4 +745,19 @@ function normalizeWeatherSummaries(
         : segment
     ),
   };
+}
+
+const SLEEP_MATCH_WINDOW_MIN = 60;
+
+function nearestSleepShift(
+  shifts: Array<{ afterDrivingMin: number; sleepMin: number }>,
+  etaMin: number
+) {
+  let best: { afterDrivingMin: number; sleepMin: number } | undefined;
+  for (const shift of shifts) {
+    const gap = Math.abs(shift.afterDrivingMin - etaMin);
+    if (gap > SLEEP_MATCH_WINDOW_MIN) continue;
+    if (!best || gap < Math.abs(best.afterDrivingMin - etaMin)) best = shift;
+  }
+  return best;
 }

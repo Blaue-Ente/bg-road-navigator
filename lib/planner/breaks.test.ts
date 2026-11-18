@@ -38,6 +38,19 @@ describe("mergeDrivingBreaks", () => {
     expect(stops.some((stop) => stop.kinds.includes("overnight"))).toBe(false);
   });
 
+  it("does not plan a second overnight with less than three hours left", () => {
+    const stops = mergeDrivingBreaks({
+      driveMin: 1365,
+      distanceKm: 2000,
+      breakEveryMin: 135,
+      mergeWithinMin: 30,
+      overnightAfterMin: 660,
+      overnightAtMin: 630,
+      fuelStops: [],
+    });
+    expect(stops.filter((stop) => stop.kinds.includes("overnight"))).toHaveLength(1);
+  });
+
   it("suggests an overnight on a drive longer than 10.5 hours and merges it with fuel", () => {
     const stops = mergeDrivingBreaks({
       driveMin: 700,
