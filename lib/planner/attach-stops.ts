@@ -1,5 +1,6 @@
 import type { StopAttachment } from "@/lib/planner/assemble";
 import type { TimedStop } from "@/lib/planner/breaks";
+import { foodChainSpots, type FoodSpotDraft } from "@/lib/planner/food-spots";
 import { buildFuelAdvice, fillLiters } from "@/lib/fuel-prices/advice";
 import {
   isNamedPlace,
@@ -30,7 +31,11 @@ export function attachStops(input: {
   countryAt: (lat: number, lng: number) => string | null;
   averagePerLitre: (country: string) => number | null;
   locale?: Locale;
-}): { attachments: StopAttachment[]; sights: StopAttachment[] } {
+}): {
+  attachments: StopAttachment[];
+  sights: StopAttachment[];
+  foodSpots: FoodSpotDraft[];
+} {
   const stopCopy = catalog(input.locale ?? "bg").planner.stops;
   const liters = fillLiters(input.vehicle);
   const fuel =
@@ -109,7 +114,12 @@ export function attachStops(input: {
     );
   });
 
-  return { attachments, sights };
+  const foodSpots = foodChainSpots(priced, {
+    distanceKm: input.distanceKm,
+    driveMin: input.driveMin,
+  });
+
+  return { attachments, sights, foodSpots };
 }
 
 function withSavings(

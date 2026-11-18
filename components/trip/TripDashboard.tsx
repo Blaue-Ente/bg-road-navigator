@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -36,6 +42,7 @@ import {
   startTripPush,
   vapidPublicKey,
   stopTripPush,
+  type PushFailure,
 } from "@/lib/push/client";
 import { lineLengthKm } from "@/lib/planner/line";
 import { tripNotices, type TripNotice } from "@/lib/trip/notices";
@@ -48,17 +55,49 @@ import {
 import { OFF_ROUTE_KM, tripProgress } from "@/lib/trip/progress";
 import { wazeNavigateUrl } from "@/lib/utils/maps-handoff";
 
+function pushFailureHint(
+  failure: PushFailure,
+  t: {
+    pushHintPermission: string;
+    pushHintBrowser: string;
+    pushHintKeys: string;
+    pushHintDatabase: string;
+    pushHintPlan: string;
+    pushHintOther: string;
+  }
+): string {
+  const code = [failure.stage, failure.status, failure.detail]
+    .filter((part) => part != null && part !== "")
+    .join(" ");
+  let hint = t.pushHintOther;
+  if (failure.stage === "permission") hint = t.pushHintPermission;
+  else if (failure.stage === "worker" || failure.stage === "subscribe") {
+    hint = t.pushHintBrowser;
+  } else if (failure.detail?.startsWith("VAPID_MISSING")) hint = t.pushHintKeys;
+  else if (
+    failure.detail?.startsWith("DATABASE_UNAVAILABLE") ||
+    failure.detail?.startsWith("MIGRATION_REQUIRED")
+  ) {
+    hint = t.pushHintDatabase;
+  } else if (failure.detail?.startsWith("INVALID_PLAN")) hint = t.pushHintPlan;
+  return `${hint} (${code})`;
+}
+
 function StopIcon({ stop }: { stop: PlanStop | null }) {
   const className = "h-7 w-7";
   if (!stop) return <Flag className={className} aria-hidden />;
   if (stop.kinds.includes("overnight"))
     return <BedDouble className={className} aria-hidden />;
-  if (stop.kinds.includes("charge")) return <Zap className={className} aria-hidden />;
-  if (stop.kinds.includes("fuel")) return <Fuel className={className} aria-hidden />;
+  if (stop.kinds.includes("charge"))
+    return <Zap className={className} aria-hidden />;
+  if (stop.kinds.includes("fuel"))
+    return <Fuel className={className} aria-hidden />;
   return <Coffee className={className} aria-hidden />;
 }
 
 const TURN_BETA_KEY = "bg-road-turn-beta";
+/** Closer than this (metres) the turn is shown as a big tile. */
+const TURN_NEAR_M = 600;
 
 function subscribeTurnBeta(onChange: () => void) {
   window.addEventListener("storage", onChange);
@@ -87,17 +126,24 @@ function writeTurnBeta(on: boolean) {
   window.dispatchEvent(new Event("bg-turn-beta"));
 }
 
-function TurnIcon({ arrow }: { arrow: TurnArrow }) {
-  const className = "h-9 w-9";
+function TurnIcon({ arrow, small }: { arrow: TurnArrow; small?: boolean }) {
+  const className = small ? "h-5 w-5" : "h-9 w-9";
   if (arrow === "left") return <ArrowLeft className={className} aria-hidden />;
-  if (arrow === "right") return <ArrowRight className={className} aria-hidden />;
+  if (arrow === "right")
+    return <ArrowRight className={className} aria-hidden />;
   if (arrow === "uturn") return <Undo2 className={className} aria-hidden />;
-  if (arrow === "roundabout") return <RotateCw className={className} aria-hidden />;
+  if (arrow === "roundabout")
+    return <RotateCw className={className} aria-hidden />;
   if (arrow === "arrive") return <Flag className={className} aria-hidden />;
   return <ArrowUp className={className} aria-hidden />;
 }
 
-function showSystemNotice(title: string, body: string, tag: string, lang: string) {
+function showSystemNotice(
+  title: string,
+  body: string,
+  tag: string,
+  lang: string
+) {
   if (typeof Notification === "undefined") return;
   if (Notification.permission !== "granted") return;
   // In the foreground the on-screen card is enough.
@@ -141,19 +187,29 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [gpsDenied, setGpsDenied] = useState(false);
   // Only shown once the trip is on, so this never runs during server rendering.
-  const geoSupported = typeof navigator !== "undefined" && "geolocation" in navigator;
+  const geoSupported =
+    typeof navigator !== "undefined" && "geolocation" in navigator;
   const gpsFailed = gpsDenied || !geoSupported;
   const awake = useWakeLock(true);
-  const turnBetaOn = useSyncExternalStore(subscribeTurnBeta, readTurnBeta, () => false);
+  const turnBetaOn = useSyncExternalStore(
+    subscribeTurnBeta,
+    readTurnBeta,
+    () => false
+  );
   const [showConsent, setShowConsent] = useState(false);
+  // Slim by default so the map stays visible; "More" opens every control.
+  const [compact, setCompact] = useState(true);
   const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
-  const [notifyPermission, setNotifyPermission] = useState<NotificationPermission | "none">(
-    () => (typeof Notification === "undefined" ? "none" : Notification.permission)
+  const [notifyPermission, setNotifyPermission] = useState<
+    NotificationPermission | "none"
+  >(() =>
+    typeof Notification === "undefined" ? "none" : Notification.permission
   );
   const announced = useRef<Set<string>>(new Set());
   const [pushState, setPushState] = useState<
     "off" | "on" | "failed" | "unsupported"
   >("off");
+  const [pushFailure, setPushFailure] = useState<PushFailure | null>(null);
   const pushEndpoint = useRef<string | null>(null);
   const tripStartedAt = useRef(new Date());
 
@@ -205,13 +261,13 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     let cancelled = false;
     void existingSubscription().then(async (subscription) => {
       if (cancelled || !subscription) return;
-      const ok = await startTripPush({
+      const failure = await startTripPush({
         endpoint: subscription.endpoint,
         plan,
         startedAt: tripStartedAt.current,
         locale,
       });
-      if (cancelled || !ok) return;
+      if (cancelled || failure) return;
       pushEndpoint.current = subscription.endpoint;
       setPushState("on");
     });
@@ -231,24 +287,27 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
       return;
     }
     try {
-      const subscription = await enablePush(locale);
-      if (!subscription) {
+      const result = await enablePush(locale);
+      if (!result.ok) {
         setNotifyPermission(
           typeof Notification === "undefined" ? "none" : Notification.permission
         );
+        setPushFailure(result.failure);
         setPushState("failed");
         return;
       }
-      const ok = await startTripPush({
-        endpoint: subscription.endpoint,
+      const failure = await startTripPush({
+        endpoint: result.subscription.endpoint,
         plan,
         startedAt: tripStartedAt.current,
         locale,
       });
-      pushEndpoint.current = ok ? subscription.endpoint : null;
+      pushEndpoint.current = failure ? null : result.subscription.endpoint;
       setNotifyPermission("granted");
-      setPushState(ok ? "on" : "failed");
+      setPushFailure(failure);
+      setPushState(failure ? "failed" : "on");
     } catch {
+      setPushFailure(null);
       setPushState("failed");
     }
   };
@@ -258,7 +317,10 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     stopTrip();
   };
 
-  const notices = useMemo(() => tripNotices({ plan, progress }), [plan, progress]);
+  const notices = useMemo(
+    () => tripNotices({ plan, progress }),
+    [plan, progress]
+  );
   const noticeText = (notice: TripNotice) =>
     formatTemplate(
       {
@@ -303,6 +365,18 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
     return placeManeuvers(plan.route.maneuvers, line, scale);
   }, [turnBetaOn, plan, line]);
   const upcomingTurn = turns ? nextTurn(turns, progress.alongKm) : null;
+  // The big turn tile only appears when the turn is close; far away it is one line.
+  const turnNear =
+    upcomingTurn != null && upcomingTurn.distanceM <= TURN_NEAR_M;
+  const turnDistanceText = upcomingTurn
+    ? upcomingTurn.distanceM >= 1000
+      ? formatTemplate(m.trip.turnInKm, {
+          distance: (upcomingTurn.distanceM / 1000).toFixed(1),
+        })
+      : formatTemplate(m.trip.turnInM, {
+          distance: String(Math.round(upcomingTurn.distanceM / 10) * 10),
+        })
+    : "";
   const destination = plan.route.destination;
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const arrivalZone =
@@ -360,7 +434,9 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
           <button
             type="button"
             aria-label={m.trip.noticeDismiss}
-            onClick={() => setDismissed((current) => new Set(current).add(notice.id))}
+            onClick={() =>
+              setDismissed((current) => new Set(current).add(notice.id))
+            }
             className="grid h-11 w-11 shrink-0 place-items-center rounded-full"
           >
             <X className="h-5 w-5" aria-hidden />
@@ -368,7 +444,27 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         </div>
       ))}
 
-      {turnBetaOn ? (
+      {turnBetaOn && upcomingTurn && !turnNear ? (
+        <div className="mt-2 flex items-center gap-2 rounded-xl bg-[var(--waze-surface-elevated)] px-3 py-2 text-[var(--waze-text)]">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--waze-accent)] text-white">
+            <TurnIcon arrow={turnArrow(upcomingTurn.turn.maneuver)} small />
+          </span>
+          <p className="min-w-0 flex-1 truncate text-sm font-semibold">
+            {turnDistanceText}
+            <span className="font-normal text-[var(--waze-text-secondary)]">
+              {" · "}
+              {upcomingTurn.turn.maneuver.instruction_bg}
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={() => writeTurnBeta(false)}
+            className="min-h-11 shrink-0 text-xs text-[var(--waze-text-muted)] underline"
+          >
+            {m.trip.turnOff}
+          </button>
+        </div>
+      ) : turnBetaOn ? (
         <div className="mt-3 rounded-2xl bg-[var(--waze-surface-elevated)] px-3 py-3 text-[var(--waze-text)]">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-accent-text)]">
@@ -391,13 +487,7 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
               </span>
               <div className="min-w-0">
                 <p className="text-2xl font-bold leading-tight">
-                  {upcomingTurn.distanceM >= 1000
-                    ? formatTemplate(m.trip.turnInKm, {
-                        distance: (upcomingTurn.distanceM / 1000).toFixed(1),
-                      })
-                    : formatTemplate(m.trip.turnInM, {
-                        distance: String(Math.round(upcomingTurn.distanceM / 10) * 10),
-                      })}
+                  {turnDistanceText}
                 </p>
                 <p className="text-base text-[var(--waze-text-secondary)]">
                   {upcomingTurn.turn.maneuver.instruction_bg}
@@ -409,7 +499,11 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
           )}
         </div>
       ) : showConsent ? (
-        <div className="mt-3 rounded-2xl border border-[var(--waze-border)] px-3 py-3 text-[var(--waze-text)]" role="dialog" aria-label={m.trip.turnConsentTitle}>
+        <div
+          className="mt-3 rounded-2xl border border-[var(--waze-border)] px-3 py-3 text-[var(--waze-text)]"
+          role="dialog"
+          aria-label={m.trip.turnConsentTitle}
+        >
           <p className="text-base font-bold">{m.trip.turnConsentTitle}</p>
           <p className="mt-1 text-sm leading-snug">{m.trip.turnConsentBody}</p>
           <div className="mt-2 grid grid-cols-2 gap-2">
@@ -434,7 +528,30 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         </div>
       ) : null}
 
-      <div className="mt-3 grid grid-cols-2 gap-2 text-[var(--waze-text)]">
+      {compact ? (
+        <p className="mt-2 text-base font-semibold text-[var(--waze-text)]">
+          {Math.round(next ? next.distanceKm : progress.remainingKm)}{" "}
+          {m.units.km}
+          {" · "}
+          {clock(
+            next ? next.etaMs : progress.arriveMs,
+            next ? null : arrivalZone
+          )}
+          <span className="font-normal text-[var(--waze-text-secondary)]">
+            {" · "}
+            {formatTemplate(m.trip.inTime, {
+              duration: formatClockDuration(
+                ((next ? next.etaMs : progress.arriveMs) - nowMs) / 60_000,
+                units
+              ),
+            })}
+          </span>
+        </p>
+      ) : null}
+
+      <div
+        className={`mt-3 grid grid-cols-2 gap-2 text-[var(--waze-text)] ${compact ? "hidden" : ""}`}
+      >
         <div className="rounded-2xl bg-[var(--waze-surface-elevated)] px-3 py-2">
           <p className="text-3xl font-bold leading-none">
             {Math.round(next ? next.distanceKm : progress.remainingKm)}
@@ -446,7 +563,10 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         </div>
         <div className="rounded-2xl bg-[var(--waze-surface-elevated)] px-3 py-2">
           <p className="text-3xl font-bold leading-none">
-            {clock(next ? next.etaMs : progress.arriveMs, next ? null : arrivalZone)}
+            {clock(
+              next ? next.etaMs : progress.arriveMs,
+              next ? null : arrivalZone
+            )}
           </p>
           <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
             {formatTemplate(m.trip.inTime, {
@@ -459,7 +579,9 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         </div>
       </div>
 
-      <p className="mt-3 text-base text-[var(--waze-text)]">
+      <p
+        className={`mt-3 text-base text-[var(--waze-text)] ${compact ? "hidden" : ""}`}
+      >
         {formatTemplate(m.trip.remaining, {
           km: String(Math.round(progress.remainingKm)),
           unit: m.units.km,
@@ -482,23 +604,30 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
       )}
 
       {pushState === "on" && (
-        <p className="mt-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+        <p
+          className="mt-3 text-sm text-[var(--waze-text-secondary)]"
+          role="status"
+        >
           {m.trip.pushActive}
         </p>
       )}
       {pushState === "unsupported" && (
-        <p className="mt-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+        <p
+          className="mt-3 text-sm text-[var(--waze-text-secondary)]"
+          role="status"
+        >
           {m.trip.pushUnsupported}
         </p>
       )}
       {pushState === "failed" && (
         <p className="mt-3 text-sm text-[var(--waze-danger)]" role="alert">
           {m.trip.pushFailed}
+          {pushFailure ? ` ${pushFailureHint(pushFailure, m.trip)}` : ""}
         </p>
       )}
 
       <div className="mt-3 grid grid-cols-2 gap-2">
-        {!turnBetaOn && !showConsent && (
+        {!turnBetaOn && !showConsent && !compact && (
           <button
             type="button"
             onClick={() => setShowConsent(true)}
@@ -507,7 +636,7 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
             {m.trip.turnBeta}
           </button>
         )}
-        {pushState !== "on" && notifyPermission !== "none" && (
+        {pushState !== "on" && notifyPermission !== "none" && !compact && (
           <button
             type="button"
             onClick={() => void turnPushOn()}
@@ -526,9 +655,21 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
           <Navigation className="h-5 w-5" aria-hidden />
           {next ? m.trip.navigateStop : m.trip.navigateDestination}
         </a>
+        <button
+          type="button"
+          onClick={() => setCompact((value) => !value)}
+          aria-expanded={!compact}
+          className="col-span-2 inline-flex min-h-11 items-center justify-center rounded-2xl border border-[var(--waze-border)] px-3 text-sm font-semibold text-[var(--waze-text)]"
+        >
+          {compact ? m.trip.panelMore : m.trip.panelLess}
+        </button>
         <Link
           href="/fuel?route=1"
-          className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 text-base font-semibold text-[var(--waze-text)]"
+          className={
+            compact
+              ? "hidden"
+              : "inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 text-base font-semibold text-[var(--waze-text)]"
+          }
         >
           <Fuel className="h-5 w-5" aria-hidden />
           {m.trip.fuelNearby}
@@ -537,21 +678,33 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
           href={wazeNavigateUrl(target)}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 text-base font-semibold text-[var(--waze-text)]"
+          className={
+            compact
+              ? "hidden"
+              : "inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 text-base font-semibold text-[var(--waze-text)]"
+          }
         >
           Waze
         </a>
         <button
           type="button"
           onClick={() => setPlanDetailOpen(true)}
-          className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 text-base font-semibold text-[var(--waze-text)]"
+          className={
+            compact
+              ? "hidden"
+              : "inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 text-base font-semibold text-[var(--waze-text)]"
+          }
         >
           {m.trip.openPlan}
         </button>
         <button
           type="button"
           onClick={endTrip}
-          className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-danger)] px-3 text-base font-semibold text-[var(--waze-danger)]"
+          className={
+            compact
+              ? "hidden"
+              : "inline-flex min-h-14 items-center justify-center rounded-2xl border border-[var(--waze-danger)] px-3 text-base font-semibold text-[var(--waze-danger)]"
+          }
         >
           {m.trip.end}
         </button>

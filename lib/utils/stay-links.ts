@@ -35,6 +35,9 @@ export function bookingSearchUrl(query: StayQuery, affiliateId?: string | null):
     group_adults: String(Math.max(1, query.adults)),
     group_children: String(Math.max(0, query.children)),
     no_rooms: "1",
+    // Search around the point, so a village Booking does not know does not
+    // turn into "the whole country".
+    dest_type: "latlong",
   });
   if (affiliateId?.trim()) params.set("aid", affiliateId.trim());
   return `https://www.booking.com/searchresults.html?${params}`;

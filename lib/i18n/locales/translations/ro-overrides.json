@@ -27,7 +27,9 @@
     "roadNotesSummaryOther": "{count} semnale pe traseu — arătăm cele mai importante.",
     "roadNotesSummaryRoOne": "Un semnal pe traseu — detaliile sunt mai jos.",
     "roadNotesSummaryRoFew": "{count} semnale pe traseu — arătăm cele mai importante.",
-    "roadNotesSummaryRoMany": "{count} de semnale pe traseu — arătăm cele mai importante."
+    "roadNotesSummaryRoMany": "{count} de semnale pe traseu — arătăm cele mai importante.",
+    "headerLess": "Mai puțin",
+    "headerMore": "Mai multe detalii"
   },
   "routeChoice": {
     "waitSuffix": "min așteptare",
@@ -123,6 +125,30 @@
       "sourceCommunity": "de la un utilizator",
       "sourceCommunityAgo": "de la un utilizator, acum {hours} h",
       "oilBulletinLabel": "Comisia Europeană, Buletinul săptămânal petrolier"
+    },
+    "checklist": {
+      "prepBooking": "Rezervarea cazării",
+      "prepBookingDetail": "Planul are o oprire peste noapte. Rezervă din timp ca să nu cauți seara târziu; vezi sugestiile de la oprirea de noapte.",
+      "prepCar": "Mașina este pregătită",
+      "prepCarDetail": "Presiunea și profilul anvelopelor (și roata de rezervă), ulei, lichid de parbriz, faruri, frâne, rezervor plin sau baterie încărcată.",
+      "prepCash": "Puțini bani cash",
+      "prepCashDetail": "Bancnote mici pentru magazine, toalete și taxe de drum. Monede pe traseu: {currencies}.",
+      "prepChild": "Pentru copiii din mașină",
+      "prepChildDetail": "Gustări, apă, o jucărie preferată sau o tabletă cu filme descărcate, haine de schimb și șervețele curate. Planifică joaca la opriri.",
+      "prepFood": "Mâncare și apă pentru drum",
+      "prepFoodDetail": "Suficient pentru toți: circa 1,5 L de apă de persoană, fructe, sandvișuri și gustări uscate, ca să nu depinzi de o oprire întâmplătoare.",
+      "prepGifts": "Cadouri pentru rude",
+      "prepGiftsDetail": "Pune-le la îndemână, ca să nu rămână totul pe ultima sută de metri.",
+      "prepJars": "Borcane și recipiente de returnat",
+      "prepJarsDetail": "Păstrează borcanele și recipientele folosite și adu-le înapoi în Bulgaria.",
+      "prepMeds": "Medicamente și lucruri personale",
+      "prepMedsDetail": "Medicamente uzuale, ceva pentru rău de mașină, ochelari de soare, o geantă cu haine de schimb.",
+      "prepPet": "Pentru animalul de companie",
+      "prepPetDetail": "Apă și bol, lesă, pungi, o pătură și carnetul de vaccinări. Nu-l lăsa într-o mașină parcată.",
+      "prepPhone": "Încărcător, suport de telefon și hărți offline",
+      "prepPhoneDetail": "Cablu auto, baterie externă, hărți descărcate pentru țările de pe traseu.",
+      "prepWipes": "Șervețele umede și uscate, saci de gunoi",
+      "prepWipesDetail": "Pentru mâini, scurgeri și toalete fără hârtie. Saci de gunoi în mașină."
     }
   },
   "api": {
@@ -457,7 +483,15 @@
     "pushOn": "Notificări și cu aplicația închisă",
     "pushStopSoon": "Peste aproximativ {minutes} min: {title}.",
     "pushUnsupported": "Acest browser nu poate trimite notificări cu aplicația închisă. Pe iPhone, adaugă site-ul pe ecranul principal.",
-    "pushBorderAfter": "Ai trecut de {name}? Spune cât ai așteptat — îi ajută pe șoferii următori."
+    "pushBorderAfter": "Ai trecut de {name}? Spune cât ai așteptat — îi ajută pe șoferii următori.",
+    "panelLess": "Restrânge panoul",
+    "panelMore": "Mai mult",
+    "pushHintBrowser": "Browserul nu s-a putut abona. Pe iPhone, deschide site-ul din pictograma de pe ecranul principal, nu din Safari.",
+    "pushHintDatabase": "Baza de date nu este încă pregătită pentru notificări (lipsește tabelul).",
+    "pushHintKeys": "Serverul nu are chei de notificare configurate.",
+    "pushHintOther": "Încearcă din nou în curând.",
+    "pushHintPermission": "Permisiunea pentru notificări a fost refuzată — activeaz-o pentru acest site din setările telefonului.",
+    "pushHintPlan": "Serverul nu a acceptat planul pentru notificări."
   },
   "ai": {
     "disclaimer": "Text generat de AI din datele planului. Poate conține greșeli — verifică lucrurile importante.",
@@ -532,5 +566,43 @@
     "heavy": "Aglomerat",
     "slow": "Lent",
     "title": "Fluxul traficului"
+  },
+  "prefs": {
+    "breakCapped": "Cu un copil mic, pauzele sunt cel mult la {minutes} min, chiar dacă ai ales mai mult.",
+    "breakExact": "Respectă exact intervalul meu",
+    "breakExactOn": "Pauzele vor urma exact intervalul ales."
+  },
+  "checklist": {
+    "prep": "Pregătirea pentru drum"
+  },
+  "itinerary": {
+    "download": "Descarcă ca fișier"
+  },
+  "guide": {
+    "aiAsk": "Sfat pentru cazare și mese (AI)",
+    "aiFailed": "Sfatul nu a putut fi generat. Încearcă din nou în curând.",
+    "aiLoading": "AI pregătește sfatul…",
+    "check": "Verifică înainte să rezervi",
+    "foodLine": "în jur de {time} · la {km} km de start · {detour} km de drum",
+    "foodNote": "Locuri din OpenStreetMap, cu ora la care planul trece pe acolo. Verifică programul.",
+    "foodTitle": "Fast food pe drum",
+    "fuelTitle": "Benzinării pe drum",
+    "lead": "Opririle pentru combustibil, lanțurile fast-food de pe drum și, cu AI, unde să dormi și ce să mănânci în funcție de cine călătorește.",
+    "mealsTitle": "Mese pe drum",
+    "openMap": "Hartă",
+    "overnightTitle": "Unde să dormi și de ce",
+    "reason": {
+      "cheap": "preț bun",
+      "clean": "curată (semnalări)",
+      "dirty": "murdară (semnalări ale șoferilor)",
+      "expensive": "scumpă",
+      "noPrice": "fără date de preț",
+      "unsafe": "nesigură (semnalări)"
+    },
+    "tipsTitle": "Alte sfaturi",
+    "title": "Sfaturi pentru drum",
+    "verdictAvoid": "Evită",
+    "verdictGood": "Alegere bună",
+    "verdictOk": "În regulă"
   }
 }

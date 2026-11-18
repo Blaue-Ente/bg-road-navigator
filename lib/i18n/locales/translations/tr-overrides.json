@@ -25,7 +25,9 @@
     "roadNotesSummaryOther": "Güzergâhta {count} uyarı — en önemlileri gösteriyoruz.",
     "roadNotesSummaryRoOne": "RO one placeholder",
     "roadNotesSummaryRoFew": "RO few placeholder",
-    "roadNotesSummaryRoMany": "RO many placeholder"
+    "roadNotesSummaryRoMany": "RO many placeholder",
+    "headerLess": "Daha az",
+    "headerMore": "Daha fazla ayrıntı"
   },
   "routeChoice": {
     "waitSuffix": "dk bekleme",
@@ -120,6 +122,30 @@
       "sourceCommunity": "kullanıcı bildirimi",
       "sourceCommunityAgo": "kullanıcı bildirimi, {hours} sa önce",
       "oilBulletinLabel": "Avrupa Komisyonu, Haftalık Petrol Bülteni"
+    },
+    "checklist": {
+      "prepBooking": "Konaklama rezervasyonu",
+      "prepBookingDetail": "Planda gece konaklaması var. Gece geç saatte aramamak için önceden rezervasyon yapın; konaklama durağındaki önerilere bakın.",
+      "prepCar": "Araç hazır",
+      "prepCarDetail": "Lastik basıncı ve diş derinliği (stepne dahil), yağ, cam suyu, farlar, frenler, dolu depo veya şarjlı batarya.",
+      "prepCash": "Biraz nakit",
+      "prepCashDetail": "Dükkânlar, tuvaletler ve yol ücretleri için bozuk para. Güzergâhtaki para birimleri: {currencies}.",
+      "prepChild": "Arabadaki çocuklar için",
+      "prepChildDetail": "Atıştırmalık, su, sevilen bir oyuncak veya film indirilmiş tablet, yedek kıyafet ve temiz mendil. Molalarda oyun payı planlayın.",
+      "prepFood": "Yol için yiyecek ve su",
+      "prepFoodDetail": "Herkes için yeterli: kişi başı yaklaşık 1,5 L su, meyve, sandviç ve kuru atıştırmalıklar; rastgele bir durağa bağımlı kalmayın.",
+      "prepGifts": "Akrabalar için hediyeler",
+      "prepGiftsDetail": "Son ana kalmasın diye kolay ulaşılır yere yerleştirin.",
+      "prepJars": "Geri götürülecek kavanozlar ve kaplar",
+      "prepJarsDetail": "Kullanılmış kavanoz ve kapları ayırın ve Bulgaristan'a geri getirin.",
+      "prepMeds": "İlaçlar ve kişisel eşyalar",
+      "prepMedsDetail": "Düzenli ilaçlar, yol tutmasına karşı ürün, güneş gözlüğü, yedek kıyafet çantası.",
+      "prepPet": "Evcil hayvan için",
+      "prepPetDetail": "Su ve kap, tasma, poşetler, battaniye ve aşı karnesi. Park halindeki araçta bırakmayın.",
+      "prepPhone": "Şarj aleti, telefon tutucu ve çevrimdışı haritalar",
+      "prepPhoneDetail": "Araç kablosu, powerbank, güzergâhtaki ülkeler için indirilmiş haritalar.",
+      "prepWipes": "Islak ve kuru mendiller, çöp torbaları",
+      "prepWipesDetail": "Eller, dökülmeler ve kâğıtsız tuvaletler için. Arabada çöp torbaları."
     }
   },
   "api": {
@@ -454,7 +480,15 @@
     "pushOn": "Uygulama kapalıyken de bildirimler",
     "pushStopSoon": "Yaklaşık {minutes} dk sonra: {title}.",
     "pushUnsupported": "Bu tarayıcı uygulama kapalıyken bildirim gönderemez. iPhone'da siteyi Ana Ekrana ekleyin.",
-    "pushBorderAfter": "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur."
+    "pushBorderAfter": "{name} sınırını geçtiniz mi? Ne kadar beklediğinizi paylaşın; sonraki sürücülere yardımcı olur.",
+    "panelLess": "Paneli daralt",
+    "panelMore": "Daha fazla",
+    "pushHintBrowser": "Tarayıcı abone olamadı. iPhone'da siteyi Safari'den değil Ana Ekran simgesinden açın.",
+    "pushHintDatabase": "Veritabanı henüz bildirimler için hazır değil (tablo eksik).",
+    "pushHintKeys": "Sunucuda bildirim anahtarları ayarlı değil.",
+    "pushHintOther": "Biraz sonra tekrar deneyin.",
+    "pushHintPermission": "Bildirim izni reddedildi — telefon ayarlarından bu site için açın.",
+    "pushHintPlan": "Sunucu bildirimler için planı kabul etmedi."
   },
   "ai": {
     "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",
@@ -529,5 +563,43 @@
     "heavy": "Yoğun",
     "slow": "Yavaş",
     "title": "Trafik yoğunluğu"
+  },
+  "prefs": {
+    "breakCapped": "Küçük çocukla molalar, daha uzun seçseniz bile en fazla {minutes} dk’da bir verilir.",
+    "breakExact": "Seçtiğim aralığı aynen uygula",
+    "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak."
+  },
+  "checklist": {
+    "prep": "Yola hazırlık"
+  },
+  "itinerary": {
+    "download": "Dosya olarak indir"
+  },
+  "guide": {
+    "aiAsk": "Konaklama ve yemek tavsiyesi (YZ)",
+    "aiFailed": "Tavsiye oluşturulamadı. Biraz sonra tekrar deneyin.",
+    "aiLoading": "YZ tavsiyeyi hazırlıyor…",
+    "check": "Rezervasyondan önce kontrol edin",
+    "foodLine": "yaklaşık {time} · başlangıçtan {km} km · yoldan {detour} km",
+    "foodNote": "Yerler OpenStreetMap'ten, planın oradan geçtiği saatle. Çalışma saatlerini kontrol edin.",
+    "foodTitle": "Yolda fast food",
+    "fuelTitle": "Yoldaki benzin istasyonları",
+    "lead": "Yakıt durakları, yoldaki fast-food zincirleri ve yapay zekâ ile kimin yolculuk ettiğine göre nerede kalınıp ne yeneceği.",
+    "mealsTitle": "Yolda yemek",
+    "openMap": "Harita",
+    "overnightTitle": "Nerede kalınmalı ve neden",
+    "reason": {
+      "cheap": "uygun fiyat",
+      "clean": "temiz (bildirimler)",
+      "dirty": "kirli (sürücü bildirimleri)",
+      "expensive": "pahalı",
+      "noPrice": "fiyat bilgisi yok",
+      "unsafe": "güvensiz (bildirimler)"
+    },
+    "tipsTitle": "Diğer ipuçları",
+    "title": "Yolculuk tavsiyeleri",
+    "verdictAvoid": "Kaçının",
+    "verdictGood": "İyi seçim",
+    "verdictOk": "Olur"
   }
 }

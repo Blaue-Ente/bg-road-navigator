@@ -265,3 +265,63 @@ describe("plan checklist", () => {
     ).toBe("Официален магазин");
   });
 });
+
+describe("preparation items", () => {
+  const base = {
+    countries: ["DE", "HU", "RO", "BG"],
+    departAt: new Date("2026-12-19T08:00:00.000Z"),
+    withPet: false,
+    withChildren: false,
+    childrenAges: [] as number[],
+    tolls: [],
+  };
+
+  it("covers the car, food, wipes, cash, gifts and returned jars", () => {
+    const ids = (buildChecklist(base).prep ?? []).map((item) => item.id);
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        "prep-car",
+        "prep-food",
+        "prep-wipes",
+        "prep-cash",
+        "prep-gifts",
+        "prep-jars",
+        "prep-phone",
+        "prep-meds",
+      ])
+    );
+    expect(ids).not.toContain("prep-booking");
+    expect(ids).not.toContain("prep-child");
+    expect(ids).not.toContain("prep-pet");
+  });
+
+  it("adds a booking, child and pet items when they apply", () => {
+    const ids = (
+      buildChecklist({
+        ...base,
+        withPet: true,
+        withChildren: true,
+        childrenAges: [9],
+        hasOvernight: true,
+      }).prep ?? []
+    ).map((item) => item.id);
+    expect(ids).toEqual(
+      expect.arrayContaining(["prep-booking", "prep-child", "prep-pet"])
+    );
+  });
+
+  it("names the currencies of the countries on the route", () => {
+    const cash = (buildChecklist(base).prep ?? []).find(
+      (item) => item.id === "prep-cash"
+    );
+    expect(cash?.detail).toContain("HUF");
+    expect(cash?.detail).toContain("RON");
+  });
+
+  it("only mentions jars when the route enters Bulgaria", () => {
+    const ids = (
+      buildChecklist({ ...base, countries: ["DE", "AT"] }).prep ?? []
+    ).map((item) => item.id);
+    expect(ids).not.toContain("prep-jars");
+  });
+});

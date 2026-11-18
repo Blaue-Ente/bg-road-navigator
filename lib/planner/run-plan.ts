@@ -535,7 +535,7 @@ export async function runTripPlan(input: TripPlanRequest) {
   const annotated = annotatedPlaces.map((place) =>
     applyPrice(place, officialPrices, reports, flags.get(place.id)?.weights)
   );
-  const { attachments, sights } = attachStops({
+  const { attachments, sights, foodSpots } = attachStops({
     merged,
     places: annotated,
     preferences: prefs,
@@ -625,6 +625,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     merged,
     attachments,
     sights,
+    foodSpots,
     community,
     warnings,
     preferences: prefs,
@@ -636,6 +637,7 @@ export async function runTripPlan(input: TripPlanRequest) {
       withChildren: prefs.with_children,
       childrenAges: prefs.children_ages,
       tolls,
+      hasOvernight: merged.some((stop) => stop.kinds.includes("overnight")),
     }),
     weather,
     fuelAverages: fuelAveragesForCountries({

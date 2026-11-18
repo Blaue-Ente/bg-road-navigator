@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import {
   HU_ROMANIA_PREFERENCE_IDS,
@@ -9,7 +10,8 @@ import { preferenceBorderCrossings } from "@/lib/constants/preference-borders";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { Locale } from "@/lib/i18n/locale";
 import type { BorderCrossing } from "@/lib/constants/border-crossings";
-import type { TripPreferences } from "@/lib/planner/preferences";
+import { childBreakCapMin, type TripPreferences } from "@/lib/planner/preferences";
+import { formatTemplate } from "@/lib/i18n/format-template";
 
 export function PreferenceFields({
   value,
@@ -24,6 +26,43 @@ export function PreferenceFields({
     <SchedulePreferenceFields value={value} onChange={onChange} />
     <RouteStylePreferenceFields value={value} onChange={onChange} />
   </div>
+  );
+}
+
+/**
+ * Age box that can be emptied while typing: a number input bound straight to a
+ * number turns an empty box into 0 and typing "9" then shows "09".
+ */
+function AgeInput({
+  age,
+  onChange,
+}: {
+  age: number;
+  onChange: (next: number) => void;
+}) {
+  const [text, setText] = useState(String(age));
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      maxLength={2}
+      value={text}
+      onFocus={(event) => event.currentTarget.select()}
+      onChange={(event) => {
+        const digits = event.target.value.replace(/\D/g, "").slice(0, 2);
+        setText(digits);
+        if (digits !== "") onChange(Math.min(17, Number(digits)));
+      }}
+      onBlur={() => {
+        if (text === "") {
+          setText(String(age));
+        } else {
+          setText(String(Math.min(17, Number(text))));
+        }
+      }}
+      className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+    />
   );
 }
 
@@ -56,21 +95,16 @@ export function TravelerPreferenceFields({
         {value.with_children && (
           <div className="mt-2 space-y-2 pl-1">
             {value.children_ages.map((age, index) => (
-              <div key={`child-${index}`} className="flex items-end gap-2">
+              <div key={`child-${index}-of-${value.children_ages.length}`} className="flex items-end gap-2">
                 <label className="block flex-1 text-sm text-[var(--waze-text)]">
                   {m.prefs.childAge} {index + 1}
-                  <input
-                    type="number"
-                    min={0}
-                    max={17}
-                    inputMode="numeric"
-                    value={age}
-                    onChange={(event) => {
-                      const next = [...value.children_ages];
-                      next[index] = Number(event.target.value);
-                      patch({ children_ages: next });
+                  <AgeInput
+                    age={age}
+                    onChange={(next) => {
+                      const ages = [...value.children_ages];
+                      ages[index] = next;
+                      patch({ children_ages: ages });
                     }}
-                    className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
                   />
                 </label>
                 <button
@@ -141,6 +175,7 @@ export function SchedulePreferenceFields({
   onChange: (next: TripPreferences) => void;
 }) {
   const m = useMessages();
+  const cap = childBreakCapMin(value);
   const patch = (partial: Partial<TripPreferences>) =>
     onChange({ ...value, ...partial });
 
@@ -188,6 +223,23 @@ export function SchedulePreferenceFields({
         unit={m.prefs.minutes}
         onChange={(next) => patch({ break_every_min: next })}
       />
+      {cap != null && value.break_every_min > cap && (
+        <div className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-3 text-sm text-[var(--waze-text)]">
+          <p>
+            {value.break_exact
+              ? m.prefs.breakExactOn
+              : formatTemplate(m.prefs.breakCapped, { minutes: String(cap) })}
+          </p>
+          <div className="mt-2">
+            <Checkbox
+              id="break-exact"
+              label={m.prefs.breakExact}
+              checked={value.break_exact}
+              onChange={(checked) => patch({ break_exact: checked })}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

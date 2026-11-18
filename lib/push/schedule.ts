@@ -33,11 +33,11 @@ export const TripPushPlanSchema = z.object({
     .array(
       z.object({
         eta: z.string().datetime(),
-        weather_code: z.number().int().nullable(),
-        wind_kmh: z.number().finite().nullable(),
-        precipitation_mm: z.number().finite().nullable(),
-        summary: z.string().max(160),
-        place: z.string().max(120).nullable(),
+        weather_code: z.number().int().nullish(),
+        wind_kmh: z.number().finite().nullish(),
+        precipitation_mm: z.number().finite().nullish(),
+        summary: z.string().max(160).default(""),
+        place: z.string().max(120).nullish(),
       })
     )
     .max(12),
@@ -109,7 +109,15 @@ export function buildPushSchedule(input: {
   let weatherSent = 0;
   for (const [index, segment] of plan.weather.entries()) {
     if (weatherSent >= 3) break;
-    if (!isHarshWeather(segment)) continue;
+    if (
+      !isHarshWeather({
+        weather_code: segment.weather_code ?? null,
+        wind_kmh: segment.wind_kmh ?? null,
+        precipitation_mm: segment.precipitation_mm ?? null,
+      })
+    ) {
+      continue;
+    }
     weatherSent += 1;
     out.push({
       sendAt: at(segment.eta, WEATHER_LEAD_MIN),
