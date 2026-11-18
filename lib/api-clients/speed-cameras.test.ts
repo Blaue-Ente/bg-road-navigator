@@ -138,3 +138,20 @@ describe("built dataset", () => {
     expect(camerasFromPoints({ w: 1, s: 46, e: 9, n: 49 }, points)).toEqual([]);
   });
 });
+
+describe("wide views", () => {
+  it("thins an overfull view evenly instead of cutting it off", () => {
+    const many: Array<[number, number, number]> = Array.from({ length: 9_000 }, (_, index) => [
+      20 + (index % 3_000) * 0.001,
+      44 + Math.floor(index / 3_000) * 0.1,
+      50,
+    ]);
+    const cameras = camerasFromPoints({ w: 19, s: 43, e: 24, n: 45 }, many);
+    expect(cameras.length).toBeLessThanOrEqual(3_000);
+    expect(cameras.length).toBeGreaterThan(2_000);
+    const lngs = cameras.map((camera) => camera.lng);
+    // Both ends of the view are still represented.
+    expect(Math.min(...lngs)).toBeLessThan(20.1);
+    expect(Math.max(...lngs)).toBeGreaterThan(22.8);
+  });
+});

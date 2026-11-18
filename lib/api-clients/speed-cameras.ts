@@ -166,6 +166,8 @@ function fetchTile(
 
 /** [lng, lat, posted limit in km/h or 0] as written by scripts/speed-cameras/build.py. */
 export type StaticCameraPoint = [number, number, number];
+/** The most cameras one answer carries; the map clusters them when zoomed out. */
+const MAX_CAMERAS = 3_000;
 
 /** Points of the built dataset; empty until the monthly build has been merged. */
 export const STATIC_CAMERA_POINTS = (dataset as unknown as { points: StaticCameraPoint[] }).points;
@@ -178,9 +180,17 @@ export function camerasFromPoints(
   bbox: { w: number; s: number; e: number; n: number },
   points: StaticCameraPoint[] = STATIC_CAMERA_POINTS
 ): SpeedCamera[] {
-  const out: SpeedCamera[] = [];
-  for (const [lng, lat, maxspeed] of points) {
+  const inside: StaticCameraPoint[] = [];
+  for (const point of points) {
+    const [lng, lat] = point;
     if (lng < bbox.w || lng > bbox.e || lat < bbox.s || lat > bbox.n) continue;
+    inside.push(point);
+  }
+  // A very wide view keeps an even spread of the cameras instead of the first ones.
+  const stride = Math.max(1, Math.ceil(inside.length / MAX_CAMERAS));
+  const out: SpeedCamera[] = [];
+  for (let index = 0; index < inside.length; index += stride) {
+    const [lng, lat, maxspeed] = inside[index]!;
     const country = countryCodeAtPoint(lng, lat);
     if (country && CAMERA_HIDDEN_COUNTRIES.has(country)) continue;
     out.push({
@@ -189,7 +199,6 @@ export function camerasFromPoints(
       lat,
       maxspeed: maxspeed > 0 ? maxspeed : null,
     });
-    if (out.length >= 600) break;
   }
   return out;
 }

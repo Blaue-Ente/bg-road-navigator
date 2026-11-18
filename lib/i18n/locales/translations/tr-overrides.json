@@ -655,5 +655,8 @@
     "savedToProfile": "Kontrol listesi profilinizde “Kontrol listelerim” altında kayıtlı.",
     "sleepCheck": "Rezervasyondan önce kontrol edin",
     "sleepWhere": "Konaklama"
+  },
+  "community": {
+    "closeComposer": "Kapat"
   }
 }

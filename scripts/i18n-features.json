@@ -1630,5 +1630,11 @@
   "arrival",
   "varış",
   "sosire"
+ ],
+ "community.closeComposer": [
+  "Затвори",
+  "Close",
+  "Kapat",
+  "Închide"
  ]
 }

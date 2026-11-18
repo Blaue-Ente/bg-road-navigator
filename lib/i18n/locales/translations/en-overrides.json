@@ -653,5 +653,8 @@
     "savedToProfile": "The checklist is saved in your profile under “My checklists”.",
     "sleepCheck": "Check before you book",
     "sleepWhere": "Overnight"
+  },
+  "community": {
+    "closeComposer": "Close"
   }
 }

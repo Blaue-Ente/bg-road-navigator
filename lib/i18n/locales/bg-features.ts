@@ -36,6 +36,9 @@ export const bgFeatures = {
   checklist: {
     prep: "Подготовка за пътя",
   },
+  community: {
+    closeComposer: "Затвори",
+  },
   favorites: {
     cancel: "Отказ",
     clearAll: "Изтрий всички маршрути",

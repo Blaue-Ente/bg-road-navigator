@@ -658,5 +658,8 @@
     "savedToProfile": "Lista este salvată în profilul tău, la „Listele mele”.",
     "sleepCheck": "Verifică înainte să rezervi",
     "sleepWhere": "Cazare"
+  },
+  "community": {
+    "closeComposer": "Închide"
   }
 }
