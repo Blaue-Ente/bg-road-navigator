@@ -581,7 +581,9 @@
   "prefs": {
     "breakCapped": "Küçük çocukla molalar, daha uzun seçseniz bile en fazla {minutes} dk’da bir verilir.",
     "breakExact": "Seçtiğim aralığı aynen uygula",
-    "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak."
+    "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak.",
+    "adults": "Araçtaki yetişkinler",
+    "adultsHint": "Sürücüleri içerir. Otel aramasında (oda ve misafir) kullanılır."
   },
   "checklist": {
     "prep": "Yola hazırlık"

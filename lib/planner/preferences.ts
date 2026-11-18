@@ -14,6 +14,7 @@ export const TripPreferencePatchSchema = z.object({
   with_children: z.boolean().optional(),
   children_ages: z.array(z.number().int().min(0).max(17)).max(8).optional(),
   drivers: z.number().int().min(1).max(4).optional(),
+  adults: z.number().int().min(1).max(8).optional(),
   depart_at: z.string().datetime().nullable().optional(),
   avoid_borders: z.array(z.string().trim().min(1).max(64)).max(12).optional(),
   preferred_border: z.string().trim().min(1).max(64).nullable().optional(),
@@ -39,6 +40,8 @@ export interface TripPreferences {
   with_children: boolean;
   children_ages: number[];
   drivers: number;
+  /** Adults in the car, used for the hotel search. Drivers are among them. */
+  adults: number;
   depart_at: string | null;
   avoid_borders: string[];
   preferred_border: string | null;
@@ -62,6 +65,7 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   with_children: false,
   children_ages: [],
   drivers: 1,
+  adults: 1,
   depart_at: null,
   avoid_borders: [],
   preferred_border: null,

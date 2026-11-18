@@ -28,6 +28,11 @@ const QuerySchema = z.object({
   checkin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   adults: z.coerce.number().int().min(1).max(8).default(2),
   children: z.coerce.number().int().min(0).max(6).default(0),
+  /** Comma-separated ages of the children. */
+  ages: z
+    .string()
+    .regex(/^\d{1,2}(,\d{1,2}){0,5}$/)
+    .optional(),
   locale: z.enum(["bg", "en", "tr", "ro"]).default("bg"),
   pet: z.enum(["0", "1"]).default("0"),
   debug: z.enum(["0", "1"]).default("0"),
@@ -72,6 +77,7 @@ export async function GET(request: NextRequest) {
     checkout: nextDay(checkin),
     adults: q.adults,
     children: q.children,
+    childAges: q.ages ? q.ages.split(",").map(Number) : [],
   };
   const affiliateId = process.env.BOOKING_AFFILIATE_ID?.trim() || null;
 

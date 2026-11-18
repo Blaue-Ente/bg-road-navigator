@@ -584,7 +584,9 @@
   "prefs": {
     "breakCapped": "Cu un copil mic, pauzele sunt cel mult la {minutes} min, chiar dacă ai ales mai mult.",
     "breakExact": "Respectă exact intervalul meu",
-    "breakExactOn": "Pauzele vor urma exact intervalul ales."
+    "breakExactOn": "Pauzele vor urma exact intervalul ales.",
+    "adults": "Adulți în mașină",
+    "adultsHint": "Include șoferii. Se folosește la căutarea hotelului (camere și oaspeți)."
   },
   "checklist": {
     "prep": "Pregătirea pentru drum"

@@ -1462,5 +1462,17 @@
   "Busy hours are a rule of thumb (weekday commutes, weekend midday), not live data for the charger.",
   "Yoğun saatler bir göstergedir (hafta içi iş gidiş-dönüşü, hafta sonu öğle), şarj istasyonu için canlı veri değildir.",
   "Orele aglomerate sunt orientative (naveta de peste săptămână, amiaza de weekend), nu date în direct despre stație."
+ ],
+ "prefs.adults": [
+  "Възрастни в колата",
+  "Adults in the car",
+  "Araçtaki yetişkinler",
+  "Adulți în mașină"
+ ],
+ "prefs.adultsHint": [
+  "Включва шофьорите. Ползва се при търсенето на хотел (стаи и гости).",
+  "Includes the drivers. Used for the hotel search (rooms and guests).",
+  "Sürücüleri içerir. Otel aramasında (oda ve misafir) kullanılır.",
+  "Include șoferii. Se folosește la căutarea hotelului (camere și oaspeți)."
  ]
 }

@@ -33,15 +33,16 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
 
   const load = async () => {
     setState({ status: "loading" });
-    const children = prefs?.with_children
-      ? Math.max(1, prefs.children_ages.length)
-      : 0;
+    const childAges = prefs?.with_children ? prefs.children_ages.slice(0, 6) : [];
+    // A family with no ages given still has at least one child.
+    const children = prefs?.with_children ? Math.max(1, childAges.length) : 0;
     const params = new URLSearchParams({
       lat: String(stop.coords.lat),
       lng: String(stop.coords.lng),
       checkin: isoDay(stop.eta),
-      adults: String(prefs?.with_children || (prefs?.drivers ?? 1) > 1 ? 2 : 1),
+      adults: String(Math.max(prefs?.adults ?? 1, prefs?.drivers ?? 1)),
       children: String(children),
+      ...(childAges.length > 0 ? { ages: childAges.join(",") } : {}),
       locale,
       pet: prefs?.with_pet ? "1" : "0",
     });

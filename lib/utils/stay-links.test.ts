@@ -29,3 +29,18 @@ describe("stay links", () => {
     expect(airbnbSearchUrl(query)).toContain("/s/Arad%2C%20Romania/homes");
   });
 });
+
+describe("party size in the Booking link", () => {
+  it("passes the children's ages and rooms for the adults", () => {
+    const url = new URL(
+      bookingSearchUrl({ ...query, adults: 4, children: 2, childAges: [9, 3] })
+    );
+    expect(url.searchParams.getAll("age")).toEqual(["9", "3"]);
+    expect(url.searchParams.get("no_rooms")).toBe("2");
+    expect(url.searchParams.get("group_adults")).toBe("4");
+  });
+
+  it("uses one room for up to two adults", () => {
+    expect(new URL(bookingSearchUrl({ ...query, adults: 2 })).searchParams.get("no_rooms")).toBe("1");
+  });
+});

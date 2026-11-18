@@ -148,6 +148,30 @@ export function TravelerPreferenceFields({
         onChange={(checked) => patch({ with_pet: checked })}
       />
 
+      <label className="block text-sm text-[var(--waze-text)]" htmlFor="adults">
+        {m.prefs.adults}
+        <select
+          id="adults"
+          value={value.adults}
+          onChange={(event) =>
+            patch({
+              adults: Number(event.target.value),
+              drivers: Math.min(value.drivers, Number(event.target.value)),
+            })
+          }
+          className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+        >
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((count) => (
+            <option key={count} value={count}>
+              {count}
+            </option>
+          ))}
+        </select>
+        <span className="mt-1 block text-xs text-[var(--waze-text-muted)]">
+          {m.prefs.adultsHint}
+        </span>
+      </label>
+
       <label className="block text-sm text-[var(--waze-text)]" htmlFor="drivers">
         {m.prefs.drivers}
         <select

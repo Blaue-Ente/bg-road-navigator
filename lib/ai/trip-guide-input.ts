@@ -42,7 +42,7 @@ export function guideInputFromPlan(
     distance_km: plan.route.distance_km,
     duration_min: plan.route.duration_min,
     travelers: {
-      adults: Math.min(8, Math.max(1, prefs.drivers, prefs.with_children ? 2 : 1)),
+      adults: Math.min(8, Math.max(1, prefs.adults ?? 1, prefs.drivers)),
       children_ages: prefs.with_children ? prefs.children_ages.slice(0, 8) : [],
       pet: prefs.with_pet,
       drivers: prefs.drivers,
