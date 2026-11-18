@@ -354,9 +354,10 @@ function PriceLine({
   if (stop.kinds.includes("fuel")) {
     if (mode === "unknown") {
       return (
-        <p className="mt-2 text-sm text-[var(--waze-text-muted)]">
-          {m.sheet.priceUnknown}
-        </p>
+        <div className="mt-2 text-sm text-[var(--waze-text-muted)]">
+          <p>{m.sheet.priceUnknown}</p>
+          {stop.average_label_bg ? <p>{stop.average_label_bg}</p> : null}
+        </div>
       );
     }
     const tint =

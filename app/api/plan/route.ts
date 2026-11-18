@@ -33,6 +33,8 @@ const PlanSchema = z.object({
   origin: PointSchema,
   destination: PointSchema,
   depart_at: z.string().datetime().optional(),
+  /** The day the driver comes back; the estimate then covers the way back too. */
+  return_at: z.string().datetime().nullable().optional(),
   fuel_level: z.number().finite().min(0.05).max(1).optional(),
   reserve_margin: z.number().finite().min(0.05).max(0.4).optional(),
   break_every_min: z.number().int().min(45).max(240).optional(),
@@ -144,6 +146,10 @@ export async function POST(request: NextRequest) {
         countryCode: body.destination.country_code,
       },
       departAt,
+      returnAt:
+        body.return_at && new Date(body.return_at) > departAt
+          ? new Date(body.return_at)
+          : null,
       vehicle,
       fromProfile: Boolean(profile),
       preferences,

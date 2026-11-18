@@ -144,7 +144,7 @@ describe("fuel stop copy", () => {
     expect(official.price_delta_label_bg).toContain("плащаш");
   });
 
-  it("keeps the unknown-price fallback when the station has no figure", () => {
+  it("keeps the unknown-price fallback, with the country average as a guide, when the station has no figure", () => {
     const copy = presentFuelStop({
       countryCode: "HU",
       fuel: "diesel",
@@ -158,6 +158,21 @@ describe("fuel stop copy", () => {
     expect(copy.price_band).toBe("grey");
     expect(copy.price_label_bg).toBeNull();
     expect(copy.price_delta_label_bg).toBeNull();
+    // Not a station price: the label says it is the country average.
+    expect(copy.average_label_bg).toContain("ср.");
+  });
+
+  it("has no average line when there is neither a station price nor an average", () => {
+    const copy = presentFuelStop({
+      countryCode: "HU",
+      fuel: "diesel",
+      average: null,
+      stationPerL: null,
+      source: null,
+      observedAt: null,
+      liters: 50,
+      now,
+    });
     expect(copy.average_label_bg).toBeNull();
   });
 });

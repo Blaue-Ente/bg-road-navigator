@@ -111,6 +111,8 @@ export interface TripPlanRequest {
   origin: { label: string; coords: GeoPoint; countryCode?: string | null };
   destination: { label: string; coords: GeoPoint; countryCode?: string | null };
   departAt: Date;
+  /** The day the driver comes back, when given. */
+  returnAt?: Date | null;
   vehicle: ResolvedVehicle;
   fromProfile: boolean;
   preferences: TripPreferences;
@@ -626,6 +628,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     attachments,
     sights,
     foodSpots,
+    returnAt: input.returnAt ?? null,
     community,
     warnings,
     preferences: prefs,
