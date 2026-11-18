@@ -1936,5 +1936,155 @@
   "In a small car people tire sooner: stops come more often and the driving day is shorter.",
   "Küçük bir araçta insanlar daha çabuk yorulur: molalar sıklaşır, sürüş günü kısalır.",
   "Într-o mașină mică oamenii obosesc mai repede: opririle sunt mai dese, iar ziua la volan e mai scurtă."
+ ],
+ "prefs.scenic": [
+  "Интересен път (места за разглеждане)",
+  "Interesting road (places to see)",
+  "İlginç rota (görülecek yerler)",
+  "Drum interesant (locuri de văzut)"
+ ],
+ "sights.title": [
+  "Интересни места по пътя",
+  "Interesting places on the way",
+  "Yol üzerindeki ilginç yerler",
+  "Locuri interesante pe drum"
+ ],
+ "sights.intro": [
+  "Природа, история, архитектура и атракции близо до маршрута. Добави каквото ти харесва: влиза в времето на пристигане и в печатния план.",
+  "Nature, history, architecture and attractions near the road. Add what you like: it counts in the arrival time and in the printed plan.",
+  "Doğa, tarih, mimari ve yola yakın cazibe merkezleri. Beğendiğinizi ekleyin: varış saatine ve basılı plana yansır.",
+  "Natură, istorie, arhitectură și atracții lângă drum. Adaugă ce îți place: intră în ora sosirii și în planul tipărit."
+ ],
+ "sights.show": [
+  "Покажи интересни места",
+  "Show interesting places",
+  "İlginç yerleri göster",
+  "Arată locuri interesante"
+ ],
+ "sights.loading": [
+  "Търся места по пътя…",
+  "Looking for places on the way…",
+  "Yolda yerler aranıyor…",
+  "Caut locuri pe drum…"
+ ],
+ "sights.none": [
+  "Не намерих проверени места край този маршрут.",
+  "I found no checked places near this road.",
+  "Bu yol yakınında doğrulanmış yer bulamadım.",
+  "Nu am găsit locuri verificate lângă acest drum."
+ ],
+ "sights.failed": [
+  "Не успях да зареда местата. Опитай пак след малко.",
+  "I could not load the places. Try again in a moment.",
+  "Yerler yüklenemedi. Biraz sonra tekrar deneyin.",
+  "Nu am putut încărca locurile. Încearcă din nou puțin mai târziu."
+ ],
+ "sights.unavailable": [
+  "Интересните места изискват включен ИИ.",
+  "Interesting places need the AI to be on.",
+  "İlginç yerler için yapay zekâ açık olmalı.",
+  "Locurile interesante cer ca IA să fie pornită."
+ ],
+ "sights.add": [
+  "Добави към маршрута",
+  "Add to the route",
+  "Rotaya ekle",
+  "Adaugă pe traseu"
+ ],
+ "sights.remove": [
+  "Махни",
+  "Remove",
+  "Kaldır",
+  "Elimină"
+ ],
+ "sights.added": [
+  "Добавено",
+  "Added",
+  "Eklendi",
+  "Adăugat"
+ ],
+ "sights.extra": [
+  "+{min} мин с пътя и разглеждането",
+  "+{min} min with the drive and the visit",
+  "+{min} dk yol ve gezi dahil",
+  "+{min} min cu drumul și vizita"
+ ],
+ "sights.offRoad": [
+  "{km} км от пътя, около км {at} от маршрута",
+  "{km} km off the road, near km {at} of the route",
+  "yoldan {km} km, rotanın yaklaşık {at}. km'si",
+  "la {km} km de drum, în jurul km {at} al traseului"
+ ],
+ "sights.replacesRest": [
+  "Може да замени почивката около км {km}.",
+  "Could replace the rest around km {km}.",
+  "Km {km} civarındaki molanın yerini alabilir.",
+  "Poate înlocui pauza din jurul km {km}."
+ ],
+ "sights.family": [
+  "Подходящо за деца и любимец",
+  "Fine for children and a pet",
+  "Çocuklar ve evcil hayvan için uygun",
+  "Potrivit pentru copii și animale"
+ ],
+ "sights.total": [
+  "Избрани: {count}, общо +{min} мин. Пристигане около {time}.",
+  "Chosen: {count}, +{min} min in all. Arrival around {time}.",
+  "Seçilen: {count}, toplam +{min} dk. Varış yaklaşık {time}.",
+  "Alese: {count}, în total +{min} min. Sosire în jur de {time}."
+ ],
+ "sights.note": [
+  "Местата са предложени от ИИ и проверени на картата; часове и цени провери преди тръгване.",
+  "The places are suggested by the AI and checked on the map; check hours and prices before you go.",
+  "Yerler yapay zekâ tarafından önerildi ve haritada doğrulandı; gitmeden önce saat ve fiyatları kontrol edin.",
+  "Locurile sunt sugerate de IA și verificate pe hartă; verifică orele și prețurile înainte de plecare."
+ ],
+ "sights.kind.nature": [
+  "Природа",
+  "Nature",
+  "Doğa",
+  "Natură"
+ ],
+ "sights.kind.architecture": [
+  "Архитектура",
+  "Architecture",
+  "Mimari",
+  "Arhitectură"
+ ],
+ "sights.kind.history": [
+  "История",
+  "History",
+  "Tarih",
+  "Istorie"
+ ],
+ "sights.kind.attraction": [
+  "Атракция",
+  "Attraction",
+  "Cazibe merkezi",
+  "Atracție"
+ ],
+ "sights.kind.zoo": [
+  "Зоопарк",
+  "Zoo",
+  "Hayvanat bahçesi",
+  "Grădină zoologică"
+ ],
+ "sights.kind.walk": [
+  "Разходка",
+  "Walk",
+  "Yürüyüş",
+  "Plimbare"
+ ],
+ "sights.kind.festival": [
+  "Фестивал",
+  "Festival",
+  "Festival",
+  "Festival"
+ ],
+ "sights.pdfHeading": [
+  "Интересни места по пътя",
+  "Interesting places on the way",
+  "Yol üzerindeki ilginç yerler",
+  "Locuri interesante pe drum"
  ]
 }

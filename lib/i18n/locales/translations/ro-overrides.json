@@ -594,7 +594,8 @@
     "carComfortCompact": "Mică sau îngustă",
     "carComfortHint": "Într-o mașină mică oamenii obosesc mai repede: opririle sunt mai dese, iar ziua la volan e mai scurtă.",
     "carComfortRoomy": "Spațioasă (monovolum, microbuz, SUV mare)",
-    "carComfortStandard": "Standard (berlină, break)"
+    "carComfortStandard": "Standard (berlină, break)",
+    "scenic": "Drum interesant (locuri de văzut)"
   },
   "checklist": {
     "prep": "Pregătirea pentru drum"
@@ -717,5 +718,33 @@
     "spentOnly": "Cheltuit: {spent} €",
     "title": "Bilanțul călătoriei",
     "under": "Cu {diff} € sub estimare"
+  },
+  "sights": {
+    "add": "Adaugă pe traseu",
+    "added": "Adăugat",
+    "extra": "+{min} min cu drumul și vizita",
+    "failed": "Nu am putut încărca locurile. Încearcă din nou puțin mai târziu.",
+    "family": "Potrivit pentru copii și animale",
+    "intro": "Natură, istorie, arhitectură și atracții lângă drum. Adaugă ce îți place: intră în ora sosirii și în planul tipărit.",
+    "kind": {
+      "architecture": "Arhitectură",
+      "attraction": "Atracție",
+      "festival": "Festival",
+      "history": "Istorie",
+      "nature": "Natură",
+      "walk": "Plimbare",
+      "zoo": "Grădină zoologică"
+    },
+    "loading": "Caut locuri pe drum…",
+    "none": "Nu am găsit locuri verificate lângă acest drum.",
+    "note": "Locurile sunt sugerate de IA și verificate pe hartă; verifică orele și prețurile înainte de plecare.",
+    "offRoad": "la {km} km de drum, în jurul km {at} al traseului",
+    "pdfHeading": "Locuri interesante pe drum",
+    "remove": "Elimină",
+    "replacesRest": "Poate înlocui pauza din jurul km {km}.",
+    "show": "Arată locuri interesante",
+    "title": "Locuri interesante pe drum",
+    "total": "Alese: {count}, în total +{min} min. Sosire în jur de {time}.",
+    "unavailable": "Locurile interesante cer ca IA să fie pornită."
   }
 }

@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouteStore } from "@/lib/stores/route.store";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FileDown, MapPin, Sparkles } from "lucide-react";
 import { StayOptions } from "@/components/plan/StayOptions";
 import {
+  chosenSightsFor,
   fetchGuide,
+  guideKeyFor,
   routeCountries,
   useTripPdf,
 } from "@/components/plan/useTripPdf";
@@ -43,7 +45,15 @@ export function TripGuide({
   const locale = useLocale();
   const [ai, setAi] = useState<Ai>({ status: "idle" });
   const planKey = checklistPlanKey(plan);
-  const guide = useTripGuideStore((state) => state.guides[planKey] ?? null);
+  const sightsState = useRouteStore((state) => state.sights);
+  const chosen = useMemo(
+    () => chosenSightsFor(plan),
+    // The chosen places live in the store; plan and list decide what is chosen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [plan, sightsState]
+  );
+  const guideKey = guideKeyFor(planKey, chosen);
+  const guide = useTripGuideStore((state) => state.guides[guideKey] ?? null);
   const setGuide = useTripGuideStore((state) => state.setGuide);
   const pdf = useTripPdf(plan, checks);
 
@@ -60,10 +70,11 @@ export function TripGuide({
       plan,
       locale,
       routeCountries(plan),
-      useRouteStore.getState().planningVia.map((point) => point.label)
+      useRouteStore.getState().planningVia.map((point) => point.label),
+      chosen
     );
     if (result.guide) {
-      setGuide(planKey, result.guide);
+      setGuide(guideKey, result.guide);
       setAi({ status: "idle" });
     } else if (!result.available) setAi({ status: "unavailable" });
     else setAi({ status: "failed" });

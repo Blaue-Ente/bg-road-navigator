@@ -1,5 +1,7 @@
 "use client";
 
+import type { PlanSight } from "@/lib/sights/types";
+import { sightsKey } from "@/lib/sights/input";
 import { useRouteStore } from "@/lib/stores/route.store";
 
 import { useCallback, useState } from "react";
@@ -34,13 +36,14 @@ export async function fetchGuide(
   plan: TripPlannerResult,
   locale: Parameters<typeof guideInputFromPlan>[1],
   countries: string[],
-  via: string[] = []
+  via: string[] = [],
+  chosenSights: PlanSight[] = []
 ): Promise<{ guide: TripGuide | null; available: boolean }> {
   try {
     const response = await fetch("/api/ai/trip-guide", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(guideInputFromPlan(plan, locale, countries, via)),
+      body: JSON.stringify(guideInputFromPlan(plan, locale, countries, via, chosenSights)),
     });
     const payload = (await response.json()) as {
       guide: TripGuide | null;
@@ -81,16 +84,19 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
     setState({ status: "working" });
     try {
       const store = useTripGuideStore.getState();
-      let guide: TripGuide | null = store.guides[planKey] ?? null;
+      const chosen = chosenSightsFor(plan);
+      const guideKey = guideKeyFor(planKey, chosen);
+      let guide: TripGuide | null = store.guides[guideKey] ?? null;
       if (!guide) {
         const result = await fetchGuide(
           plan,
           locale,
           routeCountries(plan),
-          useRouteStore.getState().planningVia.map((point) => point.label)
+          useRouteStore.getState().planningVia.map((point) => point.label),
+          chosen
         );
         guide = result.guide;
-        if (guide) store.setGuide(planKey, guide);
+        if (guide) store.setGuide(guideKey, guide);
       }
       const labels: PlanPdfLabels = {
         checklistTitle: m.pdf.checklistTitle,
@@ -110,6 +116,7 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
         distanceUnit: m.units.km,
         drivingWord: m.pdf.drivingWord,
         arrivalWord: m.pdf.arrivalWord,
+        sights: m.sights.pdfHeading,
       };
       const units = unitsFrom(m);
       const tag = localeTag(locale);
@@ -121,6 +128,7 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
           labels,
           locale: tag,
           duration: (minutes) => formatClockDuration(minutes, units),
+          sights: chosen,
           costs: plan.costs
             ? {
                 heading: m.costs.title,
@@ -179,4 +187,21 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
   }, [plan, planKey, locale, m, checks, signedIn]);
 
   return { state, run, planKey };
+}
+
+/** The places the driver added for this plan, in road order. */
+export function chosenSightsFor(plan: TripPlannerResult): PlanSight[] {
+  const state = useRouteStore.getState();
+  const sights = state.sights;
+  if (!sights || sights.key !== sightsKey(plan, state.planningVia.map((point) => point.label))) {
+    return [];
+  }
+  return sights.items
+    .filter((item) => sights.chosen.includes(item.id))
+    .sort((a, b) => a.along_km - b.along_km);
+}
+
+/** The AI text is kept per plan and per set of chosen places. */
+export function guideKeyFor(planKey: string, chosen: PlanSight[]): string {
+  return chosen.length === 0 ? planKey : `${planKey}|${chosen.map((item) => item.id).join(",")}`;
 }

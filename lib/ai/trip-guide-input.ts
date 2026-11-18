@@ -1,4 +1,5 @@
 import type { TripGuideInput } from "@/lib/ai/trip-guide";
+import type { PlanSight } from "@/lib/sights/types";
 import type { Locale } from "@/lib/i18n/locale";
 import { drivingDayHours, effectiveBreakEveryMin } from "@/lib/planner/preferences";
 import { fuelVerdict } from "@/lib/planner/fuel-verdict";
@@ -31,14 +32,21 @@ function stopFacts(stop: PlanStop): string[] {
   return facts.slice(0, 8);
 }
 
+export interface AlongPoint {
+  km: number;
+  lat: number;
+  lng: number;
+  town?: string | null;
+}
+
 /** Points spread along the route, for the server to turn into town names. */
 export function alongPoints(
   line: Array<[number, number]>,
   distanceKm: number,
   count = 6
-): TripGuideInput["along"] {
+): AlongPoint[] {
   if (line.length < 2 || distanceKm < 150) return [];
-  const out: TripGuideInput["along"] = [];
+  const out: AlongPoint[] = [];
   for (let i = 1; i <= count; i += 1) {
     const at = line[Math.min(line.length - 1, Math.round((i / (count + 1)) * (line.length - 1)))]!;
     out.push({
@@ -61,7 +69,8 @@ export function guideInputFromPlan(
   plan: TripPlannerResult,
   locale: Locale,
   countries: string[] = [],
-  via: string[] = []
+  via: string[] = [],
+  chosenSights: PlanSight[] = []
 ): TripGuideInput {
   const prefs = plan.preferences;
   const real = plan.stops
@@ -117,10 +126,15 @@ export function guideInputFromPlan(
     leaves_at_night: leavesAtNight(plan.depart_at),
     max_day_driving_h: drivingDayHours(prefs),
     via: via.slice(0, 3).map((label) => label.slice(0, 120)),
-    along:
-      prefs.pace === "scenic"
-        ? alongPoints(plan.route.geometry.coordinates as Array<[number, number]>, plan.route.distance_km)
-        : [],
+    chosen_sights: chosenSights.map((sight) => ({
+      name: sight.name.slice(0, 120),
+      town: sight.town.slice(0, 120),
+      kind: sight.kind,
+      along_km: sight.along_km,
+      extra_min: sight.extra_min,
+      why: sight.why.slice(0, 400),
+      history: sight.history.slice(0, 700),
+    })),
     break_every_min: effectiveBreakEveryMin(prefs),
     travelers: {
       adults: Math.min(8, Math.max(1, prefs.adults ?? 1, prefs.drivers)),

@@ -21,6 +21,7 @@ const labels: PlanPdfLabels = {
   distanceUnit: "км",
   drivingWord: "шофиране",
   arrivalWord: "пристигане",
+  sights: "Интересни места",
 };
 
 function plan(): TripPlannerResult {
@@ -117,5 +118,26 @@ describe("plan pdf content", () => {
       { a: true }
     );
     expect(groups[0]?.items.map((item) => item.checked)).toEqual([true, false]);
+  });
+});
+
+describe("chosen sights in the printed plan", () => {
+  it("adds a heading and one short story for each place, in road order", () => {
+    const input = tripPdfInputFromPlan({
+      plan: plan(),
+      guide: null,
+      checks: {},
+      labels,
+      locale: "bg-BG",
+      duration: (minutes) => `${minutes} min`,
+      sights: [
+        { id: "b", name: "Късна", town: "Б", kind: "history", lat: 0, lng: 0, along_km: 400, off_route_km: 3, visit_min: 40, extra_min: 50, why: "Защото.", history: "История Б.", near_rest_km: null, family_friendly: true },
+        { id: "a", name: "Ранна", town: "А", kind: "nature", lat: 0, lng: 0, along_km: 100, off_route_km: 3, visit_min: 40, extra_min: 50, why: "Заради.", history: "История А.", near_rest_km: null, family_friendly: true },
+      ],
+    });
+    const headings = input.sections.map((section) => section.heading);
+    expect(headings).toContain("Интересни места");
+    expect(headings.indexOf("Ранна \u00b7 А")).toBeLessThan(headings.indexOf("Късна \u00b7 Б"));
+    expect(input.sections.find((section) => section.heading.startsWith("Ранна"))!.text).toBe("История А. Заради.");
   });
 });
