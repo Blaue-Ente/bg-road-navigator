@@ -1,8 +1,14 @@
-import { effectiveBreakEveryMin } from "@/lib/planner/preferences";
+import { effectiveBreakEveryMin, healthDayLimitH } from "@/lib/planner/preferences";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import type { TripProgress } from "@/lib/trip/progress";
 
-export type TripNoticeKind = "rest" | "restSoon" | "weather" | "fuel";
+export type TripNoticeKind =
+  | "rest"
+  | "restSoon"
+  | "weather"
+  | "fuel"
+  | "longDaySoon"
+  | "longDay";
 
 export interface TripNotice {
   /** Stable, so each notice is shown once per trip. */
@@ -85,6 +91,25 @@ export function tripNotices(input: {
         },
       });
     }
+  }
+
+  // A long day: hours on the road since the last night's sleep or the start.
+  const nights = real
+    .filter((stop) => stop.kinds.includes("overnight") && stop.distance_from_start_km <= along)
+    .map((stop) => stop.distance_from_start_km);
+  const dayStartKm = nights.length ? Math.max(...nights) : 0;
+  const dayHours = (along - dayStartKm) / speedKmh;
+  const limitH = healthDayLimitH(plan.preferences);
+  if (along > 1 && dayHours >= limitH - 1) {
+    const over = dayHours >= limitH;
+    notices.push({
+      id: `${over ? "longDay" : "longDaySoon"}-${Math.round(dayStartKm)}`,
+      kind: over ? "longDay" : "longDaySoon",
+      values: {
+        hours: dayHours.toFixed(1),
+        limit: String(limitH),
+      },
+    });
   }
 
   // Weather: the first harsh segment within reach.

@@ -1,7 +1,7 @@
 import type { TripGuideInput } from "@/lib/ai/trip-guide";
 import type { PlanSight } from "@/lib/sights/types";
 import type { Locale } from "@/lib/i18n/locale";
-import { drivingDayHours, effectiveBreakEveryMin } from "@/lib/planner/preferences";
+import { drivingDayHours, effectiveBreakEveryMin, healthDayLimitH } from "@/lib/planner/preferences";
 import { fuelVerdict } from "@/lib/planner/fuel-verdict";
 import type { PlanStop, TripPlannerResult } from "@/lib/planner/types";
 
@@ -125,6 +125,11 @@ export function guideInputFromPlan(
     car_comfort: prefs.car_comfort,
     leaves_at_night: leavesAtNight(plan.depart_at),
     max_day_driving_h: drivingDayHours(prefs),
+    day_limit_h: healthDayLimitH(prefs),
+    bad_roads: plan.community.notes
+      .filter((note) => note.category === "bad_road")
+      .slice(0, 8)
+      .map((note) => ({ title: note.title.slice(0, 120), off_route_km: note.distance_km })),
     via: via.slice(0, 3).map((label) => label.slice(0, 120)),
     chosen_sights: chosenSights.map((sight) => ({
       name: sight.name.slice(0, 120),

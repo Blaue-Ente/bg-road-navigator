@@ -11,6 +11,7 @@ const PENALTY_MIN: Partial<Record<CommunityPin["category"], number>> = {
   traffic_jam: 8,
   border_queue: 10,
   road_works: 6,
+  bad_road: 0,
   police: 0,
 };
 

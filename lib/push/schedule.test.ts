@@ -89,3 +89,44 @@ describe("plan sent from a phone", () => {
     expect(parsed.success).toBe(true);
   });
 });
+
+describe("long day nudges", () => {
+  it("asks before and at the limit while the plan still has the day going", () => {
+    const rows = buildPushSchedule({
+      plan: {
+        ...plan,
+        day_limit_h: 10,
+        arrive_at: "2026-11-18T10:00:00.000Z",
+        stops: [
+          { id: "n", title: "Hotel", kinds: ["overnight"], eta: "2026-11-17T22:00:00.000Z", optional: false, saving_eur: null, sleep_min: 480 },
+        ],
+      },
+      startedAt: now,
+      now,
+      locale: "en",
+    });
+    const soon = rows.find((row) => row.tag === "longday-soon-0");
+    const limit = rows.find((row) => row.tag === "longday-0");
+    // 10 h of driving is about 11.76 h on the clock: limit at 19:45, nudge an hour before.
+    expect(limit?.sendAt.toISOString().slice(0, 16)).toBe("2026-11-17T19:45");
+    expect(soon?.sendAt.toISOString().slice(0, 16)).toBe("2026-11-17T18:45");
+    expect(limit?.body).toContain("10");
+  });
+
+  it("stays quiet when the planned night stop comes first", () => {
+    const rows = buildPushSchedule({
+      plan: {
+        ...plan,
+        day_limit_h: 10,
+        arrive_at: "2026-11-18T10:00:00.000Z",
+        stops: [
+          { id: "n", title: "Hotel", kinds: ["overnight"], eta: "2026-11-17T16:00:00.000Z", optional: false, saving_eur: null, sleep_min: 480 },
+        ],
+      },
+      startedAt: now,
+      now,
+      locale: "en",
+    });
+    expect(rows.some((row) => row.tag === "longday-0")).toBe(false);
+  });
+});

@@ -114,3 +114,31 @@ describe("isHarshWeather", () => {
     expect(isHarshWeather({ ...base, weather_code: 3 })).toBe(false);
   });
 });
+
+describe("long day", () => {
+  // 600 km in 360 min is 100 km/h, so 10 h is 1000 km: use a long route.
+  const longPlan = (prefs: { with_children?: boolean; children_ages?: number[] } = {}): TripPlannerResult =>
+    plan({
+      route: { distance_km: 1500, duration_min: 900 },
+      preferences: resolveTripPreferences({ break_every_min: 240, ...prefs }),
+    } as Partial<TripPlannerResult>);
+
+  it("warns an hour before 10 hours and at 10 hours", () => {
+    expect(tripNotices({ plan: longPlan(), progress: progress(900) }).some((n) => n.kind === "longDaySoon")).toBe(true);
+    expect(tripNotices({ plan: longPlan(), progress: progress(1010) }).some((n) => n.kind === "longDay")).toBe(true);
+    expect(tripNotices({ plan: longPlan(), progress: progress(500) }).some((n) => n.kind.startsWith("longDay"))).toBe(false);
+  });
+
+  it("uses 8 hours with children", () => {
+    const kids = longPlan({ with_children: true, children_ages: [8] });
+    expect(tripNotices({ plan: kids, progress: progress(820) }).some((n) => n.kind === "longDay")).toBe(true);
+  });
+
+  it("counts from the last night stop", () => {
+    const withNight = {
+      ...longPlan(),
+      stops: [stop("n", 900, { kinds: ["overnight"] })],
+    } as TripPlannerResult;
+    expect(tripNotices({ plan: withNight, progress: progress(1100) }).some((n) => n.kind.startsWith("longDay"))).toBe(false);
+  });
+});

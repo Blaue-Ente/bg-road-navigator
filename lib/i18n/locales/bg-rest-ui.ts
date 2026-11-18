@@ -600,6 +600,7 @@ export const bgRestUi = {
     place_to_visit: "Място за виждане",
     police: "Полиция",
     road_works: "Ремонт",
+    bad_road: "Лош път",
     other: "Друго",
   },
   pinTime: {

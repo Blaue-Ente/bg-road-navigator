@@ -16,9 +16,15 @@ export const TripPushPlanSchema = z.object({
         eta: z.string().datetime(),
         optional: z.boolean(),
         saving_eur: z.number().finite().min(0).max(1000).nullable(),
+        /** Overnight stops: hours of sleep planned there. */
+        sleep_min: z.number().finite().min(0).max(1440).nullish(),
       })
     )
     .max(40),
+  /** Hours on the road in a day after which the driver is asked to stop. */
+  day_limit_h: z.number().finite().min(4).max(14).optional(),
+  /** Planned arrival, so the last day has an end. */
+  arrive_at: z.string().datetime().optional(),
   /** The border the route crosses, so a push can ask how the wait went. */
   border: z
     .object({
@@ -60,6 +66,7 @@ const WEATHER_LEAD_MIN = 45;
 const MAX_PUSHES = 30;
 /** After the expected crossing, wait this long before asking how it went. */
 const BORDER_AFTER_MIN = 25;
+const DRIVING_SHARE = 0.85;
 
 /**
  * Pushes timed from the plan's own arrival times, shifted by how late the
@@ -130,6 +137,47 @@ export function buildPushSchedule(input: {
         .replace(/\s{2,}/g, " ")
         .trim(),
       tag: `weather-${index}`,
+    });
+  }
+
+  // Long days: a nudge before the limit and one at it, only while the plan
+  // itself still has the day going, so nobody is woken after they stopped.
+  if (plan.day_limit_h) {
+    const limitMs = plan.day_limit_h * 3_600_000;
+    // Breaks and waits are on the clock too: about 85% of it is driving.
+    const clockMs = limitMs / DRIVING_SHARE;
+    const nights = plan.stops
+      .filter((stop) => stop.kinds.includes("overnight"))
+      .sort((a, b) => Date.parse(a.eta) - Date.parse(b.eta));
+    const days: Array<{ start: number; end: number }> = [];
+    let start = Date.parse(plan.depart_at);
+    for (const night of nights) {
+      days.push({ start, end: Date.parse(night.eta) });
+      start = Date.parse(night.eta) + (night.sleep_min ?? 480) * 60_000;
+    }
+    days.push({
+      start,
+      end: plan.arrive_at ? Date.parse(plan.arrive_at) : start + clockMs * 2,
+    });
+    days.forEach((day, index) => {
+      const soon = day.start + clockMs - 3_600_000;
+      const limit = day.start + clockMs;
+      if (day.end > soon) {
+        out.push({
+          sendAt: new Date(soon + shift),
+          title: t.noticeTitle,
+          body: formatTemplate(t.pushLongDaySoon, { limit: String(plan.day_limit_h) }),
+          tag: `longday-soon-${index}`,
+        });
+      }
+      if (day.end > limit) {
+        out.push({
+          sendAt: new Date(limit + shift),
+          title: t.noticeTitle,
+          body: formatTemplate(t.pushLongDay, { limit: String(plan.day_limit_h) }),
+          tag: `longday-${index}`,
+        });
+      }
     });
   }
 

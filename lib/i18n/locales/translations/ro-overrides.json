@@ -215,6 +215,7 @@
     "place_to_visit": "Loc de vizitat",
     "police": "Poliție",
     "road_works": "Lucrări rutiere",
+    "bad_road": "Drum prost",
     "other": "Altele"
   },
   "pinTime": {
@@ -508,7 +509,11 @@
     "pushHintKeys": "Serverul nu are chei de notificare configurate.",
     "pushHintOther": "Încearcă din nou în curând.",
     "pushHintPermission": "Permisiunea pentru notificări a fost refuzată — activeaz-o pentru acest site din setările telefonului.",
-    "pushHintPlan": "Serverul nu a acceptat planul pentru notificări."
+    "pushHintPlan": "Serverul nu a acceptat planul pentru notificări.",
+    "noticeLongDay": "{hours} h pe drum azi, peste limita de {limit} h. Oprește-te peste noapte sau schimbă șoferul: contează să ajungi sănătos.",
+    "noticeLongDaySoon": "Ești pe drum de aproximativ {hours} h azi. Limita este {limit} h: gândește-te la o pauză sau la cazare și la schimbarea șoferului.",
+    "pushLongDay": "{limit} h pe drum azi. E timpul pentru pauză sau cazare: contează să ajungi sănătos.",
+    "pushLongDaySoon": "În curând {limit} h pe drum azi. Gândește-te la o pauză sau la cazare."
   },
   "ai": {
     "disclaimer": "Text generat de AI din datele planului. Poate conține greșeli — verifică lucrurile importante.",
