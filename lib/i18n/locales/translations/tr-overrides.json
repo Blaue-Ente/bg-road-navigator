@@ -212,6 +212,7 @@
     "place_to_visit": "Görülmesi gereken yer",
     "police": "Polis",
     "road_works": "Yol çalışması",
+    "bad_road": "Kötü yol",
     "other": "Diğer"
   },
   "pinTime": {
@@ -505,7 +506,11 @@
     "pushHintKeys": "Sunucuda bildirim anahtarları ayarlı değil.",
     "pushHintOther": "Biraz sonra tekrar deneyin.",
     "pushHintPermission": "Bildirim izni reddedildi — telefon ayarlarından bu site için açın.",
-    "pushHintPlan": "Sunucu bildirimler için planı kabul etmedi."
+    "pushHintPlan": "Sunucu bildirimler için planı kabul etmedi.",
+    "noticeLongDay": "Bugün {hours} saat yolda, {limit} saatlik sınırın üzerinde. Konaklayın veya sürücü değiştirin: sağ salim varmak en önemlisi.",
+    "noticeLongDaySoon": "Bugün yaklaşık {hours} saattir yoldasınız. Sınır {limit} saat: mola veya konaklama ve sürücü değişimini düşünün.",
+    "pushLongDay": "Bugün yolda {limit} saat oldu. Mola veya konaklama zamanı: sağ salim varmak en önemlisi.",
+    "pushLongDaySoon": "Bugün yolda {limit} saat dolmak üzere. Mola veya konaklamayı düşünün."
   },
   "ai": {
     "disclaimer": "Planın verilerinden YZ tarafından üretilen metin. Hata içerebilir — önemli noktaları kontrol edin.",

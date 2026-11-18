@@ -12,6 +12,7 @@ export type CommunityPinCategory =
   | "place_to_visit"
   | "police"
   | "road_works"
+  | "bad_road"
   | "other";
 
 export interface CommunityPin {

@@ -328,6 +328,8 @@ export function TripDashboard({ plan }: { plan: TripPlannerResult }) {
         restSoon: m.trip.noticeRestSoon,
         weather: m.trip.noticeWeather,
         fuel: m.trip.noticeFuel,
+        longDaySoon: m.trip.noticeLongDaySoon,
+        longDay: m.trip.noticeLongDay,
       }[notice.kind],
       notice.values
     )

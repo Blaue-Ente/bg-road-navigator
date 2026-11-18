@@ -2086,5 +2086,29 @@
   "Interesting places on the way",
   "Yol üzerindeki ilginç yerler",
   "Locuri interesante pe drum"
+ ],
+ "trip.noticeLongDaySoon": [
+  "Вече сте около {hours} ч на пътя днес. Границата е {limit} ч: помислете за почивка или нощувка и за смяна на шофьора.",
+  "You have been on the road about {hours} h today. The limit is {limit} h: think of a rest or a night stop and of swapping drivers.",
+  "Bugün yaklaşık {hours} saattir yoldasınız. Sınır {limit} saat: mola veya konaklama ve sürücü değişimini düşünün.",
+  "Ești pe drum de aproximativ {hours} h azi. Limita este {limit} h: gândește-te la o pauză sau la cazare și la schimbarea șoferului."
+ ],
+ "trip.noticeLongDay": [
+  "{hours} ч на пътя днес, над границата от {limit} ч. Спрете за нощувка или сменете шофьора: важното е да стигнете здрави и без инциденти.",
+  "{hours} h on the road today, over the {limit} h limit. Stop for the night or swap drivers: arriving safe matters most.",
+  "Bugün {hours} saat yolda, {limit} saatlik sınırın üzerinde. Konaklayın veya sürücü değiştirin: sağ salim varmak en önemlisi.",
+  "{hours} h pe drum azi, peste limita de {limit} h. Oprește-te peste noapte sau schimbă șoferul: contează să ajungi sănătos."
+ ],
+ "trip.pushLongDaySoon": [
+  "Скоро се навършва {limit} ч на пътя за днес. Помислете за почивка или нощувка.",
+  "Soon {limit} h on the road today. Think of a rest or a night stop.",
+  "Bugün yolda {limit} saat dolmak üzere. Mola veya konaklamayı düşünün.",
+  "În curând {limit} h pe drum azi. Gândește-te la o pauză sau la cazare."
+ ],
+ "trip.pushLongDay": [
+  "{limit} ч на пътя днес. Време е за почивка или нощувка: най-важно е да стигнете здрави.",
+  "{limit} h on the road today. Time for a rest or a night stop: arriving safe matters most.",
+  "Bugün yolda {limit} saat oldu. Mola veya konaklama zamanı: sağ salim varmak en önemlisi.",
+  "{limit} h pe drum azi. E timpul pentru pauză sau cazare: contează să ajungi sănătos."
  ]
 }

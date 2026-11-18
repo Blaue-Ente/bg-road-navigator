@@ -154,6 +154,14 @@ export function drivingDayHours(prefs: TripPreferences): number {
   return limits.overnight ? Math.round((limits.overnightAfterMin / 60) * 10) / 10 : 24;
 }
 
+/**
+ * Hours on the road in one day after which a driver should stop: 10 without
+ * children, 8 with them. A warning level and a cap for the planned day.
+ */
+export function healthDayLimitH(prefs: TripPreferences): number {
+  return prefs.with_children ? 8 : 10;
+}
+
 export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
   if (!prefs.overnight) {
     return {
@@ -164,9 +172,10 @@ export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
   }
   const extraHours = prefs.drivers >= 2 ? 2 : 0;
   const comfortCut = prefs.car_comfort === "compact" ? COMPACT_DAY_CUT_H : 0;
+  const baseHours = Math.min(prefs.max_driving_hours, healthDayLimitH(prefs));
   const hours = Math.max(
     4,
-    Math.min(14, prefs.max_driving_hours + extraHours - comfortCut)
+    Math.min(14, baseHours + extraHours - comfortCut)
   );
   const after = Math.round(hours * 60);
   return {

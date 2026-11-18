@@ -235,6 +235,7 @@ export const communityPinCategory = pgEnum("community_pin_category", [
   "place_to_visit",
   "police",
   "road_works",
+  "bad_road",
   "other",
 ]);
 

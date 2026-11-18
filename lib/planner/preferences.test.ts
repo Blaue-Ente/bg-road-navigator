@@ -7,6 +7,7 @@ import {
   detourLimitKm,
   drivingDayLimits,
   effectiveBreakEveryMin,
+  healthDayLimitH,
   placePreferenceScore,
   resolveDeparture,
   resolveTripPreferences,
@@ -249,5 +250,16 @@ describe("car size", () => {
 
   it("a roomy car changes nothing", () => {
     expect(effectiveBreakEveryMin(prefs({ car_comfort: "roomy" }))).toBe(135);
+  });
+});
+
+describe("health day limit", () => {
+  it("is 10 hours without children and 8 with them, and caps the planned day", () => {
+    expect(healthDayLimitH(prefs())).toBe(10);
+    expect(healthDayLimitH(prefs({ with_children: true }))).toBe(8);
+    expect(drivingDayLimits(prefs({ max_driving_hours: 12 })).overnightAfterMin).toBe(600);
+    expect(
+      drivingDayLimits(prefs({ max_driving_hours: 12, with_children: true })).overnightAfterMin
+    ).toBe(480);
   });
 });

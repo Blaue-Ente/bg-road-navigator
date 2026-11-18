@@ -20,6 +20,7 @@ export const COMMUNITY_PIN_CATEGORIES: Array<{
   { id: "place_to_visit", color: "#7C3AED", glyph: "P", shortLivedHours: null },
   { id: "police", color: "#1E3A8A", glyph: "Po", shortLivedHours: 8 },
   { id: "road_works", color: "#B45309", glyph: "W", shortLivedHours: 72 },
+  { id: "bad_road", color: "#A16207", glyph: "!", shortLivedHours: 24 * 30 },
   { id: "other", color: "#334155", glyph: "·", shortLivedHours: null },
 ];
 
@@ -34,6 +35,7 @@ export const COMMUNITY_PIN_ICONS: Record<CommunityPinCategory, PoiIcon> = {
   place_to_visit: "pin",
   police: "shield",
   road_works: "cone",
+  bad_road: "alert",
   other: "info",
 };
 
@@ -54,6 +56,7 @@ function pinCategoryKey(
     category === "place_to_visit" ||
     category === "police" ||
     category === "road_works" ||
+    category === "bad_road" ||
     category === "other"
   ) {
     return category;

@@ -1,3 +1,4 @@
+import { healthDayLimitH } from "@/lib/planner/preferences";
 import type { Locale } from "@/lib/i18n/locale";
 import type { TripPushPlan } from "@/lib/push/schedule";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
@@ -186,6 +187,8 @@ export function pushPlanFromPlan(
           }
         : null,
     depart_at: plan.depart_at,
+    day_limit_h: healthDayLimitH(plan.preferences),
+    arrive_at: plan.route.arrive_at,
     speed_kmh: Math.min(
       160,
       Math.max(
@@ -200,6 +203,7 @@ export function pushPlanFromPlan(
       eta: stop.eta,
       optional: stop.optional,
       saving_eur: stop.advice?.est_savings_eur ?? null,
+      sleep_min: stop.sleep_min ?? null,
     })),
     weather: plan.weather.segments.slice(0, 12).map((segment) => ({
       eta: segment.eta,
