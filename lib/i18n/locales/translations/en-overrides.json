@@ -181,7 +181,8 @@
     "invalidVehicle": "Invalid vehicle details.",
     "vehicleLimit": "You have reached the limit of 12 cars.",
     "borderReportTooSoon": "You already shared a time for this border. Thank you!",
-    "invalidBorderReport": "Invalid border wait data."
+    "invalidBorderReport": "Invalid border wait data.",
+    "invalidChecklist": "Invalid checklist"
   },
   "location": {
     "notifications": {
@@ -621,5 +622,36 @@
     "evPeak": "Usually busy (commute or weekend traffic). If the operator allows booking, book through its app; otherwise check availability shortly before and keep enough charge for a second station.",
     "evPeakBadge": "Busy hours",
     "evTitle": "Charging your EV"
+  },
+  "hotel": {
+    "areaOnly": "No specific hotel is named on the map. See the suggestions for the area below."
+  },
+  "profile": {
+    "checklistsClose": "Collapse",
+    "checklistsConfirmDelete": "Delete this checklist?",
+    "checklistsDelete": "Delete",
+    "checklistsDownload": "Download PDF",
+    "checklistsEmpty": "No checklists yet. When you download the PDF of a plan, its checklist is saved here.",
+    "checklistsLoadFailed": "The checklists could not be loaded.",
+    "checklistsNotReady": "Checklists are not enabled on the server yet (the SQL migration is missing).",
+    "checklistsOpen": "Open",
+    "checklistsProgress": "{done} of {total} done",
+    "checklistsTitle": "My checklists"
+  },
+  "pdf": {
+    "aiFootnote": "The text was written by AI from the plan's data. Check what matters against official sources.",
+    "arrivalWord": "arrival",
+    "checklistHint": "Tick what is done. A copy is kept in your profile under “My checklists”.",
+    "checklistTitle": "Trip checklist",
+    "download": "Download PDF (plan and checklist)",
+    "drivingWord": "driving",
+    "failed": "The PDF could not be made. Try again shortly.",
+    "notSaved": "The PDF was saved, but the checklist could not be kept in your profile.",
+    "notSavedSignedOut": "Sign in to keep the checklist in your profile.",
+    "plainFootnote": "The plan is assembled from the route calculation. The AI advice button gives a fuller text.",
+    "preparing": "Preparing the PDF…",
+    "savedToProfile": "The checklist is saved in your profile under “My checklists”.",
+    "sleepCheck": "Check before you book",
+    "sleepWhere": "Overnight"
   }
 }

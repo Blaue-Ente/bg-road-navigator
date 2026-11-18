@@ -298,23 +298,36 @@ function HotelBlock({
   stop: PlanStop;
   m: MessageCatalog;
 }) {
+  // A combined fuel and overnight stop carries the station as its place: that
+  // is not where anyone sleeps, so only a hotel the map names is shown.
+  const hotelName =
+    stop.hotel?.name ??
+    (stop.kinds.includes("fuel") || stop.kinds.includes("charge")
+      ? null
+      : stop.place_name);
+  const stars = stop.hotel ? stop.hotel.stars : stop.stars;
+  const detour = stop.hotel ? stop.hotel.detour_km : stop.detour_km;
   return (
     <div className="mt-2 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
         {m.hotel.name}
       </p>
-      <p className="font-medium text-[var(--waze-text)]">
-        {stop.place_name ?? stop.title}
-      </p>
-      <p className="text-sm text-[var(--waze-text-secondary)]">
-        {m.hotel.distance}:{" "}
-        {stop.detour_km != null ? `${stop.detour_km} ${m.planning.km}` : "—"}
-      </p>
-      <p className="text-sm text-[var(--waze-text)]">
-        {stop.stars != null
-          ? `${m.hotel.stars}: ${"★".repeat(stop.stars)} (${stop.stars})`
-          : m.hotel.starsUnknown}
-      </p>
+      {hotelName ? (
+        <>
+          <p className="font-medium text-[var(--waze-text)]">{hotelName}</p>
+          <p className="text-sm text-[var(--waze-text-secondary)]">
+            {m.hotel.distance}:{" "}
+            {detour != null ? `${detour} ${m.planning.km}` : "\u2014"}
+          </p>
+          <p className="text-sm text-[var(--waze-text)]">
+            {stars != null
+              ? `${m.hotel.stars}: ${"\u2605".repeat(stars)} (${stars})`
+              : m.hotel.starsUnknown}
+          </p>
+        </>
+      ) : (
+        <p className="text-sm text-[var(--waze-text)]">{m.hotel.areaOnly}</p>
+      )}
       <p className="mt-1 text-sm text-[var(--waze-text-secondary)]">
         {m.hotel.reason}: {stop.lodging_note ?? stop.reason}
       </p>

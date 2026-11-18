@@ -110,6 +110,32 @@ export const userVehicles = pgTable("user_vehicles", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export interface StoredChecklistGroup {
+  id: string;
+  title: string;
+  items: Array<{ id: string; title: string; detail: string }>;
+}
+
+/** The checklist of a planned trip, kept in the profile with its ticks. */
+export const userChecklists = pgTable(
+  "user_checklists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => profiles.userId, { onDelete: "cascade" }),
+    planKey: text("plan_key").notNull(),
+    title: text("title").notNull(),
+    destination: text("destination").notNull(),
+    departAt: timestamp("depart_at", { withTimezone: true }),
+    groups: jsonb("groups").$type<StoredChecklistGroup[]>().notNull(),
+    checks: jsonb("checks").$type<Record<string, boolean>>().notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique("user_checklists_user_plan").on(table.userId, table.planKey)]
+);
+
 export const borderWaitReports = pgTable("border_wait_reports", {
   id: uuid("id").primaryKey().defaultRandom(),
   crossingId: text("crossing_id").notNull(),

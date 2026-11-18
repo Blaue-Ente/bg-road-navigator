@@ -186,7 +186,8 @@
     "invalidVehicle": "Date invalide pentru mașină.",
     "vehicleLimit": "Ai atins limita de 12 mașini.",
     "borderReportTooSoon": "Ai partajat deja un timp pentru această graniță. Mulțumim!",
-    "invalidBorderReport": "Date invalide despre timpul la graniță."
+    "invalidBorderReport": "Date invalide despre timpul la graniță.",
+    "invalidChecklist": "Listă de verificare invalidă"
   },
   "location": {
     "notifications": {
@@ -626,5 +627,36 @@
     "evPeak": "De obicei aglomerat (navetă sau weekend). Dacă operatorul permite rezervarea, fă-o din aplicația lui; altfel verifică disponibilitatea cu puțin timp înainte și păstrează încărcare pentru o a doua stație.",
     "evPeakBadge": "Ore aglomerate",
     "evTitle": "Încărcarea mașinii electrice"
+  },
+  "hotel": {
+    "areaOnly": "Nu este indicat un hotel anume pe hartă. Vezi sugestiile pentru zonă mai jos."
+  },
+  "profile": {
+    "checklistsClose": "Restrânge",
+    "checklistsConfirmDelete": "Ștergi această listă?",
+    "checklistsDelete": "Șterge",
+    "checklistsDownload": "Descarcă PDF",
+    "checklistsEmpty": "Încă nu există liste salvate. Când descarci PDF-ul unui plan, lista lui se salvează aici.",
+    "checklistsLoadFailed": "Listele nu s-au putut încărca.",
+    "checklistsNotReady": "Listele nu sunt încă active pe server (lipsește migrarea SQL).",
+    "checklistsOpen": "Deschide",
+    "checklistsProgress": "{done} din {total} gata",
+    "checklistsTitle": "Listele mele de verificare"
+  },
+  "pdf": {
+    "aiFootnote": "Textul a fost scris de AI pe baza datelor planului. Verifică ce contează la surse oficiale.",
+    "arrivalWord": "sosire",
+    "checklistHint": "Bifează ce e gata. O copie se păstrează în profil, la „Listele mele”.",
+    "checklistTitle": "Lista de verificare a călătoriei",
+    "download": "Descarcă PDF (plan și listă)",
+    "drivingWord": "condus",
+    "failed": "PDF-ul nu a putut fi creat. Încearcă din nou în curând.",
+    "notSaved": "PDF-ul a fost descărcat, dar lista nu s-a putut salva în profil.",
+    "notSavedSignedOut": "Conectează-te ca să păstrezi lista în profil.",
+    "plainFootnote": "Planul este adunat din calculul rutei. Un text mai complet îl dă butonul de sfaturi AI.",
+    "preparing": "Pregătesc PDF-ul…",
+    "savedToProfile": "Lista este salvată în profilul tău, la „Listele mele”.",
+    "sleepCheck": "Verifică înainte să rezervi",
+    "sleepWhere": "Cazare"
   }
 }

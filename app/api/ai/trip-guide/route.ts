@@ -2,10 +2,12 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { aiConfig } from "@/lib/ai/provider";
 import { TripGuideInputSchema, tripGuide, type TripGuide } from "@/lib/ai/trip-guide";
+import { reversePlace } from "@/lib/api-clients/geocoding";
+import { weatherPlaceLabel } from "@/lib/planner/weather-place";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 40;
+export const maxDuration = 60;
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const CACHE_MAX = 100;
@@ -36,13 +38,31 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "INVALID_INPUT" }, { status: 400 });
   }
-  const key = createHash("sha256").update(JSON.stringify(parsed.data)).digest("hex");
+  // The town of each overnight stop, so the model names where to sleep and not
+  // the filling station the stop may be anchored on.
+  const input = {
+    ...parsed.data,
+    stops: await Promise.all(
+      parsed.data.stops.map(async (stop) => {
+        if (!stop.kind.includes("overnight") || stop.lat == null || stop.lng == null) {
+          return stop;
+        }
+        const found = await Promise.race([
+          reversePlace(stop.lat, stop.lng, { lang: parsed.data.locale }),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 3_500)),
+        ]).catch(() => null);
+        const town = weatherPlaceLabel(found, null, parsed.data.locale);
+        return { ...stop, town };
+      })
+    ),
+  };
+  const key = createHash("sha256").update(JSON.stringify(input)).digest("hex");
   const hit = cache.get(key);
   if (hit && hit.expiresAt > Date.now()) {
     return NextResponse.json({ guide: hit.guide, available: true, cached: true });
   }
   let aiError: string | null = null;
-  const guide = await tripGuide(parsed.data, {
+  const guide = await tripGuide(input, {
     onError: (message) => (aiError = message),
   });
   if (!guide) {

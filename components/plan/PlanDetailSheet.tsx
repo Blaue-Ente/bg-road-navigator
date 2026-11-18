@@ -11,6 +11,8 @@ import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { TripGuide } from "@/components/plan/TripGuide";
+import { checklistPlanKey } from "@/lib/pdf/plan-pdf";
+import { useUserStore } from "@/lib/stores/user.store";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
 import { AiTripNote } from "@/components/plan/AiTripNote";
@@ -127,6 +129,15 @@ export function PlanDetailSheet() {
       localStorage.setItem(checklistStorageKey(plan), JSON.stringify(next));
     } catch {
       // Private mode can reject storage. The boxes still work for this visit.
+    }
+    // A checklist kept in the profile gets the tick too; a miss is not shown.
+    const planKey = checklistPlanKey(plan);
+    if (useUserStore.getState().session?.user) {
+      void fetch("/api/checklists", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan_key: planKey, checks: { [id]: checked } }),
+      }).catch(() => undefined);
     }
   };
 
@@ -380,7 +391,7 @@ function DetailBody({
         focusedStopId={focusedStopId}
       />
 
-      <TripGuide plan={plan} />
+      <TripGuide plan={plan} checks={checks} />
 
       <section aria-labelledby="plan-border">
         <h3
