@@ -751,5 +751,36 @@
     "title": "Locuri interesante pe drum",
     "total": "Alese: {count}, în total +{min} min. Sosire în jur de {time}.",
     "unavailable": "Locurile interesante cer ca IA să fie pornită."
+  },
+  "history": {
+    "clear": "Șterge istoricul",
+    "col": {
+      "cost": "Cost total",
+      "distance": "Distanță",
+      "driving": "Condus",
+      "nights": "Nopți",
+      "person": "Pe persoană",
+      "stops": "Opriri",
+      "total": "Timp total"
+    },
+    "compare": "Compară",
+    "compareHint": "Alege două planuri ca să vezi diferența.",
+    "compareTitle": "Comparație (al doilea față de primul)",
+    "confirmClear": "Ștergi toate cele {count} planuri din istoric?",
+    "cost": "Aproximativ {eur} € în total, {person} € pe persoană",
+    "departs": "Plecare {date}",
+    "empty": "Încă nu sunt planuri. Fiecare plan generat va apărea aici.",
+    "failed": "Nu am putut încărca istoricul.",
+    "favorite": "Salvează ca favorit",
+    "favoriteFailed": "Nu am putut salva.",
+    "favorited": "Salvat la favorite",
+    "intro": "Ultimele tale 30 de planuri se păstrează automat. Deschide unul vechi ca să-l rulezi din nou sau compară două.",
+    "line": "{km} km · {drive} · {nights} nopți · {stops} opriri",
+    "open": "Deschide și rulează din nou",
+    "remove": "Șterge",
+    "removeFailed": "Nu am putut șterge.",
+    "same": "la fel",
+    "title": "Istoricul traseelor",
+    "unavailable": "Istoricul nu este încă configurat pe server."
   }
 }
