@@ -19,8 +19,6 @@ export const TripPreferencePatchSchema = z.object({
   night_mode: z.enum(["sleep", "swap"]).optional(),
   /** Tuning: how much a scenic road avoids highways (0.1 most, 1 not at all). */
   scenic_strength: z.number().min(0.1).max(1).optional(),
-  /** Tuning: the scenic road starts this share of the way before the end (0 = whole trip). */
-  scenic_last_share: z.number().min(0).max(0.9).optional(),
   adults: z.number().int().min(1).max(8).optional(),
   depart_at: z.string().datetime().nullable().optional(),
   avoid_borders: z.array(z.string().trim().min(1).max(64)).max(12).optional(),
@@ -51,7 +49,6 @@ export interface TripPreferences {
   car_comfort: "roomy" | "standard" | "compact";
   night_mode: "sleep" | "swap";
   scenic_strength: number;
-  scenic_last_share: number;
   /** Adults in the car, used for the hotel search. Drivers are among them. */
   adults: number;
   depart_at: string | null;
@@ -80,7 +77,6 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   car_comfort: "standard",
   night_mode: "sleep",
   scenic_strength: 0.3,
-  scenic_last_share: 0,
   adults: 1,
   depart_at: null,
   avoid_borders: [],

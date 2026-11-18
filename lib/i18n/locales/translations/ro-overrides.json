@@ -767,7 +767,8 @@
     "roadApplied": "Traseul merge pe un drum mai pitoresc: +{km} km și +{min} min față de cel mai rapid.",
     "roadSame": "Cel mai rapid drum este și cel mai pitoresc: nu există o variantă diferită.",
     "roadTooLong": "Drumul pitoresc ar fi cu +{min} min mai lung (peste 25% sau 2 ore), de aceea rămâne cel mai rapid.",
-    "roadUnsupported": "Acum nu pot oferi un drum mai pitoresc, deci traseul este cel mai rapid. Locurile de mai jos pot fi căutate oricum."
+    "roadUnsupported": "Acum nu pot oferi un drum mai pitoresc, deci traseul este cel mai rapid. Locurile de mai jos pot fi căutate oricum.",
+    "roadLongTrip": "Pe un drum atât de lung nu se încearcă varianta pitorească: ar adăuga ore. Locurile și punctele intermediare îl fac interesant."
   },
   "history": {
     "clear": "Șterge istoricul",

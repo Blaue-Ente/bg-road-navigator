@@ -42,3 +42,11 @@ describe("chooseScenicRoute", () => {
     expect(chooseScenicRoute(null, null)).toBeNull();
   });
 });
+
+import { SCENIC_MAX_TRIP_KM } from "@/lib/planner/scenic";
+
+describe("long trips", () => {
+  it("has a distance limit above which no scenic road is tried", () => {
+    expect(SCENIC_MAX_TRIP_KM).toBe(600);
+  });
+});

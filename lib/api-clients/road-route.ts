@@ -24,7 +24,7 @@ export interface ScenicInfo {
   /** The route drawn is the scenic one. */
   applied: boolean;
   /** Why it was or was not used. */
-  reason: "applied" | "same" | "too_long" | "unsupported";
+  reason: "applied" | "same" | "too_long" | "long_trip" | "unsupported";
   /** The scenic road against the fast one; null when it was not computed. */
   extra_km: number | null;
   extra_min: number | null;

@@ -4,6 +4,12 @@ import type { ProvidedRoadRoute, ScenicInfo } from "@/lib/api-clients/road-route
 export const SCENIC_MAX_RATIO = 1.25;
 /** ...and at most this many minutes longer. */
 export const SCENIC_MAX_EXTRA_MIN = 120;
+/**
+ * Valhalla's use_highways is too blunt for long trips: tested on 1900-2200 km
+ * it either adds 3-8 hours or changes nothing. Beyond this the scenic road is
+ * not asked for, which also saves a routing request.
+ */
+export const SCENIC_MAX_TRIP_KM = 600;
 /** Below this the two roads are the same for the driver. */
 const SAME_KM = 5;
 const SAME_MIN = 5;
