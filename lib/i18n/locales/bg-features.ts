@@ -10,6 +10,7 @@ export const bgFeatures = {
   api: {
     borderReportTooSoon: "Вече споделихте време за тази граница. Благодарим!",
     invalidBorderReport: "Невалидни данни за времето на границата.",
+    invalidChecklist: "Невалиден чек лист",
     invalidVehicle: "Невалидни данни за автомобила.",
     vehicleLimit: "Достигнахте лимита от 12 автомобила.",
   },
@@ -133,6 +134,9 @@ export const bgFeatures = {
     verdictGood: "Добра",
     verdictOk: "Може",
   },
+  hotel: {
+    areaOnly: "Конкретен хотел не е посочен на картата. Виж предложенията за района по-долу.",
+  },
   itinerary: {
     download: "Свали като файл",
   },
@@ -156,6 +160,22 @@ export const bgFeatures = {
   },
   nav: {
     closeToMap: "Затвори и към картата",
+  },
+  pdf: {
+    aiFootnote: "Текстът е написан от ИИ по данните на плана. Провери важното по официалните източници.",
+    arrivalWord: "пристигане",
+    checklistHint: "Отбележи готовото. Копие се пази и в профила, в „Моите чек листове“.",
+    checklistTitle: "Чек лист за пътуването",
+    download: "Свали PDF (план и чек лист)",
+    drivingWord: "шофиране",
+    failed: "PDF не се получи. Опитайте пак след малко.",
+    notSaved: "PDF е свален, но чек листът не се запази в профила.",
+    notSavedSignedOut: "За да се пази чек листът в профила, влез в акаунта си.",
+    plainFootnote: "Планът е събран от изчислението на маршрута. Подробен текст дава бутонът „Съвет с ИИ“.",
+    preparing: "Подготвям PDF…",
+    savedToProfile: "Чек листът е запазен в профила ти, в „Моите чек листове“.",
+    sleepCheck: "Провери преди да резервираш",
+    sleepWhere: "Нощувка",
   },
   planner: {
     checklist: {
@@ -196,6 +216,18 @@ export const bgFeatures = {
     breakCapped: "С малко дете почивките са най-много на всеки {minutes} мин, дори да си избрал повече.",
     breakExact: "Спазвай точно моя интервал",
     breakExactOn: "Почивките ще са точно през избрания от теб интервал.",
+  },
+  profile: {
+    checklistsClose: "Свий",
+    checklistsConfirmDelete: "Да изтрия ли този чек лист?",
+    checklistsDelete: "Изтрий",
+    checklistsDownload: "Свали PDF",
+    checklistsEmpty: "Още няма запазени чек листове. Щом свалиш PDF от плана, чек листът се запазва тук.",
+    checklistsLoadFailed: "Чек листовете не се заредиха.",
+    checklistsNotReady: "Чек листовете още не са включени на сървъра (липсва SQL миграцията).",
+    checklistsOpen: "Отвори",
+    checklistsProgress: "{done} от {total} готови",
+    checklistsTitle: "Моите чек листове",
   },
   sheet: {
     headerLess: "По-малко",

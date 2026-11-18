@@ -1474,5 +1474,161 @@
   "Includes the drivers. Used for the hotel search (rooms and guests).",
   "Sürücüleri içerir. Otel aramasında (oda ve misafir) kullanılır.",
   "Include șoferii. Se folosește la căutarea hotelului (camere și oaspeți)."
+ ],
+ "hotel.areaOnly": [
+  "Конкретен хотел не е посочен на картата. Виж предложенията за района по-долу.",
+  "No specific hotel is named on the map. See the suggestions for the area below.",
+  "Haritada belirli bir otel yok. Aşağıdaki bölge önerilerine bakın.",
+  "Nu este indicat un hotel anume pe hartă. Vezi sugestiile pentru zonă mai jos."
+ ],
+ "api.invalidChecklist": [
+  "Невалиден чек лист",
+  "Invalid checklist",
+  "Geçersiz kontrol listesi",
+  "Listă de verificare invalidă"
+ ],
+ "profile.checklistsTitle": [
+  "Моите чек листове",
+  "My checklists",
+  "Kontrol listelerim",
+  "Listele mele de verificare"
+ ],
+ "profile.checklistsEmpty": [
+  "Още няма запазени чек листове. Щом свалиш PDF от плана, чек листът се запазва тук.",
+  "No checklists yet. When you download the PDF of a plan, its checklist is saved here.",
+  "Henüz kayıtlı liste yok. Bir planın PDF'ini indirdiğinizde kontrol listesi burada saklanır.",
+  "Încă nu există liste salvate. Când descarci PDF-ul unui plan, lista lui se salvează aici."
+ ],
+ "profile.checklistsProgress": [
+  "{done} от {total} готови",
+  "{done} of {total} done",
+  "{done} / {total} hazır",
+  "{done} din {total} gata"
+ ],
+ "profile.checklistsOpen": [
+  "Отвори",
+  "Open",
+  "Aç",
+  "Deschide"
+ ],
+ "profile.checklistsClose": [
+  "Свий",
+  "Collapse",
+  "Daralt",
+  "Restrânge"
+ ],
+ "profile.checklistsDelete": [
+  "Изтрий",
+  "Delete",
+  "Sil",
+  "Șterge"
+ ],
+ "profile.checklistsDownload": [
+  "Свали PDF",
+  "Download PDF",
+  "PDF indir",
+  "Descarcă PDF"
+ ],
+ "profile.checklistsConfirmDelete": [
+  "Да изтрия ли този чек лист?",
+  "Delete this checklist?",
+  "Bu kontrol listesi silinsin mi?",
+  "Ștergi această listă?"
+ ],
+ "profile.checklistsLoadFailed": [
+  "Чек листовете не се заредиха.",
+  "The checklists could not be loaded.",
+  "Listeler yüklenemedi.",
+  "Listele nu s-au putut încărca."
+ ],
+ "profile.checklistsNotReady": [
+  "Чек листовете още не са включени на сървъра (липсва SQL миграцията).",
+  "Checklists are not enabled on the server yet (the SQL migration is missing).",
+  "Listeler sunucuda henüz etkin değil (SQL geçişi eksik).",
+  "Listele nu sunt încă active pe server (lipsește migrarea SQL)."
+ ],
+ "pdf.download": [
+  "Свали PDF (план и чек лист)",
+  "Download PDF (plan and checklist)",
+  "PDF indir (plan ve kontrol listesi)",
+  "Descarcă PDF (plan și listă)"
+ ],
+ "pdf.preparing": [
+  "Подготвям PDF…",
+  "Preparing the PDF…",
+  "PDF hazırlanıyor…",
+  "Pregătesc PDF-ul…"
+ ],
+ "pdf.failed": [
+  "PDF не се получи. Опитайте пак след малко.",
+  "The PDF could not be made. Try again shortly.",
+  "PDF oluşturulamadı. Biraz sonra tekrar deneyin.",
+  "PDF-ul nu a putut fi creat. Încearcă din nou în curând."
+ ],
+ "pdf.savedToProfile": [
+  "Чек листът е запазен в профила ти, в „Моите чек листове“.",
+  "The checklist is saved in your profile under “My checklists”.",
+  "Kontrol listesi profilinizde “Kontrol listelerim” altında kayıtlı.",
+  "Lista este salvată în profilul tău, la „Listele mele”."
+ ],
+ "pdf.notSavedSignedOut": [
+  "За да се пази чек листът в профила, влез в акаунта си.",
+  "Sign in to keep the checklist in your profile.",
+  "Listeyi profilinizde saklamak için giriş yapın.",
+  "Conectează-te ca să păstrezi lista în profil."
+ ],
+ "pdf.notSaved": [
+  "PDF е свален, но чек листът не се запази в профила.",
+  "The PDF was saved, but the checklist could not be kept in your profile.",
+  "PDF indirildi, ancak kontrol listesi profilinize kaydedilemedi.",
+  "PDF-ul a fost descărcat, dar lista nu s-a putut salva în profil."
+ ],
+ "pdf.checklistTitle": [
+  "Чек лист за пътуването",
+  "Trip checklist",
+  "Yolculuk kontrol listesi",
+  "Lista de verificare a călătoriei"
+ ],
+ "pdf.checklistHint": [
+  "Отбележи готовото. Копие се пази и в профила, в „Моите чек листове“.",
+  "Tick what is done. A copy is kept in your profile under “My checklists”.",
+  "Hazır olanları işaretleyin. Bir kopya profilinizde “Kontrol listelerim” altında saklanır.",
+  "Bifează ce e gata. O copie se păstrează în profil, la „Listele mele”."
+ ],
+ "pdf.sleepWhere": [
+  "Нощувка",
+  "Overnight",
+  "Konaklama",
+  "Cazare"
+ ],
+ "pdf.sleepCheck": [
+  "Провери преди да резервираш",
+  "Check before you book",
+  "Rezervasyondan önce kontrol edin",
+  "Verifică înainte să rezervi"
+ ],
+ "pdf.aiFootnote": [
+  "Текстът е написан от ИИ по данните на плана. Провери важното по официалните източници.",
+  "The text was written by AI from the plan's data. Check what matters against official sources.",
+  "Metin, planın verilerinden yapay zekâ tarafından yazıldı. Önemli noktaları resmî kaynaklardan doğrulayın.",
+  "Textul a fost scris de AI pe baza datelor planului. Verifică ce contează la surse oficiale."
+ ],
+ "pdf.plainFootnote": [
+  "Планът е събран от изчислението на маршрута. Подробен текст дава бутонът „Съвет с ИИ“.",
+  "The plan is assembled from the route calculation. The AI advice button gives a fuller text.",
+  "Plan, rota hesaplamasından derlenmiştir. Daha ayrıntılı metin için yapay zekâ tavsiyesi düğmesini kullanın.",
+  "Planul este adunat din calculul rutei. Un text mai complet îl dă butonul de sfaturi AI."
+ ],
+ "pdf.drivingWord": [
+  "шофиране",
+  "driving",
+  "sürüş",
+  "condus"
+ ],
+ "pdf.arrivalWord": [
+  "пристигане",
+  "arrival",
+  "varış",
+  "sosire"
  ]
 }

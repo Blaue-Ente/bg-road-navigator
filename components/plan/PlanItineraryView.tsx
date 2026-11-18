@@ -1,5 +1,6 @@
 "use client";
 
+import { useTripPdf } from "@/components/plan/useTripPdf";
 import { useState } from "react";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
 import { PlanSafetyBlock } from "@/components/plan/PlanChecklist";
@@ -45,6 +46,7 @@ export function PlanItineraryView({
   const locale = useLocale();
   const units = unitsFrom(m);
   const [shareNote, setShareNote] = useState<string | null>(null);
+  const pdf = useTripPdf(plan, checks);
   const included = new Set(includedIds);
   const points = buildItineraryPoints({ plan, includedStopIds: included, via });
   const desktop = buildMapsHandoff(points, {
@@ -227,10 +229,11 @@ export function PlanItineraryView({
       <div className="plan-no-print flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => window.print()}
-          className="waze-btn-secondary px-4 py-2 text-sm"
+          onClick={() => void pdf.run()}
+          disabled={pdf.state.status === "working"}
+          className="waze-btn-primary px-4 py-2 text-sm disabled:opacity-50"
         >
-          {m.itinerary.print}
+          {pdf.state.status === "working" ? m.pdf.preparing : m.pdf.download}
         </button>
         <button
           type="button"
@@ -247,6 +250,26 @@ export function PlanItineraryView({
           {m.itinerary.download}
         </button>
       </div>
+      {pdf.state.status === "failed" && (
+        <p
+          className="plan-no-print text-sm text-[var(--waze-danger)]"
+          role="status"
+        >
+          {m.pdf.failed}
+        </p>
+      )}
+      {pdf.state.status === "done" && (
+        <p
+          className="plan-no-print text-sm text-[var(--waze-text-secondary)]"
+          role="status"
+        >
+          {pdf.state.saved === "profile"
+            ? m.pdf.savedToProfile
+            : pdf.state.saved === "failed"
+              ? m.pdf.notSaved
+              : m.pdf.notSavedSignedOut}
+        </p>
+      )}
       {shareNote && (
         <p
           className="plan-no-print text-sm text-[var(--waze-text-secondary)]"

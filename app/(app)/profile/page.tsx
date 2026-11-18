@@ -11,6 +11,7 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { GaragePanel } from "@/components/profile/GaragePanel";
 import { FavoritesPanel } from "@/components/profile/FavoritesPanel";
+import { MyChecklistsPanel } from "@/components/profile/MyChecklistsPanel";
 import { SavedRoutesPanel } from "@/components/profile/SavedRoutesPanel";
 import { SavedPlacesPanel } from "@/components/profile/SavedPlacesPanel";
 import { UserServicesPanel } from "@/components/setup/UserServicesPanel";
@@ -74,6 +75,7 @@ export default function ProfilePage() {
           <ProfileEditForm />
           <GaragePanel />
           <FavoritesPanel />
+          <MyChecklistsPanel />
           <UserServicesPanel />
           <SavedRoutesPanel />
           <SavedPlacesPanel />

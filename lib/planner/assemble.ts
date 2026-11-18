@@ -63,6 +63,7 @@ export interface StopAttachment {
   advice: FuelAdvice | null;
   flags: PlaceFlagSummary[];
   lodgingNote: string | null;
+  hotel?: { name: string; stars: number | null; coords: GeoPoint; detourKm: number | null } | null;
   stars: number | null;
   optional?: boolean;
   kinds?: PlanStop["kinds"];
@@ -454,6 +455,14 @@ function toPlanStop(
     advice: attachment?.advice ?? null,
     ...fuelCopy(stop.kinds, coords, attachment, input),
     flags: attachment?.flags ?? [],
+    hotel: attachment?.hotel
+      ? {
+          name: attachment.hotel.name,
+          stars: attachment.hotel.stars,
+          coords: attachment.hotel.coords,
+          detour_km: attachment.hotel.detourKm,
+        }
+      : null,
     optional: false,
     price_note: energy && !attachment?.price ? "price unknown" : null,
     ratings_available: overnight ? false : null,

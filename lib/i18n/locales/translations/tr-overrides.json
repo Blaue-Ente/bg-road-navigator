@@ -183,7 +183,8 @@
     "invalidVehicle": "Geçersiz araç bilgisi.",
     "vehicleLimit": "12 araç sınırına ulaştınız.",
     "borderReportTooSoon": "Bu sınır için zaten bir süre paylaştınız. Teşekkürler!",
-    "invalidBorderReport": "Geçersiz sınır bekleme verisi."
+    "invalidBorderReport": "Geçersiz sınır bekleme verisi.",
+    "invalidChecklist": "Geçersiz kontrol listesi"
   },
   "location": {
     "notifications": {
@@ -623,5 +624,36 @@
     "evPeak": "Genellikle yoğun (iş dönüşü veya hafta sonu). İşletmeci rezervasyona izin veriyorsa uygulaması üzerinden yapın; aksi hâlde kısa süre önce doluluğu kontrol edin ve ikinci bir istasyon için yeterli şarj bırakın.",
     "evPeakBadge": "Yoğun saat",
     "evTitle": "Elektrikli aracı şarj etme"
+  },
+  "hotel": {
+    "areaOnly": "Haritada belirli bir otel yok. Aşağıdaki bölge önerilerine bakın."
+  },
+  "profile": {
+    "checklistsClose": "Daralt",
+    "checklistsConfirmDelete": "Bu kontrol listesi silinsin mi?",
+    "checklistsDelete": "Sil",
+    "checklistsDownload": "PDF indir",
+    "checklistsEmpty": "Henüz kayıtlı liste yok. Bir planın PDF'ini indirdiğinizde kontrol listesi burada saklanır.",
+    "checklistsLoadFailed": "Listeler yüklenemedi.",
+    "checklistsNotReady": "Listeler sunucuda henüz etkin değil (SQL geçişi eksik).",
+    "checklistsOpen": "Aç",
+    "checklistsProgress": "{done} / {total} hazır",
+    "checklistsTitle": "Kontrol listelerim"
+  },
+  "pdf": {
+    "aiFootnote": "Metin, planın verilerinden yapay zekâ tarafından yazıldı. Önemli noktaları resmî kaynaklardan doğrulayın.",
+    "arrivalWord": "varış",
+    "checklistHint": "Hazır olanları işaretleyin. Bir kopya profilinizde “Kontrol listelerim” altında saklanır.",
+    "checklistTitle": "Yolculuk kontrol listesi",
+    "download": "PDF indir (plan ve kontrol listesi)",
+    "drivingWord": "sürüş",
+    "failed": "PDF oluşturulamadı. Biraz sonra tekrar deneyin.",
+    "notSaved": "PDF indirildi, ancak kontrol listesi profilinize kaydedilemedi.",
+    "notSavedSignedOut": "Listeyi profilinizde saklamak için giriş yapın.",
+    "plainFootnote": "Plan, rota hesaplamasından derlenmiştir. Daha ayrıntılı metin için yapay zekâ tavsiyesi düğmesini kullanın.",
+    "preparing": "PDF hazırlanıyor…",
+    "savedToProfile": "Kontrol listesi profilinizde “Kontrol listelerim” altında kayıtlı.",
+    "sleepCheck": "Rezervasyondan önce kontrol edin",
+    "sleepWhere": "Konaklama"
   }
 }

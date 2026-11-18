@@ -201,6 +201,15 @@ export interface PlanPrice {
   observed_at: string;
 }
 
+/** A hotel the map names near an overnight stop. Ratings and prices are not part of it. */
+export interface PlanHotel {
+  name: string;
+  stars: number | null;
+  coords: GeoPoint;
+  /** Extra driving off the route, in km, when known. */
+  detour_km: number | null;
+}
+
 export interface PlanStop {
   id: string;
   kinds: StopKind[];
@@ -239,6 +248,8 @@ export interface PlanStop {
   lodging_note: string | null;
   /** OSM star class, 1–5, when the place tag says so. Null when unknown. */
   stars: number | null;
+  /** The hotel the map names near an overnight stop, when one is named. */
+  hotel?: PlanHotel | null;
   /** Minutes asleep after this stop; set only on the overnight anchor stop. */
   sleep_min?: number | null;
   /** IANA zone for the 08:00 wake after this overnight stop. */

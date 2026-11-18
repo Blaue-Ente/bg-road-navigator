@@ -53,6 +53,7 @@ export function attachStops(input: {
     const hotel = stop.kinds.includes("overnight");
     let place: AnnotatedPlace | null = null;
     let lodgingNote: string | null = null;
+    let hotelPlace: AnnotatedPlace | null = null;
 
     if (energy) {
       place = pickPlace(priced, input.preferences, {
@@ -69,6 +70,9 @@ export function attachStops(input: {
         windowEndKm: stop.distanceKm + 8,
         looseDetourKm: 12,
       });
+      // The map's named hotel is kept apart from the stop's place: a combined
+      // fuel and overnight stop shows the station there, never as the bed.
+      if (stay && isNamedPlace(stay)) hotelPlace = stay;
       if (!place && stay) place = stay;
       else if (stay && isNamedPlace(stay)) {
         lodgingNote = formatTemplate(stopCopy.lodgingNearby, {
@@ -90,7 +94,7 @@ export function attachStops(input: {
       });
     }
 
-    return toAttachment(stop, place, lodgingNote, input, fuel, liters);
+    return toAttachment(stop, place, lodgingNote, input, fuel, liters, hotelPlace);
   });
 
   const sights = pickSights(
@@ -163,7 +167,8 @@ function toAttachment(
     averagePerLitre: (country: string) => number | null;
   },
   fuel: "diesel" | "petrol" | "lpg" | null,
-  liters: number
+  liters: number,
+  hotelPlace: AnnotatedPlace | null = null
 ): StopAttachment {
   const advice = adviceFor(place, input, fuel, liters);
   const flags: PlaceFlagSummary[] = Object.entries(place?.flagWeights ?? {})
@@ -188,6 +193,14 @@ function toAttachment(
     advice,
     flags,
     lodgingNote,
+    hotel: hotelPlace
+      ? {
+          name: hotelPlace.name,
+          stars: starsFromTags(hotelPlace.tags),
+          coords: { lng: hotelPlace.lng, lat: hotelPlace.lat },
+          detourKm: Math.round(hotelPlace.detourKm * 10) / 10,
+        }
+      : null,
     stars: starsFromTags(place?.tags),
     optional: place?.kind === "attraction" || place?.kind === "viewpoint",
   };
