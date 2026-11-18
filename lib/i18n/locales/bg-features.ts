@@ -37,6 +37,12 @@ export const bgFeatures = {
     prep: "Подготовка за пътя",
   },
   community: {
+    badRoadEnd: "Докосни на картата къде свършва лошият участък.",
+    badRoadEndPrompt: "Лош участък: докосни края му на картата",
+    badRoadPointOnly: "Само точка, без край",
+    badRoadPublish: "Публикувай участъка",
+    badRoadSegment: "Участък {km} км: от {a} до {b}",
+    badRoadTooLong: "Участъкът е твърде дълъг (най-много {max} км). Избери по-близка точка.",
     closeComposer: "Затвори",
   },
   costs: {
@@ -284,6 +290,9 @@ export const bgFeatures = {
       prepPhoneDetail: "Кабел за колата, външна батерия, свалени карти за държавите по пътя.",
       prepWipes: "Мокри и сухи кърпи, торби за боклук",
       prepWipesDetail: "За ръце, разливи и тоалетни без хартия. Торбички за боклука в колата.",
+    },
+    warnings: {
+      badRoadSegment: "Лош път по сигнали на шофьори от км {from} до км {to}: карайте по-бавно и внимателно.",
     },
   },
   planning: {

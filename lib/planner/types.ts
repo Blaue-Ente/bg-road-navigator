@@ -262,6 +262,9 @@ export interface PlanStop {
 }
 
 export interface CommunityNote {
+  /** A stretch (bad road): road kilometres where it starts and ends. */
+  from_km?: number;
+  to_km?: number;
   id: string;
   category: string;
   title: string;

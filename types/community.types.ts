@@ -23,6 +23,8 @@ export interface CommunityPin {
   description: string | null;
   text?: string | null;
   coords: { lng: number; lat: number };
+  /** The far end of a stretch (bad road); absent for a point. */
+  end_coords?: { lng: number; lat: number } | null;
   photo_url?: string | null;
   is_verified: boolean;
   upvotes: number;

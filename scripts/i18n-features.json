@@ -2296,5 +2296,47 @@
   "I cannot offer a more scenic road right now, so the route is the fastest. The places below can still be found.",
   "Şu anda daha manzaralı bir yol öneremiyorum, bu yüzden rota en hızlısı. Aşağıdaki yerler yine de aranabilir.",
   "Acum nu pot oferi un drum mai pitoresc, deci traseul este cel mai rapid. Locurile de mai jos pot fi căutate oricum."
+ ],
+ "planner.warnings.badRoadSegment": [
+  "Лош път по сигнали на шофьори от км {from} до км {to}: карайте по-бавно и внимателно.",
+  "Bad road reported by drivers from km {from} to km {to}: drive slower and with care.",
+  "Sürücülerin bildirdiği kötü yol km {from} ile km {to} arası: yavaş ve dikkatli gidin.",
+  "Drum prost raportat de șoferi de la km {from} la km {to}: conduceți mai încet și cu grijă."
+ ],
+ "community.badRoadEnd": [
+  "Докосни на картата къде свършва лошият участък.",
+  "Tap the map where the bad stretch ends.",
+  "Kötü yolun nerede bittiğini haritaya dokunarak seçin.",
+  "Atinge harta unde se termină porțiunea proastă."
+ ],
+ "community.badRoadEndPrompt": [
+  "Лош участък: докосни края му на картата",
+  "Bad stretch: tap its end on the map",
+  "Kötü yol: bitişine haritada dokunun",
+  "Porțiune proastă: atinge capătul ei pe hartă"
+ ],
+ "community.badRoadSegment": [
+  "Участък {km} км: от {a} до {b}",
+  "Stretch of {km} km: from {a} to {b}",
+  "{km} km'lik kesim: {a} ile {b} arası",
+  "Porțiune de {km} km: de la {a} la {b}"
+ ],
+ "community.badRoadPublish": [
+  "Публикувай участъка",
+  "Publish the stretch",
+  "Kesimi yayınla",
+  "Publică porțiunea"
+ ],
+ "community.badRoadPointOnly": [
+  "Само точка, без край",
+  "Just a point, no end",
+  "Sadece nokta, bitiş yok",
+  "Doar un punct, fără capăt"
+ ],
+ "community.badRoadTooLong": [
+  "Участъкът е твърде дълъг (най-много {max} км). Избери по-близка точка.",
+  "The stretch is too long (at most {max} km). Pick a closer point.",
+  "Kesim çok uzun (en fazla {max} km). Daha yakın bir nokta seçin.",
+  "Porțiunea este prea lungă (cel mult {max} km). Alege un punct mai apropiat."
  ]
 }

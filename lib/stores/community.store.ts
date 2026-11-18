@@ -8,6 +8,12 @@ interface CommunityState {
   isDropMode: boolean;
   /** Set when user taps the map (or geolocation) while composing a pin. */
   dropCoords: GeoPoint | null;
+  /** A bad-road signal waits for its end: the next map tap sets it. */
+  segmentPending: boolean;
+  /** The far end of the bad stretch being composed. */
+  dropEndCoords: GeoPoint | null;
+  setSegmentPending: (pending: boolean) => void;
+  setDropEndCoords: (coords: GeoPoint | null) => void;
   setPins: (pins: CommunityPin[]) => void;
   addPin: (pin: CommunityPin) => void;
   removePin: (id: string) => void;
@@ -24,6 +30,10 @@ export const useCommunityStore = create<CommunityState>((set) => ({
   selectedPin: null,
   isDropMode: false,
   dropCoords: null,
+  segmentPending: false,
+  dropEndCoords: null,
+  setSegmentPending: (pending) => set({ segmentPending: pending }),
+  setDropEndCoords: (coords) => set({ dropEndCoords: coords, segmentPending: false }),
   setPins: (pins) => set({ pins }),
   addPin: (pin) => set((state) => ({ pins: [pin, ...state.pins] })),
   removePin: (id) =>
@@ -49,8 +59,15 @@ export const useCommunityStore = create<CommunityState>((set) => ({
     })),
   setDropCoords: (coords) => set({ dropCoords: coords }),
   beginDrop: (coords = null) =>
-    set({ isDropMode: true, dropCoords: coords, selectedPin: null }),
-  cancelDrop: () => set({ isDropMode: false, dropCoords: null }),
+    set({
+      isDropMode: true,
+      dropCoords: coords,
+      dropEndCoords: null,
+      segmentPending: false,
+      selectedPin: null,
+    }),
+  cancelDrop: () =>
+    set({ isDropMode: false, dropCoords: null, dropEndCoords: null, segmentPending: false }),
 }));
 
 export type { PinComment };

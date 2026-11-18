@@ -577,6 +577,16 @@ export async function runTripPlan(input: TripPlanRequest) {
   if (prefs.pace === "scenic" && sights.length === 0) {
     warnings.push(plannerCopy.warnings.scenicEmpty);
   }
+  for (const note of community.notes) {
+    if (note.category === "bad_road" && note.from_km != null && note.to_km != null) {
+      warnings.push(
+        formatTemplate(plannerCopy.warnings.badRoadSegment, {
+          from: String(note.from_km),
+          to: String(note.to_km),
+        })
+      );
+    }
+  }
   warnings.push(...hazardWarnings(roadHazards, locale));
   warnings.push(...hotspotWarnings(attentionSegments, locale));
 

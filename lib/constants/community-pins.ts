@@ -121,3 +121,5 @@ export function formatPinAge(
   const days = Math.round(hours / 24);
   return formatTemplate(t.ageDays, { days: String(days) });
 }
+/** A bad stretch longer than this is not one stretch. */
+export const MAX_SEGMENT_KM = 50;

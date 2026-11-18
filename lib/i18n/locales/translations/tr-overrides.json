@@ -150,6 +150,9 @@
       "prepPhoneDetail": "Araç kablosu, powerbank, güzergâhtaki ülkeler için indirilmiş haritalar.",
       "prepWipes": "Islak ve kuru mendiller, çöp torbaları",
       "prepWipesDetail": "Eller, dökülmeler ve kâğıtsız tuvaletler için. Arabada çöp torbaları."
+    },
+    "warnings": {
+      "badRoadSegment": "Sürücülerin bildirdiği kötü yol km {from} ile km {to} arası: yavaş ve dikkatli gidin."
     }
   },
   "api": {
@@ -670,7 +673,13 @@
     "sleepWhere": "Konaklama"
   },
   "community": {
-    "closeComposer": "Kapat"
+    "closeComposer": "Kapat",
+    "badRoadEnd": "Kötü yolun nerede bittiğini haritaya dokunarak seçin.",
+    "badRoadEndPrompt": "Kötü yol: bitişine haritada dokunun",
+    "badRoadPointOnly": "Sadece nokta, bitiş yok",
+    "badRoadPublish": "Kesimi yayınla",
+    "badRoadSegment": "{km} km'lik kesim: {a} ile {b} arası",
+    "badRoadTooLong": "Kesim çok uzun (en fazla {max} km). Daha yakın bir nokta seçin."
   },
   "costs": {
     "bridge": "Tuna köprüsü veya feribot ({crossings} geçiş): ücret dahil değil, işletmeciden kontrol edin",
