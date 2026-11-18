@@ -230,3 +230,24 @@ function border(id: string, total: number, chosen: boolean): ScoredBorder {
     reason: "",
   };
 }
+
+describe("car size", () => {
+  it("a small car gets closer stops and a shorter driving day", () => {
+    const standard = prefs({ break_every_min: 135 });
+    const compact = prefs({ break_every_min: 135, car_comfort: "compact" });
+    expect(effectiveBreakEveryMin(standard)).toBe(135);
+    expect(effectiveBreakEveryMin(compact)).toBe(105);
+    expect(drivingDayLimits(compact).overnightAfterMin).toBe(
+      drivingDayLimits(standard).overnightAfterMin - 90
+    );
+  });
+
+  it("keeps the exact interval the driver chose", () => {
+    const exact = prefs({ break_every_min: 150, break_exact: true, car_comfort: "compact" });
+    expect(effectiveBreakEveryMin(exact)).toBe(150);
+  });
+
+  it("a roomy car changes nothing", () => {
+    expect(effectiveBreakEveryMin(prefs({ car_comfort: "roomy" }))).toBe(135);
+  });
+});

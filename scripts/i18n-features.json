@@ -1906,5 +1906,35 @@
   "Other",
   "Diğer",
   "Altele"
+ ],
+ "prefs.carComfort": [
+  "Размер на колата",
+  "Car size",
+  "Araç boyutu",
+  "Dimensiunea mașinii"
+ ],
+ "prefs.carComfortRoomy": [
+  "Просторна (миниван, бус, голям SUV)",
+  "Roomy (van, minibus, large SUV)",
+  "Geniş (minivan, minibüs, büyük SUV)",
+  "Spațioasă (monovolum, microbuz, SUV mare)"
+ ],
+ "prefs.carComfortStandard": [
+  "Обикновена (седан, комби)",
+  "Standard (sedan, estate)",
+  "Standart (sedan, station)",
+  "Standard (berlină, break)"
+ ],
+ "prefs.carComfortCompact": [
+  "Малка или тясна",
+  "Small or cramped",
+  "Küçük veya dar",
+  "Mică sau îngustă"
+ ],
+ "prefs.carComfortHint": [
+  "В малка кола хората се уморяват по-бързо: почивките са по-чести, а денят зад волана е по-кратък.",
+  "In a small car people tire sooner: stops come more often and the driving day is shorter.",
+  "Küçük bir araçta insanlar daha çabuk yorulur: molalar sıklaşır, sürüş günü kısalır.",
+  "Într-o mașină mică oamenii obosesc mai repede: opririle sunt mai dese, iar ziua la volan e mai scurtă."
  ]
 }

@@ -56,13 +56,24 @@ export async function POST(request: NextRequest) {
       })
     ),
   };
-  const key = createHash("sha256").update(JSON.stringify(input)).digest("hex");
+  // Town names along a scenic road, so the model can name sights that exist there.
+  const along = await Promise.all(
+    input.along.map(async (point) => {
+      const found = await Promise.race([
+        reversePlace(point.lat, point.lng, { lang: parsed.data.locale }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 3_500)),
+      ]).catch(() => null);
+      return { ...point, town: weatherPlaceLabel(found, null, parsed.data.locale) };
+    })
+  );
+  const guideInput = { ...input, along };
+  const key = createHash("sha256").update(JSON.stringify(guideInput)).digest("hex");
   const hit = cache.get(key);
   if (hit && hit.expiresAt > Date.now()) {
     return NextResponse.json({ guide: hit.guide, available: true, cached: true });
   }
   let aiError: string | null = null;
-  const guide = await tripGuide(input, {
+  const guide = await tripGuide(guideInput, {
     onError: (message) => (aiError = message),
   });
   if (!guide) {

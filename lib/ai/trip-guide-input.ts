@@ -1,6 +1,6 @@
 import type { TripGuideInput } from "@/lib/ai/trip-guide";
 import type { Locale } from "@/lib/i18n/locale";
-import { effectiveBreakEveryMin } from "@/lib/planner/preferences";
+import { drivingDayHours, effectiveBreakEveryMin } from "@/lib/planner/preferences";
 import { fuelVerdict } from "@/lib/planner/fuel-verdict";
 import type { PlanStop, TripPlannerResult } from "@/lib/planner/types";
 
@@ -31,11 +31,37 @@ function stopFacts(stop: PlanStop): string[] {
   return facts.slice(0, 8);
 }
 
+/** Points spread along the route, for the server to turn into town names. */
+export function alongPoints(
+  line: Array<[number, number]>,
+  distanceKm: number,
+  count = 6
+): TripGuideInput["along"] {
+  if (line.length < 2 || distanceKm < 150) return [];
+  const out: TripGuideInput["along"] = [];
+  for (let i = 1; i <= count; i += 1) {
+    const at = line[Math.min(line.length - 1, Math.round((i / (count + 1)) * (line.length - 1)))]!;
+    out.push({
+      km: Math.round((i / (count + 1)) * distanceKm),
+      lng: Math.round(at[0] * 1e4) / 1e4,
+      lat: Math.round(at[1] * 1e4) / 1e4,
+    });
+  }
+  return out;
+}
+
+/** True when the first leg starts between 18:00 and 05:59 on the device clock. */
+export function leavesAtNight(departIso: string): boolean {
+  const hour = new Date(departIso).getHours();
+  return Number.isFinite(hour) && (hour >= 18 || hour < 6);
+}
+
 /** The plan's facts for the model, in a small, bounded shape. */
 export function guideInputFromPlan(
   plan: TripPlannerResult,
   locale: Locale,
-  countries: string[] = []
+  countries: string[] = [],
+  via: string[] = []
 ): TripGuideInput {
   const prefs = plan.preferences;
   const real = plan.stops
@@ -87,6 +113,14 @@ export function guideInputFromPlan(
     depart_local: clock(plan.depart_at),
     arrive_local: clock(arrival),
     pace: prefs.pace,
+    car_comfort: prefs.car_comfort,
+    leaves_at_night: leavesAtNight(plan.depart_at),
+    max_day_driving_h: drivingDayHours(prefs),
+    via: via.slice(0, 3).map((label) => label.slice(0, 120)),
+    along:
+      prefs.pace === "scenic"
+        ? alongPoints(plan.route.geometry.coordinates as Array<[number, number]>, plan.route.distance_km)
+        : [],
     break_every_min: effectiveBreakEveryMin(prefs),
     travelers: {
       adults: Math.min(8, Math.max(1, prefs.adults ?? 1, prefs.drivers)),

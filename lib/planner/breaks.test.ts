@@ -101,6 +101,13 @@ describe("wakeAt", () => {
     expect(wake.toISOString()).toBe("2026-11-17T06:00:00.000Z");
   });
 
+  it("arriving by day after a night drive rests eight hours, not until tomorrow", () => {
+    // 11:45 Bucharest-time arrival (09:45Z) must not wait for 08:00 next day.
+    const arrival = new Date("2026-12-19T09:45:00.000Z");
+    const wake = wakeAt(arrival, "Europe/Bucharest");
+    expect(wake.toISOString()).toBe("2026-12-19T17:45:00.000Z");
+  });
+
   it("after 05:00 Sofia waits at least eight hours", () => {
     const arrival = new Date("2026-11-16T03:00:00.000Z");
     const wake = wakeAt(arrival, tz);

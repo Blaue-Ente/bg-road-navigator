@@ -586,7 +586,12 @@
     "breakExact": "Seçtiğim aralığı aynen uygula",
     "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak.",
     "adults": "Araçtaki yetişkinler",
-    "adultsHint": "Sürücüleri içerir. Otel aramasında (oda ve misafir) kullanılır."
+    "adultsHint": "Sürücüleri içerir. Otel aramasında (oda ve misafir) kullanılır.",
+    "carComfort": "Araç boyutu",
+    "carComfortCompact": "Küçük veya dar",
+    "carComfortHint": "Küçük bir araçta insanlar daha çabuk yorulur: molalar sıklaşır, sürüş günü kısalır.",
+    "carComfortRoomy": "Geniş (minivan, minibüs, büyük SUV)",
+    "carComfortStandard": "Standart (sedan, station)"
   },
   "checklist": {
     "prep": "Yola hazırlık"

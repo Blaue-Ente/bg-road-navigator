@@ -187,6 +187,25 @@ export function TravelerPreferenceFields({
           ))}
         </select>
       </label>
+
+      <label className="block text-sm text-[var(--waze-text)]" htmlFor="car-comfort">
+        {m.prefs.carComfort}
+        <select
+          id="car-comfort"
+          value={value.car_comfort}
+          onChange={(event) =>
+            patch({ car_comfort: event.target.value as TripPreferences["car_comfort"] })
+          }
+          className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-3 py-2"
+        >
+          <option value="roomy">{m.prefs.carComfortRoomy}</option>
+          <option value="standard">{m.prefs.carComfortStandard}</option>
+          <option value="compact">{m.prefs.carComfortCompact}</option>
+        </select>
+        <span className="mt-1 block text-xs text-[var(--waze-text-muted)]">
+          {m.prefs.carComfortHint}
+        </span>
+      </label>
     </>
   );
 }

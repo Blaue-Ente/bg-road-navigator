@@ -31,6 +31,26 @@ export const TripGuideInputSchema = z.object({
     drivers: z.number().int().min(1).max(4),
   }),
   vehicle: Text(60).optional(),
+  /** How roomy the car is, from the form. */
+  car_comfort: z.enum(["roomy", "standard", "compact"]).optional(),
+  /** True when the first leg starts in the evening or at night (18:00-05:59). */
+  leaves_at_night: z.boolean().optional(),
+  /** Hours of driving after which the plan puts the first overnight stop. */
+  max_day_driving_h: z.number().finite().min(0).max(24).optional(),
+  /** Places the driver asked to pass through, in order. */
+  via: z.array(Text(120)).max(3).default([]),
+  /** Towns along the road, used for scenic trips. The server fills in `town`. */
+  along: z
+    .array(
+      z.object({
+        km: z.number().finite().min(0).max(20_000),
+        lat: z.number().finite().min(-90).max(90),
+        lng: z.number().finite().min(-180).max(180),
+        town: Text(120).nullable().optional(),
+      })
+    )
+    .max(8)
+    .default([]),
   countries: z.array(Text(8)).max(12),
   border: z
     .object({
@@ -134,7 +154,7 @@ export const TripGuideSchema = z.object({
   /** The written plan: free-flowing paragraphs under short headings. */
   sections: z
     .array(z.object({ heading: Text(100), text: Text(1_800) }))
-    .max(10)
+    .max(12)
     .default([]),
   overnight: z
     .array(
@@ -160,10 +180,13 @@ Rules:
 - Use ONLY the facts in the user JSON. Never invent a hotel, restaurant, price, rating, review, opening hour or road condition. A town or area named in the facts is fine.
 - "title": short, with the route and the date, for example "Berlin to Bugun, 19-20 December".
 - "intro": 2 to 4 sentences: distance, driving time, how many days, who is travelling and the one thing that shapes this trip most.
-- "sections": 5 to 8 sections of flowing text (2 to 5 sentences each, no bullet lists, no markdown). Cover, in this order where the facts allow: the first day (leaving time, the legs, where the first break falls and why), each further day, the border crossing (the expected wait and what to bring), the weather that matters, fuel (name the planned stations and their prices, say which to prefer or skip using "verdict"), food and breaks (use food_spots with their times when they fit; say why for THIS group: children's ages, a pet, number of adults, how long since the last break), vignettes and tolls, and what to keep an eye on (use "warnings"). Use real times and kilometres from the facts. Name stops by their place and town.
+- "sections": 6 to 10 sections of flowing text (2 to 5 sentences each, no bullet lists, no markdown). Cover, in this order where the facts allow: the first day (leaving time, the legs, where the first break falls and why), each further day, the border crossing (the expected wait and what to bring), the weather that matters, fuel (name the planned stations and their prices, say which to prefer or skip using "verdict"), food and breaks (use food_spots with their times when they fit; say why for THIS group: children's ages, a pet, number of adults, how long since the last break), vignettes and tolls, and what to keep an eye on (use "warnings"). Use real times and kilometres from the facts. Name stops by their place and town.
 - Break rhythm: if children or a pet travel, say how that changes the stops. Use "break_every_min" as the plan's real interval.
 - "costs": when the facts have "costs", include a section about the expected costs (heading like "Expected costs"). Give the total with its range and per person, then the lines in words: fuel with the litres and price, each vignette with the product chosen and why that one suits the trip length (a day pass each way against one for the whole stay), distance tolls, the night(s), meals and coffee. Say these are approximate, from prices read on "prices_checked_on", and that the official shops have the exact price. If "incomplete" is true, say a bridge or ferry fee is not counted. With "round_trip" the way back on the same road is included; otherwise say it is one way. Use only the numbers given.
 - "overnight": one entry per stop whose kind includes "overnight" (stop_id copied exactly). The stop's "place" can be a filling station: NEVER present it as where to sleep. "where" is the "hotel" if the facts give one, otherwise the "town" (and say it is the area to look in). "why" is one or two sentences from the facts only (arrival time, how far is left the next day, services nearby, a small detour). "check" lists what to confirm in the listing before booking, shaped by the travellers (parking, a pet policy answer, a family room, early breakfast, self check-in). Do not claim a place is clean, safe or cheap.
+- Human load (always): the plan must not push people past what is sensible. Use "car_comfort": in a "compact" car (small, cramped) say plainly that the stops are closer together and the driving day shorter because people tire sooner, and suggest stretching legs at every stop; in a "roomy" car it is easier to rest and sleep on the way. With "drivers" 2 or more, advise swapping at stops (about every 2 to 3 hours), the resting driver really sleeping, and nobody driving tired. With "leaves_at_night" true, say honestly that starting in the evening means the first stretch is overnight driving, that the first long rest falls in the daytime and is for sleeping, and that the trip takes longer overall than a straight run: this is deliberate, not a mistake. Never praise pushing on without sleep.
+- "Why this route" section (use a heading like that, place it second to last): explain, from the facts only, why the plan looks the way it does: the places in "via" the driver asked to pass through (say that they shape the road and may make it longer than the direct way), the border crossing chosen and its wait, "pace" (a scenic pace asks for sights along the road but does not make the road itself more scenic), the rest rhythm, the driving day length and where the nights fall, and what to relax if the driver wants it shorter (fewer via points, leave in the morning, another border). Be honest about trade-offs. 3 to 6 sentences.
+- Sights: when "pace" is "scenic" and "along" has towns, add one section headed like "Worth a stop on the way" with at most 6 places: well-known natural, architectural or historical sights, attractions, zoos or festivals that really exist in or right next to the towns listed in "along", "via" or the stops (name the town for each, and say roughly how far off the road it is only when you know). Use only widely known landmarks you are sure of. Never invent a place, an opening hour, a ticket price or a festival date: for festivals and events say "check the dates", and say hours and prices must be checked before going. Skip the section when you are not sure of anything real.
 - "closing": one warm sentence to end on.
 - If a fact is missing, leave it out. Do not apologise for missing data. No legal or safety guarantees.`;
 
@@ -196,7 +219,7 @@ export async function tripGuide(
     {
       system: `${SYSTEM}\nWrite in ${LANGUAGE[input.locale]}.`,
       user: JSON.stringify(input),
-      maxTokens: 3_200,
+      maxTokens: 4_200,
       timeoutMs: 50_000,
     },
     deps

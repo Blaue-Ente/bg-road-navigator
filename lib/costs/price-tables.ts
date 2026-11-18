@@ -89,6 +89,14 @@ export const DISTANCE_TOLL_EUR_PER_KM: Record<string, number> = {
 /** Share of the kilometres in such a country that are on the tolled motorway. */
 export const TOLLED_SHARE = 0.8;
 
+/**
+ * Countries where only some motorways charge, so far fewer kilometres are
+ * tolled (Poland: sections of A2 and A4; the rest of the way is free).
+ */
+export const TOLLED_SHARE_BY_COUNTRY: Record<string, number> = {
+  PL: 0.3,
+};
+
 /** A casual meal per person, euro. */
 export const MEAL_EUR: Record<string, number> = {
   DE: 16, AT: 17, CH: 25, NL: 17, BE: 17, DK: 22, FR: 17, IT: 15, ES: 13, PT: 12,

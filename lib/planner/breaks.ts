@@ -199,12 +199,19 @@ export function sleepShifts(input: {
   return shifts;
 }
 
-/** Wall-clock wake: at least 8 h sleep, and no earlier than the next 08:00 local. */
+/**
+ * Wall-clock wake: at least 8 h sleep, and no earlier than the next 08:00 local.
+ * Arriving by day (06:00-15:59 local, typical after driving through the night)
+ * is a rest, not a night: the driver wakes after the eight hours instead of
+ * waiting for the next morning, which would leave the car parked for a day.
+ */
 export function wakeAt(
   arrival: Date,
   timeZone: string = SOFIA_TZ
 ): Date {
   const minWake = new Date(arrival.getTime() + MIN_SLEEP_MIN * 60_000);
+  const local = localYmdHm(arrival, timeZone);
+  if (local && local.hour >= 6 && local.hour < 16) return minWake;
   const morning = nextLocal0800(arrival, timeZone);
   return minWake.getTime() >= morning.getTime() ? minWake : morning;
 }

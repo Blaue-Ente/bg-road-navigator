@@ -11,6 +11,7 @@ import {
   ROOM_DEFAULT_EUR,
   ROOM_EUR,
   TOLLED_SHARE,
+  TOLLED_SHARE_BY_COUNTRY,
   VIGNETTES,
   type VignetteProduct,
 } from "@/lib/costs/price-tables";
@@ -174,7 +175,8 @@ export function estimatePlanCosts(input: CostInput): PlanCosts {
   for (const [code, km] of Object.entries(input.countryKm)) {
     const rate = DISTANCE_TOLL_EUR_PER_KM[code];
     if (rate == null || km < MIN_COUNTRY_KM) continue;
-    const eurTotal = km * TOLLED_SHARE * rate * ways;
+    const tolledKm = km * (TOLLED_SHARE_BY_COUNTRY[code] ?? TOLLED_SHARE) * ways;
+    const eurTotal = tolledKm * rate;
     if (eurTotal < 0.5) continue;
     lines.push({
       id: "tolls",
@@ -182,7 +184,7 @@ export function estimatePlanCosts(input: CostInput): PlanCosts {
       eur: round(eurTotal, 1),
       low: round(eurTotal * 0.8, 1),
       high: round(eurTotal * 1.25, 1),
-      detail: { km: round(km * ways), eur_per_km: rate },
+      detail: { km: round(tolledKm), eur_per_km: rate },
     });
   }
 
