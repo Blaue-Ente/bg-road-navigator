@@ -1630,5 +1630,281 @@
   "arrival",
   "varış",
   "sosire"
+ ],
+ "community.closeComposer": [
+  "Затвори",
+  "Close",
+  "Kapat",
+  "Închide"
+ ],
+ "planning.returnAt": [
+  "Дата на връщане (по желание)",
+  "Return date (optional)",
+  "Dönüş tarihi (isteğe bağlı)",
+  "Data întoarcerii (opțional)"
+ ],
+ "planning.returnHint": [
+  "С нея избираме най-подходящата винетка (дневна, седмична или месечна) и пресмятаме разходите и за връщането по същия път.",
+  "With it we pick the best vignette (daily, weekly or monthly) and count the costs of the way back on the same road.",
+  "Bununla en uygun vinyeti (günlük, haftalık veya aylık) seçer ve aynı yoldan dönüşün maliyetini de hesaplarız.",
+  "Cu ea alegem cea mai potrivită rovinietă (zilnică, săptămânală sau lunară) și socotim costurile și pentru întoarcerea pe același drum."
+ ],
+ "costs.title": [
+  "Очаквани разходи",
+  "Expected costs",
+  "Tahmini masraflar",
+  "Costuri estimate"
+ ],
+ "costs.lead": [
+  "Ориентир, не оферта. Цените са снимка от {date}; точните са в официалните магазини и при операторите.",
+  "A guide, not a quote. Prices are a snapshot from {date}; exact ones are in the official shops and with the operators.",
+  "Bir rehberdir, teklif değildir. Fiyatlar {date} tarihli bir görüntüdür; kesin fiyatlar resmî mağazalarda ve işletmecilerdedir.",
+  "Un ghid, nu o ofertă. Prețurile sunt o imagine din {date}; cele exacte sunt în magazinele oficiale și la operatori."
+ ],
+ "costs.fuel": [
+  "Гориво: около {liters} л по {price} €/л",
+  "Fuel: about {liters} l at {price} €/l",
+  "Yakıt: yaklaşık {liters} L, {price} €/L",
+  "Combustibil: circa {liters} l la {price} €/l"
+ ],
+ "costs.charge": [
+  "Зареждане: около {kwh} kWh по {price} €/kWh",
+  "Charging: about {kwh} kWh at {price} €/kWh",
+  "Şarj: yaklaşık {kwh} kWh, {price} €/kWh",
+  "Încărcare: circa {kwh} kWh la {price} €/kWh"
+ ],
+ "costs.vignette": [
+  "Винетка {country}: {count} × {days} дни ({each} € всяка)",
+  "{country} vignette: {count} × {days} days ({each} € each)",
+  "{country} vinyeti: {count} × {days} gün (her biri {each} €)",
+  "Rovinietă {country}: {count} × {days} zile ({each} € fiecare)"
+ ],
+ "costs.tolls": [
+  "Пътна такса {country}: около {km} км платена магистрала",
+  "{country} road toll: about {km} km of tolled motorway",
+  "{country} yol ücreti: yaklaşık {km} km ücretli otoyol",
+  "Taxă de drum {country}: circa {km} km de autostradă cu taxă"
+ ],
+ "costs.bridge": [
+  "Мост или ферибот на Дунав ({crossings} пресичане): таксата не е включена, провери при оператора",
+  "Danube bridge or ferry ({crossings} crossing): the fee is not included, check with the operator",
+  "Tuna köprüsü veya feribot ({crossings} geçiş): ücret dahil değil, işletmeciden kontrol edin",
+  "Pod sau bac peste Dunăre ({crossings} traversare): taxa nu este inclusă, verifică la operator"
+ ],
+ "costs.lodging": [
+  "Нощувки: {nights} нощ, {rooms} стая по около {price} €",
+  "Overnight: {nights} night(s), {rooms} room(s) at about {price} €",
+  "Konaklama: {nights} gece, {rooms} oda, yaklaşık {price} €",
+  "Cazare: {nights} noapte/nopți, {rooms} cameră/camere la circa {price} €"
+ ],
+ "costs.meals": [
+  "Храна: {meals} хранения на човек, {people} души, около {price} € на хранене",
+  "Meals: {meals} per person, {people} people, about {price} € a meal",
+  "Yemek: kişi başı {meals} öğün, {people} kişi, öğün başı yaklaşık {price} €",
+  "Mese: {meals} de persoană, {people} persoane, circa {price} € pe masă"
+ ],
+ "costs.coffee": [
+  "Кафе и закуски: {stops} спирки",
+  "Coffee and snacks: {stops} stops",
+  "Kahve ve atıştırmalık: {stops} mola",
+  "Cafea și gustări: {stops} opriri"
+ ],
+ "costs.total": [
+  "Общо около {total} € (между {low} и {high} €)",
+  "Total about {total} € (between {low} and {high} €)",
+  "Toplam yaklaşık {total} € ({low} ile {high} € arası)",
+  "Total circa {total} € (între {low} și {high} €)"
+ ],
+ "costs.perPerson": [
+  "≈ {per} € на човек",
+  "≈ {per} € per person",
+  "Kişi başı ≈ {per} €",
+  "≈ {per} € de persoană"
+ ],
+ "costs.incomplete": [
+  "В сумата не влизат таксите, чиято цена не е позната.",
+  "The total leaves out fees whose price is not known.",
+  "Fiyatı bilinmeyen ücretler toplama dahil değildir.",
+  "Totalul nu include taxele al căror preț nu este cunoscut."
+ ],
+ "costs.roundTrip": [
+  "Включва и връщането по същия път; винетките са избрани за {days} дни.",
+  "Includes the way back on the same road; vignettes are chosen for {days} days.",
+  "Aynı yoldan dönüşü içerir; vinyetler {days} gün için seçildi.",
+  "Include și întoarcerea pe același drum; rovinietele sunt alese pentru {days} zile."
+ ],
+ "costs.oneWay": [
+  "Само в една посока. С дата на връщане включваме и пътя обратно и избираме винетки за целия период.",
+  "One way only. With a return date we add the way back and pick vignettes for the whole period.",
+  "Yalnızca tek yön. Dönüş tarihiyle dönüş yolunu da ekler ve tüm dönem için vinyet seçeriz.",
+  "Doar dus. Cu o dată de întoarcere adăugăm și drumul înapoi și alegem rovinietele pentru toată perioada."
+ ],
+ "costs.shop": [
+  "Официален магазин за винетките: виж „Винетки“.",
+  "Official vignette shops: see “Vignettes”.",
+  "Resmî vinyet mağazaları: “Vinyetler” bölümüne bakın.",
+  "Magazinele oficiale pentru rovinete: vezi „Rovinete”."
+ ],
+ "ledger.title": [
+  "Равносметка на пътуването",
+  "Trip balance",
+  "Yolculuk dökümü",
+  "Bilanțul călătoriei"
+ ],
+ "ledger.hint": [
+  "По желание: километражът и реалните разходи, за да видиш колко е струвало пътуването спрямо очакваното.",
+  "Optional: the odometer and what you really spent, to see what the trip cost against the estimate.",
+  "İsteğe bağlı: kilometre sayacı ve gerçek harcamalar; yolculuğun tahmine göre ne kadar tuttuğunu görün.",
+  "Opțional: kilometrajul și cheltuielile reale, ca să vezi cât a costat călătoria față de estimare."
+ ],
+ "ledger.odoStart": [
+  "Километраж при тръгване",
+  "Odometer at the start",
+  "Başlangıçta kilometre",
+  "Kilometraj la plecare"
+ ],
+ "ledger.odoEnd": [
+  "Километраж при връщане",
+  "Odometer on return",
+  "Dönüşte kilometre",
+  "Kilometraj la întoarcere"
+ ],
+ "ledger.driven": [
+  "Изминати: {km} км",
+  "Driven: {km} km",
+  "Gidilen: {km} km",
+  "Parcurși: {km} km"
+ ],
+ "ledger.expenses": [
+  "Какво е похарчено",
+  "What was spent",
+  "Neler harcandı",
+  "Ce s-a cheltuit"
+ ],
+ "ledger.add": [
+  "Добави разход",
+  "Add an expense",
+  "Harcama ekle",
+  "Adaugă o cheltuială"
+ ],
+ "ledger.amount": [
+  "Сума в €",
+  "Amount in €",
+  "Tutar (€)",
+  "Sumă în €"
+ ],
+ "ledger.note": [
+  "Бележка",
+  "Note",
+  "Not",
+  "Notă"
+ ],
+ "ledger.remove": [
+  "Премахни",
+  "Remove",
+  "Kaldır",
+  "Elimină"
+ ],
+ "ledger.save": [
+  "Запази равносметката",
+  "Save the balance",
+  "Dökümü kaydet",
+  "Salvează bilanțul"
+ ],
+ "ledger.saved": [
+  "Запазено.",
+  "Saved.",
+  "Kaydedildi.",
+  "Salvat."
+ ],
+ "ledger.saveFailed": [
+  "Не се запази. Опитай пак.",
+  "It did not save. Try again.",
+  "Kaydedilemedi. Tekrar deneyin.",
+  "Nu s-a salvat. Încearcă din nou."
+ ],
+ "ledger.spent": [
+  "Похарчено: {spent} € (очаквано {estimate} €)",
+  "Spent: {spent} € (estimated {estimate} €)",
+  "Harcanan: {spent} € (tahmin {estimate} €)",
+  "Cheltuit: {spent} € (estimat {estimate} €)"
+ ],
+ "ledger.spentOnly": [
+  "Похарчено: {spent} €",
+  "Spent: {spent} €",
+  "Harcanan: {spent} €",
+  "Cheltuit: {spent} €"
+ ],
+ "ledger.over": [
+  "{diff} € повече от очакваното",
+  "{diff} € more than estimated",
+  "Tahminden {diff} € fazla",
+  "Cu {diff} € peste estimare"
+ ],
+ "ledger.under": [
+  "{diff} € по-малко от очакваното",
+  "{diff} € less than estimated",
+  "Tahminden {diff} € az",
+  "Cu {diff} € sub estimare"
+ ],
+ "ledger.per100": [
+  "Реален разход на гориво: {price} € на 100 км",
+  "Real fuel cost: {price} € per 100 km",
+  "Gerçek yakıt maliyeti: 100 km'de {price} €",
+  "Cost real al combustibilului: {price} € la 100 km"
+ ],
+ "ledger.perPerson": [
+  "Това са {per} € на човек",
+  "That is {per} € per person",
+  "Bu kişi başı {per} €",
+  "Adică {per} € de persoană"
+ ],
+ "ledger.cat.fuel": [
+  "Гориво",
+  "Fuel",
+  "Yakıt",
+  "Combustibil"
+ ],
+ "ledger.cat.vignette": [
+  "Винетки",
+  "Vignettes",
+  "Vinyetler",
+  "Rovinete"
+ ],
+ "ledger.cat.tolls": [
+  "Пътни такси",
+  "Road tolls",
+  "Yol ücretleri",
+  "Taxe de drum"
+ ],
+ "ledger.cat.bridge": [
+  "Мост или ферибот",
+  "Bridge or ferry",
+  "Köprü veya feribot",
+  "Pod sau bac"
+ ],
+ "ledger.cat.lodging": [
+  "Нощувки",
+  "Overnight",
+  "Konaklama",
+  "Cazare"
+ ],
+ "ledger.cat.meals": [
+  "Храна",
+  "Meals",
+  "Yemek",
+  "Mese"
+ ],
+ "ledger.cat.coffee": [
+  "Кафе и закуски",
+  "Coffee and snacks",
+  "Kahve ve atıştırmalık",
+  "Cafea și gustări"
+ ],
+ "ledger.cat.other": [
+  "Друго",
+  "Other",
+  "Diğer",
+  "Altele"
  ]
 }

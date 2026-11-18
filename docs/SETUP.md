@@ -47,6 +47,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 
 10. След това `drizzle/0008_user_checklists.sql` — „Моите чек листове“ в профила (`user_checklists`: дата и дестинация като име, точките и отметките). Без нея PDF-ът пак се сваля, а секцията в профила казва, че още не е включена.
 
+11. След нея `drizzle/0009_checklist_trip_log.sql` — километраж и реални разходи към чек листа (колона `trip_log`). Изпълнява се заедно с 0008: докато колоната липсва, секцията „Моите чек листове“ пише, че още не е включена.
+
 Същото през `psql`, без да записвате паролата в git:
 
 ```bash
@@ -58,6 +60,7 @@ psql "$DATABASE_URL" -f drizzle/0005_user_vehicles.sql
 psql "$DATABASE_URL" -f drizzle/0006_push.sql
 psql "$DATABASE_URL" -f drizzle/0007_border_reports.sql
 psql "$DATABASE_URL" -f drizzle/0008_user_checklists.sql
+psql "$DATABASE_URL" -f drizzle/0009_checklist_trip_log.sql
 ```
 
 Първият файл създава таблиците на Better Auth (`user`, `session`, `account`, `verification`) и `profiles`, `saved_places`, `saved_routes`, `community_pins`, `pin_comments`, `community_pin_votes`, `community_pin_reports`. Вторият създава `nakordoni_cache`, `nakordoni_budget` и `osm_query_cache`.

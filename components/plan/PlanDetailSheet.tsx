@@ -10,6 +10,7 @@ import { PlanChecklist } from "@/components/plan/PlanChecklist";
 import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
+import { CostsSection } from "@/components/plan/CostsSection";
 import { TripGuide } from "@/components/plan/TripGuide";
 import { checklistPlanKey } from "@/lib/pdf/plan-pdf";
 import { useUserStore } from "@/lib/stores/user.store";
@@ -390,6 +391,8 @@ function DetailBody({
         onToggle={onToggleStop}
         focusedStopId={focusedStopId}
       />
+
+      {plan.costs ? <CostsSection costs={plan.costs} /> : null}
 
       <TripGuide plan={plan} checks={checks} />
 

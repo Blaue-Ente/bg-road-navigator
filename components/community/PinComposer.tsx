@@ -2,7 +2,8 @@
 
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCommunityStore } from "@/lib/stores/community.store";
 import { PinCategorySelector } from "@/components/community/PinCategorySelector";
@@ -30,6 +31,16 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
   const [title, setTitle] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Escape closes it, for a keyboard or a desktop browser.
+  useEffect(() => {
+    if (!isDropMode) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") cancelDrop();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isDropMode, cancelDrop]);
 
   if (!isDropMode) return null;
   if (requireMapTap && !dropCoords) return null;
@@ -86,13 +97,23 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
     <>
       <button
         type="button"
-        className="fixed inset-0 z-40 bg-black/40"
+        className="pointer-events-auto fixed inset-0 z-[55] bg-black/40"
         onClick={() => cancelDrop()}
         aria-label={m.community.msg0b9f7c6d05}
       />
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-5 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:left-4 md:right-auto md:w-[360px] md:rounded-3xl md:pb-5">
+      <div className="pointer-events-auto fixed bottom-0 left-0 right-0 z-[60] max-h-[85dvh] overflow-y-auto rounded-t-3xl border border-[var(--waze-border)] bg-[var(--waze-surface)] p-5 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-4 md:left-4 md:right-auto md:w-[360px] md:rounded-3xl md:pb-5">
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[var(--waze-border)] md:hidden" />
-        <h2 className="mb-1 text-lg font-bold text-[var(--waze-text)]">{m.community.msg3707faa7c5}</h2>
+        <div className="mb-1 flex items-start justify-between gap-2">
+          <h2 className="text-lg font-bold text-[var(--waze-text)]">{m.community.msg3707faa7c5}</h2>
+          <button
+            type="button"
+            onClick={() => cancelDrop()}
+            aria-label={m.community.closeComposer}
+            className="-mt-1 -mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-[var(--waze-text)]"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
         <p className="mb-4 text-xs text-[var(--waze-text-secondary)]">
           {dropCoords
             ? `${dropCoords.lat.toFixed(4)}, ${dropCoords.lng.toFixed(4)}`

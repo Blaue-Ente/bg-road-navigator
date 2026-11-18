@@ -85,6 +85,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Fuel list: `/api/fuel` fills diesel/petrol prices from Tankerkönig (DE, needs `TANKERKOENIG_API_KEY`) and E-Control (AT) for stations within 200 m (`lib/fuel/station-prices.ts`); fuel types and opening hours come from OpenStreetMap tags (`lib/fuel/station-tags.ts`).
 - Speed cameras: `lib/data/speed-cameras.json` holds 23,339 cameras (20 countries) built by the workflow; the live Overpass path is only used while the file is empty.
 
+### Costs, return date and the trip balance
+
+- `lib/costs`: `estimatePlanCosts` turns the plan into rough costs (`plan.costs`): fuel or charging from the distance, the consumption and each country's pump price (`kmByCountry` splits the route by country); a vignette per country picked for the trip length (one product for the whole stay or one short one for each pass, whichever is cheaper); distance tolls (a per-km rate on 80% of the kilometres); a Danube bridge is named but not counted (no confirmed fee); nights by rooms for the adults; meals and coffee for adults and children. `lib/costs/price-tables.ts` is a dated snapshot (`PRICES_CHECKED_ON`), never a live price: edit it when tariffs change, and the page says "a guide, not a quote".
+- `return_at` (the form's "Return date") is optional on `POST /api/plan`; with it the costs include the way back on the same road and the vignettes cover the whole stay. It is kept on the plan and sent again by replans.
+- Fuelo prices come in national money: `lib/fuel-prices/to-eur.ts` converts them (dinar and denar at fixed rates, the rest from the ECB rates); a currency with no rate is left out. A fuel stop with no station price shows the country average, labelled as an average.
+- "My checklists" also holds a trip balance (`drizzle/0009_checklist_trip_log.sql`, `trip_log`): the odometer at the start and the end, the real expenses by category, and the estimate stored when the plan was saved; `lib/costs/ledger.ts` sums it and compares.
+- Map: the community "new signal" sheet is dismissible (the map page's `main` is `pointer-events-none`, so anything fixed inside it must opt in with `pointer-events-auto`). Speed cameras show from zoom 6 with clustering; the camera box is snapped outward so a zoomed-in view is never an empty box.
+
 ### Keys-only readiness
 
 - Code is ready for operators to paste env vars only (+ one-shot Neon SQL).

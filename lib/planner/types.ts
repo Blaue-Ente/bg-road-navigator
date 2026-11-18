@@ -4,6 +4,7 @@ import type { PriceBand } from "@/lib/fuel-prices/bands";
 import type { RoadHazard } from "@/lib/hazards/types";
 import type { Hotspot } from "@/lib/hotspots/types";
 import type { TripPreferences } from "@/lib/planner/preferences";
+import type { PlanCosts } from "@/lib/costs/estimate";
 import type { GeoPoint } from "@/types/route.types";
 import type { Locale } from "@/lib/i18n/locale";
 
@@ -378,6 +379,10 @@ export interface TripPlannerResult {
   preferences: TripPreferences;
   attribution: OsmAttribution;
   checklist: PlanChecklist;
+  /** Rough trip costs. Absent on plans saved before they existed. */
+  costs?: PlanCosts;
+  /** The day the driver comes back, when given; the costs then include the way back. */
+  return_at?: string | null;
   /** Fast-food chains along the way. Absent on plans saved before it existed. */
   food_spots?: PlanFoodSpot[];
   /** АПИ situations on the Bulgarian part of the route. Empty when none match. */

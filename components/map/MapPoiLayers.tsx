@@ -21,8 +21,8 @@ import { BORDER_CROSSINGS } from "@/lib/constants/border-crossings";
 const DEFAULT_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
 /** Below this zoom the view is too wide for a useful station search. */
 const MIN_STATION_ZOOM = 8;
-/** Camera tiles are half a degree wide, so only a regional view is useful. */
-const MIN_CAMERA_ZOOM = 9;
+/** The dataset is local, so even a country-wide view is cheap; points cluster when far out. */
+const MIN_CAMERA_ZOOM = 6;
 
 interface MapView {
   bbox: { w: number; s: number; e: number; n: number };
@@ -31,14 +31,17 @@ interface MapView {
 
 function readView(map: Map): MapView {
   const bounds = map.getBounds();
-  // Rounded so small pans reuse the cached answer.
-  const round = (value: number) => Math.round(value * 10) / 10;
+  // Snapped outward to 0.1 degree, so small pans reuse the cached answer and the
+  // box always covers what is on screen (rounding to the nearest turned a
+  // zoomed-in view into an empty or misplaced box, and the cameras vanished).
+  const down = (value: number) => Math.floor(value * 10) / 10;
+  const up = (value: number) => Math.ceil(value * 10) / 10;
   return {
     bbox: {
-      w: round(bounds.getWest()),
-      s: round(bounds.getSouth()),
-      e: round(bounds.getEast()),
-      n: round(bounds.getNorth()),
+      w: down(bounds.getWest()),
+      s: down(bounds.getSouth()),
+      e: up(bounds.getEast()),
+      n: up(bounds.getNorth()),
     },
     zoom: map.getZoom(),
   };

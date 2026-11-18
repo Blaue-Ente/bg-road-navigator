@@ -10,7 +10,9 @@
     "carConsumption": "Ortalama tüketim: {value} {unit}",
     "carDefault": "Varsayılan araç",
     "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin.",
-    "addVia": "Ara nokta ekle"
+    "addVia": "Ara nokta ekle",
+    "returnAt": "Dönüş tarihi (isteğe bağlı)",
+    "returnHint": "Bununla en uygun vinyeti (günlük, haftalık veya aylık) seçer ve aynı yoldan dönüşün maliyetini de hesaplarız."
   },
   "sheet": {
     "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",
@@ -655,5 +657,57 @@
     "savedToProfile": "Kontrol listesi profilinizde “Kontrol listelerim” altında kayıtlı.",
     "sleepCheck": "Rezervasyondan önce kontrol edin",
     "sleepWhere": "Konaklama"
+  },
+  "community": {
+    "closeComposer": "Kapat"
+  },
+  "costs": {
+    "bridge": "Tuna köprüsü veya feribot ({crossings} geçiş): ücret dahil değil, işletmeciden kontrol edin",
+    "charge": "Şarj: yaklaşık {kwh} kWh, {price} €/kWh",
+    "coffee": "Kahve ve atıştırmalık: {stops} mola",
+    "fuel": "Yakıt: yaklaşık {liters} L, {price} €/L",
+    "incomplete": "Fiyatı bilinmeyen ücretler toplama dahil değildir.",
+    "lead": "Bir rehberdir, teklif değildir. Fiyatlar {date} tarihli bir görüntüdür; kesin fiyatlar resmî mağazalarda ve işletmecilerdedir.",
+    "lodging": "Konaklama: {nights} gece, {rooms} oda, yaklaşık {price} €",
+    "meals": "Yemek: kişi başı {meals} öğün, {people} kişi, öğün başı yaklaşık {price} €",
+    "oneWay": "Yalnızca tek yön. Dönüş tarihiyle dönüş yolunu da ekler ve tüm dönem için vinyet seçeriz.",
+    "perPerson": "Kişi başı ≈ {per} €",
+    "roundTrip": "Aynı yoldan dönüşü içerir; vinyetler {days} gün için seçildi.",
+    "shop": "Resmî vinyet mağazaları: “Vinyetler” bölümüne bakın.",
+    "title": "Tahmini masraflar",
+    "tolls": "{country} yol ücreti: yaklaşık {km} km ücretli otoyol",
+    "total": "Toplam yaklaşık {total} € ({low} ile {high} € arası)",
+    "vignette": "{country} vinyeti: {count} × {days} gün (her biri {each} €)"
+  },
+  "ledger": {
+    "add": "Harcama ekle",
+    "amount": "Tutar (€)",
+    "cat": {
+      "bridge": "Köprü veya feribot",
+      "coffee": "Kahve ve atıştırmalık",
+      "fuel": "Yakıt",
+      "lodging": "Konaklama",
+      "meals": "Yemek",
+      "other": "Diğer",
+      "tolls": "Yol ücretleri",
+      "vignette": "Vinyetler"
+    },
+    "driven": "Gidilen: {km} km",
+    "expenses": "Neler harcandı",
+    "hint": "İsteğe bağlı: kilometre sayacı ve gerçek harcamalar; yolculuğun tahmine göre ne kadar tuttuğunu görün.",
+    "note": "Not",
+    "odoEnd": "Dönüşte kilometre",
+    "odoStart": "Başlangıçta kilometre",
+    "over": "Tahminden {diff} € fazla",
+    "per100": "Gerçek yakıt maliyeti: 100 km'de {price} €",
+    "perPerson": "Bu kişi başı {per} €",
+    "remove": "Kaldır",
+    "save": "Dökümü kaydet",
+    "saveFailed": "Kaydedilemedi. Tekrar deneyin.",
+    "saved": "Kaydedildi.",
+    "spent": "Harcanan: {spent} € (tahmin {estimate} €)",
+    "spentOnly": "Harcanan: {spent} €",
+    "title": "Yolculuk dökümü",
+    "under": "Tahminden {diff} € az"
   }
 }

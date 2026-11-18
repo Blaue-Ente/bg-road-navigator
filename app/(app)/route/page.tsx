@@ -523,6 +523,7 @@ function postPlan(
       destination: planPoint(destination),
       ...(via.length > 0 ? { via: via.slice(0, 3).map(planPoint) } : {}),
       ...(draft.departAt ? { depart_at: draft.departAt } : {}),
+      ...(draft.returnAt ? { return_at: draft.returnAt } : {}),
       fuel_level: draft.fuelLevel,
       preferences: draft.preferences,
       ...(draft.vehicleId ? { vehicle_id: draft.vehicleId } : {}),

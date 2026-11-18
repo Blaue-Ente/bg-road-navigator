@@ -44,6 +44,8 @@ import { hasAdvancedPlannerOptions } from "@/lib/route/planner-advanced";
 export interface PlanningSubmit {
   preferences: TripPreferences;
   departAt: string | null;
+  /** The way back, when the driver gives a day; null for one way. */
+  returnAt: string | null;
   fuelLevel: number;
   /** Garage car for this trip. Omitted: the server uses the default car. */
   vehicleId?: string;
@@ -305,6 +307,9 @@ export function PlanningForm({
     onSubmit({
       preferences: currentPrefs(),
       departAt: fromDatetimeLocalValue(depart || proposedDepart),
+      returnAt: draft.returnLocal
+        ? fromDatetimeLocalValue(`${draft.returnLocal}T18:00`)
+        : null,
       fuelLevel: fuel / 100,
       ...(tripVehicle ? { vehicleId: tripVehicle.id } : {}),
     });
@@ -385,6 +390,21 @@ export function PlanningForm({
           onChange={(event) => onChange({ departLocal: event.target.value })}
           className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
         />
+      </label>
+      <label className="block text-sm text-[var(--waze-text)]" htmlFor="return-at">
+        {m.planning.returnAt}
+        <input
+          id="return-at"
+          type="date"
+          lang={locale}
+          min={(depart || proposedDepart).slice(0, 10)}
+          value={draft.returnLocal}
+          onChange={(event) => onChange({ returnLocal: event.target.value })}
+          className="focus-ring mt-1 min-h-11 w-full rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-2 text-sm"
+        />
+        <span className="mt-1 block text-xs text-[var(--waze-text-muted)]">
+          {m.planning.returnHint}
+        </span>
       </label>
       {departYourLine ? (
         <p className="text-sm text-[var(--waze-text-secondary)]">

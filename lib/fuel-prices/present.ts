@@ -186,8 +186,10 @@ export function presentFuelStop(input: {
   const countryLabel = input.countryCode
     ? countryName(input.countryCode, locale)
     : null;
+  // Without the station's own price the country average is still shown, as an
+  // average, so the driver has something to go on.
   const averageLabel =
-    countryLabel == null || input.stationPerL == null
+    countryLabel == null || (input.stationPerL == null && input.average == null)
       ? null
       : countryAverageLabel({
           countryName: countryLabel,

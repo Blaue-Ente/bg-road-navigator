@@ -71,6 +71,8 @@ export interface StopAttachment {
 }
 
 import type { FoodSpotDraft } from "@/lib/planner/food-spots";
+import { estimatePlanCosts, type PlanCosts } from "@/lib/costs/estimate";
+import { kmByCountry } from "@/lib/costs/country-km";
 
 export interface AssembleInput {
   now: Date;
@@ -98,6 +100,7 @@ export interface AssembleInput {
   attentionSegments?: Hotspot[];
   sights?: StopAttachment[];
   foodSpots?: FoodSpotDraft[];
+  returnAt?: Date | null;
   fuelAverages: FuelCountryAverage[];
   countryAt: (lng: number, lat: number) => string | null;
   averageFor: (country: string) => KnownAverage | null;
@@ -279,7 +282,55 @@ export function assembleTripPlan(input: AssembleInput): TripPlannerResult {
     attention_segments: input.attentionSegments ?? [],
     attention_attribution: hotspotAttribution(input.attentionSegments ?? []),
     recommended_fuel: recommended,
+    return_at: input.returnAt ? input.returnAt.toISOString() : null,
+    costs: planCosts(input, stops, chosen?.borderId ?? null),
   };
+}
+
+/** The trip's rough cost, from the route's countries, the stops and who travels. */
+function planCosts(
+  input: AssembleInput,
+  stops: PlanStop[],
+  borderId: string | null
+): PlanCosts {
+  const countryKm = kmByCountry(
+    input.geometry.coordinates as Array<[number, number]>,
+    input.distanceKm,
+    (lng, lat) => input.countryAt(lng, lat)
+  );
+  const averagePerL: Record<string, number> = {};
+  for (const code of Object.keys(countryKm)) {
+    const average = input.averageFor(code);
+    if (average && Number.isFinite(average.price) && average.price > 0) {
+      averagePerL[code] = average.price;
+    }
+  }
+  const prefs = input.preferences;
+  return estimatePlanCosts({
+    distanceKm: input.distanceKm,
+    driveMin: input.durationMin,
+    countryKm,
+    stops: stops
+      .filter((stop) => !stop.optional)
+      .map((stop) => ({
+        kinds: stop.kinds,
+        country: input.countryAt(stop.coords.lng, stop.coords.lat),
+      })),
+    vehicle: {
+      energy: input.vehicle.energy,
+      consumption_per_100: input.vehicle.consumption_per_100,
+    },
+    averagePerL,
+    adults: Math.max(1, prefs.adults ?? 1, prefs.drivers),
+    childrenAges: prefs.with_children
+      ? prefs.children_ages.length > 0
+        ? prefs.children_ages
+        : [6]
+      : [],
+    departAt: input.departAt,
+    returnAt: input.returnAt ?? null,
+    borderId,
+  });
 }
 
 function toChoice(border: ScoredBorder) {

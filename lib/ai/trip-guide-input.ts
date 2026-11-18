@@ -126,6 +126,24 @@ export function guideInputFromPlan(
       .slice(0, 8)
       .map((line) => line.slice(0, 220)),
     days,
+    costs: plan.costs
+      ? {
+          round_trip: plan.costs.round_trip,
+          trip_days: plan.costs.trip_days,
+          total_eur: plan.costs.total_eur,
+          total_low: plan.costs.total_low,
+          total_high: plan.costs.total_high,
+          per_person_eur: plan.costs.per_person_eur,
+          incomplete: plan.costs.incomplete,
+          prices_checked_on: plan.costs.checked_on,
+          lines: plan.costs.lines.slice(0, 20).map((line) => ({
+            kind: line.id,
+            country: line.country ?? null,
+            eur: line.eur,
+            detail: line.detail,
+          })),
+        }
+      : null,
     stops: real.map((stop) => {
       const overnight = stop.kinds.includes("overnight");
       const fuel = stop.kinds.includes("fuel");

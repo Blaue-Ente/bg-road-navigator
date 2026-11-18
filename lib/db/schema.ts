@@ -116,6 +116,25 @@ export interface StoredChecklistGroup {
   items: Array<{ id: string; title: string; detail: string }>;
 }
 
+/** What a trip really cost, kept next to its checklist. */
+export interface TripLog {
+  odometer_start_km?: number | null;
+  odometer_end_km?: number | null;
+  expenses?: Array<{
+    id: string;
+    category: string;
+    amount_eur: number;
+    note?: string;
+  }>;
+  /** The estimate made when the plan was saved, to compare the real spending with. */
+  estimate?: {
+    total_eur: number;
+    total_low: number;
+    total_high: number;
+    lines: Array<{ id: string; country: string | null; eur: number | null }>;
+  };
+}
+
 /** The checklist of a planned trip, kept in the profile with its ticks. */
 export const userChecklists = pgTable(
   "user_checklists",
@@ -130,6 +149,7 @@ export const userChecklists = pgTable(
     departAt: timestamp("depart_at", { withTimezone: true }),
     groups: jsonb("groups").$type<StoredChecklistGroup[]>().notNull(),
     checks: jsonb("checks").$type<Record<string, boolean>>().notNull().default({}),
+    tripLog: jsonb("trip_log").$type<TripLog>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

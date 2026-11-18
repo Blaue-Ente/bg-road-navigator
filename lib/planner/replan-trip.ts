@@ -37,6 +37,7 @@ export async function replanTrip(
           }
         : {}),
       depart_at: plan.depart_at,
+      ...(plan.return_at ? { return_at: plan.return_at } : {}),
       fuel_level: plan.vehicle.level,
       reserve_margin: plan.vehicle.reserve,
       preferences: prefs,

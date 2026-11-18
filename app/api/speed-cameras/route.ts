@@ -14,7 +14,7 @@ export const maxDuration = 20;
 export async function GET(request: NextRequest) {
   const limit = rateLimit(
     `speed-cameras:${clientIpFromHeaders(request.headers)}`,
-    30,
+    120,
     60_000
   );
   if (!limit.ok) {
@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
     e: Number(params.get("e")),
     n: Number(params.get("n")),
   });
-  // A whole-country view would need hundreds of upstream calls.
-  if (!parsed.success || parsed.data.e - parsed.data.w > 3 || parsed.data.n - parsed.data.s > 2.5) {
+  // Wide views are fine now that the dataset is local; a whole continent is not.
+  if (!parsed.success || parsed.data.e - parsed.data.w > 16 || parsed.data.n - parsed.data.s > 12) {
     return NextResponse.json({ error: "Invalid bbox" }, { status: 400 });
   }
   const result = await loadSpeedCameras(parsed.data);
