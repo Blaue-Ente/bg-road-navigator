@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { WeatherGlyphIcon } from "@/components/weather/WeatherGlyph";
 import { BorderWaitBlock } from "@/components/plan/BorderWaitBlock";
@@ -50,7 +51,9 @@ export function PlanDetailSheet() {
   const via = useRouteStore((state) => state.planningVia);
   const focusedStopId = useRouteStore((state) => state.focusedStopId);
   const setOpen = useRouteStore((state) => state.setPlanDetailOpen);
-  const [minimized, setMinimized] = useState(false);
+  const minimized = useRouteStore((state) => state.planMinimized);
+  const setMinimized = useRouteStore((state) => state.setPlanMinimized);
+  const pathname = usePathname();
   const [headerOpen, setHeaderOpen] = useState(false);
   const [view, setView] = useState<"detail" | "itinerary">("detail");
   const [included, setIncluded] = useState<Record<string, boolean>>({});
@@ -77,11 +80,11 @@ export function PlanDetailSheet() {
       setChecks(readChecks(checklistStorageKey(current)));
       setMinimized(false);
     });
-  }, [stamp]);
+  }, [stamp, setMinimized]);
 
   useEffect(() => {
     if (focusedStopId) queueMicrotask(() => setMinimized(false));
-  }, [focusedStopId]);
+  }, [focusedStopId, setMinimized]);
 
   useEffect(() => {
     if (!open || minimized) return;
@@ -102,6 +105,8 @@ export function PlanDetailSheet() {
   if (!open || !plan) return null;
 
   if (minimized) {
+    // The map home already shows "show plan" inside the route card.
+    if (pathname === "/") return null;
     return (
       <button
         type="button"

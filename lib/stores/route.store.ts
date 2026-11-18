@@ -33,6 +33,8 @@ interface RouteState {
   routeStatus: "idle" | "loading" | "success" | "error";
   routeError: string | null;
   planDetailOpen: boolean;
+  /** The plan sheet is collapsed to a pill; opening it again expands it. */
+  planMinimized: boolean;
   focusedStopId: string | null;
   planningVia: PlanningVia[];
   replanDraft: ReplanDraft | null;
@@ -46,6 +48,7 @@ interface RouteState {
   setAlternativeRoutes: (routes: Route[]) => void;
   setTripPlan: (plan: TripPlannerResult | null) => void;
   setPlanDetailOpen: (open: boolean) => void;
+  setPlanMinimized: (minimized: boolean) => void;
   setFocusedStopId: (id: string | null) => void;
   setPlanningVia: (via: PlanningVia[]) => void;
   setReplanDraft: (draft: ReplanDraft | null) => void;
@@ -64,6 +67,7 @@ export const useRouteStore = create<RouteState>((set) => ({
   routeStatus: "idle",
   routeError: null,
   planDetailOpen: false,
+  planMinimized: false,
   focusedStopId: null,
   planningVia: [],
   replanDraft: null,
@@ -88,11 +92,14 @@ export const useRouteStore = create<RouteState>((set) => ({
       focusedStopId: null,
       ...(plan ? {} : { planDetailOpen: false }),
     }),
-  setPlanDetailOpen: (open) => set({ planDetailOpen: open }),
+  // Asking for the plan always shows it in full, also when it was collapsed.
+  setPlanDetailOpen: (open) => set({ planDetailOpen: open, planMinimized: false }),
+  setPlanMinimized: (minimized) => set({ planMinimized: minimized }),
   setFocusedStopId: (id) =>
     set((state) => ({
       focusedStopId: id,
       planDetailOpen: id ? true : state.planDetailOpen,
+      planMinimized: id ? false : state.planMinimized,
     })),
   setPlanningVia: (via) => set({ planningVia: via }),
   setReplanDraft: (draft) => set({ replanDraft: draft }),
@@ -124,6 +131,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       routeStatus: "idle",
       routeError: null,
       planDetailOpen: false,
+      planMinimized: false,
       focusedStopId: null,
       planningVia: [],
       choiceCardOrderKeys: null,

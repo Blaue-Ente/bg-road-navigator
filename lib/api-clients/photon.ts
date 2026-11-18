@@ -568,15 +568,12 @@ function scoreFeature(
   ) {
     score += props.importance * 8;
   }
-  score += nameScore(props.name ?? "", query);
+  score += placeNameScore(props, query);
   if (flags.shortCity) {
     score += MAJOR_PLACE[value] ?? 0;
     if (MINOR_PLACE.has(value)) score -= 8;
     const cc = (props.countrycode ?? "").toUpperCase();
-    if (
-      nameScore(props.name ?? "", query) >= 6 &&
-      isCorridorCountry(cc)
-    ) {
+    if (placeNameScore(props, query) >= 6 && isCorridorCountry(cc)) {
       score += 40;
     }
     const area = extentAreaKm2(props.extent);
@@ -601,7 +598,7 @@ function scoreFeature(
     else if (tier !== "none") score += 100;
     else if (house) score += 18;
   } else if (flags.shortCity) {
-    const match = nameScore(props.name ?? "", query);
+    const match = placeNameScore(props, query);
     if (CITY_LIKE_PLACE.has(value) && match >= 4) score += 140;
     if (
       (key === "highway" || STREET_LIKE.has(value)) &&
@@ -612,6 +609,28 @@ function scoreFeature(
     if (value === "station" || key === "railway") score -= 24;
   }
   return score;
+}
+
+/**
+ * With `lang=bg` Photon returns the city under its Bulgarian name (Мюнхен), so a
+ * Latin query ("München") never equals it, while same-named villages keep the
+ * German spelling and win. A Latin query that Photon answered with a city or
+ * town written in another script counts as an exact name match.
+ */
+function translatedCityMatch(
+  props: PhotonProperties,
+  query: string
+): boolean {
+  const value = (props.osm_value ?? props.type ?? "").toLowerCase();
+  if (value !== "city" && value !== "town") return false;
+  if (!/^[\p{Script=Latin}\s.'-]+$/u.test(query.trim())) return false;
+  return /[\p{Script=Cyrillic}\p{Script=Greek}]/u.test(props.name ?? "");
+}
+
+function placeNameScore(props: PhotonProperties, query: string): number {
+  const direct = nameScore(props.name ?? "", query);
+  if (direct >= 6) return direct;
+  return translatedCityMatch(props, query) ? 6 : direct;
 }
 
 function nameScore(name: string, query: string): number {
