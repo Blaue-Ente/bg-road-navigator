@@ -10,7 +10,9 @@
     "carConsumption": "Average consumption: {value} {unit}",
     "carDefault": "Default car",
     "carNoGarage": "Add a car in your profile for a more accurate plan.",
-    "addVia": "Add a through-point"
+    "addVia": "Add a through-point",
+    "returnAt": "Return date (optional)",
+    "returnHint": "With it we pick the best vignette (daily, weekly or monthly) and count the costs of the way back on the same road."
   },
   "sheet": {
     "waitAtArrival": "On arrival (~{time}, {place}): {minutes} min",
@@ -656,5 +658,23 @@
   },
   "community": {
     "closeComposer": "Close"
+  },
+  "costs": {
+    "bridge": "Danube bridge or ferry ({crossings} crossing): the fee is not included, check with the operator",
+    "charge": "Charging: about {kwh} kWh at {price} €/kWh",
+    "coffee": "Coffee and snacks: {stops} stops",
+    "fuel": "Fuel: about {liters} l at {price} €/l",
+    "incomplete": "The total leaves out fees whose price is not known.",
+    "lead": "A guide, not a quote. Prices are a snapshot from {date}; exact ones are in the official shops and with the operators.",
+    "lodging": "Overnight: {nights} night(s), {rooms} room(s) at about {price} €",
+    "meals": "Meals: {meals} per person, {people} people, about {price} € a meal",
+    "oneWay": "One way only. With a return date we add the way back and pick vignettes for the whole period.",
+    "perPerson": "≈ {per} € per person",
+    "roundTrip": "Includes the way back on the same road; vignettes are chosen for {days} days.",
+    "shop": "Official vignette shops: see “Vignettes”.",
+    "title": "Expected costs",
+    "tolls": "{country} road toll: about {km} km of tolled motorway",
+    "total": "Total about {total} € (between {low} and {high} €)",
+    "vignette": "{country} vignette: {count} × {days} days ({each} € each)"
   }
 }

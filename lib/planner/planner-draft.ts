@@ -16,6 +16,8 @@ export interface PlannerDraft {
   preferences: TripPreferences;
   /** Value of the datetime-local input (Europe/Sofia morning default when unset). */
   departLocal: string;
+  /** The day of the way back (YYYY-MM-DD), or empty for a one-way trip. */
+  returnLocal: string;
   fuelPercent: number;
   /** Set while a saved favorite route is being edited, so saving updates it. */
   favoriteId: string | null;
@@ -29,6 +31,7 @@ export interface DraftStorage {
 }
 
 const SOURCES = new Set<RoutePoint["source"]>(["curated", "geocoder", "user"]);
+const RETURN_DAY = /^\d{4}-\d{2}-\d{2}$/;
 const DEPART_LOCAL = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 
 export function createPlannerDraft(input: {
@@ -38,6 +41,7 @@ export function createPlannerDraft(input: {
   corridorId?: string | null;
   preferences?: TripPreferences;
   departLocal?: string;
+  returnLocal?: string;
   fuelPercent?: number;
   favoriteId?: string | null;
   favoriteName?: string | null;
@@ -49,6 +53,7 @@ export function createPlannerDraft(input: {
     corridorId: input.corridorId ?? null,
     preferences: input.preferences ?? resolveTripPreferences(),
     departLocal: input.departLocal ?? proposedDepartLocalValue(),
+    returnLocal: input.returnLocal ?? "",
     fuelPercent: clampFuel(input.fuelPercent ?? 80),
     favoriteId: input.favoriteId ?? null,
     favoriteName: input.favoriteName ?? null,
@@ -79,6 +84,7 @@ export function serializePlannerDraft(draft: PlannerDraft): string {
     corridorId: draft.corridorId,
     preferences: draft.preferences,
     departLocal: draft.departLocal,
+    returnLocal: draft.returnLocal,
     fuelPercent: draft.fuelPercent,
     favoriteId: draft.favoriteId,
     favoriteName: draft.favoriteName,
@@ -116,6 +122,10 @@ export function parsePlannerDraft(raw: string | null): PlannerDraft | null {
       corridorId: typeof row.corridorId === "string" ? row.corridorId : null,
       preferences: resolveTripPreferences(row.preferences),
       departLocal,
+      returnLocal:
+        typeof row.returnLocal === "string" && RETURN_DAY.test(row.returnLocal)
+          ? row.returnLocal
+          : "",
       fuelPercent: clampFuel(row.fuelPercent),
       favoriteId: typeof row.favoriteId === "string" ? row.favoriteId : null,
       favoriteName:

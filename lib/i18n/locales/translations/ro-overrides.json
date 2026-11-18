@@ -10,7 +10,9 @@
     "carConsumption": "Consum mediu: {value} {unit}",
     "carDefault": "Mașina principală",
     "carNoGarage": "Adaugă o mașină în profil pentru un plan mai precis.",
-    "addVia": "Adaugă un punct intermediar"
+    "addVia": "Adaugă un punct intermediar",
+    "returnAt": "Data întoarcerii (opțional)",
+    "returnHint": "Cu ea alegem cea mai potrivită rovinietă (zilnică, săptămânală sau lunară) și socotim costurile și pentru întoarcerea pe același drum."
   },
   "sheet": {
     "waitAtArrival": "La sosire (~{time}, {place}): {minutes} min",
@@ -661,5 +663,23 @@
   },
   "community": {
     "closeComposer": "Închide"
+  },
+  "costs": {
+    "bridge": "Pod sau bac peste Dunăre ({crossings} traversare): taxa nu este inclusă, verifică la operator",
+    "charge": "Încărcare: circa {kwh} kWh la {price} €/kWh",
+    "coffee": "Cafea și gustări: {stops} opriri",
+    "fuel": "Combustibil: circa {liters} l la {price} €/l",
+    "incomplete": "Totalul nu include taxele al căror preț nu este cunoscut.",
+    "lead": "Un ghid, nu o ofertă. Prețurile sunt o imagine din {date}; cele exacte sunt în magazinele oficiale și la operatori.",
+    "lodging": "Cazare: {nights} noapte/nopți, {rooms} cameră/camere la circa {price} €",
+    "meals": "Mese: {meals} de persoană, {people} persoane, circa {price} € pe masă",
+    "oneWay": "Doar dus. Cu o dată de întoarcere adăugăm și drumul înapoi și alegem rovinietele pentru toată perioada.",
+    "perPerson": "≈ {per} € de persoană",
+    "roundTrip": "Include și întoarcerea pe același drum; rovinietele sunt alese pentru {days} zile.",
+    "shop": "Magazinele oficiale pentru rovinete: vezi „Rovinete”.",
+    "title": "Costuri estimate",
+    "tolls": "Taxă de drum {country}: circa {km} km de autostradă cu taxă",
+    "total": "Total circa {total} € (între {low} și {high} €)",
+    "vignette": "Rovinietă {country}: {count} × {days} zile ({each} € fiecare)"
   }
 }

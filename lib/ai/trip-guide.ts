@@ -59,6 +59,31 @@ export const TripGuideInputSchema = z.object({
     )
     .max(14)
     .default([]),
+  /** A rough estimate of what the trip costs, from the plan's own engine. */
+  costs: z
+    .object({
+      round_trip: z.boolean(),
+      trip_days: z.number().int().min(1).max(400),
+      total_eur: z.number().finite(),
+      total_low: z.number().finite(),
+      total_high: z.number().finite(),
+      per_person_eur: z.number().finite(),
+      /** True when a fee (a Danube bridge) is named but has no amount. */
+      incomplete: z.boolean(),
+      prices_checked_on: Text(12),
+      lines: z
+        .array(
+          z.object({
+            kind: Text(20),
+            country: Text(8).nullable(),
+            eur: z.number().finite().nullable(),
+            detail: z.record(z.string(), z.union([z.number(), z.string(), z.null()])),
+          })
+        )
+        .max(20),
+    })
+    .nullable()
+    .optional(),
   stops: z
     .array(
       z.object({
@@ -137,6 +162,7 @@ Rules:
 - "intro": 2 to 4 sentences: distance, driving time, how many days, who is travelling and the one thing that shapes this trip most.
 - "sections": 5 to 8 sections of flowing text (2 to 5 sentences each, no bullet lists, no markdown). Cover, in this order where the facts allow: the first day (leaving time, the legs, where the first break falls and why), each further day, the border crossing (the expected wait and what to bring), the weather that matters, fuel (name the planned stations and their prices, say which to prefer or skip using "verdict"), food and breaks (use food_spots with their times when they fit; say why for THIS group: children's ages, a pet, number of adults, how long since the last break), vignettes and tolls, and what to keep an eye on (use "warnings"). Use real times and kilometres from the facts. Name stops by their place and town.
 - Break rhythm: if children or a pet travel, say how that changes the stops. Use "break_every_min" as the plan's real interval.
+- "costs": when the facts have "costs", include a section about the expected costs (heading like "Expected costs"). Give the total with its range and per person, then the lines in words: fuel with the litres and price, each vignette with the product chosen and why that one suits the trip length (a day pass each way against one for the whole stay), distance tolls, the night(s), meals and coffee. Say these are approximate, from prices read on "prices_checked_on", and that the official shops have the exact price. If "incomplete" is true, say a bridge or ferry fee is not counted. With "round_trip" the way back on the same road is included; otherwise say it is one way. Use only the numbers given.
 - "overnight": one entry per stop whose kind includes "overnight" (stop_id copied exactly). The stop's "place" can be a filling station: NEVER present it as where to sleep. "where" is the "hotel" if the facts give one, otherwise the "town" (and say it is the area to look in). "why" is one or two sentences from the facts only (arrival time, how far is left the next day, services nearby, a small detour). "check" lists what to confirm in the listing before booking, shaped by the travellers (parking, a pet policy answer, a family room, early breakfast, self check-in). Do not claim a place is clean, safe or cheap.
 - "closing": one warm sentence to end on.
 - If a fact is missing, leave it out. Do not apologise for missing data. No legal or safety guarantees.`;

@@ -10,7 +10,9 @@
     "carConsumption": "Ortalama tüketim: {value} {unit}",
     "carDefault": "Varsayılan araç",
     "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin.",
-    "addVia": "Ara nokta ekle"
+    "addVia": "Ara nokta ekle",
+    "returnAt": "Dönüş tarihi (isteğe bağlı)",
+    "returnHint": "Bununla en uygun vinyeti (günlük, haftalık veya aylık) seçer ve aynı yoldan dönüşün maliyetini de hesaplarız."
   },
   "sheet": {
     "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",
@@ -658,5 +660,23 @@
   },
   "community": {
     "closeComposer": "Kapat"
+  },
+  "costs": {
+    "bridge": "Tuna köprüsü veya feribot ({crossings} geçiş): ücret dahil değil, işletmeciden kontrol edin",
+    "charge": "Şarj: yaklaşık {kwh} kWh, {price} €/kWh",
+    "coffee": "Kahve ve atıştırmalık: {stops} mola",
+    "fuel": "Yakıt: yaklaşık {liters} L, {price} €/L",
+    "incomplete": "Fiyatı bilinmeyen ücretler toplama dahil değildir.",
+    "lead": "Bir rehberdir, teklif değildir. Fiyatlar {date} tarihli bir görüntüdür; kesin fiyatlar resmî mağazalarda ve işletmecilerdedir.",
+    "lodging": "Konaklama: {nights} gece, {rooms} oda, yaklaşık {price} €",
+    "meals": "Yemek: kişi başı {meals} öğün, {people} kişi, öğün başı yaklaşık {price} €",
+    "oneWay": "Yalnızca tek yön. Dönüş tarihiyle dönüş yolunu da ekler ve tüm dönem için vinyet seçeriz.",
+    "perPerson": "Kişi başı ≈ {per} €",
+    "roundTrip": "Aynı yoldan dönüşü içerir; vinyetler {days} gün için seçildi.",
+    "shop": "Resmî vinyet mağazaları: “Vinyetler” bölümüne bakın.",
+    "title": "Tahmini masraflar",
+    "tolls": "{country} yol ücreti: yaklaşık {km} km ücretli otoyol",
+    "total": "Toplam yaklaşık {total} € ({low} ile {high} € arası)",
+    "vignette": "{country} vinyeti: {count} × {days} gün (her biri {each} €)"
   }
 }

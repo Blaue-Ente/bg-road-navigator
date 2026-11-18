@@ -18,6 +18,13 @@ export interface TripPdfInput {
   sections: Array<{ heading: string; text: string }>;
   /** Where to sleep, one block per night. */
   overnight: Array<{ heading: string; lines: string[] }>;
+  /** What the trip is expected to cost, one row per line and a total. */
+  costs?: {
+    heading: string;
+    rows: Array<{ label: string; amount: string }>;
+    total: string;
+    note: string;
+  };
   closing: string;
   /** Small print at the foot of the text page. */
   footnote: string;
@@ -181,6 +188,41 @@ function drawFooter(page: PDFPage, fonts: Fonts, left: string, number: number) {
   });
 }
 
+/** A cost line: the wording on the left, the amount aligned on the right. */
+function costRowBlock(fonts: Fonts, label: string, amount: string): Block {
+  const size = 9.5;
+  const amountWidth = 70;
+  const textWidth = CONTENT_WIDTH - amountWidth - 8;
+  const lines = (scale: number) =>
+    wrapText(label, textWidth, (value) => fonts.regular.widthOfTextAtSize(value, size * scale));
+  return {
+    height: (scale) => lines(scale).length * size * scale * 1.3 + 2 * scale,
+    draw: (page, y, scale) => {
+      let cursor = y;
+      lines(scale).forEach((line, index) => {
+        cursor -= size * scale * 1.3;
+        page.drawText(line, {
+          x: MARGIN,
+          y: cursor + size * scale * 0.28,
+          size: size * scale,
+          font: fonts.regular,
+          color: rgbOf(INK),
+        });
+        if (index === 0) {
+          const width = fonts.bold.widthOfTextAtSize(amount, size * scale);
+          page.drawText(amount, {
+            x: PAGE.width - MARGIN - width,
+            y: cursor + size * scale * 0.28,
+            size: size * scale,
+            font: fonts.bold,
+            color: rgbOf(INK),
+          });
+        }
+      });
+    },
+  };
+}
+
 /** One checklist group as a table: a shaded title row, then a row per item with a box. */
 function checklistBlocks(fonts: Fonts, groups: PdfChecklistGroup[]): Block[] {
   const blocks: Block[] = [];
@@ -329,6 +371,16 @@ export async function buildTripPdf(
   for (const night of input.overnight) {
     text.push(textBlock(fonts, night.heading, 11.5, { bold: true, color: ACCENT, gapAfter: 2 }));
     text.push(textBlock(fonts, night.lines.join("\n"), 10, { gapAfter: 8 }));
+  }
+  if (input.costs && input.costs.rows.length > 0) {
+    text.push(
+      textBlock(fonts, input.costs.heading, 11.5, { bold: true, color: ACCENT, gapAfter: 2 })
+    );
+    for (const row of input.costs.rows) text.push(costRowBlock(fonts, row.label, row.amount));
+    text.push(textBlock(fonts, input.costs.total, 10, { bold: true, gapAfter: 1 }));
+    if (input.costs.note) {
+      text.push(textBlock(fonts, input.costs.note, 8, { color: MUTED, gapAfter: 8 }));
+    }
   }
   if (input.closing) {
     text.push(textBlock(fonts, input.closing, 10.5, { bold: true, gapAfter: 6 }));

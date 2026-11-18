@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { TripGuide } from "@/lib/ai/trip-guide";
 import { guideInputFromPlan } from "@/lib/ai/trip-guide-input";
+import { costLineText } from "@/components/plan/CostsSection";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import { unitsFrom } from "@/lib/i18n/units";
 import { localeTag } from "@/lib/i18n/locale";
 import { makeTripPdf, pdfFilename, savePdfFile } from "@/lib/pdf/make-trip-pdf";
@@ -111,6 +113,23 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
           labels,
           locale: tag,
           duration: (minutes) => formatClockDuration(minutes, units),
+          costs: plan.costs
+            ? {
+                heading: m.costs.title,
+                rows: plan.costs.lines.map((line) => ({
+                  label: costLineText(line, m, locale),
+                  amount: line.eur == null ? "?" : `\u2248 ${line.eur} \u20ac`,
+                })),
+                total: `${formatTemplate(m.costs.total, {
+                  total: String(plan.costs.total_eur),
+                  low: String(plan.costs.total_low),
+                  high: String(plan.costs.total_high),
+                })} \u00b7 ${formatTemplate(m.costs.perPerson, {
+                  per: String(plan.costs.per_person_eur),
+                })}`,
+                note: formatTemplate(m.costs.lead, { date: plan.costs.checked_on }),
+              }
+            : undefined,
         })
       );
       savePdfFile(bytes, pdfFilename(plan.route.destination.label, plan.depart_at));

@@ -117,6 +117,8 @@ export function tripPdfInputFromPlan(input: {
   locale: string;
   /** "2 h 30 min" for a number of minutes. */
   duration: (minutes: number) => string;
+  /** The cost lines already worded in the page's language. */
+  costs?: TripPdfInput["costs"];
 }): TripPdfInput {
   const { plan, guide, labels, locale } = input;
   const route = plan.route;
@@ -190,6 +192,7 @@ export function tripPdfInputFromPlan(input: {
     intro,
     sections,
     overnight,
+    costs: input.costs,
     closing,
     footnote: guide ? labels.aiFootnote : labels.plainFootnote,
     checklistTitle: labels.checklistTitle,
