@@ -4,6 +4,7 @@ import { useMessages } from "@/components/i18n/LocaleProvider";
 
 import type { EVStation } from "@/types/fuel.types";
 import { FavoritePlaceButton } from "@/components/favorites/FavoritePlaceButton";
+import { NavigateButtons } from "@/components/ui/NavigateButtons";
 
 interface EVChargerCardProps {
   station: EVStation;
@@ -14,12 +15,12 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
   const m = useMessages();
   const availability =
     station.availability === "available"
-      ? { label: m.fuel.msgb3d02f15df, style: "bg-emerald-500/20 text-[var(--waze-ok)]" }
+      ? { label: m.fuel.msgb3d02f15df, style: "bg-emerald-500/15 text-[var(--waze-ok)]" }
       : station.availability === "unavailable"
-        ? { label: m.fuel.msg7697c0759a, style: "bg-red-500/20 text-[var(--waze-danger)]" }
+        ? { label: m.fuel.msg7697c0759a, style: "bg-red-500/15 text-[var(--waze-danger)]" }
         : {
             label: m.fuel.msg4a057ee51b,
-            style: "bg-slate-500/20 text-slate-300",
+            style: "bg-[var(--waze-surface-elevated)] text-[var(--waze-text-secondary)]",
           };
 
   return (
@@ -85,6 +86,9 @@ export function EVChargerCard({ station, onSelect }: EVChargerCardProps) {
           external_id: station.id,
         }}
       />
+      <div className="mt-3">
+        <NavigateButtons point={station.coords} />
+      </div>
     </div>
   );
 }

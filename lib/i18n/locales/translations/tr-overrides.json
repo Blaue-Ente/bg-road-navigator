@@ -317,7 +317,19 @@
     "attributionFuelo": "Veri: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
     "eurSuffix": "€",
-    "kwhec63": "€/kWh"
+    "kwhec63": "€/kWh",
+    "call": "Ara",
+    "navigate": "Yol tarifi",
+    "noPrices": "Bu istasyon için fiyat verisi yok.",
+    "priceFrom": "Fiyatlar: {source}, {time}",
+    "typeAdblue": "AdBlue",
+    "typeCng": "CNG",
+    "typeDiesel": "Dizel",
+    "typeE85": "E85",
+    "typeHvo": "HVO",
+    "typeLpg": "LPG",
+    "typePetrol95": "Benzin 95",
+    "typePetrol98": "Benzin 98+"
   },
   "tripHeuristic": {
     "restTitle": "Mola",

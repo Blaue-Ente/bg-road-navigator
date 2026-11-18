@@ -320,7 +320,19 @@
     "attributionFuelo": "Date: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
     "eurSuffix": "€",
-    "kwhec63": "€/kWh"
+    "kwhec63": "€/kWh",
+    "call": "Sună",
+    "navigate": "Navighează",
+    "noPrices": "Nu există date de preț pentru această stație.",
+    "priceFrom": "Prețuri de la {source}, {time}",
+    "typeAdblue": "AdBlue",
+    "typeCng": "GNC",
+    "typeDiesel": "Motorină",
+    "typeE85": "E85",
+    "typeHvo": "HVO",
+    "typeLpg": "GPL",
+    "typePetrol95": "Benzină 95",
+    "typePetrol98": "Benzină 98+"
   },
   "tripHeuristic": {
     "restTitle": "Pauză",

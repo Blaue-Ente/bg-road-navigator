@@ -315,7 +315,19 @@
     "attributionFuelo": "Prices: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
     "eurSuffix": "€",
-    "kwhec63": "€/kWh"
+    "kwhec63": "€/kWh",
+    "call": "Call",
+    "navigate": "Navigate",
+    "noPrices": "No price data for this station.",
+    "priceFrom": "Prices from {source}, {time}",
+    "typeAdblue": "AdBlue",
+    "typeCng": "CNG",
+    "typeDiesel": "Diesel",
+    "typeE85": "E85",
+    "typeHvo": "HVO",
+    "typeLpg": "LPG",
+    "typePetrol95": "Petrol 95",
+    "typePetrol98": "Petrol 98+"
   },
   "tripHeuristic": {
     "restTitle": "Rest break",

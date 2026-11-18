@@ -1354,5 +1354,77 @@
   "Add a through-point",
   "Ara nokta ekle",
   "Adaugă un punct intermediar"
+ ],
+ "fuel.navigate": [
+  "Навигирай",
+  "Navigate",
+  "Yol tarifi",
+  "Navighează"
+ ],
+ "fuel.priceFrom": [
+  "Цени от {source}, {time}",
+  "Prices from {source}, {time}",
+  "Fiyatlar: {source}, {time}",
+  "Prețuri de la {source}, {time}"
+ ],
+ "fuel.noPrices": [
+  "Няма данни за цени на тази станция.",
+  "No price data for this station.",
+  "Bu istasyon için fiyat verisi yok.",
+  "Nu există date de preț pentru această stație."
+ ],
+ "fuel.call": [
+  "Обади се",
+  "Call",
+  "Ara",
+  "Sună"
+ ],
+ "fuel.typeDiesel": [
+  "Дизел",
+  "Diesel",
+  "Dizel",
+  "Motorină"
+ ],
+ "fuel.typePetrol95": [
+  "Бензин 95",
+  "Petrol 95",
+  "Benzin 95",
+  "Benzină 95"
+ ],
+ "fuel.typePetrol98": [
+  "Бензин 98+",
+  "Petrol 98+",
+  "Benzin 98+",
+  "Benzină 98+"
+ ],
+ "fuel.typeLpg": [
+  "Газ (LPG)",
+  "LPG",
+  "LPG",
+  "GPL"
+ ],
+ "fuel.typeCng": [
+  "Метан (CNG)",
+  "CNG",
+  "CNG",
+  "GNC"
+ ],
+ "fuel.typeAdblue": [
+  "AdBlue",
+  "AdBlue",
+  "AdBlue",
+  "AdBlue"
+ ],
+ "fuel.typeE85": [
+  "E85",
+  "E85",
+  "E85",
+  "E85"
+ ],
+ "fuel.typeHvo": [
+  "HVO",
+  "HVO",
+  "HVO",
+  "HVO"
  ]
 }

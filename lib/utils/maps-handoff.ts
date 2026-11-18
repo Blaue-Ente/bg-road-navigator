@@ -109,6 +109,16 @@ export function wazeNavigateUrl(point: GeoPoint): string {
   return `https://waze.com/ul?ll=${formatLatLng(point)}&navigate=yes`;
 }
 
+/** Google Maps turn-by-turn to one point, from wherever the phone is. */
+export function googleMapsNavigateUrl(point: GeoPoint): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formatLatLng(point))}&travelmode=driving`;
+}
+
+/** Apple Maps driving directions to one point, from the current location. */
+export function appleMapsNavigateUrl(point: GeoPoint): string {
+  return `https://maps.apple.com/?daddr=${encodeURIComponent(formatLatLng(point))}&dirflg=d`;
+}
+
 /** Google Maps pin for a place; the coordinates are what make it land on the right door. */
 export function googleMapsPlaceUrl(point: GeoPoint): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formatLatLng(point))}`;

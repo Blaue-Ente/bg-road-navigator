@@ -19,7 +19,25 @@ export interface FuelStation {
   open: boolean | "unknown";
   distance_km: number;
   payment_methods: string[];
+  /** Fuels the station is tagged with (OpenStreetMap), whether or not a price is known. */
+  fuel_types?: FuelTypeCode[];
+  /** OpenStreetMap `opening_hours` text, shown as written. */
+  opening_hours?: string;
+  phone?: string;
+  /** Where the prices come from, and when they were read. */
+  price_source?: "tankerkoenig" | "e-control" | "nakordoni";
+  price_observed_at?: string;
 }
+
+export type FuelTypeCode =
+  | "diesel"
+  | "petrol95"
+  | "petrol98"
+  | "lpg"
+  | "cng"
+  | "adblue"
+  | "e85"
+  | "hvo";
 
 export interface EVStation {
   id: string;
