@@ -66,7 +66,8 @@ describe("loadSpeedCameras", () => {
       )) as unknown as typeof fetch;
     const result = await loadSpeedCameras(
       { w: 23.1, s: 42.6, e: 23.4, n: 42.9 },
-      ok
+      ok,
+      []
     );
     expect(result.ok).toBe(true);
     expect(result.cameras).toHaveLength(1);
@@ -76,10 +77,11 @@ describe("loadSpeedCameras", () => {
     // A different area: the first one is now kept, so it would not ask again.
     const failed = await loadSpeedCameras(
       { w: 25.1, s: 42.6, e: 25.4, n: 42.9 },
-      down
+      down,
+      []
     );
     expect(failed).toEqual({ cameras: [], ok: false });
-    const again = await loadSpeedCameras({ w: 23.1, s: 42.6, e: 23.4, n: 42.9 }, down);
+    const again = await loadSpeedCameras({ w: 23.1, s: 42.6, e: 23.4, n: 42.9 }, down, []);
     expect(again.ok).toBe(true);
   });
 });
@@ -96,21 +98,21 @@ describe("loadSpeedCameras mirrors and cache", () => {
       );
     }) as unknown as typeof fetch;
     const bbox = { w: 13.4, s: 52.5, e: 13.45, n: 52.55 };
-    const first = await loadSpeedCameras(bbox, fetchImpl);
+    const first = await loadSpeedCameras(bbox, fetchImpl, []);
     expect(first.ok).toBe(true);
     expect(first.cameras).toHaveLength(1);
     const before = calls;
-    await loadSpeedCameras(bbox, fetchImpl);
+    await loadSpeedCameras(bbox, fetchImpl, []);
     expect(calls).toBe(before);
   });
 
   it("says so when every mirror fails and does not keep the failure", async () => {
     const down = (async () => new Response("x", { status: 504 })) as unknown as typeof fetch;
     const bbox = { w: 13.4, s: 52.5, e: 13.45, n: 52.55 };
-    expect(await loadSpeedCameras(bbox, down)).toEqual({ cameras: [], ok: false });
+    expect(await loadSpeedCameras(bbox, down, [])).toEqual({ cameras: [], ok: false });
     const up = (async () =>
       new Response(JSON.stringify({ elements: [] }), { status: 200 })) as unknown as typeof fetch;
-    expect((await loadSpeedCameras(bbox, up)).ok).toBe(true);
+    expect((await loadSpeedCameras(bbox, up, [])).ok).toBe(true);
   });
 });
 

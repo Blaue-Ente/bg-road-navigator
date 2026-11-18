@@ -168,7 +168,7 @@ function fetchTile(
 export type StaticCameraPoint = [number, number, number];
 
 /** Points of the built dataset; empty until the monthly build has been merged. */
-export const STATIC_CAMERA_POINTS = (dataset as { points: StaticCameraPoint[] }).points;
+export const STATIC_CAMERA_POINTS = (dataset as unknown as { points: StaticCameraPoint[] }).points;
 
 /**
  * Cameras inside a box from the built dataset (OpenStreetMap, ODbL). No outside
