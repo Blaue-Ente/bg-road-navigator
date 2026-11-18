@@ -600,7 +600,11 @@
     "carComfortHint": "Küçük bir araçta insanlar daha çabuk yorulur: molalar sıklaşır, sürüş günü kısalır.",
     "carComfortRoomy": "Geniş (minivan, minibüs, büyük SUV)",
     "carComfortStandard": "Standart (sedan, station)",
-    "scenic": "İlginç rota (görülecek yerler)"
+    "scenic": "İlginç rota (görülecek yerler)",
+    "nightHint": "Değişimle: sürücü başına yaklaşık 7 saat, yaklaşık her 2,5 saatte bir değişim, diğerleri dinlenir.",
+    "nightMode": "Geceleyin",
+    "nightSleep": "Konaklayarak uyuyalım",
+    "nightSwap": "Geceleyin sürücü değiştirerek devam"
   },
   "checklist": {
     "prep": "Yola hazırlık"
@@ -792,5 +796,13 @@
     "same": "aynı",
     "title": "Rota geçmişi",
     "unavailable": "Geçmiş sunucuda henüz kurulmadı."
+  },
+  "driverPlan": {
+    "intro": "Direksiyonda yaklaşık {stint} dk sonra en yakın durakta değişim. Sürmeyen dinlenir.",
+    "note": "Değişim saatleri plana göre bir rehberdir: biri yorulursa daha erken değiştirin.",
+    "perDriver": "Sürücü {driver} {drive}",
+    "title": "Kim ne zaman sürer",
+    "total": "Toplam sürüş: {list}",
+    "turn": "Sürücü {driver}: {from} → {until}, yaklaşık {drive}"
   }
 }

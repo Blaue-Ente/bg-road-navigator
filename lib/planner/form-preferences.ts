@@ -25,6 +25,7 @@ export function normalizePlannerPreferences(
     max_driving_hours: Math.round(clamp(prefs.max_driving_hours, 4, 14) * 2) / 2,
     drivers: Math.round(clamp(prefs.drivers, 1, 4)),
     adults: Math.round(clamp(prefs.adults ?? 1, 1, 8)),
+    night_mode: prefs.night_mode === "swap" && prefs.drivers >= 2 ? "swap" : "sleep",
     car_comfort:
       prefs.car_comfort === "roomy" || prefs.car_comfort === "compact"
         ? prefs.car_comfort

@@ -126,6 +126,20 @@ export function guideInputFromPlan(
     leaves_at_night: leavesAtNight(plan.depart_at),
     max_day_driving_h: drivingDayHours(prefs),
     scenic_route: plan.route.scenic ?? null,
+    driver_plan: plan.driver_plan
+      ? {
+          stint_min: plan.driver_plan.stint_min,
+          per_driver_min: plan.driver_plan.per_driver_min.slice(0, 4),
+          turns: plan.driver_plan.turns.slice(0, 20).map((turn) => ({
+            driver: turn.driver,
+            from: turn.from_label.slice(0, 80),
+            until: turn.until_label.slice(0, 80),
+            from_local: clock(turn.from_eta),
+            until_local: clock(turn.until_eta),
+            driving_min: turn.driving_min,
+          })),
+        }
+      : null,
     day_limit_h: healthDayLimitH(prefs),
     bad_roads: plan.community.notes
       .filter((note) => note.category === "bad_road")

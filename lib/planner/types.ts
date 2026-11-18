@@ -400,4 +400,6 @@ export interface TripPlannerResult {
   why_this_route: WhyReason[];
   recommended_fuel: { stop_id: string; advice: FuelAdvice } | null;
   route_options?: RouteOptionsBlock;
+  /** Who drives when; only with several drivers who chose to swap at night. */
+  driver_plan?: import("@/lib/planner/driver-plan").DriverPlan | null;
 }

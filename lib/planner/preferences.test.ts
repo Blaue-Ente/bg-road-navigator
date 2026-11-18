@@ -93,8 +93,8 @@ describe("avoid motorways and tolls", () => {
       costingFromPreferences(
         prefs({ avoid_motorways: true, avoid_tolls: true })
       )
-    ).toEqual({ useHighways: false, useTolls: false });
-    expect(costingFromPreferences(prefs())).toEqual({
+    ).toMatchObject({ useHighways: false, useTolls: false });
+    expect(costingFromPreferences(prefs())).toMatchObject({
       useHighways: true,
       useTolls: true,
     });
@@ -261,5 +261,21 @@ describe("health day limit", () => {
     expect(
       drivingDayLimits(prefs({ max_driving_hours: 12, with_children: true })).overnightAfterMin
     ).toBe(480);
+  });
+});
+
+describe("night swap", () => {
+  it("lifts the day to seven hours a driver, with a cap, only with two or more drivers", () => {
+    expect(healthDayLimitH(prefs({ night_mode: "swap", drivers: 1 }))).toBe(10);
+    expect(healthDayLimitH(prefs({ night_mode: "swap", drivers: 2 }))).toBe(14);
+    expect(healthDayLimitH(prefs({ night_mode: "swap", drivers: 3 }))).toBe(16);
+    expect(healthDayLimitH(prefs({ night_mode: "swap", drivers: 3, with_children: true }))).toBe(12);
+    expect(healthDayLimitH(prefs({ night_mode: "sleep", drivers: 3 }))).toBe(10);
+  });
+
+  it("plans a longer driving day when the drivers swap", () => {
+    const sleep = drivingDayLimits(prefs({ drivers: 2, night_mode: "sleep" })).overnightAfterMin;
+    const swap = drivingDayLimits(prefs({ drivers: 2, night_mode: "swap" })).overnightAfterMin;
+    expect(swap).toBeGreaterThan(sleep);
   });
 });

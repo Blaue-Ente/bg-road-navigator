@@ -12,6 +12,7 @@ import { PlanItineraryView } from "@/components/plan/PlanItineraryView";
 import { RouteChoiceCards } from "@/components/plan/RouteChoiceCards";
 import { formatWhen, StopTimeline } from "@/components/plan/StopTimeline";
 import { CostsSection } from "@/components/plan/CostsSection";
+import { DriverPlanView } from "@/components/plan/DriverPlanView";
 import { PlanSights } from "@/components/plan/PlanSights";
 import { TripGuide } from "@/components/plan/TripGuide";
 import { checklistPlanKey } from "@/lib/pdf/plan-pdf";
@@ -399,6 +400,8 @@ function DetailBody({
       />
 
       {plan.costs ? <CostsSection costs={plan.costs} /> : null}
+
+      {plan.driver_plan ? <DriverPlanView plan={plan.driver_plan} /> : null}
 
       <PlanSights plan={plan} />
 

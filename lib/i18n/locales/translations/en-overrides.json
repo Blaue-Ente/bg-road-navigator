@@ -598,7 +598,11 @@
     "carComfortHint": "In a small car people tire sooner: stops come more often and the driving day is shorter.",
     "carComfortRoomy": "Roomy (van, minibus, large SUV)",
     "carComfortStandard": "Standard (sedan, estate)",
-    "scenic": "Interesting road (places to see)"
+    "scenic": "Interesting road (places to see)",
+    "nightHint": "With swapping: about 7 h of driving each, a swap about every 2.5 h, and the others rest.",
+    "nightMode": "At night",
+    "nightSleep": "Sleep at a hotel",
+    "nightSwap": "Keep going at night and swap drivers"
   },
   "checklist": {
     "prep": "Getting ready for the road"
@@ -790,5 +794,13 @@
     "same": "same",
     "title": "Route history",
     "unavailable": "History is not set up on the server yet."
+  },
+  "driverPlan": {
+    "intro": "A swap at the nearest stop after about {stint} min at the wheel. Whoever is not driving rests.",
+    "note": "The swap times are a guide from the plan: if anyone is tired, swap sooner.",
+    "perDriver": "Driver {driver} {drive}",
+    "title": "Who drives when",
+    "total": "Driving in all: {list}",
+    "turn": "Driver {driver}: {from} → {until}, about {drive}"
   }
 }

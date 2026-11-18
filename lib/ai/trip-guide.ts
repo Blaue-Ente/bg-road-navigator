@@ -47,6 +47,26 @@ export const TripGuideInputSchema = z.object({
     })
     .nullable()
     .optional(),
+  /** Several drivers who swap at night: how the wheel goes round. */
+  driver_plan: z
+    .object({
+      stint_min: z.number().finite().min(30).max(600),
+      per_driver_min: z.array(z.number().finite().min(0).max(30_000)).max(4),
+      turns: z
+        .array(
+          z.object({
+            driver: z.number().int().min(1).max(4),
+            from: Text(80),
+            until: Text(80),
+            from_local: Text(40),
+            until_local: Text(40),
+            driving_min: z.number().finite().min(0).max(2_000),
+          })
+        )
+        .max(20),
+    })
+    .nullable()
+    .optional(),
   /** Day length the plan treats as the health limit, 10 h or 8 h with children. */
   day_limit_h: z.number().finite().min(4).max(14).optional(),
   /** Stretches drivers reported as bad road near this route. */
@@ -215,6 +235,7 @@ Rules:
 - Human load (always): the plan must not push people past what is sensible. Use "car_comfort": in a "compact" car (small, cramped) say plainly that the stops are closer together and the driving day shorter because people tire sooner, and suggest stretching legs at every stop; in a "roomy" car it is easier to rest and sleep on the way. With "drivers" 2 or more, advise swapping at stops (about every 2 to 3 hours), the resting driver really sleeping, and nobody driving tired. With "leaves_at_night" true, say honestly that starting in the evening means the first stretch is overnight driving, that the first long rest falls in the daytime and is for sleeping, and that the trip takes longer overall than a straight run: this is deliberate, not a mistake. Never praise pushing on without sleep.
 - "Why this route" section (use a heading like that, place it second to last): explain, from the facts only, why the plan looks the way it does: the places in "via" the driver asked to pass through (say that they shape the road and may make it longer than the direct way), the border crossing chosen and its wait, "scenic_route" when present (say if the road drawn is the scenic one and how much longer it is, or why the fast road was kept: "too_long" means the scenic road would have been over 25% or two hours longer; "unsupported" means the routing engine could not offer one; "same" means the two roads are the same), the rest rhythm, the driving day length and where the nights fall, and what to relax if the driver wants it shorter (fewer via points, leave in the morning, another border). Be honest about trade-offs. 3 to 6 sentences.
 - Safety and health (always one short section, heading like "Safety on the road"): the health limit is "day_limit_h" hours on the road in a day (10 h, 8 h with children). Say where in the plan a day comes near it and that the night stop is there to be used, that tired driving is the real risk, and give two or three short practical tips (water, fresh air, swap drivers, a nap of 20 minutes at a stop, no night driving on bad roads). When "countries" include RO or BG, say plainly that roads there can be in poor condition in places (potholes, patched surfaces, narrow village roads, horse carts and poorly lit sections), that drivers should keep to a lower speed and a larger distance, avoid overtaking on blind stretches, and be extra careful at night and in rain or snow. When "bad_roads" is not empty, name those stretches (with "from_km" and "to_km" when given: "from km X to km Y") as reported by other drivers (say "reported by drivers", never as certain). Never frighten; stay calm and practical. The highest priority is arriving healthy.
+- Driver swaps: when "driver_plan" is present the drivers chose to keep going at night and swap. Describe in one short section (heading like "Who drives when") how the wheel goes round using "turns" (driver number, where, local time), and that the driver who is not at the wheel should really rest. Say the swaps are a guide and anyone tired should swap sooner, that nobody should drive when sleepy, and that the longest turn must not pass about three hours. Mention each driver's total from "per_driver_min". Do not call it risk-free.
 - Chosen sights: when "chosen_sights" is not empty, add one section (heading like "Places you chose") that tells the driver, in road order, what each place is and why it suits this group, using only the "why" and "history" given and adding no facts. Say how much time they add in all and that hours and prices must be checked before going. Never suggest places that are not in "chosen_sights".
 - "closing": one warm sentence to end on.
 - If a fact is missing, leave it out. Do not apologise for missing data. No legal or safety guarantees.`;

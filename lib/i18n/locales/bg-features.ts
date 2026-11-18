@@ -63,6 +63,14 @@ export const bgFeatures = {
     total: "Общо около {total} € (между {low} и {high} €)",
     vignette: "Винетка {country}: {count} × {days} дни ({each} € всяка)",
   },
+  driverPlan: {
+    intro: "Смяна на най-близката спирка след около {stint} мин зад волана. Който не кара, почива.",
+    note: "Смяната е ориентир по плана: ако някой е уморен, сменете по-рано.",
+    perDriver: "Шофьор {driver} {drive}",
+    title: "Кой кара кога",
+    total: "Общо каране: {list}",
+    turn: "Шофьор {driver}: {from} → {until}, около {drive}",
+  },
   favorites: {
     cancel: "Отказ",
     clearAll: "Изтрий всички маршрути",
@@ -315,6 +323,10 @@ export const bgFeatures = {
     carComfortHint: "В малка кола хората се уморяват по-бързо: почивките са по-чести, а денят зад волана е по-кратък.",
     carComfortRoomy: "Просторна (миниван, бус, голям SUV)",
     carComfortStandard: "Обикновена (седан, комби)",
+    nightHint: "Със смяна: до около 7 ч каране на шофьор, смяна на всеки около 2,5 ч, а останалите почиват.",
+    nightMode: "Нощем",
+    nightSleep: "Спим на нощувка",
+    nightSwap: "Карам нощем със смяна на шофьорите",
     scenic: "Интересен път (места за разглеждане)",
   },
   profile: {

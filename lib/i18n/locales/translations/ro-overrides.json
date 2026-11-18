@@ -603,7 +603,11 @@
     "carComfortHint": "Într-o mașină mică oamenii obosesc mai repede: opririle sunt mai dese, iar ziua la volan e mai scurtă.",
     "carComfortRoomy": "Spațioasă (monovolum, microbuz, SUV mare)",
     "carComfortStandard": "Standard (berlină, break)",
-    "scenic": "Drum interesant (locuri de văzut)"
+    "scenic": "Drum interesant (locuri de văzut)",
+    "nightHint": "Cu schimbare: cam 7 h la volan pe șofer, schimb la aproximativ 2,5 h, ceilalți se odihnesc.",
+    "nightMode": "Noaptea",
+    "nightSleep": "Dormim la hotel",
+    "nightSwap": "Continuăm noaptea cu schimbarea șoferilor"
   },
   "checklist": {
     "prep": "Pregătirea pentru drum"
@@ -795,5 +799,13 @@
     "same": "la fel",
     "title": "Istoricul traseelor",
     "unavailable": "Istoricul nu este încă configurat pe server."
+  },
+  "driverPlan": {
+    "intro": "Schimb la cea mai apropiată oprire după cam {stint} min la volan. Cine nu conduce se odihnește.",
+    "note": "Orele de schimb sunt orientative: dacă cineva e obosit, schimbați mai devreme.",
+    "perDriver": "Șofer {driver} {drive}",
+    "title": "Cine conduce și când",
+    "total": "Condus în total: {list}",
+    "turn": "Șofer {driver}: {from} → {until}, aproximativ {drive}"
   }
 }
