@@ -4,7 +4,7 @@ import type { PlanningVia } from "@/lib/stores/route.store";
 
 export interface ReplanTripInput {
   plan: TripPlannerResult;
-  via: PlanningVia | null;
+  via: PlanningVia[];
   routeChoice?: RouteChoice;
 }
 
@@ -27,15 +27,13 @@ export async function replanTrip(
         lng: plan.route.destination.lng,
         lat: plan.route.destination.lat,
       },
-      ...(via
+      ...(via.length > 0
         ? {
-            via: [
-              {
-                label: via.label,
-                lng: via.lng,
-                lat: via.lat,
-              },
-            ],
+            via: via.slice(0, 3).map((point) => ({
+              label: point.label,
+              lng: point.lng,
+              lat: point.lat,
+            })),
           }
         : {}),
       depart_at: plan.depart_at,

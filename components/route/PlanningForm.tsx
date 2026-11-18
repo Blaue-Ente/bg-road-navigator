@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useVehicles } from "@/lib/hooks/useVehicles";
@@ -19,7 +19,8 @@ import {
   fromDatetimeLocalValue,
   normalizePlannerPreferences,
 } from "@/lib/planner/form-preferences";
-import type { PlannerDraft } from "@/lib/planner/planner-draft";
+import { MAX_VIA, type PlannerDraft } from "@/lib/planner/planner-draft";
+import type { RoutePoint } from "@/types/route.types";
 import type { TripPreferences } from "@/lib/planner/preferences";
 import { timeZoneForCountry, timeZoneLabel } from "@/lib/geo/country-timezone";
 import { formatTemplate } from "@/lib/i18n/format-template";
@@ -71,7 +72,7 @@ export function PlanningForm({
   destinationQuery: string;
   onOriginQueryChange: (query: string) => void;
   onDestinationQueryChange: (query: string) => void;
-  onViaQueryChange: (query: string) => void;
+  onViaQueryChange: (index: number, query: string) => void;
 }) {
   const m = useMessages();
   const locale = useLocale();
@@ -171,9 +172,11 @@ export function PlanningForm({
       preferences,
       plan: buildFavoriteEnvelope(
         {
-          via: via
-            ? [{ label: via.label, lng: via.coords.lng, lat: via.coords.lat }]
-            : [],
+          via: via.map((point) => ({
+            label: point.label,
+            lng: point.coords.lng,
+            lat: point.coords.lat,
+          })),
           depart_at: preferences.depart_at,
           fuel_level: fuel / 100,
         },
@@ -235,15 +238,11 @@ export function PlanningForm({
           preferences,
           plan: buildFavoriteEnvelope(
             {
-              via: via
-                ? [
-                    {
-                      label: via.label,
-                      lng: via.coords.lng,
-                      lat: via.coords.lat,
-                    },
-                  ]
-                : [],
+              via: via.map((point) => ({
+                label: point.label,
+                lng: point.coords.lng,
+                lat: point.coords.lat,
+              })),
               depart_at: preferences.depart_at,
               fuel_level: fuel / 100,
             },
@@ -505,23 +504,11 @@ export function PlanningForm({
 
             <RouteStylePreferenceFields value={prefs} onChange={changePrefs} />
 
-            <LocationSearchInput
-              id="via"
-              label={m.planning.via}
-              value={via}
-              placeholder={m.planning.viaPlaceholder}
-              onSelect={(place) => onChange({ via: place })}
+            <ViaStops
+              via={via}
+              onChange={(next) => onChange({ via: next })}
               onQueryChange={onViaQueryChange}
             />
-            {via && (
-              <button
-                type="button"
-                onClick={() => onChange({ via: null })}
-                className="text-sm text-[var(--waze-text-muted)] underline"
-              >
-                {m.planning.clearVia}
-              </button>
-            )}
 
             <details className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)]">
               <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center rounded-md px-3 text-sm font-medium text-[var(--waze-text)] [&::-webkit-details-marker]:hidden">
@@ -631,4 +618,96 @@ function carSummary(profile: Profile | null, m: MessageCatalog): string {
         ? `${profile.tank_capacity_liters} ${m.planning.liters}`
         : null;
   return [name, fuel, size].filter(Boolean).join(" · ");
+}
+
+/** Up to three stops the route must pass through, in order. */
+function ViaStops({
+  via,
+  onChange,
+  onQueryChange,
+}: {
+  via: RoutePoint[];
+  onChange: (next: RoutePoint[]) => void;
+  onQueryChange: (index: number, query: string) => void;
+}) {
+  const m = useMessages();
+  // One empty row is always offered; more appear with "add".
+  const [extraRows, setExtraRows] = useState(0);
+  const rows = Math.min(MAX_VIA, Math.max(1, via.length + extraRows));
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: rows }, (_, index) => (
+        <ViaRow
+          key={`via-${index}-${via[index]?.id ?? "empty"}`}
+          index={index}
+          value={via[index] ?? null}
+          onSelect={(place) => {
+            const next = [...via];
+            next[Math.min(index, next.length)] = place;
+            onChange(next);
+            setExtraRows((count) => Math.max(0, count - (index >= via.length ? 1 : 0)));
+          }}
+          onClear={
+            via[index] || rows > 1
+              ? () => {
+                  onChange(via.filter((_, item) => item !== index));
+                  if (!via[index]) setExtraRows((count) => Math.max(0, count - 1));
+                }
+              : undefined
+          }
+          onQueryChange={onQueryChange}
+        />
+      ))}
+      {rows < MAX_VIA && via.length >= rows && (
+        <button
+          type="button"
+          onClick={() => setExtraRows((count) => count + 1)}
+          className="waze-btn-secondary min-h-11 px-4 text-sm"
+        >
+          {m.planning.addVia}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ViaRow({
+  index,
+  value,
+  onSelect,
+  onClear,
+  onQueryChange,
+}: {
+  index: number;
+  value: RoutePoint | null;
+  onSelect: (place: RoutePoint) => void;
+  onClear?: () => void;
+  onQueryChange: (index: number, query: string) => void;
+}) {
+  const m = useMessages();
+  const handleQuery = useCallback(
+    (query: string) => onQueryChange(index, query),
+    [index, onQueryChange]
+  );
+  return (
+    <div>
+      <LocationSearchInput
+        id={`via-${index}`}
+        label={`${m.planning.via} ${index + 1}`}
+        value={value}
+        placeholder={m.planning.viaPlaceholder}
+        onSelect={onSelect}
+        onQueryChange={handleQuery}
+      />
+      {onClear && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="mt-1 text-sm text-[var(--waze-text-muted)] underline"
+        >
+          {m.planning.clearVia}
+        </button>
+      )}
+    </div>
+  );
 }

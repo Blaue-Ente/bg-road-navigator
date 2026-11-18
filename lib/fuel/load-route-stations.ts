@@ -4,6 +4,7 @@ import { fetchNakordoniFuelStations } from "@/lib/fuel-prices/nakordoni-fuel";
 import { readPoiConfig } from "@/lib/poi/config";
 import { fetchPoiNear } from "@/lib/poi/client";
 import type { FuelStation } from "@/types/fuel.types";
+import { addressFromTags, fuelTypesFromTags } from "@/lib/fuel/station-tags";
 import { haversineKm } from "@/lib/geo/haversine";
 
 export async function loadFuelStationsAt(
@@ -63,11 +64,18 @@ function poiItemsToStations(
       name: item.name,
       brand: item.brand ?? item.name,
       coords: { lat: item.lat, lng: item.lon },
-      address: item.tags["addr:full"] ?? item.tags["addr:street"] ?? undefined,
+      address: addressFromTags(item.tags),
       prices: {},
       open: "unknown",
       distance_km,
       payment_methods: [],
+      ...(fuelTypesFromTags(item.tags).length > 0
+        ? { fuel_types: fuelTypesFromTags(item.tags) }
+        : {}),
+      ...(item.tags.opening_hours ? { opening_hours: item.tags.opening_hours } : {}),
+      ...((item.tags.phone ?? item.tags["contact:phone"])
+        ? { phone: item.tags.phone ?? item.tags["contact:phone"] }
+        : {}),
     };
   });
 }

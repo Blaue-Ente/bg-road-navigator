@@ -39,7 +39,7 @@ function filled(): PlannerDraft {
   return createPlannerDraft({
     origin: place("munich", "Мюнхен"),
     destination: place("sofia", "София"),
-    via: place("nis", "Ниш"),
+    via: [place("nis", "Ниш"), place("vidin", "Видин")],
     corridorId: "de-bg",
     preferences: {
       ...DEFAULT_TRIP_PREFERENCES,
@@ -90,5 +90,34 @@ describe("planner draft", () => {
     expect(parsePlannerDraft(JSON.stringify({ fuelPercent: 40 }))).toBeNull();
     clearPlannerDraft(storage);
     expect(readPlannerDraft(storage)).toBeNull();
+  });
+});
+
+describe("planner draft with several through-points", () => {
+  it("keeps up to three, in order", () => {
+    const draft = createPlannerDraft({
+      via: [place("a", "A"), place("b", "B"), place("c", "C"), place("d", "D")],
+    });
+    expect(draft.via.map((point) => point.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("reads a draft saved with a single through-point", () => {
+    const raw = JSON.stringify({
+      origin: null,
+      destination: null,
+      via: place("nis", "Ниш"),
+      preferences: {},
+    });
+    expect(parsePlannerDraft(raw)?.via.map((point) => point.id)).toEqual(["nis"]);
+  });
+
+  it("reads a draft saved with no through-point", () => {
+    const raw = JSON.stringify({
+      origin: null,
+      destination: null,
+      via: null,
+      preferences: {},
+    });
+    expect(parsePlannerDraft(raw)?.via).toEqual([]);
   });
 });

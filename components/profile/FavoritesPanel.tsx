@@ -50,12 +50,12 @@ export function FavoritesPanel() {
 
   const openRoute = (route: FavoriteRoute) => {
     const stored = readFavoriteEnvelope(route.plan);
-    const via = stored.inputs?.via[0];
+    const via = stored.inputs?.via ?? [];
     setReplanDraft({
       token: ++replanToken.current,
       origin: toPoint("origin", route.origin),
       destination: toPoint("destination", route.destination),
-      via: via ? toPoint("via", via) : null,
+      via: via.slice(0, 3).map((point) => toPoint("via", point)),
       preferences: resolveTripPreferences(route.preferences),
       departAt: stored.inputs?.depart_at ?? route.preferences.depart_at ?? null,
       fuelLevel: stored.inputs?.fuel_level ?? 0.8,

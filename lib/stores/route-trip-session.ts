@@ -11,7 +11,7 @@ export interface RouteTripSessionPayload {
   tripPlan: TripPlannerResult | null;
   activeRoute: Route | null;
   alternativeRoutes: Route[];
-  planningVia: PlanningVia | null;
+  planningVia: PlanningVia[];
   planDetailOpen: boolean;
 }
 
@@ -61,7 +61,16 @@ export function parseRouteTripSession(raw: string | null): RouteTripSessionPaylo
     const envelope = parsed as StoredEnvelope;
     if (envelope.v !== ROUTE_TRIP_SESSION_VERSION) return null;
     if (!isRouteTripSessionPayload(envelope.data)) return null;
-    return envelope.data;
+    // Sessions saved with a single point (or none) read as a list.
+    const via = (envelope.data as { planningVia: unknown }).planningVia;
+    return {
+      ...envelope.data,
+      planningVia: Array.isArray(via)
+        ? (via as PlanningVia[])
+        : via && typeof via === "object"
+          ? [via as PlanningVia]
+          : [],
+    };
   } catch {
     return null;
   }

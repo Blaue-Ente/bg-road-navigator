@@ -6,6 +6,7 @@ import {
   loadFuelStationsAt,
   mergeFuelStationLists,
 } from "@/lib/fuel/load-route-stations";
+import { withOfficialPrices } from "@/lib/fuel/station-prices";
 import { haversineKm } from "@/lib/geo/haversine";
 import { readPoiConfig } from "@/lib/poi/config";
 import {
@@ -156,6 +157,18 @@ export async function GET(request: NextRequest) {
           : Promise.resolve([] as EVStation[]),
       ]);
     }
+
+    // Official prices next to the stations that have none (Germany, Austria).
+    const priceCenters =
+      routeCoords.length >= 2
+        ? sampleRouteCoordinates(routeCoords, 90, 6)
+        : [
+            {
+              lng: ((parsed.data.w ?? 23.32) + (parsed.data.e ?? 23.32)) / 2,
+              lat: ((parsed.data.s ?? 42.7) + (parsed.data.n ?? 42.7)) / 2,
+            },
+          ];
+    fuelStations = await withOfficialPrices(fuelStations, priceCenters);
 
     const bbox =
       routeCoords.length >= 2

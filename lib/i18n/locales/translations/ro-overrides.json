@@ -9,7 +9,8 @@
     "carChoose": "Mașina pentru această călătorie",
     "carConsumption": "Consum mediu: {value} {unit}",
     "carDefault": "Mașina principală",
-    "carNoGarage": "Adaugă o mașină în profil pentru un plan mai precis."
+    "carNoGarage": "Adaugă o mașină în profil pentru un plan mai precis.",
+    "addVia": "Adaugă un punct intermediar"
   },
   "sheet": {
     "waitAtArrival": "La sosire (~{time}, {place}): {minutes} min",
@@ -46,7 +47,8 @@
   },
   "nav": {
     "weather": "Vremea",
-    "hotels": "Locuri de odihnă"
+    "hotels": "Locuri de odihnă",
+    "closeToMap": "Închide și mergi la hartă"
   },
   "tipsPage": {
     "msg343e2ece52": "Important"
@@ -318,7 +320,19 @@
     "attributionFuelo": "Date: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
     "eurSuffix": "€",
-    "kwhec63": "€/kWh"
+    "kwhec63": "€/kWh",
+    "call": "Sună",
+    "navigate": "Navighează",
+    "noPrices": "Nu există date de preț pentru această stație.",
+    "priceFrom": "Prețuri de la {source}, {time}",
+    "typeAdblue": "AdBlue",
+    "typeCng": "GNC",
+    "typeDiesel": "Motorină",
+    "typeE85": "E85",
+    "typeHvo": "HVO",
+    "typeLpg": "GPL",
+    "typePetrol95": "Benzină 95",
+    "typePetrol98": "Benzină 98+"
   },
   "tripHeuristic": {
     "restTitle": "Pauză",
@@ -570,7 +584,9 @@
   "prefs": {
     "breakCapped": "Cu un copil mic, pauzele sunt cel mult la {minutes} min, chiar dacă ai ales mai mult.",
     "breakExact": "Respectă exact intervalul meu",
-    "breakExactOn": "Pauzele vor urma exact intervalul ales."
+    "breakExactOn": "Pauzele vor urma exact intervalul ales.",
+    "adults": "Adulți în mașină",
+    "adultsHint": "Include șoferii. Se folosește la căutarea hotelului (camere și oaspeți)."
   },
   "checklist": {
     "prep": "Pregătirea pentru drum"
@@ -603,6 +619,12 @@
     "title": "Sfaturi pentru drum",
     "verdictAvoid": "Evită",
     "verdictGood": "Alegere bună",
-    "verdictOk": "În regulă"
+    "verdictOk": "În regulă",
+    "evCalm": "De obicei mai liniștit la această oră. Verifică disponibilitatea în aplicația operatorului înainte să mergi acolo.",
+    "evCalmBadge": "Mai liniștit",
+    "evNote": "Orele aglomerate sunt orientative (naveta de peste săptămână, amiaza de weekend), nu date în direct despre stație.",
+    "evPeak": "De obicei aglomerat (navetă sau weekend). Dacă operatorul permite rezervarea, fă-o din aplicația lui; altfel verifică disponibilitatea cu puțin timp înainte și păstrează încărcare pentru o a doua stație.",
+    "evPeakBadge": "Ore aglomerate",
+    "evTitle": "Încărcarea mașinii electrice"
   }
 }

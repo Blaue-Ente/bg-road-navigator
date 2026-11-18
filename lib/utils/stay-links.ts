@@ -8,6 +8,10 @@ export interface StayQuery {
   checkout: string;
   adults: number;
   children: number;
+  /** Rooms to search for; defaults to one room for two adults. */
+  rooms?: number;
+  /** Ages of the children, which Booking.com asks for. */
+  childAges?: number[];
 }
 
 export function isoDay(value: Date | string): string {
@@ -34,11 +38,14 @@ export function bookingSearchUrl(query: StayQuery, affiliateId?: string | null):
     checkout: query.checkout,
     group_adults: String(Math.max(1, query.adults)),
     group_children: String(Math.max(0, query.children)),
-    no_rooms: "1",
+    no_rooms: String(Math.max(1, query.rooms ?? Math.ceil(query.adults / 2))),
     // Search around the point, so a village Booking does not know does not
     // turn into "the whole country".
     dest_type: "latlong",
   });
+  for (const age of (query.childAges ?? []).slice(0, query.children)) {
+    params.append("age", String(Math.min(17, Math.max(0, Math.round(age)))));
+  }
   if (affiliateId?.trim()) params.set("aid", affiliateId.trim());
   return `https://www.booking.com/searchresults.html?${params}`;
 }

@@ -3,12 +3,15 @@ import { resolveTripPreferences, type TripPreferences } from "@/lib/planner/pref
 import type { RoutePoint } from "@/types/route.types";
 
 export const PLANNER_DRAFT_KEY = "bg-road-planner-draft";
+/** The planner accepts up to three through-points. */
+export const MAX_VIA = 3;
 
 /** Form fields for one trip. The car stays on the profile and is not stored here. */
 export interface PlannerDraft {
   origin: RoutePoint | null;
   destination: RoutePoint | null;
-  via: RoutePoint | null;
+  /** Up to three stops the route must pass through, in order. */
+  via: RoutePoint[];
   corridorId: string | null;
   preferences: TripPreferences;
   /** Value of the datetime-local input (Europe/Sofia morning default when unset). */
@@ -31,7 +34,7 @@ const DEPART_LOCAL = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 export function createPlannerDraft(input: {
   origin?: RoutePoint | null;
   destination?: RoutePoint | null;
-  via?: RoutePoint | null;
+  via?: RoutePoint[];
   corridorId?: string | null;
   preferences?: TripPreferences;
   departLocal?: string;
@@ -42,7 +45,7 @@ export function createPlannerDraft(input: {
   return {
     origin: input.origin ?? null,
     destination: input.destination ?? null,
-    via: input.via ?? null,
+    via: (input.via ?? []).slice(0, MAX_VIA),
     corridorId: input.corridorId ?? null,
     preferences: input.preferences ?? resolveTripPreferences(),
     departLocal: input.departLocal ?? proposedDepartLocalValue(),
@@ -69,7 +72,10 @@ export function serializePlannerDraft(draft: PlannerDraft): string {
   return JSON.stringify({
     origin: pointOrNull(draft.origin),
     destination: pointOrNull(draft.destination),
-    via: pointOrNull(draft.via),
+    via: draft.via.flatMap((point) => {
+      const stored = pointOrNull(point);
+      return stored ? [stored] : [];
+    }),
     corridorId: draft.corridorId,
     preferences: draft.preferences,
     departLocal: draft.departLocal,
@@ -90,8 +96,13 @@ export function parsePlannerDraft(raw: string | null): PlannerDraft | null {
     }
     const origin = optionalPoint(row.origin);
     const destination = optionalPoint(row.destination);
-    const via = optionalPoint(row.via);
-    if (origin === undefined || destination === undefined || via === undefined) {
+    // Drafts saved with one point (or none) read as a list.
+    const rawVia = Array.isArray(row.via) ? row.via : row.via == null ? [] : [row.via];
+    const via = rawVia.flatMap((value) => {
+      const point = pointOrNull(value);
+      return point ? [point] : [];
+    });
+    if (origin === undefined || destination === undefined) {
       return null;
     }
     const departLocal =
@@ -101,7 +112,7 @@ export function parsePlannerDraft(raw: string | null): PlannerDraft | null {
     return {
       origin,
       destination,
-      via,
+      via: via.slice(0, MAX_VIA),
       corridorId: typeof row.corridorId === "string" ? row.corridorId : null,
       preferences: resolveTripPreferences(row.preferences),
       departLocal,

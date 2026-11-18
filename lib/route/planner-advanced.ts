@@ -29,14 +29,14 @@ function preferencesDiffer(prefs: TripPreferences): boolean {
 
 /** True when any field hidden under «Още опции» differs from the shipped defaults. */
 export function hasAdvancedPlannerOptions(input: {
-  via: RoutePoint | null;
+  via: RoutePoint[];
   fuelPercent: number;
   departLocal: string;
   preferences: TripPreferences;
   proposedDepart?: string;
 }): boolean {
   const proposed = input.proposedDepart ?? proposedDepartLocalValue();
-  if (input.via) return true;
+  if (input.via.length > 0) return true;
   if (input.fuelPercent !== DEFAULT_FUEL_PERCENT) return true;
   if (input.departLocal && input.departLocal !== proposed) return true;
   return preferencesDiffer(input.preferences);

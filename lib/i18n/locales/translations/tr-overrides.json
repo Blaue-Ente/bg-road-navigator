@@ -9,7 +9,8 @@
     "carChoose": "Bu yolculuk için araç",
     "carConsumption": "Ortalama tüketim: {value} {unit}",
     "carDefault": "Varsayılan araç",
-    "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin."
+    "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin.",
+    "addVia": "Ara nokta ekle"
   },
   "sheet": {
     "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",
@@ -44,7 +45,8 @@
   },
   "nav": {
     "weather": "Hava durumu",
-    "hotels": "Dinlenme yerleri"
+    "hotels": "Dinlenme yerleri",
+    "closeToMap": "Kapat ve haritaya dön"
   },
   "tipsPage": {
     "msg343e2ece52": "Önemli"
@@ -315,7 +317,19 @@
     "attributionFuelo": "Veri: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
     "eurSuffix": "€",
-    "kwhec63": "€/kWh"
+    "kwhec63": "€/kWh",
+    "call": "Ara",
+    "navigate": "Yol tarifi",
+    "noPrices": "Bu istasyon için fiyat verisi yok.",
+    "priceFrom": "Fiyatlar: {source}, {time}",
+    "typeAdblue": "AdBlue",
+    "typeCng": "CNG",
+    "typeDiesel": "Dizel",
+    "typeE85": "E85",
+    "typeHvo": "HVO",
+    "typeLpg": "LPG",
+    "typePetrol95": "Benzin 95",
+    "typePetrol98": "Benzin 98+"
   },
   "tripHeuristic": {
     "restTitle": "Mola",
@@ -567,7 +581,9 @@
   "prefs": {
     "breakCapped": "Küçük çocukla molalar, daha uzun seçseniz bile en fazla {minutes} dk’da bir verilir.",
     "breakExact": "Seçtiğim aralığı aynen uygula",
-    "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak."
+    "breakExactOn": "Molalar tam olarak seçtiğiniz aralıkta olacak.",
+    "adults": "Araçtaki yetişkinler",
+    "adultsHint": "Sürücüleri içerir. Otel aramasında (oda ve misafir) kullanılır."
   },
   "checklist": {
     "prep": "Yola hazırlık"
@@ -600,6 +616,12 @@
     "title": "Yolculuk tavsiyeleri",
     "verdictAvoid": "Kaçının",
     "verdictGood": "İyi seçim",
-    "verdictOk": "Olur"
+    "verdictOk": "Olur",
+    "evCalm": "Bu saatte genellikle daha sakin. İstasyona gitmeden önce işletmecinin uygulamasında doluluğu kontrol edin.",
+    "evCalmBadge": "Daha sakin",
+    "evNote": "Yoğun saatler bir göstergedir (hafta içi iş gidiş-dönüşü, hafta sonu öğle), şarj istasyonu için canlı veri değildir.",
+    "evPeak": "Genellikle yoğun (iş dönüşü veya hafta sonu). İşletmeci rezervasyona izin veriyorsa uygulaması üzerinden yapın; aksi hâlde kısa süre önce doluluğu kontrol edin ve ikinci bir istasyon için yeterli şarj bırakın.",
+    "evPeakBadge": "Yoğun saat",
+    "evTitle": "Elektrikli aracı şarj etme"
   }
 }

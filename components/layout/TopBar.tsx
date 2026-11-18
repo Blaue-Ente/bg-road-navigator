@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MenuIcon } from "@/components/icons/NavIcons";
+import { CloseIcon, MenuIcon } from "@/components/icons/NavIcons";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useMenu } from "@/components/layout/MenuContext";
@@ -61,6 +61,16 @@ export function TopBar({ user }: TopBarProps) {
         </p>
 
         <LocaleSwitcher className="shrink-0" />
+
+        {pathname !== "/login" && (
+          <Link
+            href="/"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--waze-text)]"
+            aria-label={m.nav.closeToMap}
+          >
+            <CloseIcon size={20} />
+          </Link>
+        )}
 
         {user ? (
           <Link

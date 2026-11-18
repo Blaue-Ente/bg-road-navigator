@@ -30,7 +30,7 @@ describe("buildItineraryPoints", () => {
     const points = buildItineraryPoints({
       plan,
       includedStopIds: new Set(["stop-1"]),
-      via: { label: "Ниш", lng: 21.9, lat: 43.3 },
+      via: [{ label: "Ниш", lng: 21.9, lat: 43.3 }],
     });
     expect(points.map((point) => point.label)).toEqual([
       "София",
@@ -60,7 +60,7 @@ describe("buildItineraryPoints", () => {
           plan={plan}
           includedIds={["stop-1"]}
           checks={{}}
-          via={null}
+          via={[]}
         />
       </LocaleProvider>
     );

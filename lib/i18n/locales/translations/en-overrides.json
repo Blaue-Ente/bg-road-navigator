@@ -9,7 +9,8 @@
     "carChoose": "Car for this trip",
     "carConsumption": "Average consumption: {value} {unit}",
     "carDefault": "Default car",
-    "carNoGarage": "Add a car in your profile for a more accurate plan."
+    "carNoGarage": "Add a car in your profile for a more accurate plan.",
+    "addVia": "Add a through-point"
   },
   "sheet": {
     "waitAtArrival": "On arrival (~{time}, {place}): {minutes} min",
@@ -42,7 +43,8 @@
   },
   "nav": {
     "weather": "Weather",
-    "hotels": "Rest stops"
+    "hotels": "Rest stops",
+    "closeToMap": "Close and go to the map"
   },
   "tipsPage": {
     "msg343e2ece52": "Important"
@@ -313,7 +315,19 @@
     "attributionFuelo": "Prices: Fuelo",
     "attributionNakordoni": "Data by nakordoni.eu",
     "eurSuffix": "€",
-    "kwhec63": "€/kWh"
+    "kwhec63": "€/kWh",
+    "call": "Call",
+    "navigate": "Navigate",
+    "noPrices": "No price data for this station.",
+    "priceFrom": "Prices from {source}, {time}",
+    "typeAdblue": "AdBlue",
+    "typeCng": "CNG",
+    "typeDiesel": "Diesel",
+    "typeE85": "E85",
+    "typeHvo": "HVO",
+    "typeLpg": "LPG",
+    "typePetrol95": "Petrol 95",
+    "typePetrol98": "Petrol 98+"
   },
   "tripHeuristic": {
     "restTitle": "Rest break",
@@ -565,7 +579,9 @@
   "prefs": {
     "breakCapped": "With a young child, breaks are at most every {minutes} min, even if you chose longer.",
     "breakExact": "Keep exactly my interval",
-    "breakExactOn": "Breaks will follow exactly the interval you chose."
+    "breakExactOn": "Breaks will follow exactly the interval you chose.",
+    "adults": "Adults in the car",
+    "adultsHint": "Includes the drivers. Used for the hotel search (rooms and guests)."
   },
   "checklist": {
     "prep": "Getting ready for the road"
@@ -598,6 +614,12 @@
     "title": "Trip advice",
     "verdictAvoid": "Avoid",
     "verdictGood": "Good pick",
-    "verdictOk": "Fine"
+    "verdictOk": "Fine",
+    "evCalm": "Usually quieter at this hour. Check availability in the operator's app before heading there.",
+    "evCalmBadge": "Quieter",
+    "evNote": "Busy hours are a rule of thumb (weekday commutes, weekend midday), not live data for the charger.",
+    "evPeak": "Usually busy (commute or weekend traffic). If the operator allows booking, book through its app; otherwise check availability shortly before and keep enough charge for a second station.",
+    "evPeakBadge": "Busy hours",
+    "evTitle": "Charging your EV"
   }
 }
