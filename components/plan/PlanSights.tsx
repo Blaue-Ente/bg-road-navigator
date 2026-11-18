@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MapPin } from "lucide-react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
+import { TripLoadingIcons } from "@/components/ui/TripLoadingIcons";
 import { NavigateButtons } from "@/components/ui/NavigateButtons";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { TripPlannerResult } from "@/lib/planner/types";
@@ -91,6 +92,12 @@ export function PlanSights({ plan }: { plan: TripPlannerResult }) {
             <MapPin className="h-4 w-4" aria-hidden />
             {status === "loading" ? m.sights.loading : m.sights.show}
           </button>
+          {status === "loading" ? (
+            <p className="flex items-center gap-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+              <TripLoadingIcons />
+              {m.sights.loading}
+            </p>
+          ) : null}
           {status === "failed" ? (
             <p className="text-sm text-[var(--waze-danger)]">{m.sights.failed}</p>
           ) : null}

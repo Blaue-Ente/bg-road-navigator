@@ -3,6 +3,7 @@
 import { useRouteStore } from "@/lib/stores/route.store";
 import { useMemo, useState } from "react";
 import { FileDown, MapPin, Sparkles } from "lucide-react";
+import { TripLoadingIcons } from "@/components/ui/TripLoadingIcons";
 import { StayOptions } from "@/components/plan/StayOptions";
 import {
   chosenSightsFor,
@@ -241,6 +242,12 @@ export function TripGuide({
               <Sparkles className="h-4 w-4" aria-hidden />
               {ai.status === "loading" ? m.guide.aiLoading : m.guide.aiAsk}
             </button>
+            {ai.status === "loading" && (
+              <p className="flex items-center gap-3 text-sm text-[var(--waze-text-secondary)]" role="status">
+                <TripLoadingIcons />
+                {m.guide.aiLoading}
+              </p>
+            )}
             {ai.status === "unavailable" && (
               <p className="text-xs text-[var(--waze-text-muted)]">
                 {m.ai.unavailable}
