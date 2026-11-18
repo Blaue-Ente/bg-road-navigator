@@ -10,7 +10,10 @@ import { PinCategorySelector } from "@/components/community/PinCategorySelector"
 import {
   COMMUNITY_PIN_CATEGORIES,
   communityPinLabel,
+  MAX_SEGMENT_KM,
 } from "@/lib/constants/community-pins";
+import { haversineKm } from "@/lib/geo/haversine";
+import { formatTemplate } from "@/lib/i18n/format-template";
 import type {
   CommunityPin,
   CommunityPinCategory,
@@ -25,8 +28,17 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
   const m = useMessages();
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const { isDropMode, dropCoords, cancelDrop, addPin, setDropCoords } =
-    useCommunityStore();
+  const {
+    isDropMode,
+    dropCoords,
+    dropEndCoords,
+    segmentPending,
+    cancelDrop,
+    addPin,
+    setDropCoords,
+    setDropEndCoords,
+    setSegmentPending,
+  } = useCommunityStore();
   const [category, setCategory] = useState<CommunityPinCategory>("traffic_jam");
   const [title, setTitle] = useState("");
   const [publishing, setPublishing] = useState(false);
@@ -44,10 +56,17 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
 
   if (!isDropMode) return null;
   if (requireMapTap && !dropCoords) return null;
+  // Waiting for the end of a bad stretch: the map must be tappable, so no sheet.
+  if (segmentPending) return null;
+
+  const segmentKm =
+    dropCoords && dropEndCoords ? haversineKm(dropCoords, dropEndCoords) : null;
+  const segmentTooLong = segmentKm != null && segmentKm > MAX_SEGMENT_KM;
 
   const publish = async (
     nextCategory: CommunityPinCategory,
-    nextTitle?: string
+    nextTitle?: string,
+    withEnd = true
   ) => {
     if (publishing) return;
     if (!dropCoords) {
@@ -66,6 +85,9 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
           title: label,
           text: nextTitle?.trim() && nextTitle.trim() !== label ? nextTitle.trim() : null,
           coords: dropCoords,
+          ...(withEnd && nextCategory === "bad_road" && dropEndCoords && !segmentTooLong
+            ? { end_coords: dropEndCoords }
+            : {}),
         }),
       });
       if (response.status === 401) {
@@ -85,6 +107,7 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
       addPin(pin);
       await queryClient.invalidateQueries({ queryKey: ["community-pins"] });
       setTitle("");
+      setDropEndCoords(null);
       cancelDrop();
     } catch {
       setError(m.community.msg9910278408);
@@ -127,7 +150,14 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
                 key={item.id}
                 type="button"
                 disabled={publishing}
-                onClick={() => void publish(item.id)}
+                onClick={() => {
+                  // A bad road is a stretch: ask for where it ends before publishing.
+                  if (item.id === "bad_road" && !dropEndCoords) {
+                    setSegmentPending(true);
+                    return;
+                  }
+                  void publish(item.id);
+                }}
                 className="rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] px-3 py-3 text-left text-sm font-medium text-[var(--waze-text)] disabled:opacity-50"
               >
                 <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs text-white" style={{ background: item.color }}>
@@ -163,6 +193,41 @@ export function PinComposer({ requireMapTap = false }: PinComposerProps) {
             </button>
           </>
         )}
+
+        {requireMapTap && dropEndCoords && segmentKm != null ? (
+          <div className="mt-3 rounded-xl border border-[var(--waze-border)] p-3">
+            <p className="text-sm text-[var(--waze-text)]">
+              {formatTemplate(m.community.badRoadSegment, {
+                km: segmentKm.toFixed(1),
+                a: `${dropCoords?.lat.toFixed(3)}, ${dropCoords?.lng.toFixed(3)}`,
+                b: `${dropEndCoords.lat.toFixed(3)}, ${dropEndCoords.lng.toFixed(3)}`,
+              })}
+            </p>
+            {segmentTooLong ? (
+              <p className="mt-1 text-sm text-[var(--waze-danger)]">
+                {formatTemplate(m.community.badRoadTooLong, { max: String(MAX_SEGMENT_KM) })}
+              </p>
+            ) : null}
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={publishing || segmentTooLong}
+                onClick={() => void publish("bad_road")}
+                className="waze-btn-primary min-h-11 px-4 text-sm font-semibold disabled:opacity-50"
+              >
+                {m.community.badRoadPublish}
+              </button>
+              <button
+                type="button"
+                disabled={publishing}
+                onClick={() => void publish("bad_road", undefined, false)}
+                className="waze-btn-secondary min-h-11 px-4 text-sm"
+              >
+                {m.community.badRoadPointOnly}
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         {requireMapTap && (
           <button

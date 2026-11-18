@@ -10,6 +10,7 @@ import { RouteLayer } from "@/components/map/RouteLayer";
 import { TrafficLayer } from "@/components/map/TrafficLayer";
 import { TrafficFlowLayer } from "@/components/map/TrafficFlowLayer";
 import { CommunityPins } from "@/components/map/CommunityPins";
+import { CommunitySegments } from "@/components/map/CommunitySegments";
 import { MapPoiLayers } from "@/components/map/MapPoiLayers";
 import { UserLocationMarker } from "@/components/map/UserLocationMarker";
 import { PlanMarkers } from "@/components/map/PlanMarkers";
@@ -98,6 +99,10 @@ export function MapExperience() {
 
   const handleMapClick = useCallback(
     (coords: { lng: number; lat: number }) => {
+      if (useCommunityStore.getState().segmentPending) {
+        useCommunityStore.getState().setDropEndCoords(coords);
+        return;
+      }
       if (!isDropMode || dropCoords) return;
       beginDrop(coords);
     },
@@ -229,6 +234,10 @@ export function MapExperience() {
           <TrafficFlowLayer map={mapInstance} />
           <TrafficLayer map={mapInstance} incidents={traffic?.incidents} />
           <CommunityPins
+            map={mapInstance}
+            pins={communityData?.pins ?? localPins}
+          />
+          <CommunitySegments
             map={mapInstance}
             pins={communityData?.pins ?? localPins}
           />

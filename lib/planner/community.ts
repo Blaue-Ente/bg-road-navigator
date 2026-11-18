@@ -5,6 +5,11 @@ import type { CommunityNote } from "@/lib/planner/types";
 import type { CommunityPin } from "@/types/community.types";
 
 const NEAR_ROUTE_KM = 18;
+/** The ends of a stretch must be this close to the driven line. */
+const SEGMENT_NEAR_KM = 6;
+/** Slower driving on a bad stretch, minutes lost per kilometre. */
+const SEGMENT_MIN_PER_KM = 0.4;
+const MAX_SEGMENT_PENALTY_MIN = 20;
 
 const PENALTY_MIN: Partial<Record<CommunityPin["category"], number>> = {
   accident: 12,
@@ -30,9 +35,22 @@ export function communityAlongRoute(
   const notes: CommunityNote[] = [];
   for (const pin of pins) {
     const approach = distanceToPolylineKm(coordinates, pin.coords);
-    if (approach.distanceKm > NEAR_ROUTE_KM) continue;
-    const penalty = PENALTY_MIN[pin.category] ?? 0;
+    // A bad stretch counts when both its ends are on the road, and then costs
+    // time by its length.
+    let segment: { from_km: number; to_km: number } | null = null;
+    let penalty = PENALTY_MIN[pin.category] ?? 0;
+    if (pin.category === "bad_road" && pin.end_coords) {
+      const end = distanceToPolylineKm(coordinates, pin.end_coords);
+      if (approach.distanceKm > SEGMENT_NEAR_KM || end.distanceKm > SEGMENT_NEAR_KM) continue;
+      const from = Math.min(approach.alongKm, end.alongKm);
+      const to = Math.max(approach.alongKm, end.alongKm);
+      segment = { from_km: Math.round(from), to_km: Math.round(to) };
+      penalty = Math.min(MAX_SEGMENT_PENALTY_MIN, Math.round((to - from) * SEGMENT_MIN_PER_KM));
+    } else if (approach.distanceKm > NEAR_ROUTE_KM) {
+      continue;
+    }
     notes.push({
+      ...(segment ?? {}),
       id: pin.id,
       category: pin.category,
       title: pin.title,

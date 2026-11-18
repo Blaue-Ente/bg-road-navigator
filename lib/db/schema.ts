@@ -291,6 +291,9 @@ export const communityPins = pgTable("community_pins", {
   body: text("body"),
   lat: doublePrecision("lat").notNull(),
   lng: doublePrecision("lng").notNull(),
+  /** Where a stretch ends (bad road); null for a single point. */
+  endLat: doublePrecision("end_lat"),
+  endLng: doublePrecision("end_lng"),
   photoUrl: text("photo_url"),
   upvotes: integer("upvotes").notNull().default(0),
   goneCount: integer("gone_count").notNull().default(0),

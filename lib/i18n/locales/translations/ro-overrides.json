@@ -153,6 +153,9 @@
       "prepPhoneDetail": "Cablu auto, baterie externă, hărți descărcate pentru țările de pe traseu.",
       "prepWipes": "Șervețele umede și uscate, saci de gunoi",
       "prepWipesDetail": "Pentru mâini, scurgeri și toalete fără hârtie. Saci de gunoi în mașină."
+    },
+    "warnings": {
+      "badRoadSegment": "Drum prost raportat de șoferi de la km {from} la km {to}: conduceți mai încet și cu grijă."
     }
   },
   "api": {
@@ -673,7 +676,13 @@
     "sleepWhere": "Cazare"
   },
   "community": {
-    "closeComposer": "Închide"
+    "closeComposer": "Închide",
+    "badRoadEnd": "Atinge harta unde se termină porțiunea proastă.",
+    "badRoadEndPrompt": "Porțiune proastă: atinge capătul ei pe hartă",
+    "badRoadPointOnly": "Doar un punct, fără capăt",
+    "badRoadPublish": "Publică porțiunea",
+    "badRoadSegment": "Porțiune de {km} km: de la {a} la {b}",
+    "badRoadTooLong": "Porțiunea este prea lungă (cel mult {max} km). Alege un punct mai apropiat."
   },
   "costs": {
     "bridge": "Pod sau bac peste Dunăre ({crossings} traversare): taxa nu este inclusă, verifică la operator",

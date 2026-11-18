@@ -21,6 +21,7 @@ export default function MapPage() {
   const activeRoute = useRouteStore((s) => s.activeRoute);
   const isDropMode = useCommunityStore((s) => s.isDropMode);
   const dropCoords = useCommunityStore((s) => s.dropCoords);
+  const segmentPending = useCommunityStore((s) => s.segmentPending);
   const { open, openMenu } = useMenu();
 
   useEffect(() => {
@@ -73,6 +74,12 @@ export default function MapPage() {
             {activeRoute.distance_km} {m.units.km} ·{" "}
             {formatDuration(activeRoute.duration_min, units)}
           </p>
+        )}
+
+        {segmentPending && (
+          <div className="pointer-events-none mt-3 rounded-full bg-[var(--waze-accent)] px-4 py-2 text-center text-sm font-semibold text-white shadow-sm">
+            {m.community.badRoadEndPrompt}
+          </div>
         )}
 
         {isDropMode && !dropCoords && (

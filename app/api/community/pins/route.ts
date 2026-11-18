@@ -5,12 +5,14 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import {
   COMMUNITY_PIN_CATEGORY_IDS,
+  MAX_SEGMENT_KM,
   communityPinLabel,
 } from "@/lib/constants/community-pins";
 import { isDatabaseConfigured } from "@/lib/db";
 import { createPin, listPins } from "@/lib/db/community";
 import { ensureProfile } from "@/lib/db/profiles";
 import { rateLimitedResponse, toDbResponse } from "@/lib/server/db-http";
+import { haversineKm } from "@/lib/geo/haversine";
 import { clientIpFromHeaders, rateLimit } from "@/lib/server/rate-limit";
 
 const PinSchema = z.object({
@@ -23,7 +25,16 @@ const PinSchema = z.object({
     lng: z.number().finite().min(-25).max(45),
     lat: z.number().finite().min(34).max(72),
   }),
+  /** The far end of a stretch; only for a bad-road signal. */
+  end_coords: z
+    .object({
+      lng: z.number().finite().min(-25).max(45),
+      lat: z.number().finite().min(34).max(72),
+    })
+    .nullable()
+    .optional(),
 });
+
 
 const BboxSchema = z.object({
   west: z.coerce.number().finite().min(-25).max(45),
@@ -85,6 +96,11 @@ export async function POST(request: NextRequest) {
     return apiError(request, "invalidPin", "INVALID_PIN", 400);
   }
 
+  const end = parsed.data.category === "bad_road" ? parsed.data.end_coords ?? null : null;
+  if (end && haversineKm(parsed.data.coords, end) > MAX_SEGMENT_KM) {
+    return apiError(request, "invalidPin", "INVALID_PIN", 400);
+  }
+
   try {
     await ensureProfile({
       userId: auth.user.id,
@@ -100,6 +116,8 @@ export async function POST(request: NextRequest) {
       text: parsed.data.text ?? parsed.data.description ?? null,
       lat: parsed.data.coords.lat,
       lng: parsed.data.coords.lng,
+      endLat: end?.lat ?? null,
+      endLng: end?.lng ?? null,
       photoUrl: parsed.data.photo_url ?? null,
     });
     return NextResponse.json({ pin }, { status: 201 });

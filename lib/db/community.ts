@@ -28,6 +28,10 @@ function toPin(row: typeof communityPins.$inferSelect): CommunityPin {
     description: row.body,
     text: row.body,
     coords: { lng: row.lng, lat: row.lat },
+    end_coords:
+      row.endLat != null && row.endLng != null
+        ? { lng: row.endLng, lat: row.endLat }
+        : null,
     photo_url: row.photoUrl,
     is_verified: false,
     upvotes: row.upvotes,
@@ -78,6 +82,8 @@ export async function createPin(input: {
   text?: string | null;
   lat: number;
   lng: number;
+  endLat?: number | null;
+  endLng?: number | null;
   photoUrl?: string | null;
 }): Promise<CommunityPin> {
   const db = getDb();
@@ -94,6 +100,8 @@ export async function createPin(input: {
       body: input.text ?? null,
       lat: input.lat,
       lng: input.lng,
+      endLat: input.endLat ?? null,
+      endLng: input.endLng ?? null,
       photoUrl: input.photoUrl ?? null,
       expiresAt,
     })

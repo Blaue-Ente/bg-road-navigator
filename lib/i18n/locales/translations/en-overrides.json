@@ -148,6 +148,9 @@
       "prepPhoneDetail": "Car cable, power bank, maps downloaded for the countries on the way.",
       "prepWipes": "Wet and dry wipes, rubbish bags",
       "prepWipesDetail": "For hands, spills and toilets without paper. Bags for rubbish in the car."
+    },
+    "warnings": {
+      "badRoadSegment": "Bad road reported by drivers from km {from} to km {to}: drive slower and with care."
     }
   },
   "api": {
@@ -668,7 +671,13 @@
     "sleepWhere": "Overnight"
   },
   "community": {
-    "closeComposer": "Close"
+    "closeComposer": "Close",
+    "badRoadEnd": "Tap the map where the bad stretch ends.",
+    "badRoadEndPrompt": "Bad stretch: tap its end on the map",
+    "badRoadPointOnly": "Just a point, no end",
+    "badRoadPublish": "Publish the stretch",
+    "badRoadSegment": "Stretch of {km} km: from {a} to {b}",
+    "badRoadTooLong": "The stretch is too long (at most {max} km). Pick a closer point."
   },
   "costs": {
     "bridge": "Danube bridge or ferry ({crossings} crossing): the fee is not included, check with the operator",

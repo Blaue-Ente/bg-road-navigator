@@ -130,7 +130,11 @@ export function guideInputFromPlan(
     bad_roads: plan.community.notes
       .filter((note) => note.category === "bad_road")
       .slice(0, 8)
-      .map((note) => ({ title: note.title.slice(0, 120), off_route_km: note.distance_km })),
+      .map((note) => ({
+        title: note.title.slice(0, 120),
+        off_route_km: note.distance_km,
+        ...(note.from_km != null && note.to_km != null ? { from_km: note.from_km, to_km: note.to_km } : {}),
+      })),
     via: via.slice(0, 3).map((label) => label.slice(0, 120)),
     chosen_sights: chosenSights.map((sight) => ({
       name: sight.name.slice(0, 120),
