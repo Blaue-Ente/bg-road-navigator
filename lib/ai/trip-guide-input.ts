@@ -125,6 +125,7 @@ export function guideInputFromPlan(
     car_comfort: prefs.car_comfort,
     leaves_at_night: leavesAtNight(plan.depart_at),
     max_day_driving_h: drivingDayHours(prefs),
+    scenic_route: plan.route.scenic ?? null,
     day_limit_h: healthDayLimitH(prefs),
     bad_roads: plan.community.notes
       .filter((note) => note.category === "bad_road")

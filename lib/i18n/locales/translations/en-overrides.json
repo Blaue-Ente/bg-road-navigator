@@ -745,7 +745,11 @@
     "show": "Show interesting places",
     "title": "Interesting places on the way",
     "total": "Chosen: {count}, +{min} min in all. Arrival around {time}.",
-    "unavailable": "Interesting places need the AI to be on."
+    "unavailable": "Interesting places need the AI to be on.",
+    "roadApplied": "The route takes a more scenic road: +{km} km and +{min} min against the fastest.",
+    "roadSame": "The fastest road is also the most scenic: there is no different option.",
+    "roadTooLong": "The scenic road would be +{min} min longer (over 25% or 2 hours), so the fastest stays.",
+    "roadUnsupported": "I cannot offer a more scenic road right now, so the route is the fastest. The places below can still be found."
   },
   "history": {
     "clear": "Clear the history",

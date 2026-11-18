@@ -747,7 +747,11 @@
     "show": "İlginç yerleri göster",
     "title": "Yol üzerindeki ilginç yerler",
     "total": "Seçilen: {count}, toplam +{min} dk. Varış yaklaşık {time}.",
-    "unavailable": "İlginç yerler için yapay zekâ açık olmalı."
+    "unavailable": "İlginç yerler için yapay zekâ açık olmalı.",
+    "roadApplied": "Rota daha manzaralı bir yoldan geçiyor: en hızlıya göre +{km} km ve +{min} dk.",
+    "roadSame": "En hızlı yol zaten en manzaralısı: farklı bir seçenek yok.",
+    "roadTooLong": "Manzaralı yol +{min} dk daha uzun olurdu (yüzde 25 veya 2 saati aşıyor), bu yüzden en hızlısı kalıyor.",
+    "roadUnsupported": "Şu anda daha manzaralı bir yol öneremiyorum, bu yüzden rota en hızlısı. Aşağıdaki yerler yine de aranabilir."
   },
   "history": {
     "clear": "Geçmişi temizle",

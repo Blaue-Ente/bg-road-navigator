@@ -750,7 +750,11 @@
     "show": "Arată locuri interesante",
     "title": "Locuri interesante pe drum",
     "total": "Alese: {count}, în total +{min} min. Sosire în jur de {time}.",
-    "unavailable": "Locurile interesante cer ca IA să fie pornită."
+    "unavailable": "Locurile interesante cer ca IA să fie pornită.",
+    "roadApplied": "Traseul merge pe un drum mai pitoresc: +{km} km și +{min} min față de cel mai rapid.",
+    "roadSame": "Cel mai rapid drum este și cel mai pitoresc: nu există o variantă diferită.",
+    "roadTooLong": "Drumul pitoresc ar fi cu +{min} min mai lung (peste 25% sau 2 ore), de aceea rămâne cel mai rapid.",
+    "roadUnsupported": "Acum nu pot oferi un drum mai pitoresc, deci traseul este cel mai rapid. Locurile de mai jos pot fi căutate oricum."
   },
   "history": {
     "clear": "Șterge istoricul",

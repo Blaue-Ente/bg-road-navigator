@@ -13,11 +13,33 @@ import {
   type ValhallaCosting,
 } from "@/lib/api-clients/valhalla";
 import { fetchDrivingRoute } from "@/lib/api-clients/routing";
+import { chooseScenicRoute } from "@/lib/planner/scenic";
 
 export interface ThroughPoint {
   lng: number;
   lat: number;
   role: "break" | "through";
+}
+
+/**
+ * On an "interesting" pace the fast and the scenic road are both asked for and
+ * `chooseScenicRoute` decides. Without Valhalla only the fast road exists.
+ */
+export async function withScenic(
+  scenicPace: boolean,
+  fetcher: (costing?: ValhallaCosting) => Promise<ProvidedRoadRoute | null>,
+  costing?: ValhallaCosting
+): Promise<ProvidedRoadRoute | null> {
+  if (!scenicPace) return fetcher(costing);
+  if (!readOciGeoConfig()) {
+    return chooseScenicRoute(await fetcher(costing), null);
+  }
+  const [fast, scenic] = await Promise.all([
+    fetcher(costing),
+    fetcher({ ...costing, scenic: true }),
+  ]);
+  // A route the engine answered with OSRM is not a scenic road at all.
+  return chooseScenicRoute(fast, scenic?.provider === "valhalla" ? scenic : null);
 }
 
 /** Direct driving route: Valhalla when configured, otherwise OSRM. */

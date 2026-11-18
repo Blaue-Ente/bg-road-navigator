@@ -93,7 +93,7 @@ import { whyThisRoute } from "@/lib/planner/why-route";
 import { catalog, type Locale } from "@/lib/i18n/locale";
 import { buildRouteOptions } from "@/lib/planner/route-options";
 import { routeThroughPoints } from "@/lib/planner/via-points";
-import { fetchDirectRoute, fetchRouteThrough } from "@/lib/planner/via-route";
+import { fetchDirectRoute, fetchRouteThrough, withScenic } from "@/lib/planner/via-route";
 import type { RouteChoice } from "@/lib/planner/types";
 import { getRouteTolls } from "@/lib/utils/route-tolls";
 import type { CommunityPin } from "@/types/community.types";
@@ -129,6 +129,7 @@ export async function runTripPlan(input: TripPlanRequest) {
   const now = input.now ?? new Date();
   const prefs = input.preferences;
   const costing = costingFromPreferences(prefs);
+  const scenicPace = prefs.pace === "scenic";
   const day = drivingDayLimits(prefs);
 
   const originCountry =
@@ -181,24 +182,38 @@ export async function runTripPlan(input: TripPlanRequest) {
     .map((point) => point.coords);
   const [direct, viaList, pins, waits, traffic, hatarinfo] = await Promise.all([
     viaCoords.length === 0
-      ? fetchDirectRoute(input.origin.coords, input.destination.coords, costing)
-      : fetchRouteThrough(
-          routeThroughPoints(
-            input.origin.coords,
-            viaCoords,
-            input.destination.coords
-          ),
+      ? withScenic(
+          scenicPace,
+          (c) => fetchDirectRoute(input.origin.coords, input.destination.coords, c),
+          costing
+        )
+      : withScenic(
+          scenicPace,
+          (c) =>
+            fetchRouteThrough(
+              routeThroughPoints(
+                input.origin.coords,
+                viaCoords,
+                input.destination.coords
+              ),
+              c
+            ),
           costing
         ),
     Promise.all(
       candidates.slice(0, MAX_VIA).map(async (candidate) => {
-        const routed = await fetchRouteThrough(
-          routeThroughPoints(
-            input.origin.coords,
-            viaCoords,
-            input.destination.coords,
-            candidate.coords
-          ),
+        const routed = await withScenic(
+          scenicPace,
+          (c) =>
+            fetchRouteThrough(
+              routeThroughPoints(
+                input.origin.coords,
+                viaCoords,
+                input.destination.coords,
+                candidate.coords
+              ),
+              c
+            ),
           costing
         );
         return [candidate.id, routed] as const;
@@ -621,6 +636,7 @@ export async function runTripPlan(input: TripPlanRequest) {
     geometry: chosenRoute.geometry,
     maneuvers: chosenRoute.maneuvers,
     routingSource: chosenRoute.provider,
+    scenic: chosenRoute.scenic ?? null,
     borders,
     borderAlongKm: borderRoadKm,
     sleepShifts: sleepResolved,

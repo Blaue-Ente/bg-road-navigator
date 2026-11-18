@@ -99,6 +99,20 @@ describe("buildValhallaRouteBody", () => {
     expect(via.locations).toHaveLength(3);
   });
 
+  it("asks for fewer highways, not none, on a scenic road", () => {
+    const pair = [
+      { lng: SOFIA[0], lat: SOFIA[1] },
+      { lng: PLOVDIV[0], lat: PLOVDIV[1] },
+    ];
+    expect(buildValhallaRouteBody(pair, { scenic: true }).costing_options).toEqual({
+      auto: { use_highways: 0.3 },
+    });
+    // Avoiding motorways outright wins over the softer scenic request.
+    expect(
+      buildValhallaRouteBody(pair, { scenic: true, useHighways: false }).costing_options
+    ).toEqual({ auto: { use_highways: 0 } });
+  });
+
   it("passes highway and toll avoidance through to auto costing", () => {
     const body = buildValhallaRouteBody(
       [
