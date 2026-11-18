@@ -29,7 +29,8 @@ jobs:
             echo "No change in the camera data."
             exit 0
           fi
-          branch="data/speed-cameras-$(date +%Y%m%d)"
+          # The run id keeps two runs on the same day from colliding on the branch name.
+          branch="data/speed-cameras-$(date +%Y%m%d)-${GITHUB_RUN_ID}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
@@ -38,4 +39,5 @@ jobs:
           git push origin "$branch"
           gh pr create --draft --base "${GITHUB_REF_NAME}" --head "$branch" \
             --title "Refresh speed camera data" \
-            --body "Speed cameras from OpenStreetMap (ODbL), built by scripts/speed-cameras/build.py. France and Switzerland are left out on purpose."
+            --body "Speed cameras from OpenStreetMap (ODbL), built by scripts/speed-cameras/build.py. France and Switzerland are left out on purpose." \
+            || echo "::warning::The data is pushed to $branch, but no pull request was opened (Settings > Actions > General > Allow GitHub Actions to create pull requests). Open one from that branch."
