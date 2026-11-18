@@ -2,6 +2,8 @@ import type { PlanStop } from "@/lib/planner/types";
 
 /** Longest turn at the wheel before the next driver takes over, in driving minutes. */
 export const DRIVER_STINT_MIN = 150;
+/** A turn may run this much past the stint before a swap is forced at an earlier stop. */
+const STINT_SLACK_MIN = 30;
 
 export interface DriverTurn {
   /** 1-based, as the driver is named on the form. */
@@ -64,7 +66,7 @@ export function buildDriverPlan(input: {
     });
   };
 
-  for (const stop of real) {
+  for (const [index, stop] of real.entries()) {
     const here = {
       label: stop.place_name ?? stop.title,
       eta: stop.eta,
@@ -72,7 +74,12 @@ export function buildDriverPlan(input: {
       drivingMin: stop.driving_min,
     };
     const slept = stop.kinds.includes("overnight") && (stop.sleep_min ?? 0) > 0;
-    const due = here.drivingMin - turnStart.drivingMin >= stint;
+    // Swap here when the turn is full, or when driving on to the next stop would
+    // take it well past the stint: a turn should not run long because stops are far apart.
+    const elapsed = here.drivingMin - turnStart.drivingMin;
+    const next = real[index + 1];
+    const afterNext = (next ? next.driving_min : input.totalDrivingMin) - turnStart.drivingMin;
+    const due = elapsed >= stint || (elapsed >= stint * 0.6 && afterNext > stint + STINT_SLACK_MIN);
     if (!due && !slept) continue;
     close(here);
     driver = (driver % drivers) + 1;

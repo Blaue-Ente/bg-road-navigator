@@ -44,6 +44,16 @@ describe("driver plan", () => {
     expect(plan.per_driver_min[0]! + plan.per_driver_min[1]!).toBe(900);
   });
 
+  it("swaps early when the next stop is too far to keep a turn short", () => {
+    const plan = buildDriverPlan({
+      ...base,
+      drivers: 2,
+      stops: [stop("a", 100), stop("b", 300)],
+    })!;
+    // At a (100 min) the next stop is 200 min on: 300 > 150 + 30, so swap at a.
+    expect(plan.turns[0]!.until_label).toBe("a");
+  });
+
   it("hands the wheel on after a night's sleep", () => {
     const plan = buildDriverPlan({
       ...base,
