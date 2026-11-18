@@ -59,16 +59,16 @@ export function fractionAlongLine(
 export function buildItineraryPoints(input: {
   plan: TripPlannerResult;
   includedStopIds: ReadonlySet<string>;
-  via: LabeledPoint | null;
+  via: LabeledPoint[];
 }): MapStop[] {
   const line = input.plan.route.geometry.coordinates as Array<[number, number]>;
   const middle: Array<MapStop & { at: number }> = [];
-  if (input.via) {
+  for (const via of input.via) {
     middle.push({
-      label: input.via.label,
-      lng: input.via.lng,
-      lat: input.via.lat,
-      at: fractionAlongLine(line, input.via),
+      label: via.label,
+      lng: via.lng,
+      lat: via.lat,
+      at: fractionAlongLine(line, via),
     });
   }
   const border = input.plan.route.border_waypoint;

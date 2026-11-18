@@ -36,7 +36,7 @@ const samplePayload: RouteTripSessionPayload = {
     alternatives: [],
   },
   alternativeRoutes: [],
-  planningVia: null,
+  planningVia: [],
   planDetailOpen: true,
 };
 
@@ -61,5 +61,20 @@ describe("route-trip-session", () => {
   it("returns null on corrupt JSON", () => {
     expect(parseRouteTripSession("{not-json")).toBeNull();
     expect(parseRouteTripSession("null")).toBeNull();
+  });
+});
+describe("route-trip-session with older single through-points", () => {
+  it("reads a saved single point as a list", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      ROUTE_TRIP_SESSION_KEY,
+      JSON.stringify({
+        v: ROUTE_TRIP_SESSION_VERSION,
+        data: { ...samplePayload, planningVia: { label: "Ниш", lng: 21.9, lat: 43.3 } },
+      })
+    );
+    expect(readRouteTripSession(storage)?.planningVia).toEqual([
+      { label: "Ниш", lng: 21.9, lat: 43.3 },
+    ]);
   });
 });

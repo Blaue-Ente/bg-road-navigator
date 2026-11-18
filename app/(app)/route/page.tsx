@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCityById } from "@/lib/constants/european-cities";
@@ -107,7 +107,15 @@ export default function RoutePage() {
   const [routeError, setRouteError] = useState<string | null>(null);
   const [originQuery, setOriginQuery] = useState("");
   const [destinationQuery, setDestinationQuery] = useState("");
-  const [viaQuery, setViaQuery] = useState("");
+  const [viaQueries, setViaQueries] = useState<string[]>([]);
+  const setViaQuery = useCallback((index: number, query: string) => {
+    setViaQueries((current) => {
+      if (current[index] === query) return current;
+      const next = [...current];
+      next[index] = query;
+      return next;
+    });
+  }, []);
   const appliedReplan = useRef(0);
 
   const blank = useMemo(
@@ -231,7 +239,10 @@ export default function RoutePage() {
 
     const committedOrigin = committedPlace(origin, originQuery);
     const committedDestination = committedPlace(destination, destinationQuery);
-    const committedVia = via ? committedPlace(via, viaQuery) : null;
+    const committedVia = via.flatMap((point, index) => {
+      const committed = committedPlace(point, viaQueries[index] ?? point.label);
+      return committed ? [committed] : [];
+    });
 
     if (!committedOrigin || !committedDestination) {
       setCalculating(false);
@@ -256,9 +267,7 @@ export default function RoutePage() {
 
     const points = corridorId
       ? undefined
-      : committedVia
-        ? [committedOrigin, committedVia, committedDestination]
-        : [committedOrigin, committedDestination];
+      : [committedOrigin, ...committedVia, committedDestination];
     const planPromise = postPlan(
       committedOrigin,
       committedDestination,
@@ -280,15 +289,7 @@ export default function RoutePage() {
     if (corridor) setRouteBorders(corridor.borderIds);
     const base = route ?? shellRoute(committedOrigin, committedDestination);
     const next = plan ? routeFromPlan(base, plan, committedVia) : base;
-    setPlanningVia(
-      committedVia
-        ? {
-            label: committedVia.label,
-            lng: committedVia.coords.lng,
-            lat: committedVia.coords.lat,
-          }
-        : null
-    );
+    setPlanningVia(committedVia.map(toPlanningVia));
     setTripPlan(plan);
     setActiveRoute(next);
     if (plan) applyPlanRouteOptions(plan, next, setAlternativeRoutes);
@@ -302,13 +303,7 @@ export default function RoutePage() {
           tripPlan: plan,
           activeRoute: next,
           alternativeRoutes: useRouteStore.getState().alternativeRoutes,
-          planningVia: committedVia
-            ? {
-                label: committedVia.label,
-                lng: committedVia.coords.lng,
-                lat: committedVia.coords.lat,
-              }
-            : null,
+          planningVia: committedVia.map(toPlanningVia),
           planDetailOpen: true,
         });
       }
@@ -517,7 +512,7 @@ export default function RoutePage() {
 function postPlan(
   origin: RoutePoint,
   destination: RoutePoint,
-  via: RoutePoint | null,
+  via: RoutePoint[],
   draft: PlanningSubmit
 ): Promise<TripPlannerResult | null> {
   return fetch("/api/plan", {
@@ -526,7 +521,7 @@ function postPlan(
     body: JSON.stringify({
       origin: planPoint(origin),
       destination: planPoint(destination),
-      ...(via ? { via: [planPoint(via)] } : {}),
+      ...(via.length > 0 ? { via: via.slice(0, 3).map(planPoint) } : {}),
       ...(draft.departAt ? { depart_at: draft.departAt } : {}),
       fuel_level: draft.fuelLevel,
       preferences: draft.preferences,
@@ -538,6 +533,10 @@ function postPlan(
       return (await response.json()) as TripPlannerResult;
     })
     .catch(() => null);
+}
+
+function toPlanningVia(place: RoutePoint) {
+  return { label: place.label, lng: place.coords.lng, lat: place.coords.lat };
 }
 
 function planPoint(place: RoutePoint) {
@@ -568,7 +567,7 @@ function shellRoute(origin: RoutePoint, destination: RoutePoint): Route {
   };
 }
 
-function routeFromPlan(route: Route, plan: TripPlannerResult, via: RoutePoint | null): Route {
+function routeFromPlan(route: Route, plan: TripPlannerResult, via: RoutePoint[]): Route {
   const border = plan.route.border_waypoint;
   return {
     ...route,
@@ -577,9 +576,11 @@ function routeFromPlan(route: Route, plan: TripPlannerResult, via: RoutePoint | 
     geometry: plan.route.geometry,
     routing_source: plan.route.routing_source,
     waypoints: [
-      ...(via
-        ? [{ id: via.id, label: via.label, coords: via.coords }]
-        : []),
+      ...via.map((point) => ({
+        id: point.id,
+        label: point.label,
+        coords: point.coords,
+      })),
       ...(border
         ? [
             {

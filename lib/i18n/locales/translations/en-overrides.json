@@ -9,7 +9,8 @@
     "carChoose": "Car for this trip",
     "carConsumption": "Average consumption: {value} {unit}",
     "carDefault": "Default car",
-    "carNoGarage": "Add a car in your profile for a more accurate plan."
+    "carNoGarage": "Add a car in your profile for a more accurate plan.",
+    "addVia": "Add a through-point"
   },
   "sheet": {
     "waitAtArrival": "On arrival (~{time}, {place}): {minutes} min",

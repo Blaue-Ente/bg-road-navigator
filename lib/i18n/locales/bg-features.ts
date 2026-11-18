@@ -166,6 +166,7 @@ export const bgFeatures = {
     },
   },
   planning: {
+    addVia: "Добави междинна точка",
     carChoose: "Автомобил за този маршрут",
     carConsumption: "Среден разход: {value} {unit}",
     carDefault: "Основен автомобил",

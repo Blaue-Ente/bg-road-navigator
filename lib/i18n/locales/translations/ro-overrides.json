@@ -9,7 +9,8 @@
     "carChoose": "Mașina pentru această călătorie",
     "carConsumption": "Consum mediu: {value} {unit}",
     "carDefault": "Mașina principală",
-    "carNoGarage": "Adaugă o mașină în profil pentru un plan mai precis."
+    "carNoGarage": "Adaugă o mașină în profil pentru un plan mai precis.",
+    "addVia": "Adaugă un punct intermediar"
   },
   "sheet": {
     "waitAtArrival": "La sosire (~{time}, {place}): {minutes} min",

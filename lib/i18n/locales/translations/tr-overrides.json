@@ -9,7 +9,8 @@
     "carChoose": "Bu yolculuk için araç",
     "carConsumption": "Ortalama tüketim: {value} {unit}",
     "carDefault": "Varsayılan araç",
-    "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin."
+    "carNoGarage": "Daha doğru bir plan için profilinize araç ekleyin.",
+    "addVia": "Ara nokta ekle"
   },
   "sheet": {
     "waitAtArrival": "Varışta (~{time}, {place}): {minutes} dk",

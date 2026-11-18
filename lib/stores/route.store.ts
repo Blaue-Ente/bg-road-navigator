@@ -8,7 +8,7 @@ export interface ReplanDraft {
   token: number;
   origin: RoutePoint;
   destination: RoutePoint;
-  via: RoutePoint | null;
+  via: RoutePoint[];
   preferences: TripPreferences;
   departAt: string | null;
   fuelLevel: number;
@@ -34,7 +34,7 @@ interface RouteState {
   routeError: string | null;
   planDetailOpen: boolean;
   focusedStopId: string | null;
-  planningVia: PlanningVia | null;
+  planningVia: PlanningVia[];
   replanDraft: ReplanDraft | null;
   /** Stable route-choice card order (`border_id` or `source` keys). */
   choiceCardOrderKeys: string[] | null;
@@ -47,7 +47,7 @@ interface RouteState {
   setTripPlan: (plan: TripPlannerResult | null) => void;
   setPlanDetailOpen: (open: boolean) => void;
   setFocusedStopId: (id: string | null) => void;
-  setPlanningVia: (via: PlanningVia | null) => void;
+  setPlanningVia: (via: PlanningVia[]) => void;
   setReplanDraft: (draft: ReplanDraft | null) => void;
   setChoiceCardOrderKeys: (keys: string[] | null) => void;
   addLocalFlag: (stopId: string, flag: PlaceFlagSummary) => void;
@@ -65,7 +65,7 @@ export const useRouteStore = create<RouteState>((set) => ({
   routeError: null,
   planDetailOpen: false,
   focusedStopId: null,
-  planningVia: null,
+  planningVia: [],
   replanDraft: null,
   choiceCardOrderKeys: null,
   setOrigin: (point) => set({ origin: point, choiceCardOrderKeys: null }),
@@ -125,7 +125,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       routeError: null,
       planDetailOpen: false,
       focusedStopId: null,
-      planningVia: null,
+      planningVia: [],
       choiceCardOrderKeys: null,
     });
   },

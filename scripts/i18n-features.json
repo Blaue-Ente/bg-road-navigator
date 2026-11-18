@@ -1348,5 +1348,11 @@
   "Close and go to the map",
   "Kapat ve haritaya dön",
   "Închide și mergi la hartă"
+ ],
+ "planning.addVia": [
+  "Добави междинна точка",
+  "Add a through-point",
+  "Ara nokta ekle",
+  "Adaugă un punct intermediar"
  ]
 }

@@ -38,7 +38,7 @@ export function PlanItineraryView({
   plan: TripPlannerResult;
   includedIds: string[];
   checks: Record<string, boolean>;
-  via: LabeledPoint | null;
+  via: LabeledPoint[];
   onToggle?: (id: string, checked: boolean) => void;
 }) {
   const m = useMessages();
