@@ -17,8 +17,15 @@ export const BORDER_ALTERNATIVES: Record<string, string[]> = {
   lesovo: ["kapitan-andreevo", "malko-tarnovo"],
   "malko-tarnovo": ["kapitan-andreevo", "lesovo"],
   // BG — MK
-  gyueshevo: ["zlatarevo"],
-  zlatarevo: ["gyueshevo"],
+  gyueshevo: ["zlatarevo", "logodazh"],
+  zlatarevo: ["gyueshevo", "logodazh"],
+  logodazh: ["gyueshevo", "zlatarevo"],
+  // BG — RS
+  kalotina: ["strezimirovtsi", "oltomantsi"],
+  strezimirovtsi: ["kalotina", "oltomantsi"],
+  oltomantsi: ["kalotina", "strezimirovtsi"],
+  bregovo: ["vrashka-chuka"],
+  "vrashka-chuka": ["bregovo"],
   // DE — AT
   suben: ["kiefersfelden"],
   kiefersfelden: ["suben"],

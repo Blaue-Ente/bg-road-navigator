@@ -11,8 +11,8 @@ import {
 import { corridorDescription } from "@/lib/constants/european-corridors";
 
 describe("BORDER_CROSSINGS", () => {
-  it("has twelve curated Bulgarian rows with full i18n metadata", () => {
-    expect(BORDER_CROSSINGS).toHaveLength(12);
+  it("has seventeen curated Bulgarian rows with full i18n metadata", () => {
+    expect(BORDER_CROSSINGS).toHaveLength(17);
     for (const row of BORDER_CROSSINGS) {
       expect(row.notes?.bg).toBe(row.notes_bg);
       expect(row.document_codes?.length).toBeGreaterThan(0);
