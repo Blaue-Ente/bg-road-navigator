@@ -100,8 +100,6 @@ export function MapLegend() {
   const hotspotsOn = useMapStore((s) => s.layers.hotspots);
   const trafficOn = useMapStore((s) => s.layers.traffic);
   const flowOn = useMapStore((s) => s.layers.trafficFlow);
-  const trafficGroups = useMapStore((s) => s.trafficGroups);
-  const toggleTrafficGroup = useMapStore((s) => s.toggleTrafficGroup);
   const hazardKinds = useMemo(() => {
     const kinds = new Set<RoadHazardKind>();
     for (const hazard of plan?.road_hazards ?? []) kinds.add(hazard.kind);
@@ -182,16 +180,10 @@ export function MapLegend() {
           <>
             <LegendGroupHeading>{m.map.groupIncidents}</LegendGroupHeading>
             {TRAFFIC_GROUPS.map((group) => (
-              <label
+              <div
                 key={group}
-                className="flex min-h-9 cursor-pointer items-start gap-2 text-xs text-[var(--waze-text-secondary)]"
+                className="flex items-start gap-2 text-xs text-[var(--waze-text-secondary)]"
               >
-                <input
-                  type="checkbox"
-                  checked={trafficGroups[group]}
-                  onChange={() => toggleTrafficGroup(group)}
-                  className="mt-0.5 h-4 w-4 shrink-0"
-                />
                 <span className="flex flex-col gap-1">
                   <span className="font-medium text-[var(--waze-text)]">
                     {m.trafficKind[GROUP_LABEL[group]]}
@@ -213,7 +205,7 @@ export function MapLegend() {
                     </span>
                   ))}
                 </span>
-              </label>
+              </div>
             ))}
             <p className="text-[11px] leading-snug text-[var(--waze-text-muted)]">
               {m.trafficKind.size}

@@ -12,6 +12,8 @@ import {
   DEFAULT_COMMUNITY_BBOX,
   useCommunityPins,
 } from "@/lib/hooks/useCommunityPins";
+import { useBorderPinsStore } from "@/lib/stores/border-pins.store";
+import { splitPinned } from "@/lib/borders/list-view";
 import { useCommunityStore } from "@/lib/stores/community.store";
 
 const BULGARIA_BBOX = { w: 22.0, s: 41.0, e: 29.0, n: 44.5 };
@@ -20,14 +22,22 @@ export function HomeMapChips({ className = "" }: { className?: string }) {
   const m = useMessages();
   const locale = useLocale();
   const localPins = useCommunityStore((s) => s.pins);
-  const { data: borders } = useBorderStatus({ region: "bulgaria" });
+  const pinnedIds = useBorderPinsStore((state) => state.pinned);
+  // Pinned crossings may lie outside Bulgaria, so look wider once any is pinned.
+  const { data: borders } = useBorderStatus({
+    region: pinnedIds.length > 0 ? "all" : "bulgaria",
+  });
   const { data: traffic } = useTraffic(BULGARIA_BBOX, 7);
   const { data: communityData } = useCommunityPins({
     bbox: DEFAULT_COMMUNITY_BBOX,
   });
 
   const communityPins = communityData?.pins ?? localPins;
-  const topBorders = borders?.slice(0, 4) ?? [];
+  // The pinned crossings come first and stand alone; with none pinned the first four show.
+  const topBorders =
+    pinnedIds.length > 0
+      ? splitPinned(borders ?? [], pinnedIds).pinned
+      : (borders?.slice(0, 4) ?? []);
   const incidentCount = traffic?.incidents?.length ?? 0;
   const chipRowRef = useRef<HTMLDivElement>(null);
   const [chipRowOverflows, setChipRowOverflows] = useState(false);

@@ -5,6 +5,7 @@ import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { formatTemplate } from "@/lib/i18n/format-template";
 
 import { Suspense, useState, useMemo } from "react";
+import { Pin, PinOff } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useBorderStatus } from "@/lib/hooks/useBorderStatus";
@@ -19,6 +20,17 @@ import { WazeCard } from "@/components/ui/WazeCard";
 import { useCommunityPins } from "@/lib/hooks/useCommunityPins";
 import { formatPinAge, communityPinLabel } from "@/lib/constants/community-pins";
 import { nearestBgBorderPoint } from "@/lib/geo/border-on-route";
+import {
+  EMPTY_BORDER_FILTER,
+  countriesInList,
+  filterBorders,
+  splitPinned,
+  type BorderListFilter,
+  type BusyFilter,
+} from "@/lib/borders/list-view";
+import { countryName } from "@/lib/geo/country-name";
+import { useBorderPinsStore } from "@/lib/stores/border-pins.store";
+import type { BorderStatus } from "@/types/border.types";
 import type { EuropeanBorderRegion } from "@/lib/constants/european-borders";
 
 type TabId = "bulgaria" | "europe" | "route";
@@ -92,6 +104,28 @@ function BorderPageContent() {
     return borderStatus;
   }, [borderStatus, activeTab]);
 
+  const pinnedIds = useBorderPinsStore((state) => state.pinned);
+  const pin = useBorderPinsStore((state) => state.pin);
+  const unpin = useBorderPinsStore((state) => state.unpin);
+  const [filter, setFilter] = useState<BorderListFilter>(EMPTY_BORDER_FILTER);
+  const [pinNote, setPinNote] = useState(false);
+  const split = useMemo(
+    () => splitPinned(displayedBorders, pinnedIds),
+    [displayedBorders, pinnedIds]
+  );
+  const shownRest = useMemo(() => filterBorders(split.rest, filter), [split.rest, filter]);
+  const countryChoices = useMemo(() => countriesInList(displayedBorders), [displayedBorders]);
+  const filterActive =
+    filter.country !== null || filter.busy !== "all" || filter.sort !== "default";
+  const togglePin = (id: string) => {
+    if (pinnedIds.includes(id)) {
+      unpin(id);
+      setPinNote(false);
+    } else {
+      setPinNote(!pin(id));
+    }
+  };
+
   if (isLoading && fetchOptions.enabled !== false) {
     return (
       <div className="px-4 py-16 text-center text-sm text-[var(--waze-text-secondary)]">{m.bordersPage.msg94b2a38a43}</div>
@@ -114,6 +148,78 @@ function BorderPageContent() {
   );
   const hasHatarinfo = displayedBorders.some(
     (b) => b.data_source === "hatarinfo"
+  );
+
+  const renderBorder = (border: BorderStatus) => (
+              <WazeCard key={border.crossing_id} className="!p-4">
+                <div className="mb-2 flex justify-end">
+                  <button
+                    type="button"
+                    aria-pressed={pinnedIds.includes(border.crossing_id)}
+                    onClick={() => togglePin(border.crossing_id)}
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-medium text-[var(--waze-accent-text)] ring-1 ring-[var(--waze-border)]"
+                  >
+                    {pinnedIds.includes(border.crossing_id) ? (
+                      <PinOff className="h-4 w-4" aria-hidden />
+                    ) : (
+                      <Pin className="h-4 w-4" aria-hidden />
+                    )}
+                    {pinnedIds.includes(border.crossing_id) ? m.borderPins.unpin : m.borderPins.pin}
+                  </button>
+                </div>
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <BorderCard border={border} />
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-[10px] text-[var(--waze-text-muted)]">{m.home.waitNow}</p>
+                    <BorderWaitBadge
+                      waitMinutes={border.wait_time_cars}
+                      label={m.bordersPage.msg6a2c5dc8ec}
+                      caption={formatTemplate(m.borders.asOf, {
+                        time: formatZonedDateTimeLabel(
+                          new Date(),
+                          locale,
+                          "Europe/Sofia"
+                        ),
+                      })}
+                    />
+                    {border.data_source === "nakordoni" && (
+                      <span className="text-xs font-medium text-[var(--waze-ok)]">{m.bordersPage.msg868089045f}</span>
+                    )}
+                    {border.data_source === "hatarinfo" && (
+                      <span className="text-xs font-medium text-[var(--waze-text-secondary)]">{m.waitSource.hatarinfo}</span>
+                    )}
+                  </div>
+                </div>
+
+                <BorderAlternatives
+                  border={border}
+                  allBorders={borderStatus ?? []}
+                />
+
+                <div className="mt-4 grid grid-cols-1 gap-4">
+                  <BorderStatsChart
+                    hourlyData={border.avg_wait_by_hour}
+                    title={formatTemplate(m.bordersPage.borderWaitChartTitle, {
+                      name: borderDisplayName(locale, {
+                        crossing_id: border.crossing_id,
+                        name_bg: border.name_bg,
+                        name_en: border.name_en,
+                        name_i18n: border.name_i18n,
+                      }),
+                    })}
+                  />
+                  <BorderWebcam
+                    crossingId={border.crossing_id}
+                    label={borderDisplayName(locale, {
+                      crossing_id: border.crossing_id,
+                      name_bg: border.name_bg,
+                      name_en: border.name_en,
+                      name_i18n: border.name_i18n,
+                    })}
+                    nakordoniUrl={border.nakordoni_url}
+                  />
+                </div>
+              </WazeCard>
   );
 
   return (
@@ -198,66 +304,92 @@ function BorderPageContent() {
           )}
         </WazeCard>
 
+        {split.pinned.length > 0 && (
+          <section className="mb-6" aria-labelledby="pinned-borders">
+            <h2 id="pinned-borders" className="text-sm font-semibold text-[var(--waze-text)]">
+              {m.borderPins.pinnedTitle}
+            </h2>
+            <p className="mb-2 text-xs text-[var(--waze-text-muted)]">{m.borderPins.pinnedHint}</p>
+            <div className="grid gap-4">{split.pinned.map(renderBorder)}</div>
+          </section>
+        )}
+        {pinNote && (
+          <p className="mb-3 text-sm text-[var(--waze-warning)]" role="status">
+            {m.borderPins.max}
+          </p>
+        )}
+
+        {displayedBorders.length > 0 && (
+          <div className="mb-4 space-y-3 rounded-2xl bg-[var(--waze-surface-elevated)] p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="text-xs font-medium text-[var(--waze-text-secondary)]">
+                {m.borderPins.country}
+                <select
+                  value={filter.country ?? ""}
+                  onChange={(event) =>
+                    setFilter({ ...filter, country: event.target.value || null })
+                  }
+                  className="ml-2 min-h-11 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 text-sm text-[var(--waze-text)]"
+                >
+                  <option value="">{m.borderPins.allCountries}</option>
+                  {countryChoices.map((code) => (
+                    <option key={code} value={code}>
+                      {countryName(code, locale)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-medium text-[var(--waze-text-secondary)]">
+                {m.borderPins.busy}
+                <select
+                  value={filter.busy}
+                  onChange={(event) =>
+                    setFilter({ ...filter, busy: event.target.value as BusyFilter })
+                  }
+                  className="ml-2 min-h-11 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 text-sm text-[var(--waze-text)]"
+                >
+                  <option value="all">{m.borderPins.busyAll}</option>
+                  <option value="light">{m.borderPins.busyLight}</option>
+                  <option value="medium">{m.borderPins.busyMedium}</option>
+                  <option value="heavy">{m.borderPins.busyHeavy}</option>
+                </select>
+              </label>
+              <label className="text-xs font-medium text-[var(--waze-text-secondary)]">
+                {m.borderPins.sort}
+                <select
+                  value={filter.sort}
+                  onChange={(event) =>
+                    setFilter({ ...filter, sort: event.target.value as BorderListFilter["sort"] })
+                  }
+                  className="ml-2 min-h-11 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 text-sm text-[var(--waze-text)]"
+                >
+                  <option value="default">{m.borderPins.sortDefault}</option>
+                  <option value="wait">{m.borderPins.sortWait}</option>
+                </select>
+              </label>
+              {filterActive && (
+                <button
+                  type="button"
+                  onClick={() => setFilter(EMPTY_BORDER_FILTER)}
+                  className="min-h-11 text-sm text-[var(--waze-accent-text)] underline"
+                >
+                  {m.borderPins.clear}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {split.pinned.length > 0 && (
+          <h2 className="mb-2 text-sm font-semibold text-[var(--waze-text)]">{m.borderPins.others}</h2>
+        )}
         <div className="grid gap-4">
           {displayedBorders.length === 0 ? (
             <p className="text-center text-sm text-[var(--waze-text-secondary)]">{m.bordersPage.msg263c0ce6e0}</p>
+          ) : shownRest.length === 0 ? (
+            <p className="text-center text-sm text-[var(--waze-text-secondary)]">{m.borderPins.noMatch}</p>
           ) : (
-            displayedBorders.map((border) => (
-              <WazeCard key={border.crossing_id} className="!p-4">
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <BorderCard border={border} />
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="text-[10px] text-[var(--waze-text-muted)]">{m.home.waitNow}</p>
-                    <BorderWaitBadge
-                      waitMinutes={border.wait_time_cars}
-                      label={m.bordersPage.msg6a2c5dc8ec}
-                      caption={formatTemplate(m.borders.asOf, {
-                        time: formatZonedDateTimeLabel(
-                          new Date(),
-                          locale,
-                          "Europe/Sofia"
-                        ),
-                      })}
-                    />
-                    {border.data_source === "nakordoni" && (
-                      <span className="text-xs font-medium text-[var(--waze-ok)]">{m.bordersPage.msg868089045f}</span>
-                    )}
-                    {border.data_source === "hatarinfo" && (
-                      <span className="text-xs font-medium text-[var(--waze-text-secondary)]">{m.waitSource.hatarinfo}</span>
-                    )}
-                  </div>
-                </div>
-
-                <BorderAlternatives
-                  border={border}
-                  allBorders={borderStatus ?? []}
-                />
-
-                <div className="mt-4 grid grid-cols-1 gap-4">
-                  <BorderStatsChart
-                    hourlyData={border.avg_wait_by_hour}
-                    title={formatTemplate(m.bordersPage.borderWaitChartTitle, {
-                      name: borderDisplayName(locale, {
-                        crossing_id: border.crossing_id,
-                        name_bg: border.name_bg,
-                        name_en: border.name_en,
-                        name_i18n: border.name_i18n,
-                      }),
-                    })}
-                  />
-                  <BorderWebcam
-                    crossingId={border.crossing_id}
-                    label={borderDisplayName(locale, {
-                      crossing_id: border.crossing_id,
-                      name_bg: border.name_bg,
-                      name_en: border.name_en,
-                      name_i18n: border.name_i18n,
-                    })}
-                    nakordoniUrl={border.nakordoni_url}
-                  />
-                </div>
-              </WazeCard>
-            ))
+            shownRest.map(renderBorder)
           )}
         </div>
 

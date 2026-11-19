@@ -33,6 +33,7 @@ interface MapState {
   communityCategories: CommunityPinCategory[];
   fuelFilter: MapFuelFilter;
   toggleCommunityCategory: (category: CommunityPinCategory) => void;
+  clearCommunityCategories: () => void;
   setFuelFilter: (filter: MapFuelFilter) => void;
   /** Turns every other layer off, so only this one shows. */
   showOnly: (key: LayerKey) => void;
@@ -70,6 +71,7 @@ export const useMapStore = create<MapState>((set) => ({
   fuelFilter: { fuels: [], minKw: 0, connectors: [] },
   toggleCommunityCategory: (category) =>
     set((state) => ({ communityCategories: toggled(state.communityCategories, category) })),
+  clearCommunityCategories: () => set({ communityCategories: [] }),
   setFuelFilter: (fuelFilter) => set({ fuelFilter }),
   showOnly: (key) =>
     set((state) => ({
