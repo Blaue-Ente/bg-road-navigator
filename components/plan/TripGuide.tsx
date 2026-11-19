@@ -35,6 +35,8 @@ export function TripGuide({
     (stop) => !stop.optional && stop.kinds.includes("charge")
   );
   const foodSpots = plan.food_spots ?? [];
+  const foodChosen = useRouteStore((state) => state.foodChosen);
+  const toggleFood = useRouteStore((state) => state.toggleFood);
   const verdictLabel = {
     good: m.guide.verdictGood,
     ok: m.guide.verdictOk,
@@ -92,6 +94,10 @@ export function TripGuide({
                   {stop.price_label_bg ? (
                     <p className="text-[var(--waze-text-secondary)]">
                       {stop.price_label_bg}
+                    </p>
+                  ) : stop.average_label_bg ? (
+                    <p className="text-[var(--waze-text-secondary)]">
+                      {m.guide.noStationPrice} {stop.average_label_bg}
                     </p>
                   ) : null}
                 </li>
@@ -164,15 +170,29 @@ export function TripGuide({
                     })}
                   </span>
                 </span>
-                <a
-                  href={googleMapsPlaceUrl(spot.coords)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="plan-no-print inline-flex min-h-11 shrink-0 items-center gap-1 text-[var(--waze-accent-text)] underline"
-                >
-                  <MapPin className="h-4 w-4" aria-hidden />
-                  {m.guide.openMap}
-                </a>
+                <span className="plan-no-print flex shrink-0 flex-col items-end gap-1">
+                  <button
+                    type="button"
+                    aria-pressed={foodChosen.includes(spot.id)}
+                    onClick={() => toggleFood(spot.id)}
+                    className={`inline-flex min-h-11 items-center rounded-full px-3 text-xs font-semibold ${
+                      foodChosen.includes(spot.id)
+                        ? "bg-[var(--waze-accent)] text-white"
+                        : "ring-1 ring-[var(--waze-border)] text-[var(--waze-accent-text)]"
+                    }`}
+                  >
+                    {foodChosen.includes(spot.id) ? m.guide.foodAdded : m.guide.foodAdd}
+                  </button>
+                  <a
+                    href={googleMapsPlaceUrl(spot.coords)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-8 items-center gap-1 text-xs text-[var(--waze-accent-text)] underline"
+                  >
+                    <MapPin className="h-3 w-3" aria-hidden />
+                    {m.guide.openMap}
+                  </a>
+                </span>
               </li>
             ))}
           </ul>
@@ -199,7 +219,11 @@ export function TripGuide({
           className="waze-btn-primary inline-flex min-h-11 items-center gap-2 px-4 text-sm disabled:opacity-50"
         >
           <FileDown className="h-4 w-4" aria-hidden />
-          {pdf.state.status === "working" ? m.pdf.preparing : m.pdf.download}
+          {pdf.state.status === "working"
+            ? pdf.state.stage === "text"
+              ? m.pdf.writingText
+              : m.pdf.building
+            : m.pdf.download}
         </button>
         {pdf.state.status === "failed" && (
           <p className="text-xs text-[var(--waze-danger)]">{m.pdf.failed}</p>

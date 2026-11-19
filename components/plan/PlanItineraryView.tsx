@@ -28,6 +28,7 @@ import {
   type MapsHandoffPlan,
 } from "@/lib/utils/maps-handoff";
 import { formatPlanInstant } from "@/lib/planner/plan-time";
+import { useRouteStore } from "@/lib/stores/route.store";
 
 export function PlanItineraryView({
   plan,
@@ -48,7 +49,18 @@ export function PlanItineraryView({
   const [shareNote, setShareNote] = useState<string | null>(null);
   const pdf = useTripPdf(plan, checks);
   const included = new Set(includedIds);
-  const points = buildItineraryPoints({ plan, includedStopIds: included, via });
+  const foodChosen = useRouteStore((state) => state.foodChosen);
+  const chosenFood = (plan.food_spots ?? []).filter((spot) => foodChosen.includes(spot.id));
+  const points = buildItineraryPoints({
+    plan,
+    includedStopIds: included,
+    via,
+    extra: chosenFood.map((spot) => ({
+      label: spot.chain,
+      lng: spot.coords.lng,
+      lat: spot.coords.lat,
+    })),
+  });
   const desktop = buildMapsHandoff(points, {
     maxWaypoints: GOOGLE_MAPS_MAX_WAYPOINTS,
   });

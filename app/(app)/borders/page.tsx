@@ -24,6 +24,7 @@ import {
   EMPTY_BORDER_FILTER,
   countriesInList,
   filterBorders,
+  neighboursOf,
   splitPinned,
   type BorderListFilter,
   type BusyFilter,
@@ -115,8 +116,15 @@ function BorderPageContent() {
   );
   const shownRest = useMemo(() => filterBorders(split.rest, filter), [split.rest, filter]);
   const countryChoices = useMemo(() => countriesInList(displayedBorders), [displayedBorders]);
+  const neighbourChoices = useMemo(
+    () => (filter.country ? neighboursOf(displayedBorders, filter.country) : []),
+    [displayedBorders, filter.country]
+  );
   const filterActive =
-    filter.country !== null || filter.busy !== "all" || filter.sort !== "default";
+    filter.country !== null ||
+    filter.neighbour !== null ||
+    filter.busy !== "all" ||
+    filter.sort !== "default";
   const togglePin = (id: string) => {
     if (pinnedIds.includes(id)) {
       unpin(id);
@@ -327,7 +335,7 @@ function BorderPageContent() {
                 <select
                   value={filter.country ?? ""}
                   onChange={(event) =>
-                    setFilter({ ...filter, country: event.target.value || null })
+                    setFilter({ ...filter, country: event.target.value || null, neighbour: null })
                   }
                   className="ml-2 min-h-11 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 text-sm text-[var(--waze-text)]"
                 >
@@ -339,6 +347,25 @@ function BorderPageContent() {
                   ))}
                 </select>
               </label>
+              {filter.country && (
+                <label className="text-xs font-medium text-[var(--waze-text-secondary)]">
+                  {m.borderPins.neighbour}
+                  <select
+                    value={filter.neighbour ?? ""}
+                    onChange={(event) =>
+                      setFilter({ ...filter, neighbour: event.target.value || null })
+                    }
+                    className="ml-2 min-h-11 rounded-xl border border-[var(--waze-border)] bg-[var(--waze-surface)] px-2 text-sm text-[var(--waze-text)]"
+                  >
+                    <option value="">{m.borderPins.anyNeighbour}</option>
+                    {neighbourChoices.map((code) => (
+                      <option key={code} value={code}>
+                        {countryName(code, locale)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <label className="text-xs font-medium text-[var(--waze-text-secondary)]">
                 {m.borderPins.busy}
                 <select

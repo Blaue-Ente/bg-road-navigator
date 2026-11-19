@@ -4,6 +4,7 @@ import {
   busyLevel,
   countriesInList,
   countriesOf,
+  neighboursOf,
   filterBorders,
   splitPinned,
 } from "@/lib/borders/list-view";
@@ -36,6 +37,13 @@ describe("border list view", () => {
   it("reads countries from a pair and from a list", () => {
     expect(countriesOf("BG - RS")).toEqual(["BG", "RS"]);
     expect(countriesInList(LIST)).toEqual(["BG", "GR", "RO", "RS"]);
+  });
+
+  it("finds the neighbours of a country and filters a pair of countries", () => {
+    expect(neighboursOf(LIST, "BG")).toEqual(["GR", "RO", "RS"]);
+    expect(neighboursOf(LIST, "GR")).toEqual(["BG"]);
+    const pair = filterBorders(LIST, { ...EMPTY_BORDER_FILTER, country: "BG", neighbour: "GR" });
+    expect(pair.map((b) => b.crossing_id)).toEqual(["kulata", "promachon"]);
   });
 
   it("sorts waits into light, medium and heavy", () => {

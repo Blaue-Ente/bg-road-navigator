@@ -230,3 +230,24 @@ function stop(id: string, optional: boolean, lng: number): PlanStop {
     stars: null,
   };
 }
+
+describe("buildItineraryPoints with a chosen meal", () => {
+  it("puts an added place along the road between origin and destination", () => {
+    const plan = {
+      route: {
+        origin: { label: "A", lng: 0, lat: 0 },
+        destination: { label: "B", lng: 10, lat: 0 },
+        geometry: { type: "LineString", coordinates: [[0, 0], [5, 0], [10, 0]] },
+        border_waypoint: null,
+      },
+      stops: [],
+    } as never;
+    const points = buildItineraryPoints({
+      plan,
+      includedStopIds: new Set(),
+      via: [],
+      extra: [{ label: "KFC", lng: 6, lat: 0.1 }],
+    });
+    expect(points.map((point) => point.label)).toEqual(["A", "KFC", "B"]);
+  });
+});

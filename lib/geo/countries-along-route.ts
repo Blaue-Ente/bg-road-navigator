@@ -7,6 +7,7 @@
  * function of the route we already have.
  */
 
+import { absorbStrays } from "@/lib/geo/country-smooth";
 import { haversineKm } from "@/lib/geo/haversine";
 import outlines from "@/lib/geo/country-outlines.json";
 import type { GeoPoint } from "@/types/route.types";
@@ -243,9 +244,15 @@ export function countriesAlongRoute(route: CountryRouteInput): string[] {
   const samples = collectSamples(route);
   if (samples.length === 0) return [];
 
-  const tagged = samples.map((sample) => ({
+  const rawCodes = samples.map((sample) => countryCodeAtPoint(sample.lng, sample.lat));
+  const smoothed = absorbStrays(
+    rawCodes,
+    samples.map((sample) => sample.km),
+    SAMPLE_KM
+  );
+  const tagged = samples.map((sample, index) => ({
     km: sample.km,
-    code: countryCodeAtPoint(sample.lng, sample.lat),
+    code: smoothed[index] ?? null,
   }));
 
   const spans: Array<{

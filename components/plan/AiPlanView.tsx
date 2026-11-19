@@ -145,7 +145,11 @@ function Body({ plan }: { plan: TripPlannerResult }) {
             className="waze-btn-primary inline-flex min-h-11 items-center gap-2 px-4 text-sm disabled:opacity-50"
           >
             <FileDown className="h-4 w-4" aria-hidden />
-            {pdf.state.status === "working" ? m.pdf.preparing : m.pdf.download}
+            {pdf.state.status === "working"
+            ? pdf.state.stage === "text"
+              ? m.pdf.writingText
+              : m.pdf.building
+            : m.pdf.download}
           </button>
         </div>
         {pdf.state.status === "failed" && (

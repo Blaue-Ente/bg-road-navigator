@@ -664,7 +664,10 @@
     "evNote": "Orele aglomerate sunt orientative (naveta de peste săptămână, amiaza de weekend), nu date în direct despre stație.",
     "evPeak": "De obicei aglomerat (navetă sau weekend). Dacă operatorul permite rezervarea, fă-o din aplicația lui; altfel verifică disponibilitatea cu puțin timp înainte și păstrează încărcare pentru o a doua stație.",
     "evPeakBadge": "Ore aglomerate",
-    "evTitle": "Încărcarea mașinii electrice"
+    "evTitle": "Încărcarea mașinii electrice",
+    "noStationPrice": "Nu există preț pentru stație; așteptați media:",
+    "foodAdd": "Adaugă la traseu",
+    "foodAdded": "Pe traseu ✓"
   },
   "hotel": {
     "areaOnly": "Nu este indicat un hotel anume pe hartă. Vezi sugestiile pentru zonă mai jos."
@@ -695,7 +698,9 @@
     "preparing": "Pregătesc PDF-ul…",
     "savedToProfile": "Lista este salvată în profilul tău, la „Listele mele”.",
     "sleepCheck": "Verifică înainte să rezervi",
-    "sleepWhere": "Cazare"
+    "sleepWhere": "Cazare",
+    "building": "Construim fișierul…",
+    "writingText": "Scriem textul cu IA…"
   },
   "community": {
     "closeComposer": "Închide",
@@ -949,7 +954,7 @@
     "busyLight": "Liber (până la 15 min)",
     "busyMedium": "Mediu (15–45 min)",
     "clear": "Șterge filtrele",
-    "country": "Țară",
+    "country": "Țara 1",
     "max": "Cel mult 3 puncte fixate. Anulați unul ca să fixați altul.",
     "noMatch": "Niciun punct nu corespunde filtrelor.",
     "others": "Alte puncte",
@@ -959,6 +964,8 @@
     "sort": "Ordine",
     "sortDefault": "Ca în listă",
     "sortWait": "Cea mai scurtă așteptare",
-    "unpin": "Anulează fixarea"
+    "unpin": "Anulează fixarea",
+    "anyNeighbour": "Oricare",
+    "neighbour": "Se învecinează cu"
   }
 }

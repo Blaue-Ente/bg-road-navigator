@@ -12,12 +12,15 @@ export const MEDIUM_MAX_MIN = 45;
 export interface BorderListFilter {
   /** A two-letter country, or null for all. */
   country: string | null;
+  /** The country on the other side of the crossing, once `country` is chosen. */
+  neighbour: string | null;
   busy: BusyFilter;
   sort: BorderSort;
 }
 
 export const EMPTY_BORDER_FILTER: BorderListFilter = {
   country: null,
+  neighbour: null,
   busy: "all",
   sort: "default",
 };
@@ -36,6 +39,17 @@ export function countriesInList(list: BorderStatus[]): string[] {
   return [...seen].sort();
 }
 
+/** The countries that share a crossing with `country`, from the list. */
+export function neighboursOf(list: BorderStatus[], country: string): string[] {
+  const seen = new Set<string>();
+  for (const border of list) {
+    const codes = countriesOf(border.country_pair);
+    if (!codes.includes(country)) continue;
+    for (const code of codes) if (code !== country) seen.add(code);
+  }
+  return [...seen].sort();
+}
+
 export function busyLevel(waitMin: number): Exclude<BusyFilter, "all"> {
   if (waitMin <= LIGHT_MAX_MIN) return "light";
   if (waitMin <= MEDIUM_MAX_MIN) return "medium";
@@ -44,7 +58,9 @@ export function busyLevel(waitMin: number): Exclude<BusyFilter, "all"> {
 
 export function filterBorders(list: BorderStatus[], filter: BorderListFilter): BorderStatus[] {
   const out = list.filter((border) => {
-    if (filter.country && !countriesOf(border.country_pair).includes(filter.country)) return false;
+    const codes = countriesOf(border.country_pair);
+    if (filter.country && !codes.includes(filter.country)) return false;
+    if (filter.neighbour && !codes.includes(filter.neighbour)) return false;
     if (filter.busy !== "all" && busyLevel(border.wait_time_cars) !== filter.busy) return false;
     return true;
   });
