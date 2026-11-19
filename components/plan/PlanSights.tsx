@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MapPin } from "lucide-react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { TripLoadingIcons } from "@/components/ui/TripLoadingIcons";
@@ -33,7 +33,9 @@ export function PlanSights({ plan }: { plan: TripPlannerResult }) {
   const sights = useRouteStore((state) => state.sights);
   const setSights = useRouteStore((state) => state.setSights);
   const toggleSight = useRouteStore((state) => state.toggleSight);
-  const via = useRouteStore((state) => state.planningVia.map((point) => point.label));
+  const planningVia = useRouteStore((state) => state.planningVia);
+  // Mapping inside the selector made a new array on every read and looped the render.
+  const via = useMemo(() => planningVia.map((point) => point.label), [planningVia]);
   const [status, setStatus] = useState<Status>("idle");
 
   if (plan.preferences.pace !== "scenic") return null;
