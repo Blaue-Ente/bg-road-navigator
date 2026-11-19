@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouteStore } from "@/lib/stores/route.store";
 import { FileDown, MapPin, Sparkles } from "lucide-react";
 import { useTripPdf } from "@/components/plan/useTripPdf";
 import { formatWhen } from "@/components/plan/StopTimeline";
@@ -184,6 +185,7 @@ export function TripGuide({
       <div className="plan-no-print space-y-2">
         <Link
           href="/plan/ai"
+          onClick={() => useRouteStore.getState().setPlanMinimized(true)}
           className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--waze-border)] px-4 text-sm font-semibold text-[var(--waze-accent-text)]"
         >
           <Sparkles className="h-4 w-4" aria-hidden />
