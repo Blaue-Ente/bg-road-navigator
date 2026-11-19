@@ -154,12 +154,20 @@ export async function runTripPlan(input: TripPlanRequest) {
     destinationCountry,
   };
   const mayCrossBg = tripMayCrossBulgaria(originCountry, destinationCountry);
+  // The driver's own stops decide the road. Without a border they asked for,
+  // no border is added as a through point (that made a trip via Arad drive to
+  // Horgoš and back); the crossing the road really uses is attached later.
+  const hasVia = (input.via ?? []).length > 0;
+  const askedBorder =
+    input.routeChoice?.kind === "border" || Boolean(prefs.preferred_border);
+  const viaDecidesRoad = hasVia && !askedBorder;
   let bgCandidates = selectCandidateBorders(borderEnds).filter((candidate) =>
     allowsBorder(candidate.id, prefs)
   );
-  if (!mayCrossBg) bgCandidates = [];
+  if (!mayCrossBg || viaDecidesRoad) bgCandidates = [];
   const crossesHuRs = tripMayCrossHungarySerbia(borderEnds);
   const huRsIsRouteChoice =
+    !viaDecidesRoad &&
     bgCandidates.length === 0 &&
     crossesHuRs &&
     tripMustForceHungarySerbiaBorderChoice(borderEnds);
@@ -374,7 +382,7 @@ export async function runTripPlan(input: TripPlanRequest) {
   const chosenLine = chosenRoute.geometry.coordinates as Array<
     [number, number]
   >;
-  if (!mayCrossBg) {
+  if (!mayCrossBg || viaDecidesRoad) {
     const onPathBg = onPathBulgarianCrossing(chosenLine);
     if (
       onPathBg &&

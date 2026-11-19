@@ -273,6 +273,66 @@ describe("runTripPlan", () => {
     expect(blob).not.toMatch(/Vidin|Kalotina|Калотина|Видин/i);
   });
 
+  it("does not drive to Horgoš for Berlin → Vidin when the driver chose Arad", async () => {
+    vi.stubEnv("OCI_GEO_BASE_URL", "");
+    vi.stubEnv("DATABASE_URL", "");
+    const requests: string[] = [];
+    vi.stubGlobal("fetch", async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("open-meteo.com")) {
+        return Response.json({
+          hourly: {
+            time: ["2026-12-19T08:00"],
+            temperature_2m: [1],
+            weather_code: [1],
+            wind_speed_10m: [12],
+            precipitation: [0],
+          },
+        });
+      }
+      if (url.includes("meteoalarm.org")) return Response.json({ warnings: [] });
+      if (url.includes("/route/v1/driving/")) {
+        requests.push(decodeURIComponent(url));
+        return Response.json({
+          code: "Ok",
+          routes: [
+            {
+              distance: 1_487_000,
+              duration: 61_920,
+              geometry: {
+                type: "LineString",
+                coordinates: [
+                  [13.544, 52.528],
+                  [19.0, 47.5],
+                  [21.31, 46.19],
+                  [22.875, 43.989],
+                ],
+              },
+              legs: [{ steps: [] }],
+            },
+          ],
+        });
+      }
+      return new Response("no", { status: 404 });
+    });
+
+    const plan = await runTripPlan({
+      origin: { label: "Berlin", coords: { lng: 13.544, lat: 52.528 }, countryCode: "DE" },
+      destination: { label: "Vidin", coords: { lng: 22.8744, lat: 43.99 }, countryCode: "BG" },
+      via: [{ label: "Arad", coords: { lng: 21.3123, lat: 46.1866 } }],
+      departAt: new Date("2026-12-19T03:00:00.000Z"),
+      vehicle: resolveVehicle({ fuel_type: "diesel" }),
+      fromProfile: false,
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      locale: "bg",
+    });
+    expect(plan).not.toBeNull();
+    // No route request goes through the Horgoš post (19.978, 46.183).
+    expect(requests.some((url) => url.includes("19.978"))).toBe(false);
+    expect(plan?.border.chosen?.border_id).not.toBe("horgos");
+    expect(plan?.border.alternatives.some((b) => b.border_id === "horgos")).toBe(false);
+  });
+
   it("still compares Bulgarian borders for Berlin → Sofia", async () => {
     vi.stubEnv("OCI_GEO_BASE_URL", "");
     vi.stubEnv("DATABASE_URL", "");
