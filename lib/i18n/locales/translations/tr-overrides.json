@@ -903,7 +903,9 @@
     "title": "Ayarlar"
   },
   "mapControls": {
-    "onlyThis": "Sadece bu"
+    "onlyThis": "Sadece bu",
+    "allKinds": "Tümü",
+    "moreOptions": "Daha fazla seçenek"
   },
   "aiPlan": {
     "back": "Plana dön",
@@ -935,5 +937,25 @@
     "trade": "Bununla neyi kaybedersiniz",
     "whyAlt": "Alternatifi neden düşünmelisiniz",
     "whyFirst": "Neden öneriyoruz"
+  },
+  "borderPins": {
+    "allCountries": "Tüm ülkeler",
+    "busy": "Yoğunluk",
+    "busyAll": "Hepsi",
+    "busyHeavy": "Yoğun (45 dk üzeri)",
+    "busyLight": "Rahat (15 dk'ya kadar)",
+    "busyMedium": "Orta (15–45 dk)",
+    "clear": "Filtreleri temizle",
+    "country": "Ülke",
+    "max": "En fazla 3 sabit kapı. Başka birini sabitlemek için birini kaldırın.",
+    "noMatch": "Bu filtrelere uyan kapı yok.",
+    "others": "Diğer kapılar",
+    "pin": "Sabitle",
+    "pinnedHint": "3 favori kapıya kadar, en üstte ve haritada.",
+    "pinnedTitle": "Sabitlenen sınır kapıları",
+    "sort": "Sıralama",
+    "sortDefault": "Listelendiği gibi",
+    "sortWait": "En kısa bekleme",
+    "unpin": "Sabitlemeyi kaldır"
   }
 }

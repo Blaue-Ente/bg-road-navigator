@@ -3100,5 +3100,125 @@
   "with a pet",
   "evcil hayvanlı",
   "cu animal"
+ ],
+ "mapControls.allKinds": [
+  "Всички",
+  "All",
+  "Tümü",
+  "Toate"
+ ],
+ "mapControls.moreOptions": [
+  "Още опции",
+  "More options",
+  "Daha fazla seçenek",
+  "Mai multe opțiuni"
+ ],
+ "borderPins.pinnedTitle": [
+  "Закачени пунктове",
+  "Pinned crossings",
+  "Sabitlenen sınır kapıları",
+  "Puncte fixate"
+ ],
+ "borderPins.pinnedHint": [
+  "До 3 любими пункта, най-отгоре и на картата.",
+  "Up to 3 favourite crossings, at the top and on the map.",
+  "3 favori kapıya kadar, en üstte ve haritada.",
+  "Până la 3 puncte favorite, sus și pe hartă."
+ ],
+ "borderPins.pin": [
+  "Закачи",
+  "Pin",
+  "Sabitle",
+  "Fixează"
+ ],
+ "borderPins.unpin": [
+  "Откачи",
+  "Unpin",
+  "Sabitlemeyi kaldır",
+  "Anulează fixarea"
+ ],
+ "borderPins.max": [
+  "Най-много 3 закачени пункта. Откачете един, за да закачите друг.",
+  "At most 3 pinned crossings. Unpin one to pin another.",
+  "En fazla 3 sabit kapı. Başka birini sabitlemek için birini kaldırın.",
+  "Cel mult 3 puncte fixate. Anulați unul ca să fixați altul."
+ ],
+ "borderPins.others": [
+  "Други пунктове",
+  "Other crossings",
+  "Diğer kapılar",
+  "Alte puncte"
+ ],
+ "borderPins.country": [
+  "Държава",
+  "Country",
+  "Ülke",
+  "Țară"
+ ],
+ "borderPins.allCountries": [
+  "Всички държави",
+  "All countries",
+  "Tüm ülkeler",
+  "Toate țările"
+ ],
+ "borderPins.busy": [
+  "Заетост",
+  "Traffic",
+  "Yoğunluk",
+  "Aglomerație"
+ ],
+ "borderPins.busyAll": [
+  "Всякаква",
+  "Any",
+  "Hepsi",
+  "Oricare"
+ ],
+ "borderPins.busyLight": [
+  "Свободно (до 15 мин)",
+  "Light (up to 15 min)",
+  "Rahat (15 dk'ya kadar)",
+  "Liber (până la 15 min)"
+ ],
+ "borderPins.busyMedium": [
+  "Средно (15–45 мин)",
+  "Medium (15–45 min)",
+  "Orta (15–45 dk)",
+  "Mediu (15–45 min)"
+ ],
+ "borderPins.busyHeavy": [
+  "Натоварено (над 45 мин)",
+  "Heavy (over 45 min)",
+  "Yoğun (45 dk üzeri)",
+  "Aglomerat (peste 45 min)"
+ ],
+ "borderPins.sort": [
+  "Подредба",
+  "Order",
+  "Sıralama",
+  "Ordine"
+ ],
+ "borderPins.sortDefault": [
+  "Както са",
+  "As listed",
+  "Listelendiği gibi",
+  "Ca în listă"
+ ],
+ "borderPins.sortWait": [
+  "Най-малко чакане",
+  "Shortest wait",
+  "En kısa bekleme",
+  "Cea mai scurtă așteptare"
+ ],
+ "borderPins.noMatch": [
+  "Няма пунктове по тези филтри.",
+  "No crossings match these filters.",
+  "Bu filtrelere uyan kapı yok.",
+  "Niciun punct nu corespunde filtrelor."
+ ],
+ "borderPins.clear": [
+  "Махни филтрите",
+  "Clear filters",
+  "Filtreleri temizle",
+  "Șterge filtrele"
  ]
 }

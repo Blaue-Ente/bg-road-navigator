@@ -34,4 +34,5 @@ export const LOCAL_DATA_KEYS = [
   "bg-road-locale-offer",
   "bg-road-turn-beta",
   "bg-road-settings",
+  "bg-road-border-pins",
 ] as const;

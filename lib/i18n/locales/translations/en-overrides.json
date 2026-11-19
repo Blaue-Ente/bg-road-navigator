@@ -901,7 +901,9 @@
     "title": "Settings"
   },
   "mapControls": {
-    "onlyThis": "Only this"
+    "onlyThis": "Only this",
+    "allKinds": "All",
+    "moreOptions": "More options"
   },
   "aiPlan": {
     "back": "Back to the plan",
@@ -933,5 +935,25 @@
     "trade": "What you give up with it",
     "whyAlt": "Why consider the alternative",
     "whyFirst": "Why we recommend it"
+  },
+  "borderPins": {
+    "allCountries": "All countries",
+    "busy": "Traffic",
+    "busyAll": "Any",
+    "busyHeavy": "Heavy (over 45 min)",
+    "busyLight": "Light (up to 15 min)",
+    "busyMedium": "Medium (15–45 min)",
+    "clear": "Clear filters",
+    "country": "Country",
+    "max": "At most 3 pinned crossings. Unpin one to pin another.",
+    "noMatch": "No crossings match these filters.",
+    "others": "Other crossings",
+    "pin": "Pin",
+    "pinnedHint": "Up to 3 favourite crossings, at the top and on the map.",
+    "pinnedTitle": "Pinned crossings",
+    "sort": "Order",
+    "sortDefault": "As listed",
+    "sortWait": "Shortest wait",
+    "unpin": "Unpin"
   }
 }

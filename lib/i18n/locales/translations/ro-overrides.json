@@ -906,7 +906,9 @@
     "title": "Setări"
   },
   "mapControls": {
-    "onlyThis": "Doar asta"
+    "onlyThis": "Doar asta",
+    "allKinds": "Toate",
+    "moreOptions": "Mai multe opțiuni"
   },
   "aiPlan": {
     "back": "Înapoi la plan",
@@ -938,5 +940,25 @@
     "trade": "Ce pierdeți cu ea",
     "whyAlt": "De ce să luați în calcul alternativa",
     "whyFirst": "De ce îl recomandăm"
+  },
+  "borderPins": {
+    "allCountries": "Toate țările",
+    "busy": "Aglomerație",
+    "busyAll": "Oricare",
+    "busyHeavy": "Aglomerat (peste 45 min)",
+    "busyLight": "Liber (până la 15 min)",
+    "busyMedium": "Mediu (15–45 min)",
+    "clear": "Șterge filtrele",
+    "country": "Țară",
+    "max": "Cel mult 3 puncte fixate. Anulați unul ca să fixați altul.",
+    "noMatch": "Niciun punct nu corespunde filtrelor.",
+    "others": "Alte puncte",
+    "pin": "Fixează",
+    "pinnedHint": "Până la 3 puncte favorite, sus și pe hartă.",
+    "pinnedTitle": "Puncte fixate",
+    "sort": "Ordine",
+    "sortDefault": "Ca în listă",
+    "sortWait": "Cea mai scurtă așteptare",
+    "unpin": "Anulează fixarea"
   }
 }
