@@ -48,10 +48,21 @@
   "nav": {
     "weather": "Hava durumu",
     "hotels": "Dinlenme yerleri",
-    "closeToMap": "Kapat ve haritaya dön"
+    "closeToMap": "Kapat ve haritaya dön",
+    "settings": "Ayarlar"
   },
   "tipsPage": {
-    "msg343e2ece52": "Önemli"
+    "msg343e2ece52": "Önemli",
+    "allCountries": "Tüm ülkeler",
+    "countryNoTips": "Bu ülke için henüz özel ipucumuz yok. Aşağıdaki genel ipuçlarına bakın.",
+    "countryTipsTitle": "{country} için ipuçları",
+    "countryTitle": "Ülke",
+    "factEmergency": "Acil: polis {police}, ambulans {ambulance}, 112",
+    "factOpenEmergency": "Tüm acil numaralar",
+    "factVignette": "Resmî yol ücreti sitesi",
+    "factWinter": "Kış: {summary}",
+    "factsTitle": "{country} kısaca",
+    "generalTitle": "Genel ipuçları"
   },
   "planner": {
     "stops": {
@@ -392,7 +403,10 @@
     "unavailable": "İstasyon listesi yanıt vermiyor — POI hizmeti eksik veya kapalı olabilir.",
     "planRouteHint": "Rota planla — yakıt durakları planda.",
     "planRouteLink": "Planlamaya git",
-    "subtitleNearPlace": "Seçilen bölge civarında benzin ve şarj"
+    "subtitleNearPlace": "Seçilen bölge civarında benzin ve şarj",
+    "loadError": "Yakıt ve şarj istasyonu verileri yüklenemedi.",
+    "msg3435c7cdc4": "Yakıt ve şarj istasyonu verileri yüklenemedi.",
+    "title": "Yakıt ve şarj istasyonları"
   },
   "fuelEstimate": {
     "costLine": "{amount} {unit} · ≈ {cost}"
@@ -683,7 +697,8 @@
     "badRoadPointOnly": "Sadece nokta, bitiş yok",
     "badRoadPublish": "Kesimi yayınla",
     "badRoadSegment": "{km} km'lik kesim: {a} ile {b} arası",
-    "badRoadTooLong": "Kesim çok uzun (en fazla {max} km). Daha yakın bir nokta seçin."
+    "badRoadTooLong": "Kesim çok uzun (en fazla {max} km). Daha yakın bir nokta seçin.",
+    "showOnMap": "Haritada göster"
   },
   "costs": {
     "bridge": "Tuna köprüsü veya feribot ({crossings} geçiş): ücret dahil değil, işletmeciden kontrol edin",
@@ -805,5 +820,85 @@
     "title": "Kim ne zaman sürer",
     "total": "Toplam sürüş: {list}",
     "turn": "Sürücü {driver}: {from} → {until}, yaklaşık {drive}"
+  },
+  "fuelFilter": {
+    "anyPower": "Her güç",
+    "chargeTitle": "Şarj: güç ve fiş",
+    "clear": "Tümünü göster",
+    "fuel": {
+      "adblue": "AdBlue",
+      "cng": "CNG",
+      "diesel": "Dizel",
+      "e85": "E85",
+      "hvo": "HVO",
+      "lpg": "LPG",
+      "petrol95": "Benzin 95",
+      "petrol98": "Benzin 98+"
+    },
+    "fuelTitle": "Yakıt türü",
+    "minPower": "{kw} kW ve üzeri",
+    "noMatch": "Bu seçime uyan istasyon yok. Bir filtreyi kaldırın.",
+    "plug": {
+      "ccs": "CCS",
+      "chademo": "CHAdeMO",
+      "other": "Diğer fiş",
+      "type2": "Type 2"
+    },
+    "shown": "{total} içinden {shown} gösteriliyor"
+  },
+  "settings": {
+    "account": "Hesap ve veriler",
+    "actionFailed": "Olmadı. Lütfen tekrar deneyin.",
+    "appearance": "Görünüm ve dil",
+    "appearanceHint": "Açık veya koyu tema (harita da stilini değiştirir) ve uygulama dili.",
+    "borderWatch": "Sınır beklemesini ölç",
+    "borderWatchHint": "Yalnızca yolculukta, konum izniyle ve sayfa açıkken çalışır.",
+    "clearDevice": "Bu cihazdaki verileri temizle",
+    "clearDeviceConfirm": "Bu cihazda hatırlanan seçimler temizlenir (hesabınız değil). Devam edilsin mi?",
+    "clearHistory": "Rota geçmişini temizle",
+    "clearHistoryConfirm": "Tüm rota geçmişi silinsin mi?",
+    "deleteButton": "Hesabımı sil",
+    "deleteHint": "Profiliniz, araçlarınız, favorileriniz, geçmişiniz ve kontrol listeleriniz kalıcı olarak silinir.",
+    "deletePosts": "Sinyallerimi ve yorumlarımı da sil",
+    "deletePostsHint": "Aksi halde başkalarına yardım etmeye devam etmeleri için yazarsız kalır.",
+    "deleteTitle": "Hesabı sil",
+    "deleteType": "Onaylamak için SİL yazın",
+    "deleteWord": "SİL",
+    "exportData": "Verilerimi indir (JSON)",
+    "exportHint": "Sakladığımız her şey tek dosyada.",
+    "historyCleared": "Geçmiş silindi.",
+    "historyRecording": "Rota geçmişini kaydet",
+    "historyRecordingHint": "Yalnızca oturum açanlar için: tekrar çalıştırmak üzere son 30 plan.",
+    "keepBorder": "Sürücülerden sınır süreleri",
+    "keepBorderHow": "Yalnızca geçişi, dakikaları ve saatleri saklarız; rotayı asla. Son 3 saatteki süreler gösterilir.",
+    "keepHistory": "Rota geçmişi",
+    "keepHistoryHow": "En yeni 30; eskiler otomatik silinir.",
+    "keepLocation": "Konum",
+    "keepLocationHow": "Saklanmaz. Tarayıcıda yalnızca seçiminiz (izin var/yok) kalır.",
+    "keepProfile": "Profil, araçlar, favoriler, kontrol listeleri",
+    "keepProfileHow": "Siz silene veya hesabı silene kadar.",
+    "keepPush": "Bildirim adresi",
+    "keepPushHow": "Bildirimleri durdurana veya tarayıcı iptal edene kadar.",
+    "keepSignals": "Topluluk bildirimleri",
+    "keepSignalsHow": "Türüne göre sınırlı süre gösterilir. Hesabı sildikten sonra yazarsız kalır.",
+    "noTrail": "Hareketlerinizin izini tutmuyoruz. Konumunuz yalnızca yolculuk sırasında cihazınızda kullanılır.",
+    "notifications": "Bildirimler",
+    "notificationsHint": "Bildirim izni yukarıdaki “Konum” bölümündedir. Burada bu cihaza giden yolculuk bildirimlerini durdurabilirsiniz.",
+    "privacy": "Gizlilik ve geçmiş",
+    "pushFailed": "Durdurulamadı. Lütfen tekrar deneyin.",
+    "pushIsOff": "Bildirimler kapatıldı.",
+    "pushNone": "Bu cihazda açık bildirim yok.",
+    "pushOff": "Bu cihazdaki bildirimleri durdur",
+    "pushUnsupported": "Bu tarayıcı bildirimleri desteklemiyor.",
+    "retention": "Verileri ne kadar saklıyoruz",
+    "signIn": "Girişe git",
+    "signedOutHint": "Verilerinizi indirmek veya silmek için oturum açın.",
+    "subtitle": "Tema, dil, konum, bildirimler ve hangi verileri sakladığımız.",
+    "themeDark": "Koyu tema",
+    "themeLight": "Açık tema",
+    "title": "Ayarlar"
+  },
+  "mapControls": {
+    "onlyThis": "Sadece bu"
   }
 }

@@ -33,6 +33,7 @@ export function TopBar({ user }: TopBarProps) {
     "/hotels": m.nav.hotels,
     "/tips": m.nav.tips,
     "/profile": m.nav.profilePage,
+    "/settings": m.nav.settings,
     "/vignettes": m.nav.vignettes,
     "/setup": operatorSetup ? m.nav.setup : m.nav.services,
   };

@@ -6,6 +6,7 @@ import { borderDisplayName } from "@/lib/constants/border-crossings";
 import { useEffect, useMemo, useState } from "react";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { Map } from "maplibre-gl";
+import { filterChargers, filterStationsByFuel } from "@/lib/fuel/filters";
 import { useMapStore } from "@/lib/stores/map.store";
 import { useFuelStations } from "@/lib/hooks/useFuelStations";
 import { useSpeedCameras } from "@/lib/hooks/useSpeedCameras";
@@ -66,6 +67,7 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
   const m = useMessages();
   const locale = useLocale();
   const layers = useMapStore((s) => s.layers);
+  const fuelFilter = useMapStore((s) => s.fuelFilter);
   const wantFuel = layers.fuel || layers.ev;
   const view = useMapView(map, wantFuel || layers.speedCameras);
   const zoomedIn = view == null || view.zoom >= MIN_STATION_ZOOM;
@@ -84,26 +86,29 @@ export function MapPoiLayers({ map }: { map: Map | null }) {
 
   const fuelPoints = useMemo(
     () =>
-      (data?.fuelStations ?? []).map((station) => ({
+      filterStationsByFuel(data?.fuelStations ?? [], fuelFilter.fuels).map((station) => ({
         id: station.id,
         lng: station.coords.lng,
         lat: station.coords.lat,
         title: station.brand || station.name,
         subtitle: station.address,
       })),
-    [data?.fuelStations]
+    [data?.fuelStations, fuelFilter.fuels]
   );
 
   const evPoints = useMemo(
     () =>
-      (data?.evStations ?? []).map((station) => ({
+      filterChargers(data?.evStations ?? [], {
+        minKw: fuelFilter.minKw,
+        connectors: fuelFilter.connectors,
+      }).map((station) => ({
         id: station.id,
         lng: station.coords.lng,
         lat: station.coords.lat,
         title: station.name,
         subtitle: station.operator,
       })),
-    [data?.evStations]
+    [data?.evStations, fuelFilter.minKw, fuelFilter.connectors]
   );
 
   const borderPoints = useMemo(

@@ -46,6 +46,7 @@ export function Sidebar() {
     { href: "/hotels", label: m.nav.hotels, Icon: RestIcon },
     { href: "/tips", label: m.nav.tips, Icon: TipsIcon },
     { href: "/profile", label: m.nav.profilePage, Icon: UserIcon },
+    { href: "/settings", label: m.nav.settings, Icon: SettingsIcon },
   ] as const;
 
   useEffect(() => {

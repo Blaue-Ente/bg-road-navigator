@@ -46,10 +46,21 @@
   "nav": {
     "weather": "Weather",
     "hotels": "Rest stops",
-    "closeToMap": "Close and go to the map"
+    "closeToMap": "Close and go to the map",
+    "settings": "Settings"
   },
   "tipsPage": {
-    "msg343e2ece52": "Important"
+    "msg343e2ece52": "Important",
+    "allCountries": "All countries",
+    "countryNoTips": "We have no country-specific tips for this one yet. See the general ones below.",
+    "countryTipsTitle": "Tips for {country}",
+    "countryTitle": "Country",
+    "factEmergency": "Emergency: police {police}, ambulance {ambulance}, 112",
+    "factOpenEmergency": "All emergency numbers",
+    "factVignette": "Official road-charge site",
+    "factWinter": "Winter: {summary}",
+    "factsTitle": "{country} at a glance",
+    "generalTitle": "General tips"
   },
   "planner": {
     "stops": {
@@ -405,7 +416,10 @@
     "unavailable": "The station list is not responding — the POI service may be missing or down.",
     "planRouteHint": "Plan a route — fuel stops are in the trip plan.",
     "planRouteLink": "Plan route",
-    "subtitleNearPlace": "Petrol and EV chargers near the selected area"
+    "subtitleNearPlace": "Petrol and EV chargers near the selected area",
+    "loadError": "Fuel and charging station data could not be loaded.",
+    "msg3435c7cdc4": "Fuel and charging station data could not be loaded.",
+    "title": "Fuel and charging stations"
   },
   "fuelEstimate": {
     "costLine": "{amount} {unit} · ≈ {cost}"
@@ -681,7 +695,8 @@
     "badRoadPointOnly": "Just a point, no end",
     "badRoadPublish": "Publish the stretch",
     "badRoadSegment": "Stretch of {km} km: from {a} to {b}",
-    "badRoadTooLong": "The stretch is too long (at most {max} km). Pick a closer point."
+    "badRoadTooLong": "The stretch is too long (at most {max} km). Pick a closer point.",
+    "showOnMap": "Show on the map"
   },
   "costs": {
     "bridge": "Danube bridge or ferry ({crossings} crossing): the fee is not included, check with the operator",
@@ -803,5 +818,85 @@
     "title": "Who drives when",
     "total": "Driving in all: {list}",
     "turn": "Driver {driver}: {from} → {until}, about {drive}"
+  },
+  "fuelFilter": {
+    "anyPower": "Any power",
+    "chargeTitle": "Charging: power and plug",
+    "clear": "Show all",
+    "fuel": {
+      "adblue": "AdBlue",
+      "cng": "CNG",
+      "diesel": "Diesel",
+      "e85": "E85",
+      "hvo": "HVO",
+      "lpg": "LPG",
+      "petrol95": "Petrol 95",
+      "petrol98": "Petrol 98+"
+    },
+    "fuelTitle": "Fuel type",
+    "minPower": "from {kw} kW",
+    "noMatch": "No stations match this choice. Remove a filter.",
+    "plug": {
+      "ccs": "CCS",
+      "chademo": "CHAdeMO",
+      "other": "Other plug",
+      "type2": "Type 2"
+    },
+    "shown": "Showing {shown} of {total}"
+  },
+  "settings": {
+    "account": "Account and data",
+    "actionFailed": "That did not work. Please try again.",
+    "appearance": "Appearance and language",
+    "appearanceHint": "Light or dark theme (the map switches style with it) and the app language.",
+    "borderWatch": "Measure border waits",
+    "borderWatchHint": "Works only during a trip, with location allowed and the page open.",
+    "clearDevice": "Clear data on this device",
+    "clearDeviceConfirm": "This clears remembered choices on this device (not your account). Continue?",
+    "clearHistory": "Clear route history",
+    "clearHistoryConfirm": "Delete all route history?",
+    "deleteButton": "Delete my account",
+    "deleteHint": "Your profile, cars, favourites, history and checklists are deleted for good.",
+    "deletePosts": "Also delete my signals and comments",
+    "deletePostsHint": "Otherwise they stay without an author to keep helping others.",
+    "deleteTitle": "Delete account",
+    "deleteType": "Type DELETE to confirm",
+    "deleteWord": "DELETE",
+    "exportData": "Download my data (JSON)",
+    "exportHint": "Everything we keep about you, in one file.",
+    "historyCleared": "History cleared.",
+    "historyRecording": "Record route history",
+    "historyRecordingHint": "Signed-in drivers only: the last 30 plans to run again.",
+    "keepBorder": "Border waits from drivers",
+    "keepBorderHow": "We keep only the crossing, minutes and times, never the route. Those from the last 3 hours are shown.",
+    "keepHistory": "Route history",
+    "keepHistoryHow": "The newest 30; older ones are removed automatically.",
+    "keepLocation": "Location",
+    "keepLocationHow": "Not stored. Only your choice (allowed or not) stays in the browser.",
+    "keepProfile": "Profile, cars, favourites, checklists",
+    "keepProfileHow": "Until you delete them or your account.",
+    "keepPush": "Notification address",
+    "keepPushHow": "Until you stop notifications or the browser revokes it.",
+    "keepSignals": "Community signals",
+    "keepSignalsHow": "Shown for a limited time depending on the kind. After you delete your account they stay without an author.",
+    "noTrail": "We do not keep a trail of your movements. Your position is used only on your device while you travel.",
+    "notifications": "Notifications",
+    "notificationsHint": "Permission for notifications is in “Location” above. Here you can stop trip notifications to this device.",
+    "privacy": "Privacy and history",
+    "pushFailed": "We couldn't stop them. Please try again.",
+    "pushIsOff": "Notifications are off.",
+    "pushNone": "No notifications are on for this device.",
+    "pushOff": "Stop notifications on this device",
+    "pushUnsupported": "This browser does not support notifications.",
+    "retention": "How long we keep data",
+    "signIn": "Go to sign in",
+    "signedOutHint": "Sign in to download or delete your data.",
+    "subtitle": "Theme, language, location, notifications and what data we keep.",
+    "themeDark": "Dark theme",
+    "themeLight": "Light theme",
+    "title": "Settings"
+  },
+  "mapControls": {
+    "onlyThis": "Only this"
   }
 }

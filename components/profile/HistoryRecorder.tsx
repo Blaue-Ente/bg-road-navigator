@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { historyEntryFromPlan, historyPlanKey } from "@/lib/history/entry";
 import { useRouteStore } from "@/lib/stores/route.store";
+import { useSettingsStore } from "@/lib/stores/settings.store";
 import { useUserStore } from "@/lib/stores/user.store";
 
 /**
@@ -14,11 +15,12 @@ export function HistoryRecorder() {
   const plan = useRouteStore((state) => state.tripPlan);
   const via = useRouteStore((state) => state.planningVia);
   const signedIn = useUserStore((state) => Boolean(state.session?.user));
+  const recording = useSettingsStore((state) => state.historyRecording);
   const queryClient = useQueryClient();
   const sent = useRef(new Set<string>());
 
   useEffect(() => {
-    if (!plan || !signedIn) return;
+    if (!plan || !signedIn || !recording) return;
     const key = historyPlanKey(plan);
     if (sent.current.has(key)) return;
     sent.current.add(key);
@@ -32,7 +34,7 @@ export function HistoryRecorder() {
         if (response.ok) void queryClient.invalidateQueries({ queryKey: ["route-history"] });
       })
       .catch(() => undefined);
-  }, [plan, via, signedIn, queryClient]);
+  }, [plan, via, signedIn, recording, queryClient]);
 
   return null;
 }

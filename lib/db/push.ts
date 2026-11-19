@@ -22,6 +22,11 @@ export async function saveSubscription(input: PushSubscriptionInput) {
     });
 }
 
+/** Forgets a browser's push address; its queued pushes go with it. */
+export async function removeSubscription(endpoint: string) {
+  await getDb().delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
+}
+
 /** Replaces the unsent pushes of one trip with a fresh schedule. */
 export async function replaceTripSchedule(
   endpoint: string,

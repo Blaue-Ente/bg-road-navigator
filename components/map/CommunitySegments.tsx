@@ -12,12 +12,14 @@ const LAYER = "community-segments-line";
 /** Bad stretches reported by drivers, drawn as a line between their two ends. */
 export function CommunitySegments({ map, pins = [] }: { map: Map | null; pins?: CommunityPin[] }) {
   const enabled = useMapStore((s) => s.layers.community);
+  const chosen = useMapStore((s) => s.communityCategories);
 
   useEffect(() => {
     if (!map) return;
     const features = enabled
       ? pins
           .filter((pin) => pin.end_coords)
+          .filter((pin) => chosen.length === 0 || chosen.includes(pin.category))
           .map((pin) => ({
             type: "Feature" as const,
             properties: { color: communityPinColor(pin.category) },
@@ -57,7 +59,7 @@ export function CommunitySegments({ map, pins = [] }: { map: Map | null; pins?: 
     };
     if (map.isStyleLoaded()) apply();
     else map.once("idle", apply);
-  }, [map, pins, enabled]);
+  }, [map, pins, enabled, chosen]);
 
   return null;
 }

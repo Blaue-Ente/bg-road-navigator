@@ -50,10 +50,21 @@
   "nav": {
     "weather": "Vremea",
     "hotels": "Locuri de odihnă",
-    "closeToMap": "Închide și mergi la hartă"
+    "closeToMap": "Închide și mergi la hartă",
+    "settings": "Setări"
   },
   "tipsPage": {
-    "msg343e2ece52": "Important"
+    "msg343e2ece52": "Important",
+    "allCountries": "Toate țările",
+    "countryNoTips": "Pentru această țară nu avem încă sfaturi speciale. Vedeți cele generale de mai jos.",
+    "countryTipsTitle": "Sfaturi pentru {country}",
+    "countryTitle": "Țară",
+    "factEmergency": "Urgențe: poliție {police}, ambulanță {ambulance}, 112",
+    "factOpenEmergency": "Toate numerele de urgență",
+    "factVignette": "Site oficial pentru taxa de drum",
+    "factWinter": "Iarna: {summary}",
+    "factsTitle": "{country} pe scurt",
+    "generalTitle": "Sfaturi generale"
   },
   "planner": {
     "stops": {
@@ -395,7 +406,10 @@
     "unavailable": "Lista de stații nu răspunde — serviciul POI poate lipsi sau fi indisponibil.",
     "planRouteHint": "Planifică ruta — opririle la combustibil sunt în plan.",
     "planRouteLink": "La planificare",
-    "subtitleNearPlace": "Benzinării și încărcare lângă zona selectată"
+    "subtitleNearPlace": "Benzinării și încărcare lângă zona selectată",
+    "loadError": "Datele despre combustibil și stațiile de încărcare nu au putut fi încărcate.",
+    "msg3435c7cdc4": "Datele despre combustibil și stațiile de încărcare nu au putut fi încărcate.",
+    "title": "Combustibil și stații de încărcare"
   },
   "fuelEstimate": {
     "costLine": "{amount} {unit} · ≈ {cost}"
@@ -686,7 +700,8 @@
     "badRoadPointOnly": "Doar un punct, fără capăt",
     "badRoadPublish": "Publică porțiunea",
     "badRoadSegment": "Porțiune de {km} km: de la {a} la {b}",
-    "badRoadTooLong": "Porțiunea este prea lungă (cel mult {max} km). Alege un punct mai apropiat."
+    "badRoadTooLong": "Porțiunea este prea lungă (cel mult {max} km). Alege un punct mai apropiat.",
+    "showOnMap": "Arată pe hartă"
   },
   "costs": {
     "bridge": "Pod sau bac peste Dunăre ({crossings} traversare): taxa nu este inclusă, verifică la operator",
@@ -808,5 +823,85 @@
     "title": "Cine conduce și când",
     "total": "Condus în total: {list}",
     "turn": "Șofer {driver}: {from} → {until}, aproximativ {drive}"
+  },
+  "fuelFilter": {
+    "anyPower": "Orice putere",
+    "chargeTitle": "Încărcare: putere și mufă",
+    "clear": "Arată toate",
+    "fuel": {
+      "adblue": "AdBlue",
+      "cng": "CNG",
+      "diesel": "Motorină",
+      "e85": "E85",
+      "hvo": "HVO",
+      "lpg": "GPL",
+      "petrol95": "Benzină 95",
+      "petrol98": "Benzină 98+"
+    },
+    "fuelTitle": "Tip de combustibil",
+    "minPower": "de la {kw} kW",
+    "noMatch": "Nicio stație nu se potrivește. Elimină un filtru.",
+    "plug": {
+      "ccs": "CCS",
+      "chademo": "CHAdeMO",
+      "other": "Altă mufă",
+      "type2": "Type 2"
+    },
+    "shown": "Se afișează {shown} din {total}"
+  },
+  "settings": {
+    "account": "Cont și date",
+    "actionFailed": "Nu a mers. Încercați din nou.",
+    "appearance": "Aspect și limbă",
+    "appearanceHint": "Temă luminoasă sau întunecată (harta își schimbă stilul odată cu ea) și limba aplicației.",
+    "borderWatch": "Măsoară așteptarea la frontieră",
+    "borderWatchHint": "Funcționează doar în călătorie, cu locația permisă și pagina deschisă.",
+    "clearDevice": "Șterge datele de pe acest dispozitiv",
+    "clearDeviceConfirm": "Aceasta șterge alegerile memorate pe acest dispozitiv (nu și contul). Continuați?",
+    "clearHistory": "Șterge istoricul rutelor",
+    "clearHistoryConfirm": "Ștergi tot istoricul rutelor?",
+    "deleteButton": "Șterge contul meu",
+    "deleteHint": "Profilul, mașinile, favoritele, istoricul și listele de verificare se șterg definitiv.",
+    "deletePosts": "Șterge și semnalele și comentariile mele",
+    "deletePostsHint": "Altfel rămân fără autor, ca să ajute în continuare.",
+    "deleteTitle": "Șterge contul",
+    "deleteType": "Scrieți ȘTERGE pentru confirmare",
+    "deleteWord": "ȘTERGE",
+    "exportData": "Descarcă datele mele (JSON)",
+    "exportHint": "Tot ce păstrăm despre dvs., într-un singur fișier.",
+    "historyCleared": "Istoricul a fost șters.",
+    "historyRecording": "Salvează istoricul rutelor",
+    "historyRecordingHint": "Doar pentru conectați: ultimele 30 de planuri, de rulat din nou.",
+    "keepBorder": "Timpi de frontieră de la șoferi",
+    "keepBorderHow": "Păstrăm doar punctul, minutele și orele, niciodată ruta. Se afișează cele din ultimele 3 ore.",
+    "keepHistory": "Istoricul rutelor",
+    "keepHistoryHow": "Ultimele 30; cele mai vechi se șterg automat.",
+    "keepLocation": "Locație",
+    "keepLocationHow": "Nu se stochează. În browser rămâne doar alegerea dvs. (permis sau nu).",
+    "keepProfile": "Profil, mașini, favorite, liste de verificare",
+    "keepProfileHow": "Până le ștergeți sau ștergeți contul.",
+    "keepPush": "Adresa pentru notificări",
+    "keepPushHow": "Până opriți notificările sau browserul îl revocă.",
+    "keepSignals": "Semnale din comunitate",
+    "keepSignalsHow": "Se afișează un timp limitat, în funcție de tip. După ștergerea contului rămân fără autor.",
+    "noTrail": "Nu păstrăm urma deplasărilor dvs. Poziția este folosită doar pe dispozitiv cât călătoriți.",
+    "notifications": "Notificări",
+    "notificationsHint": "Permisiunea pentru notificări este în „Locație” de mai sus. Aici puteți opri notificările de călătorie către acest dispozitiv.",
+    "privacy": "Confidențialitate și istoric",
+    "pushFailed": "Nu le-am putut opri. Încercați din nou.",
+    "pushIsOff": "Notificările sunt oprite.",
+    "pushNone": "Nu sunt notificări pornite pe acest dispozitiv.",
+    "pushOff": "Oprește notificările pe acest dispozitiv",
+    "pushUnsupported": "Acest browser nu acceptă notificări.",
+    "retention": "Cât păstrăm datele",
+    "signIn": "La autentificare",
+    "signedOutHint": "Conectați-vă pentru a descărca sau șterge datele.",
+    "subtitle": "Tema, limba, locația, notificările și ce date păstrăm.",
+    "themeDark": "Temă întunecată",
+    "themeLight": "Temă luminoasă",
+    "title": "Setări"
+  },
+  "mapControls": {
+    "onlyThis": "Doar asta"
   }
 }

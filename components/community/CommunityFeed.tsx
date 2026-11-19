@@ -13,7 +13,9 @@ import {
   formatPinAge,
   formatPinExpiry,
 } from "@/lib/constants/community-pins";
-import { Check, ThumbsUp, X } from "lucide-react";
+import { Check, MapPin, ThumbsUp, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMapStore } from "@/lib/stores/map.store";
 
 export function CommunityFeed({
   pins: pinsProp,
@@ -26,6 +28,13 @@ export function CommunityFeed({
   const pins = pinsProp ?? storePins;
   const { setSelectedPin, selectedPin, setPinUpvotes } = useCommunityStore();
   const authenticated = !!useUserStore((s) => s.session);
+  const router = useRouter();
+  const showOnMap = (pin: import("@/types/community.types").CommunityPin) => {
+    useMapStore.getState().setLayer("community", true);
+    useMapStore.getState().requestFly({ lng: pin.coords.lng, lat: pin.coords.lat, zoom: 12 });
+    setSelectedPin(pin);
+    router.push("/");
+  };
   const [actionError, setActionError] = useState<string | null>(null);
 
   const confirmPin = async (pinId: string, kind: "still_there" | "gone") => {
@@ -129,6 +138,18 @@ export function CommunityFeed({
                   <X className="h-3.5 w-3.5" strokeWidth={2} />{m.community.msg6101a7d118}</button>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                showOnMap(pin);
+              }}
+              className="waze-btn-secondary mt-2 inline-flex min-h-11 items-center gap-2 px-4 text-sm"
+            >
+              <MapPin className="h-4 w-4" aria-hidden />
+              {m.community.showOnMap}
+            </button>
 
             {pin.description && (
               <p className="text-sm text-[var(--waze-text-secondary)]">
