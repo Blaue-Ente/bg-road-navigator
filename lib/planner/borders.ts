@@ -164,7 +164,7 @@ export function selectCandidateBorders(input: {
   }
   if (haversineKm(input.origin, input.destination) < 40) return [];
 
-  const ranked: BorderCandidate[] = [];
+  const ranked: Array<BorderCandidate & { minor: boolean }> = [];
   for (const crossing of BORDER_CROSSINGS) {
     if (haversineKm(input.origin, crossing.coords) < 8) continue;
     if (haversineKm(input.destination, crossing.coords) < 8) continue;
@@ -176,6 +176,7 @@ export function selectCandidateBorders(input: {
     if (approach.t < 0.03 || approach.t > 0.97) continue;
     if (approach.distanceKm > MAX_LATERAL_KM) continue;
     ranked.push({
+      minor: crossing.minor === true,
       id: crossing.id,
       nameBg: crossing.name_bg,
       nameEn: crossing.name_en,
@@ -187,8 +188,14 @@ export function selectCandidateBorders(input: {
     });
   }
 
-  ranked.sort((a, b) => a.lateralKm - b.lateralKm);
-  return ranked.slice(0, MAX_CANDIDATES);
+  // Main crossings first, nearest to the line; small posts only fill what is left.
+  ranked.sort(
+    (a, b) => Number(a.minor === true) - Number(b.minor === true) || a.lateralKm - b.lateralKm
+  );
+  return ranked.slice(0, MAX_CANDIDATES).map(({ minor, ...candidate }) => {
+    void minor;
+    return candidate;
+  });
 }
 
 /**
