@@ -53,6 +53,13 @@ export function annotatePlaces(
   });
 }
 
+/** Depots for lorries only (fuel-card networks); a car cannot always use them. */
+const TRUCK_ONLY = /eurowag|truck\s*stop|truckstop|\blkw\b|tir\s*park/i;
+
+export function isTruckOnlyStation(place: { name: string; brand?: string | null }): boolean {
+  return TRUCK_ONLY.test(`${place.name} ${place.brand ?? ""}`);
+}
+
 export function isNamedPlace(place: { name: string }): boolean {
   const name = place.name.trim().toLocaleLowerCase("bg-BG");
   return name.length >= 2 && !GENERIC.has(name);
@@ -71,6 +78,7 @@ export function pickPlace(
   const limit = options.looseDetourKm ?? detourLimitKm(prefs);
   const ranked = places
     .filter((place) => options.kinds.includes(place.kind))
+    .filter((place) => place.kind !== "fuel" || !isTruckOnlyStation(place))
     .filter(
       (place) =>
         place.alongKm >= options.windowStartKm - 8 &&

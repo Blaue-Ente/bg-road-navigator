@@ -163,7 +163,11 @@
       "prepWipesDetail": "Eller, dökülmeler ve kâğıtsız tuvaletler için. Arabada çöp torbaları."
     },
     "warnings": {
-      "badRoadSegment": "Sürücülerin bildirdiği kötü yol km {from} ile km {to} arası: yavaş ve dikkatli gidin."
+      "badRoadSegment": "Sürücülerin bildirdiği kötü yol km {from} ile km {to} arası: yavaş ve dikkatli gidin.",
+      "longDay": "Günlerden biri yaklaşık {hours} saat sürüş, önerilen {limit} saatin üzerinde. Ek molalar planlayın ve sürücü değiştirin.",
+      "nightAlone": "Yola gece tek sürücüyle çıkılıyor. Bu önerilmez: ikinci bir sürücü bulun veya sabah çıkın.",
+      "nightSwap": "Yola akşam veya gece çıkılıyor: sürücüler yaklaşık 5–6 saatte bir değişir ve gündüz daha uzun bir mola planlanır.",
+      "sleepShort": "Gecelemede uyku yaklaşık {hours} saat. İyi dinlenmek için en iyisi 8 saattir; 6 saatin altı önerilmez."
     }
   },
   "api": {

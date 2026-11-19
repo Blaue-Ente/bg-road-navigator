@@ -108,10 +108,9 @@ describe("overnight and drivers", () => {
     );
   });
 
-  it("lets a second driver extend the driving day", () => {
-    const one = drivingDayLimits(prefs({ drivers: 1, max_driving_hours: 10 }));
-    const two = drivingDayLimits(prefs({ drivers: 2, max_driving_hours: 10 }));
-    expect(two.overnightAfterMin - one.overnightAfterMin).toBe(120);
+  it("uses the driver's own maximum for the day, 12 hours by default", () => {
+    expect(drivingDayLimits(prefs()).overnightAfterMin).toBe(720);
+    expect(drivingDayLimits(prefs({ max_driving_hours: 10 })).overnightAfterMin).toBe(600);
   });
 });
 
@@ -254,13 +253,14 @@ describe("car size", () => {
 });
 
 describe("health day limit", () => {
-  it("is 10 hours without children and 8 with them, and caps the planned day", () => {
+  it("is 10 hours without children and 8 with them, a warning level", () => {
     expect(healthDayLimitH(prefs())).toBe(10);
     expect(healthDayLimitH(prefs({ with_children: true }))).toBe(8);
-    expect(drivingDayLimits(prefs({ max_driving_hours: 12 })).overnightAfterMin).toBe(600);
+    // The limit is a warning level now; the planned day follows the driver's maximum.
+    expect(drivingDayLimits(prefs({ max_driving_hours: 12 })).overnightAfterMin).toBe(720);
     expect(
       drivingDayLimits(prefs({ max_driving_hours: 12, with_children: true })).overnightAfterMin
-    ).toBe(480);
+    ).toBe(720);
   });
 });
 

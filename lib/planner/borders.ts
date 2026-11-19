@@ -51,7 +51,7 @@ export interface ScoredBorder extends BorderScoreInput {
 
 const MAX_LATERAL_KM = 170;
 const MAX_CANDIDATES = 4;
-export const HUNGARY_SERBIA_ON_ROUTE_KM = 30;
+export const HUNGARY_SERBIA_ON_ROUTE_KM = 12;
 export const ON_PATH_BORDER_KM = 12;
 
 const BALKAN_TRANSIT = new Set(["TR", "GR", "MK", "BG"]);

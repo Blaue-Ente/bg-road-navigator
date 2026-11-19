@@ -161,7 +161,11 @@
       "prepWipesDetail": "For hands, spills and toilets without paper. Bags for rubbish in the car."
     },
     "warnings": {
-      "badRoadSegment": "Bad road reported by drivers from km {from} to km {to}: drive slower and with care."
+      "badRoadSegment": "Bad road reported by drivers from km {from} to km {to}: drive slower and with care.",
+      "longDay": "One day is about {hours} h of driving, above the advised {limit} h. Plan extra breaks and swap drivers.",
+      "nightAlone": "The start is at night with one driver. That is not advised: find a second driver or leave in the morning.",
+      "nightSwap": "The start is in the evening or at night: drivers swap after about 5–6 hours, and a longer rest is planned by day.",
+      "sleepShort": "Sleep at the overnight stop is about {hours} h. For good recovery 8 hours is best; under 6 hours is not advised."
     }
   },
   "api": {

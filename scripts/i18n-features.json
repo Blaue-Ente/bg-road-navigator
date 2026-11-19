@@ -2914,5 +2914,29 @@
   "Only this",
   "Sadece bu",
   "Doar asta"
+ ],
+ "planner.warnings.sleepShort": [
+  "Сънят в нощувката е около {hours} ч. За добро възстановяване е най-добре 8 часа; под 6 часа не се препоръчва.",
+  "Sleep at the overnight stop is about {hours} h. For good recovery 8 hours is best; under 6 hours is not advised.",
+  "Gecelemede uyku yaklaşık {hours} saat. İyi dinlenmek için en iyisi 8 saattir; 6 saatin altı önerilmez.",
+  "Somnul la oprire este de circa {hours} h. Pentru o bună refacere ideal sunt 8 ore; sub 6 ore nu se recomandă."
+ ],
+ "planner.warnings.longDay": [
+  "Един от дните е около {hours} ч шофиране, над препоръчаните {limit} ч. Планирайте допълнителни почивки и сменяйте шофьорите.",
+  "One day is about {hours} h of driving, above the advised {limit} h. Plan extra breaks and swap drivers.",
+  "Günlerden biri yaklaşık {hours} saat sürüş, önerilen {limit} saatin üzerinde. Ek molalar planlayın ve sürücü değiştirin.",
+  "O zi are circa {hours} h de condus, peste cele {limit} h recomandate. Planificați pauze în plus și schimbați șoferii."
+ ],
+ "planner.warnings.nightAlone": [
+  "Тръгването е през нощта, а шофьорът е един. Това не се препоръчва: търсете втори шофьор или тръгнете сутрин.",
+  "The start is at night with one driver. That is not advised: find a second driver or leave in the morning.",
+  "Yola gece tek sürücüyle çıkılıyor. Bu önerilmez: ikinci bir sürücü bulun veya sabah çıkın.",
+  "Plecarea este noaptea, cu un singur șofer. Nu se recomandă: găsiți un al doilea șofer sau plecați dimineața."
+ ],
+ "planner.warnings.nightSwap": [
+  "Тръгването е вечер или през нощта: шофьорите се сменят на около 5–6 часа, а през деня е планирана по-дълга почивка.",
+  "The start is in the evening or at night: drivers swap after about 5–6 hours, and a longer rest is planned by day.",
+  "Yola akşam veya gece çıkılıyor: sürücüler yaklaşık 5–6 saatte bir değişir ve gündüz daha uzun bir mola planlanır.",
+  "Plecarea este seara sau noaptea: șoferii se schimbă după circa 5–6 ore, iar ziua este planificată o pauză mai lungă."
  ]
 }

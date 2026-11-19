@@ -166,7 +166,11 @@
       "prepWipesDetail": "Pentru mâini, scurgeri și toalete fără hârtie. Saci de gunoi în mașină."
     },
     "warnings": {
-      "badRoadSegment": "Drum prost raportat de șoferi de la km {from} la km {to}: conduceți mai încet și cu grijă."
+      "badRoadSegment": "Drum prost raportat de șoferi de la km {from} la km {to}: conduceți mai încet și cu grijă.",
+      "longDay": "O zi are circa {hours} h de condus, peste cele {limit} h recomandate. Planificați pauze în plus și schimbați șoferii.",
+      "nightAlone": "Plecarea este noaptea, cu un singur șofer. Nu se recomandă: găsiți un al doilea șofer sau plecați dimineața.",
+      "nightSwap": "Plecarea este seara sau noaptea: șoferii se schimbă după circa 5–6 ore, iar ziua este planificată o pauză mai lungă.",
+      "sleepShort": "Somnul la oprire este de circa {hours} h. Pentru o bună refacere ideal sunt 8 ore; sub 6 ore nu se recomandă."
     }
   },
   "api": {
