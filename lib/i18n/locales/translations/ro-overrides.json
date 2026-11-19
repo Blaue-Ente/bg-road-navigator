@@ -665,7 +665,9 @@
     "evPeak": "De obicei aglomerat (navetă sau weekend). Dacă operatorul permite rezervarea, fă-o din aplicația lui; altfel verifică disponibilitatea cu puțin timp înainte și păstrează încărcare pentru o a doua stație.",
     "evPeakBadge": "Ore aglomerate",
     "evTitle": "Încărcarea mașinii electrice",
-    "noStationPrice": "Nu există preț pentru stație; așteptați media:"
+    "noStationPrice": "Nu există preț pentru stație; așteptați media:",
+    "foodAdd": "Adaugă la traseu",
+    "foodAdded": "Pe traseu ✓"
   },
   "hotel": {
     "areaOnly": "Nu este indicat un hotel anume pe hartă. Vezi sugestiile pentru zonă mai jos."

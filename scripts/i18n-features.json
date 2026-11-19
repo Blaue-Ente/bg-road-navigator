@@ -3250,5 +3250,17 @@
   "Any",
   "Hepsi",
   "Oricare"
+ ],
+ "guide.foodAdd": [
+  "Добави към маршрута",
+  "Add to the route",
+  "Rotaya ekle",
+  "Adaugă la traseu"
+ ],
+ "guide.foodAdded": [
+  "В маршрута ✓",
+  "On the route ✓",
+  "Rotada ✓",
+  "Pe traseu ✓"
  ]
 }

@@ -72,7 +72,9 @@ export function guideInputFromPlan(
   locale: Locale,
   countries: string[] = [],
   via: string[] = [],
-  chosenSights: PlanSight[] = []
+  chosenSights: PlanSight[] = [],
+  /** Ids of fast-food places the driver added to the route. */
+  chosenFoodIds: string[] = []
 ): TripGuideInput {
   const prefs = plan.preferences;
   const real = plan.stops
@@ -245,6 +247,7 @@ export function guideInputFromPlan(
     }),
     food_spots: (plan.food_spots ?? []).slice(0, 12).map((spot) => ({
       chain: spot.chain.slice(0, 40),
+      chosen: chosenFoodIds.includes(spot.id),
       km: spot.distance_from_start_km,
       local_time: clock(spot.eta),
       detour_km: Math.min(50, spot.detour_km),

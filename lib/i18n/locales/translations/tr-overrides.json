@@ -662,7 +662,9 @@
     "evPeak": "Genellikle yoğun (iş dönüşü veya hafta sonu). İşletmeci rezervasyona izin veriyorsa uygulaması üzerinden yapın; aksi hâlde kısa süre önce doluluğu kontrol edin ve ikinci bir istasyon için yeterli şarj bırakın.",
     "evPeakBadge": "Yoğun saat",
     "evTitle": "Elektrikli aracı şarj etme",
-    "noStationPrice": "İstasyonun kendi fiyatı yok; ortalamayı bekleyin:"
+    "noStationPrice": "İstasyonun kendi fiyatı yok; ortalamayı bekleyin:",
+    "foodAdd": "Rotaya ekle",
+    "foodAdded": "Rotada ✓"
   },
   "hotel": {
     "areaOnly": "Haritada belirli bir otel yok. Aşağıdaki bölge önerilerine bakın."

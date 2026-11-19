@@ -60,6 +60,8 @@ export function buildItineraryPoints(input: {
   plan: TripPlannerResult;
   includedStopIds: ReadonlySet<string>;
   via: LabeledPoint[];
+  /** Places the driver added (a meal at a fast-food chain), placed along the road. */
+  extra?: LabeledPoint[];
 }): MapStop[] {
   const line = input.plan.route.geometry.coordinates as Array<[number, number]>;
   const middle: Array<MapStop & { at: number }> = [];
@@ -69,6 +71,14 @@ export function buildItineraryPoints(input: {
       lng: via.lng,
       lat: via.lat,
       at: fractionAlongLine(line, via),
+    });
+  }
+  for (const place of input.extra ?? []) {
+    middle.push({
+      label: place.label,
+      lng: place.lng,
+      lat: place.lat,
+      at: fractionAlongLine(line, place),
     });
   }
   const border = input.plan.route.border_waypoint;

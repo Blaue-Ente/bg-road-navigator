@@ -49,7 +49,9 @@ export async function fetchGuide(
       method: "POST",
       signal: timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(guideInputFromPlan(plan, locale, countries, via, chosenSights)),
+      body: JSON.stringify(
+        guideInputFromPlan(plan, locale, countries, via, chosenSights, useRouteStore.getState().foodChosen)
+      ),
     });
     const payload = (await response.json()) as {
       guide: TripGuide | null;

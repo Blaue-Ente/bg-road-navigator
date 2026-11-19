@@ -47,6 +47,9 @@ interface RouteState {
   focusedStopId: string | null;
   planningVia: PlanningVia[];
   sights: SightsState | null;
+  /** Fast-food stops the driver added to the route (ids of `plan.food_spots`). */
+  foodChosen: string[];
+  toggleFood: (id: string) => void;
   setSights: (sights: SightsState | null) => void;
   toggleSight: (id: string) => void;
   replanDraft: ReplanDraft | null;
@@ -83,6 +86,13 @@ export const useRouteStore = create<RouteState>((set) => ({
   focusedStopId: null,
   planningVia: [],
   sights: null,
+  foodChosen: [],
+  toggleFood: (id) =>
+    set((state) => ({
+      foodChosen: state.foodChosen.includes(id)
+        ? state.foodChosen.filter((item) => item !== id)
+        : [...state.foodChosen, id],
+    })),
   setSights: (sights) => set({ sights }),
   toggleSight: (id) =>
     set((state) => {
@@ -109,11 +119,13 @@ export const useRouteStore = create<RouteState>((set) => ({
     set({ activeRoute: route, routeStatus: "success", routeError: null }),
   setAlternativeRoutes: (routes) => set({ alternativeRoutes: routes }),
   setTripPlan: (plan) =>
-    set({
+    set((state) => ({
       tripPlan: plan,
       focusedStopId: null,
+      // A new plan has new places; what was chosen for the old one no longer fits.
+      ...(plan?.generated_at === state.tripPlan?.generated_at ? {} : { foodChosen: [] }),
       ...(plan ? {} : { planDetailOpen: false, sights: null }),
-    }),
+    })),
   // Asking for the plan always shows it in full, also when it was collapsed.
   setPlanDetailOpen: (open) => set({ planDetailOpen: open, planMinimized: false }),
   setPlanMinimized: (minimized) => set({ planMinimized: minimized }),
@@ -157,6 +169,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       focusedStopId: null,
       planningVia: [],
       sights: null,
+      foodChosen: [],
       choiceCardOrderKeys: null,
     });
   },

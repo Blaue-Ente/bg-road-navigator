@@ -660,7 +660,9 @@
     "evPeak": "Usually busy (commute or weekend traffic). If the operator allows booking, book through its app; otherwise check availability shortly before and keep enough charge for a second station.",
     "evPeakBadge": "Busy hours",
     "evTitle": "Charging your EV",
-    "noStationPrice": "No price for the station itself; expect the average:"
+    "noStationPrice": "No price for the station itself; expect the average:",
+    "foodAdd": "Add to the route",
+    "foodAdded": "On the route ✓"
   },
   "hotel": {
     "areaOnly": "No specific hotel is named on the map. See the suggestions for the area below."
