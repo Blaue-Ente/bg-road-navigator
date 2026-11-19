@@ -47,6 +47,7 @@ import {
   mergeDrivingBreaks,
   totalDwellMinutes,
   resolveSleepShifts,
+  SLEEP_AIM_MIN,
   sleepMinutesBefore,
   sleepShifts,
   type BreakKind,
@@ -57,6 +58,12 @@ import { buildChecklist } from "@/lib/planner/checklist";
 import { trafficDelayNearBorder } from "@/lib/planner/border-traffic";
 import { communityAlongRoute } from "@/lib/planner/community";
 import { buildDriverPlan } from "@/lib/planner/driver-plan";
+import {
+  NIGHT_STINT_MIN,
+  isNightStart,
+  localHourDecimal,
+  windowedDayLimits,
+} from "@/lib/planner/day-window";
 import { borderDisplayName } from "@/lib/constants/border-crossings";
 import {
   isHuRomaniaPreferenceId,
@@ -84,6 +91,7 @@ import {
   costingFromPreferences,
   drivingDayLimits,
   effectiveBreakEveryMin,
+  healthDayLimitH,
   scenicTypes,
   swapActive,
   type TripPreferences,
@@ -133,10 +141,24 @@ export async function runTripPlan(input: TripPlanRequest) {
   const locale = input.locale ?? "bg";
   const plannerCopy = catalog(locale).planner;
   const now = input.now ?? new Date();
-  const prefs = input.preferences;
+  const departZone = timeZoneForCountry(
+    input.origin.countryCode ??
+      countryCodeAtPoint(input.origin.coords.lng, input.origin.coords.lat)
+  );
+  const startHour = localHourDecimal(input.departAt, departZone);
+  const nightStart = startHour != null && isNightStart(startHour);
+  // A night start with two or more drivers keeps going and swaps; the kids sleep in the car.
+  const prefs: TripPreferences =
+    nightStart && input.preferences.drivers >= 2 && input.preferences.night_mode === "sleep"
+      ? { ...input.preferences, night_mode: "swap" }
+      : input.preferences;
   const costing = costingFromPreferences(prefs);
   const scenicPace = prefs.pace === "scenic";
-  const day = drivingDayLimits(prefs);
+  const day = windowedDayLimits({
+    departAt: input.departAt,
+    timeZone: departZone,
+    limits: drivingDayLimits(prefs),
+  });
 
   const originCountry =
     input.origin.countryCode ??
@@ -601,6 +623,36 @@ export async function runTripPlan(input: TripPlanRequest) {
       );
     }
   }
+  for (const sleep of sleepResolved) {
+    if (sleep.sleepMin > 0 && sleep.sleepMin < SLEEP_AIM_MIN) {
+      warnings.push(
+        formatTemplate(plannerCopy.warnings.sleepShort, {
+          hours: String(Math.round((sleep.sleepMin / 60) * 10) / 10),
+        })
+      );
+      break;
+    }
+  }
+  const dayLimitMin = healthDayLimitH(prefs) * 60;
+  const dayEdges = [0, ...sleepResolved.map((row) => row.afterDrivingMin), chosenRoute.duration_min];
+  const longestDayMin = Math.max(
+    ...dayEdges.slice(1).map((edge, index) => edge - dayEdges[index]!)
+  );
+  if (longestDayMin > dayLimitMin + 15) {
+    warnings.push(
+      formatTemplate(plannerCopy.warnings.longDay, {
+        hours: String(Math.round((longestDayMin / 60) * 10) / 10),
+        limit: String(healthDayLimitH(prefs)),
+      })
+    );
+  }
+  if (nightStart && chosenRoute.duration_min > 120) {
+    warnings.push(
+      prefs.drivers >= 2
+        ? plannerCopy.warnings.nightSwap
+        : plannerCopy.warnings.nightAlone
+    );
+  }
   warnings.push(...hazardWarnings(roadHazards, locale));
   warnings.push(...hotspotWarnings(attentionSegments, locale));
 
@@ -730,6 +782,7 @@ export async function runTripPlan(input: TripPlanRequest) {
           ).toISOString(),
         totalKm: plan.route.distance_km,
         totalDrivingMin: plan.route.duration_min,
+        stintMin: nightStart ? NIGHT_STINT_MIN : undefined,
       })
     : null;
 

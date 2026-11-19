@@ -48,7 +48,6 @@ export interface SleepShift {
 }
 
 const SOFIA_TZ = "Europe/Sofia";
-const MIN_SLEEP_MIN = 8 * 60;
 
 export interface TimedStop {
   kinds: BreakKind[];
@@ -207,21 +206,34 @@ export function sleepShifts(input: {
   return shifts;
 }
 
+/** Planned sleep: 8 hours is the aim, 6 the least. */
+export const SLEEP_AIM_MIN = 8 * 60;
+export const SLEEP_LEAST_MIN = 6 * 60;
+
 /**
- * Wall-clock wake: at least 8 h sleep, and no earlier than the next 08:00 local.
- * Arriving by day (06:00-15:59 local, typical after driving through the night)
- * is a rest, not a night: the driver wakes after the eight hours instead of
- * waiting for the next morning, which would leave the car parked for a day.
+ * Wall-clock wake for a stop. The night is the 22:00-05:00 window:
+ * - arriving by day (05:00-15:59, typical after driving through the night) is a
+ *   rest: eight hours, then on;
+ * - arriving early in the evening (16:00-21:59) sleeps until at least 05:00;
+ * - arriving inside the window sleeps eight hours when that ends by 07:00,
+ *   otherwise wakes at 07:00 (never less than six hours).
  */
 export function wakeAt(
   arrival: Date,
   timeZone: string = SOFIA_TZ
 ): Date {
-  const minWake = new Date(arrival.getTime() + MIN_SLEEP_MIN * 60_000);
+  const aim = new Date(arrival.getTime() + SLEEP_AIM_MIN * 60_000);
+  const least = new Date(arrival.getTime() + SLEEP_LEAST_MIN * 60_000);
   const local = localYmdHm(arrival, timeZone);
-  if (local && local.hour >= 6 && local.hour < 16) return minWake;
-  const morning = nextLocal0800(arrival, timeZone);
-  return minWake.getTime() >= morning.getTime() ? minWake : morning;
+  if (!local) return aim;
+  if (local.hour >= 5 && local.hour < 16) return aim;
+  if (local.hour >= 16 && local.hour < 22) {
+    const dawn = nextLocalHour(arrival, timeZone, 5);
+    return aim.getTime() >= dawn.getTime() ? aim : dawn;
+  }
+  const seven = nextLocalHour(arrival, timeZone, 7);
+  if (aim.getTime() <= seven.getTime()) return aim;
+  return least.getTime() >= seven.getTime() ? least : seven;
 }
 
 export function sleepShiftsFromPlanStops(
@@ -313,15 +325,15 @@ export function formatWakeLabel(
   }).format(wake);
 }
 
-function nextLocal0800(from: Date, timeZone: string): Date {
+/** The next local `hour`:00 after `from` (today's when it is still ahead). */
+function nextLocalHour(from: Date, timeZone: string, hour: number): Date {
   const parts = localYmdHm(from, timeZone);
   if (!parts) {
-    return new Date(from.getTime() + MIN_SLEEP_MIN * 60_000);
+    return new Date(from.getTime() + SLEEP_AIM_MIN * 60_000);
   }
   let { year, month, day } = parts;
-  const hour = 8;
   const minute = 0;
-  if (parts.hour > 8 || (parts.hour === 8 && parts.minute > 0)) {
+  if (parts.hour > hour || (parts.hour === hour && parts.minute > 0)) {
     const next = addLocalDays(year, month, day, 1);
     year = next.year;
     month = next.month;

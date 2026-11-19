@@ -69,7 +69,7 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   avoid_motorways: false,
   avoid_tolls: false,
   overnight: true,
-  max_driving_hours: 10.5,
+  max_driving_hours: 12,
   pace: "fast",
   with_children: false,
   children_ages: [],
@@ -165,7 +165,8 @@ export function drivingDayHours(prefs: TripPreferences): number {
 
 /**
  * Hours on the road in one day after which a driver should stop: 10 without
- * children, 8 with them. A warning level and a cap for the planned day.
+ * children, 8 with them. A warning level (the plan says so when a day goes
+ * past it); with swapping drivers it is also the cap for the day.
  */
 export function healthDayLimitH(prefs: TripPreferences): number {
   if (swapActive(prefs)) {
@@ -188,16 +189,14 @@ export function drivingDayLimits(prefs: TripPreferences): DrivingDayLimits {
       overnightAtMin: 24 * 60,
     };
   }
-  // Swapping already lifts the limit through healthDayLimitH.
-  const extraHours = prefs.drivers >= 2 && !swapActive(prefs) ? 2 : 0;
+  // A day is used from the early start until the evening, so the driver's own
+  // maximum rules (default 12 h). The 10 h / 8 h with children level only
+  // raises a warning (`healthDayLimitH`). Swapping lifts the day to the swap limit.
   const comfortCut = prefs.car_comfort === "compact" ? COMPACT_DAY_CUT_H : 0;
   const baseHours = swapActive(prefs)
     ? healthDayLimitH(prefs)
-    : Math.min(prefs.max_driving_hours, healthDayLimitH(prefs));
-  const hours = Math.max(
-    4,
-    Math.min(14, baseHours + extraHours - comfortCut)
-  );
+    : prefs.max_driving_hours;
+  const hours = Math.max(4, Math.min(16, baseHours - comfortCut));
   const after = Math.round(hours * 60);
   return {
     overnight: true,

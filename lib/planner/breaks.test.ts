@@ -102,16 +102,27 @@ describe("mergeDrivingBreaks", () => {
 describe("wakeAt", () => {
   const tz = "Europe/Sofia";
 
-  it("after 18:00 Sofia sleeps until 08:00 the next morning", () => {
+  it("an evening stop at 18:00 sleeps until the window ends at 05:00", () => {
     const arrival = new Date("2026-11-16T16:00:00.000Z");
     const wake = wakeAt(arrival, tz);
-    expect(wake.toISOString()).toBe("2026-11-17T06:00:00.000Z");
+    expect(wake.toISOString()).toBe("2026-11-17T03:00:00.000Z");
   });
 
-  it("after 23:30 Sofia sleeps until 08:00", () => {
+  it("a stop at 22:00 sleeps the full eight hours", () => {
+    const arrival = new Date("2026-11-16T20:00:00.000Z");
+    expect(wakeAt(arrival, tz).toISOString()).toBe("2026-11-17T04:00:00.000Z");
+  });
+
+  it("a stop at 23:30 wakes at 07:00 with seven and a half hours", () => {
     const arrival = new Date("2026-11-16T21:30:00.000Z");
     const wake = wakeAt(arrival, tz);
-    expect(wake.toISOString()).toBe("2026-11-17T06:00:00.000Z");
+    expect(wake.toISOString()).toBe("2026-11-17T05:00:00.000Z");
+  });
+
+  it("a very late stop keeps six hours at least", () => {
+    const arrival = new Date("2026-11-16T23:30:00.000Z"); // 01:30 Sofia
+    const wake = wakeAt(arrival, tz);
+    expect(wake.getTime() - arrival.getTime()).toBeGreaterThanOrEqual(6 * 3_600_000);
   });
 
   it("arriving by day after a night drive rests eight hours, not until tomorrow", () => {
@@ -127,20 +138,12 @@ describe("wakeAt", () => {
     expect(wake.toISOString()).toBe("2026-11-16T11:00:00.000Z");
   });
 
-  it("uses Budapest local 08:00 for an overnight in Hungary", () => {
+  it("uses the local window of the country where the stop is", () => {
     const arrival = new Date("2026-11-16T16:00:00.000Z");
     const wakeBudapest = wakeAt(arrival, "Europe/Budapest");
-    expect(wakeBudapest.toISOString()).toBe("2026-11-17T07:00:00.000Z");
+    expect(wakeBudapest.toISOString()).toBe("2026-11-17T04:00:00.000Z");
     const wakeSofia = wakeAt(arrival, "Europe/Sofia");
-    expect(wakeSofia.toISOString()).toBe("2026-11-17T06:00:00.000Z");
-    expect(
-      new Intl.DateTimeFormat("bg-BG", {
-        timeZone: "Europe/Sofia",
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23",
-      }).format(wakeBudapest)
-    ).toBe("09:00");
+    expect(wakeSofia.toISOString()).toBe("2026-11-17T03:00:00.000Z");
     expect(
       new Intl.DateTimeFormat("bg-BG", {
         timeZone: "Europe/Budapest",
@@ -148,7 +151,7 @@ describe("wakeAt", () => {
         minute: "2-digit",
         hourCycle: "h23",
       }).format(wakeBudapest)
-    ).toBe("08:00");
+    ).toBe("05:00");
   });
 });
 
@@ -238,7 +241,7 @@ describe("sleepShifts", () => {
       shifts: anchors,
       extraWaitMin: () => 0,
     });
-    expect(resolved[0]!.sleepMin).toBe(14 * 60);
+    expect(resolved[0]!.sleepMin).toBe(11 * 60);
     const stopArrival = wallClockEta({
       departAt: depart,
       drivingMin: 600,
@@ -252,9 +255,9 @@ describe("sleepShifts", () => {
       extraWaitMin: 0,
       sleepShifts: resolved,
     });
-    expect(destination.toISOString()).toBe("2026-11-17T10:40:00.000Z");
+    expect(destination.toISOString()).toBe("2026-11-17T07:40:00.000Z");
     expect(sleepMinutesBefore(600, resolved)).toBe(0);
-    expect(sleepMinutesBefore(601, resolved)).toBe(14 * 60);
+    expect(sleepMinutesBefore(601, resolved)).toBe(11 * 60);
   });
 });
 
