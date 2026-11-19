@@ -16,6 +16,8 @@ import { EuropePointSchema } from "@/lib/server/geo-schema";
 import {
   airbnbSearchUrl,
   bookingSearchUrl,
+  googleMapsHotelsUrl,
+  tripadvisorSearchUrl,
   isoDay,
   nextDay,
 } from "@/lib/utils/stay-links";
@@ -97,6 +99,7 @@ export async function GET(request: NextRequest) {
   const linkQuery = {
     ...stayQuery,
     place: cityName?.includes(",") ? cityName : stayQuery.place,
+    pets: q.pet === "1",
   };
   let tripadvisorError: string | null = null;
   // Hotel prices for the same city, night and party are shared for a while, so
@@ -159,6 +162,8 @@ export async function GET(request: NextRequest) {
       links: {
         booking: bookingSearchUrl(linkQuery, affiliateId),
         airbnb: airbnbSearchUrl(linkQuery),
+        tripadvisor: tripadvisorSearchUrl(linkQuery),
+        google_maps: googleMapsHotelsUrl(linkQuery),
         booking_partner: Boolean(affiliateId),
       },
       tripadvisor: stays,

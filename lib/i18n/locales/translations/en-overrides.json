@@ -902,5 +902,36 @@
   },
   "mapControls": {
     "onlyThis": "Only this"
+  },
+  "aiPlan": {
+    "back": "Back to the plan",
+    "button": "Create a plan with AI",
+    "buttonHint": "Opens a separate page with a written plan, hotels and links. Nothing is sent to the AI until you open it.",
+    "hotels": "Where to sleep",
+    "hotelsNone": "This plan has no overnight stop.",
+    "noPlan": "There is no calculated route. Calculate a route first.",
+    "offlineNote": "No connection for suggested hotels; you can open the platforms below.",
+    "petBadge": "with a pet",
+    "petNote": "You travel with a pet: searches use a pet filter where the platform supports it. If it is not applied, turn on “Pets allowed”.",
+    "platforms": "Search yourself",
+    "retry": "Try again",
+    "title": "AI plan",
+    "working": "Writing the plan…"
+  },
+  "compare": {
+    "alt": "Alternative: {label}",
+    "avoids_countries": "does not pass through: {countries}",
+    "fewer_tolls": "no road toll in: {countries}",
+    "fewer_vignettes": "no vignette in: {countries}",
+    "first": "First choice: {label}",
+    "less_wait": "less waiting at the border (by {time})",
+    "noAlt": "There is no other sensible alternative for this trip.",
+    "shorter_distance": "shorter by {km} km",
+    "shorter_drive": "less driving (by {time})",
+    "shorter_total": "less total time (by {time})",
+    "similar": "The two roads are almost equal; choose by border, charges and habit.",
+    "trade": "What you give up with it",
+    "whyAlt": "Why consider the alternative",
+    "whyFirst": "Why we recommend it"
   }
 }

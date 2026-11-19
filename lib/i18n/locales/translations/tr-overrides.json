@@ -904,5 +904,36 @@
   },
   "mapControls": {
     "onlyThis": "Sadece bu"
+  },
+  "aiPlan": {
+    "back": "Plana dön",
+    "button": "Yapay zekâyla plan oluştur",
+    "buttonHint": "Yazılı plan, oteller ve bağlantılarla ayrı bir sayfa açar. Siz açana kadar yapay zekâya hiçbir şey gönderilmez.",
+    "hotels": "Nerede kalınır",
+    "hotelsNone": "Bu planda geceleme yok.",
+    "noPlan": "Hesaplanmış rota yok. Önce bir rota hesaplayın.",
+    "offlineNote": "Önerilen oteller için bağlantı yok; aşağıdaki platformları açabilirsiniz.",
+    "petBadge": "evcil hayvanlı",
+    "petNote": "Evcil hayvanla seyahat ediyorsunuz: arama, platform destekliyorsa evcil hayvan filtresiyle yapılır. Uygulanmazsa “Evcil hayvan kabul edilir” seçeneğini açın.",
+    "platforms": "Kendiniz arayın",
+    "retry": "Tekrar dene",
+    "title": "Yapay zekâ planı",
+    "working": "Plan yazılıyor…"
+  },
+  "compare": {
+    "alt": "Alternatif: {label}",
+    "avoids_countries": "şuradan geçmez: {countries}",
+    "fewer_tolls": "şu ülkelerde yol ücreti yok: {countries}",
+    "fewer_vignettes": "şu ülkelerde vinyet yok: {countries}",
+    "first": "Birinci seçenek: {label}",
+    "less_wait": "sınırda daha az bekleme ({time})",
+    "noAlt": "Bu yolculuk için başka mantıklı bir alternatif yok.",
+    "shorter_distance": "{km} km daha kısa",
+    "shorter_drive": "daha az sürüş ({time})",
+    "shorter_total": "daha az toplam süre ({time})",
+    "similar": "İki yol neredeyse eşit; sınır, ücret ve alışkanlığa göre seçin.",
+    "trade": "Bununla neyi kaybedersiniz",
+    "whyAlt": "Alternatifi neden düşünmelisiniz",
+    "whyFirst": "Neden öneriyoruz"
   }
 }
