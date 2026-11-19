@@ -25,9 +25,12 @@ import type { TripPlannerResult } from "@/lib/planner/types";
 import { useTripGuideStore } from "@/lib/stores/trip-guide.store";
 import { useUserStore } from "@/lib/stores/user.store";
 
+/** The PDF waits this long for the AI text, then makes the plain one. */
+export const PDF_AI_WAIT_MS = 45_000;
+
 export type PdfState =
   | { status: "idle" }
-  | { status: "working" }
+  | { status: "working"; stage: "text" | "file" }
   | { status: "done"; saved: "profile" | "signed-out" | "failed" }
   | { status: "failed" };
 
@@ -37,11 +40,14 @@ export async function fetchGuide(
   locale: Parameters<typeof guideInputFromPlan>[1],
   countries: string[],
   via: string[] = [],
-  chosenSights: PlanSight[] = []
+  chosenSights: PlanSight[] = [],
+  /** Give up after this long (the PDF falls back to the plain summary). */
+  timeoutMs?: number
 ): Promise<{ guide: TripGuide | null; available: boolean }> {
   try {
     const response = await fetch("/api/ai/trip-guide", {
       method: "POST",
+      signal: timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(guideInputFromPlan(plan, locale, countries, via, chosenSights)),
     });
@@ -81,7 +87,7 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
   const planKey = checklistPlanKey(plan);
 
   const run = useCallback(async () => {
-    setState({ status: "working" });
+    setState({ status: "working", stage: "text" });
     try {
       const store = useTripGuideStore.getState();
       const chosen = chosenSightsFor(plan);
@@ -93,11 +99,15 @@ export function useTripPdf(plan: TripPlannerResult, checks: Record<string, boole
           locale,
           routeCountries(plan),
           useRouteStore.getState().planningVia.map((point) => point.label),
-          chosen
+          chosen,
+          PDF_AI_WAIT_MS
         );
         guide = result.guide;
         if (guide) store.setGuide(guideKey, guide);
       }
+      // Let the screen show the next step before the heavy, blocking part starts.
+      setState({ status: "working", stage: "file" });
+      await new Promise((resolve) => setTimeout(resolve, 50));
       const labels: PlanPdfLabels = {
         checklistTitle: m.pdf.checklistTitle,
         checklistHint: m.pdf.checklistHint,

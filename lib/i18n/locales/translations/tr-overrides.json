@@ -661,7 +661,8 @@
     "evNote": "Yoğun saatler bir göstergedir (hafta içi iş gidiş-dönüşü, hafta sonu öğle), şarj istasyonu için canlı veri değildir.",
     "evPeak": "Genellikle yoğun (iş dönüşü veya hafta sonu). İşletmeci rezervasyona izin veriyorsa uygulaması üzerinden yapın; aksi hâlde kısa süre önce doluluğu kontrol edin ve ikinci bir istasyon için yeterli şarj bırakın.",
     "evPeakBadge": "Yoğun saat",
-    "evTitle": "Elektrikli aracı şarj etme"
+    "evTitle": "Elektrikli aracı şarj etme",
+    "noStationPrice": "İstasyonun kendi fiyatı yok; ortalamayı bekleyin:"
   },
   "hotel": {
     "areaOnly": "Haritada belirli bir otel yok. Aşağıdaki bölge önerilerine bakın."
@@ -692,7 +693,9 @@
     "preparing": "PDF hazırlanıyor…",
     "savedToProfile": "Kontrol listesi profilinizde “Kontrol listelerim” altında kayıtlı.",
     "sleepCheck": "Rezervasyondan önce kontrol edin",
-    "sleepWhere": "Konaklama"
+    "sleepWhere": "Konaklama",
+    "building": "Dosya hazırlanıyor…",
+    "writingText": "Metin yapay zekâyla yazılıyor…"
   },
   "community": {
     "closeComposer": "Kapat",
@@ -946,7 +949,7 @@
     "busyLight": "Rahat (15 dk'ya kadar)",
     "busyMedium": "Orta (15–45 dk)",
     "clear": "Filtreleri temizle",
-    "country": "Ülke",
+    "country": "Ülke 1",
     "max": "En fazla 3 sabit kapı. Başka birini sabitlemek için birini kaldırın.",
     "noMatch": "Bu filtrelere uyan kapı yok.",
     "others": "Diğer kapılar",
@@ -956,6 +959,8 @@
     "sort": "Sıralama",
     "sortDefault": "Listelendiği gibi",
     "sortWait": "En kısa bekleme",
-    "unpin": "Sabitlemeyi kaldır"
+    "unpin": "Sabitlemeyi kaldır",
+    "anyNeighbour": "Hepsi",
+    "neighbour": "Komşusu"
   }
 }

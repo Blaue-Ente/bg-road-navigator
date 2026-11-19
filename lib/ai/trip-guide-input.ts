@@ -23,6 +23,8 @@ function stopFacts(stop: PlanStop): string[] {
   if (stop.reason) facts.push(stop.reason.slice(0, 160));
   if (stop.brand) facts.push(`brand ${stop.brand}`.slice(0, 160));
   if (stop.price_label_bg) facts.push(stop.price_label_bg.slice(0, 160));
+  // No price for the station itself: the country average is the price to expect.
+  else if (stop.average_label_bg) facts.push(`no station price; ${stop.average_label_bg}`.slice(0, 160));
   if (stop.price_delta_label_bg) facts.push(stop.price_delta_label_bg.slice(0, 160));
   for (const flag of stop.flags.slice(0, 3)) {
     facts.push(`drivers flagged: ${flag.flag}`);

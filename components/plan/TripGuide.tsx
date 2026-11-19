@@ -93,6 +93,10 @@ export function TripGuide({
                     <p className="text-[var(--waze-text-secondary)]">
                       {stop.price_label_bg}
                     </p>
+                  ) : stop.average_label_bg ? (
+                    <p className="text-[var(--waze-text-secondary)]">
+                      {m.guide.noStationPrice} {stop.average_label_bg}
+                    </p>
                   ) : null}
                 </li>
               );
@@ -199,7 +203,11 @@ export function TripGuide({
           className="waze-btn-primary inline-flex min-h-11 items-center gap-2 px-4 text-sm disabled:opacity-50"
         >
           <FileDown className="h-4 w-4" aria-hidden />
-          {pdf.state.status === "working" ? m.pdf.preparing : m.pdf.download}
+          {pdf.state.status === "working"
+            ? pdf.state.stage === "text"
+              ? m.pdf.writingText
+              : m.pdf.building
+            : m.pdf.download}
         </button>
         {pdf.state.status === "failed" && (
           <p className="text-xs text-[var(--waze-danger)]">{m.pdf.failed}</p>

@@ -3150,10 +3150,10 @@
   "Alte puncte"
  ],
  "borderPins.country": [
-  "Държава",
-  "Country",
-  "Ülke",
-  "Țară"
+  "Държава 1",
+  "Country 1",
+  "Ülke 1",
+  "Țara 1"
  ],
  "borderPins.allCountries": [
   "Всички държави",
@@ -3220,5 +3220,35 @@
   "Clear filters",
   "Filtreleri temizle",
   "Șterge filtrele"
+ ],
+ "guide.noStationPrice": [
+  "Няма цена за самата станция, очаквайте средно:",
+  "No price for the station itself; expect the average:",
+  "İstasyonun kendi fiyatı yok; ortalamayı bekleyin:",
+  "Nu există preț pentru stație; așteptați media:"
+ ],
+ "pdf.writingText": [
+  "Пишем текста с ИИ…",
+  "Writing the text with AI…",
+  "Metin yapay zekâyla yazılıyor…",
+  "Scriem textul cu IA…"
+ ],
+ "pdf.building": [
+  "Сглобяваме файла…",
+  "Building the file…",
+  "Dosya hazırlanıyor…",
+  "Construim fișierul…"
+ ],
+ "borderPins.neighbour": [
+  "Граничи с",
+  "Borders with",
+  "Komşusu",
+  "Se învecinează cu"
+ ],
+ "borderPins.anyNeighbour": [
+  "Коя да е",
+  "Any",
+  "Hepsi",
+  "Oricare"
  ]
 }

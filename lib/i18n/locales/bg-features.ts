@@ -31,14 +31,16 @@ export const bgFeatures = {
   },
   borderPins: {
     allCountries: "Всички държави",
+    anyNeighbour: "Коя да е",
     busy: "Заетост",
     busyAll: "Всякаква",
     busyHeavy: "Натоварено (над 45 мин)",
     busyLight: "Свободно (до 15 мин)",
     busyMedium: "Средно (15–45 мин)",
     clear: "Махни филтрите",
-    country: "Държава",
+    country: "Държава 1",
     max: "Най-много 3 закачени пункта. Откачете един, за да закачите друг.",
+    neighbour: "Граничи с",
     noMatch: "Няма пунктове по тези филтри.",
     others: "Други пунктове",
     pin: "Закачи",
@@ -235,6 +237,7 @@ export const bgFeatures = {
     fuelTitle: "Бензиностанции по пътя",
     lead: "Спирките за гориво, веригите за бързо хранене по пътя и, с ИИ, къде да спите и какво да ядете според това кой пътува.",
     mealsTitle: "Хранене по пътя",
+    noStationPrice: "Няма цена за самата станция, очаквайте средно:",
     openMap: "Карта",
     overnightTitle: "Къде да спите и защо",
     reason: {
@@ -349,6 +352,7 @@ export const bgFeatures = {
   pdf: {
     aiFootnote: "Текстът е написан от ИИ по данните на плана. Провери важното по официалните източници.",
     arrivalWord: "пристигане",
+    building: "Сглобяваме файла…",
     checklistHint: "Отбележи готовото. Копие се пази и в профила, в „Моите чек листове“.",
     checklistTitle: "Чек лист за пътуването",
     download: "Свали PDF (план и чек лист)",
@@ -361,6 +365,7 @@ export const bgFeatures = {
     savedToProfile: "Чек листът е запазен в профила ти, в „Моите чек листове“.",
     sleepCheck: "Провери преди да резервираш",
     sleepWhere: "Нощувка",
+    writingText: "Пишем текста с ИИ…",
   },
   planner: {
     checklist: {
