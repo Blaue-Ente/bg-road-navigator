@@ -34,6 +34,7 @@ export function TopBar({ user }: TopBarProps) {
     "/tips": m.nav.tips,
     "/profile": m.nav.profilePage,
     "/settings": m.nav.settings,
+    "/plan/ai": m.aiPlan.title,
     "/vignettes": m.nav.vignettes,
     "/setup": operatorSetup ? m.nav.setup : m.nav.services,
   };

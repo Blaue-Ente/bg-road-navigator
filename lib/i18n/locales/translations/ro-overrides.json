@@ -907,5 +907,36 @@
   },
   "mapControls": {
     "onlyThis": "Doar asta"
+  },
+  "aiPlan": {
+    "back": "Înapoi la plan",
+    "button": "Creează un plan cu IA",
+    "buttonHint": "Deschide o pagină separată cu planul scris, hoteluri și linkuri. Nimic nu se trimite către IA până nu o deschideți.",
+    "hotels": "Unde să dormiți",
+    "hotelsNone": "Acest plan nu are oprire de noapte.",
+    "noPlan": "Nu există un traseu calculat. Calculați mai întâi un traseu.",
+    "offlineNote": "Nu există conexiune pentru hoteluri sugerate; puteți deschide platformele de mai jos.",
+    "petBadge": "cu animal",
+    "petNote": "Călătoriți cu un animal: căutările folosesc filtrul pentru animale unde platforma îl are. Dacă nu se aplică, activați „Animale acceptate”.",
+    "platforms": "Căutați singuri",
+    "retry": "Încearcă din nou",
+    "title": "Plan cu IA",
+    "working": "Scriem planul…"
+  },
+  "compare": {
+    "alt": "Alternativă: {label}",
+    "avoids_countries": "nu trece prin: {countries}",
+    "fewer_tolls": "fără taxă de drum în: {countries}",
+    "fewer_vignettes": "fără rovinietă în: {countries}",
+    "first": "Prima alegere: {label}",
+    "less_wait": "mai puțină așteptare la frontieră (cu {time})",
+    "noAlt": "Pentru această călătorie nu există o altă alternativă rezonabilă.",
+    "shorter_distance": "mai scurt cu {km} km",
+    "shorter_drive": "mai puțin condus (cu {time})",
+    "shorter_total": "mai puțin timp total (cu {time})",
+    "similar": "Cele două drumuri sunt aproape egale; alegeți după frontieră, taxe și obicei.",
+    "trade": "Ce pierdeți cu ea",
+    "whyAlt": "De ce să luați în calcul alternativa",
+    "whyFirst": "De ce îl recomandăm"
   }
 }

@@ -19,9 +19,8 @@ import { checklistPlanKey } from "@/lib/pdf/plan-pdf";
 import { useUserStore } from "@/lib/stores/user.store";
 import { useDialogFocus } from "@/components/plan/useDialogFocus";
 import { PlanRoadNotes } from "@/components/plan/PlanRoadNotes";
-import { AiTripNote } from "@/components/plan/AiTripNote";
+import { RouteCompare } from "@/components/plan/RouteCompare";
 import { weatherSegmentsForDisplay } from "@/lib/planner/road-notes-view";
-import { formatTemplate } from "@/lib/i18n/format-template";
 import { showAllWeatherLabel } from "@/lib/i18n/show-all-labels";
 import {
   currentLocationPreference,
@@ -389,7 +388,7 @@ function DetailBody({
         <p className="mt-1 text-sm leading-relaxed text-[var(--waze-text-secondary)]">
           {summary || m.sheet.whyEmpty}
         </p>
-        <AiTripNote plan={plan} />
+        <RouteCompare plan={plan} />
       </section>
 
       <StopTimeline

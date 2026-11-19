@@ -1,18 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { BedDouble } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BedDouble, Building2, Home, MapPin, Star } from "lucide-react";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import type { RouteStackHotel } from "@/lib/api-clients/routestack";
 import type { TripadvisorStay } from "@/lib/api-clients/tripadvisor";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import type { PlanStop } from "@/lib/planner/types";
 import { useRouteStore } from "@/lib/stores/route.store";
-import { isoDay } from "@/lib/utils/stay-links";
+import {
+  airbnbSearchUrl,
+  bookingSearchUrl,
+  googleMapsHotelsUrl,
+  isoDay,
+  nextDay,
+  tripadvisorSearchUrl,
+  type StayQuery,
+} from "@/lib/utils/stay-links";
 
 interface StaysPayload {
   place: string;
-  links: { booking: string; airbnb: string; booking_partner: boolean };
+  links: {
+    booking: string;
+    airbnb: string;
+    tripadvisor?: string;
+    google_maps?: string;
+    booking_partner: boolean;
+  };
   tripadvisor: TripadvisorStay[] | null;
   tripadvisor_configured: boolean;
   available_hotels: { ok: boolean; items: RouteStackHotel[] } | null;
@@ -20,7 +34,14 @@ interface StaysPayload {
 }
 
 /** Where to sleep at an overnight stop: ratings, a short AI note, and booking links. */
-export function StayOptions({ stop }: { stop: PlanStop }) {
+export function StayOptions({
+  stop,
+  autoLoad = false,
+}: {
+  stop: PlanStop;
+  /** Look up the places as soon as the card shows (the AI plan page). */
+  autoLoad?: boolean;
+}) {
   const m = useMessages();
   const locale = useLocale();
   const prefs = useRouteStore((state) => state.tripPlan?.preferences);
@@ -55,6 +76,16 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
     }
   };
 
+  useEffect(() => {
+    if (autoLoad && state.status === "idle") queueMicrotask(() => void load());
+    // The lookup runs once per card.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoLoad]);
+
+  if (autoLoad && state.status === "failed") {
+    return <StayPlatforms stop={stop} prefs={prefs} data={null} offline />;
+  }
+
   if (state.status !== "done") {
     return (
       <div className="plan-no-print mt-2">
@@ -75,8 +106,6 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
   }
 
   const { data } = state;
-  const link =
-    "inline-flex min-h-11 items-center rounded-full bg-[var(--waze-accent)] px-4 text-sm font-semibold text-white";
   return (
     <div className="plan-no-print mt-2 space-y-2">
       <p className="text-sm font-medium text-[var(--waze-text)]">
@@ -196,27 +225,91 @@ export function StayOptions({ stop }: { stop: PlanStop }) {
       {!data.tripadvisor && data.tripadvisor_configured && (
         <p className="text-xs text-[var(--waze-text-muted)]">{m.stay.ratingsUnavailable}</p>
       )}
-      <div className="flex flex-wrap gap-2">
-        <a
-          href={data.links.booking}
-          target="_blank"
-          rel={`noopener noreferrer${data.links.booking_partner ? " sponsored" : ""}`}
-          className={link}
-        >
-          Booking.com
-        </a>
-        <a
-          href={data.links.airbnb}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={link}
-        >
-          Airbnb
-        </a>
-      </div>
+      <StayPlatforms stop={stop} prefs={prefs} data={data} />
       <p className="text-xs text-[var(--waze-text-muted)]">
         {data.links.booking_partner ? m.stay.partnerNote : m.stay.searchNote}
       </p>
+    </div>
+  );
+}
+
+type Prefs = NonNullable<ReturnType<typeof useRouteStore.getState>["tripPlan"]>["preferences"];
+
+function fallbackLinks(stop: PlanStop, prefs: Prefs | undefined) {
+  const childAges = prefs?.with_children ? prefs.children_ages.slice(0, 6) : [];
+  const query: StayQuery = {
+    place: stop.place_name ?? stop.title,
+    lat: stop.coords.lat,
+    lng: stop.coords.lng,
+    checkin: isoDay(stop.eta),
+    checkout: nextDay(isoDay(stop.eta)),
+    adults: Math.max(prefs?.adults ?? 1, prefs?.drivers ?? 1),
+    children: prefs?.with_children ? Math.max(1, childAges.length) : 0,
+    childAges,
+    pets: Boolean(prefs?.with_pet),
+  };
+  return {
+    booking: bookingSearchUrl(query),
+    airbnb: airbnbSearchUrl(query),
+    tripadvisor: tripadvisorSearchUrl(query),
+    google_maps: googleMapsHotelsUrl(query),
+    booking_partner: false,
+  };
+}
+
+/** One button per platform, with an icon; the search carries the dates, the party and a pet. */
+function StayPlatforms({
+  stop,
+  prefs,
+  data,
+  offline = false,
+}: {
+  stop: PlanStop;
+  prefs: Prefs | undefined;
+  data: StaysPayload | null;
+  offline?: boolean;
+}) {
+  const m = useMessages();
+  const fallback = fallbackLinks(stop, prefs);
+  const links = {
+    booking: data?.links.booking ?? fallback.booking,
+    airbnb: data?.links.airbnb ?? fallback.airbnb,
+    tripadvisor: data?.links.tripadvisor ?? fallback.tripadvisor,
+    google_maps: data?.links.google_maps ?? fallback.google_maps,
+    partner: data?.links.booking_partner ?? false,
+  };
+  const items = [
+    { name: "Booking.com", href: links.booking, Icon: Building2, partner: links.partner },
+    { name: "Airbnb", href: links.airbnb, Icon: Home, partner: false },
+    { name: "Tripadvisor", href: links.tripadvisor, Icon: Star, partner: false },
+    { name: "Google Maps", href: links.google_maps, Icon: MapPin, partner: false },
+  ];
+  return (
+    <div className="plan-no-print mt-2 space-y-2">
+      {offline && (
+        <p className="text-xs text-[var(--waze-text-muted)]">{m.aiPlan.offlineNote}</p>
+      )}
+      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
+        {m.aiPlan.platforms}
+        {prefs?.with_pet ? ` · ${m.aiPlan.petBadge}` : ""}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {items.map(({ name, href, Icon, partner }) => (
+          <a
+            key={name}
+            href={href}
+            target="_blank"
+            rel={`noopener noreferrer${partner ? " sponsored" : ""}`}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--waze-accent)] px-4 text-sm font-semibold text-white"
+          >
+            <Icon className="h-4 w-4" aria-hidden />
+            {name}
+          </a>
+        ))}
+      </div>
+      {prefs?.with_pet && (
+        <p className="text-xs text-[var(--waze-text-muted)]">{m.aiPlan.petNote}</p>
+      )}
     </div>
   );
 }

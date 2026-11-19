@@ -1,33 +1,15 @@
 "use client";
 
-import { useRouteStore } from "@/lib/stores/route.store";
-import { useMemo, useState } from "react";
+import Link from "next/link";
 import { FileDown, MapPin, Sparkles } from "lucide-react";
-import { TripLoadingIcons } from "@/components/ui/TripLoadingIcons";
-import { StayOptions } from "@/components/plan/StayOptions";
-import {
-  chosenSightsFor,
-  fetchGuide,
-  guideKeyFor,
-  routeCountries,
-  useTripPdf,
-} from "@/components/plan/useTripPdf";
+import { useTripPdf } from "@/components/plan/useTripPdf";
 import { formatWhen } from "@/components/plan/StopTimeline";
-import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
-import type { TripGuide as Guide } from "@/lib/ai/trip-guide";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { formatTemplate } from "@/lib/i18n/format-template";
 import { isPeakChargingTime } from "@/lib/planner/ev-peak";
-import { checklistPlanKey } from "@/lib/pdf/plan-pdf";
-import { useTripGuideStore } from "@/lib/stores/trip-guide.store";
 import { fuelVerdict } from "@/lib/planner/fuel-verdict";
 import type { TripPlannerResult } from "@/lib/planner/types";
 import { googleMapsPlaceUrl } from "@/lib/utils/maps-handoff";
-
-type Ai =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "unavailable" }
-  | { status: "failed" };
 
 /**
  * Practical advice for this group: which planned fuel stops to take or skip,
@@ -43,19 +25,6 @@ export function TripGuide({
   checks: Record<string, boolean>;
 }) {
   const m = useMessages();
-  const locale = useLocale();
-  const [ai, setAi] = useState<Ai>({ status: "idle" });
-  const planKey = checklistPlanKey(plan);
-  const sightsState = useRouteStore((state) => state.sights);
-  const chosen = useMemo(
-    () => chosenSightsFor(plan),
-    // The chosen places live in the store; plan and list decide what is chosen.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [plan, sightsState]
-  );
-  const guideKey = guideKeyFor(planKey, chosen);
-  const guide = useTripGuideStore((state) => state.guides[guideKey] ?? null);
-  const setGuide = useTripGuideStore((state) => state.setGuide);
   const pdf = useTripPdf(plan, checks);
 
   const fuelStops = plan.stops.filter(
@@ -65,22 +34,6 @@ export function TripGuide({
     (stop) => !stop.optional && stop.kinds.includes("charge")
   );
   const foodSpots = plan.food_spots ?? [];
-  const ask = async () => {
-    setAi({ status: "loading" });
-    const result = await fetchGuide(
-      plan,
-      locale,
-      routeCountries(plan),
-      useRouteStore.getState().planningVia.map((point) => point.label),
-      chosen
-    );
-    if (result.guide) {
-      setGuide(guideKey, result.guide);
-      setAi({ status: "idle" });
-    } else if (!result.available) setAi({ status: "unavailable" });
-    else setAi({ status: "failed" });
-  };
-
   const verdictLabel = {
     good: m.guide.verdictGood,
     ok: m.guide.verdictOk,
@@ -228,38 +181,15 @@ export function TripGuide({
         </div>
       )}
 
-      {guide ? <AiGuide plan={plan} guide={guide} /> : null}
-
       <div className="plan-no-print space-y-2">
-        {!guide ? (
-          <>
-            <button
-              type="button"
-              onClick={() => void ask()}
-              disabled={ai.status === "loading"}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--waze-border)] px-4 text-sm font-semibold text-[var(--waze-accent-text)] disabled:opacity-50"
-            >
-              <Sparkles className="h-4 w-4" aria-hidden />
-              {ai.status === "loading" ? m.guide.aiLoading : m.guide.aiAsk}
-            </button>
-            {ai.status === "loading" && (
-              <p className="flex items-center gap-3 text-sm text-[var(--waze-text-secondary)]" role="status">
-                <TripLoadingIcons />
-                {m.guide.aiLoading}
-              </p>
-            )}
-            {ai.status === "unavailable" && (
-              <p className="text-xs text-[var(--waze-text-muted)]">
-                {m.ai.unavailable}
-              </p>
-            )}
-            {ai.status === "failed" && (
-              <p className="text-xs text-[var(--waze-danger)]">
-                {m.guide.aiFailed}
-              </p>
-            )}
-          </>
-        ) : null}
+        <Link
+          href="/plan/ai"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--waze-border)] px-4 text-sm font-semibold text-[var(--waze-accent-text)]"
+        >
+          <Sparkles className="h-4 w-4" aria-hidden />
+          {m.aiPlan.button}
+        </Link>
+        <p className="text-xs text-[var(--waze-text-muted)]">{m.aiPlan.buttonHint}</p>
         <button
           type="button"
           onClick={() => void pdf.run()}
@@ -283,75 +213,5 @@ export function TripGuide({
         )}
       </div>
     </section>
-  );
-}
-
-function AiGuide({ plan, guide }: { plan: TripPlannerResult; guide: Guide }) {
-  const m = useMessages();
-  return (
-    <div className="space-y-3">
-      {guide.title ? (
-        <h4 className="text-base font-semibold text-[var(--waze-text)]">
-          {guide.title}
-        </h4>
-      ) : null}
-      {guide.intro ? (
-        <p className="text-sm leading-relaxed text-[var(--waze-text)]">
-          {guide.intro}
-        </p>
-      ) : null}
-      {guide.sections.map((section) => (
-        <div key={section.heading}>
-          <h5 className="text-sm font-semibold text-[var(--waze-accent-text)]">
-            {section.heading}
-          </h5>
-          <p className="mt-0.5 whitespace-pre-line text-sm leading-relaxed text-[var(--waze-text)]">
-            {section.text}
-          </p>
-        </div>
-      ))}
-      {guide.overnight.length > 0 && (
-        <div>
-          <h4 className="text-sm font-semibold text-[var(--waze-text)]">
-            {m.guide.overnightTitle}
-          </h4>
-          {guide.overnight.map((entry) => {
-            const stop = plan.stops.find((item) => item.id === entry.stop_id);
-            return (
-              <div
-                key={entry.stop_id}
-                className="mt-2 rounded-xl bg-[var(--waze-surface-elevated)] p-3 text-sm text-[var(--waze-text)]"
-              >
-                <p className="font-medium">{entry.where}</p>
-                {entry.why ? (
-                  <p className="mt-0.5 text-[var(--waze-text-secondary)]">
-                    {entry.why}
-                  </p>
-                ) : null}
-                {entry.check.length > 0 && (
-                  <>
-                    <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-[var(--waze-text-muted)]">
-                      {m.guide.check}
-                    </p>
-                    <ul className="list-disc space-y-0.5 pl-5 text-[var(--waze-text-secondary)]">
-                      {entry.check.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-                {stop ? <StayOptions stop={stop} /> : null}
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {guide.closing ? (
-        <p className="text-sm font-medium text-[var(--waze-text)]">
-          {guide.closing}
-        </p>
-      ) : null}
-      <p className="text-xs text-[var(--waze-text-muted)]">{m.ai.disclaimer}</p>
-    </div>
   );
 }

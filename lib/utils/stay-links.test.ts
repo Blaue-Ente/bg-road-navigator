@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { airbnbSearchUrl, bookingSearchUrl } from "@/lib/utils/stay-links";
+import {
+  airbnbSearchUrl,
+  bookingSearchUrl,
+  googleMapsHotelsUrl,
+  tripadvisorSearchUrl,
+} from "@/lib/utils/stay-links";
 
 const query = {
   place: "Arad, Romania",
@@ -42,5 +47,25 @@ describe("party size in the Booking link", () => {
 
   it("uses one room for up to two adults", () => {
     expect(new URL(bookingSearchUrl({ ...query, adults: 2 })).searchParams.get("no_rooms")).toBe("1");
+  });
+});
+
+describe("travelling with a pet", () => {
+  it("asks for pet-friendly places on each platform", () => {
+    expect(new URL(bookingSearchUrl({ ...query, pets: true })).searchParams.get("nflt")).toBe(
+      "hotelfacility=4"
+    );
+    expect(new URL(airbnbSearchUrl({ ...query, pets: true })).searchParams.get("pets")).toBe("1");
+    expect(decodeURIComponent(tripadvisorSearchUrl({ ...query, pets: true }))).toContain(
+      "pet friendly hotels Arad"
+    );
+    expect(decodeURIComponent(googleMapsHotelsUrl({ ...query, pets: true }))).toContain(
+      "pet friendly hotels near"
+    );
+  });
+
+  it("adds nothing without a pet", () => {
+    expect(new URL(bookingSearchUrl(query)).searchParams.has("nflt")).toBe(false);
+    expect(new URL(airbnbSearchUrl(query)).searchParams.has("pets")).toBe(false);
   });
 });

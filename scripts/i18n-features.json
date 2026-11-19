@@ -2938,5 +2938,167 @@
   "The start is in the evening or at night: drivers swap after about 5–6 hours, and a longer rest is planned by day.",
   "Yola akşam veya gece çıkılıyor: sürücüler yaklaşık 5–6 saatte bir değişir ve gündüz daha uzun bir mola planlanır.",
   "Plecarea este seara sau noaptea: șoferii se schimbă după circa 5–6 ore, iar ziua este planificată o pauză mai lungă."
+ ],
+ "compare.first": [
+  "Първи избор: {label}",
+  "First choice: {label}",
+  "Birinci seçenek: {label}",
+  "Prima alegere: {label}"
+ ],
+ "compare.alt": [
+  "Алтернатива: {label}",
+  "Alternative: {label}",
+  "Alternatif: {label}",
+  "Alternativă: {label}"
+ ],
+ "compare.whyFirst": [
+  "Защо го препоръчваме",
+  "Why we recommend it",
+  "Neden öneriyoruz",
+  "De ce îl recomandăm"
+ ],
+ "compare.whyAlt": [
+  "Защо да обмислите алтернативата",
+  "Why consider the alternative",
+  "Alternatifi neden düşünmelisiniz",
+  "De ce să luați în calcul alternativa"
+ ],
+ "compare.trade": [
+  "Какво губите с нея",
+  "What you give up with it",
+  "Bununla neyi kaybedersiniz",
+  "Ce pierdeți cu ea"
+ ],
+ "compare.noAlt": [
+  "За този път няма друга смислена алтернатива.",
+  "There is no other sensible alternative for this trip.",
+  "Bu yolculuk için başka mantıklı bir alternatif yok.",
+  "Pentru această călătorie nu există o altă alternativă rezonabilă."
+ ],
+ "compare.similar": [
+  "Двата пътя са почти равни; изберете по граница, такси и навик.",
+  "The two roads are almost equal; choose by border, charges and habit.",
+  "İki yol neredeyse eşit; sınır, ücret ve alışkanlığa göre seçin.",
+  "Cele două drumuri sunt aproape egale; alegeți după frontieră, taxe și obicei."
+ ],
+ "compare.shorter_distance": [
+  "по-кратък с {km} км",
+  "shorter by {km} km",
+  "{km} km daha kısa",
+  "mai scurt cu {km} km"
+ ],
+ "compare.shorter_total": [
+  "по-малко общо време (с {time})",
+  "less total time (by {time})",
+  "daha az toplam süre ({time})",
+  "mai puțin timp total (cu {time})"
+ ],
+ "compare.shorter_drive": [
+  "по-малко шофиране (с {time})",
+  "less driving (by {time})",
+  "daha az sürüş ({time})",
+  "mai puțin condus (cu {time})"
+ ],
+ "compare.less_wait": [
+  "по-малко чакане на границата (с {time})",
+  "less waiting at the border (by {time})",
+  "sınırda daha az bekleme ({time})",
+  "mai puțină așteptare la frontieră (cu {time})"
+ ],
+ "compare.fewer_tolls": [
+  "без такса за път в: {countries}",
+  "no road toll in: {countries}",
+  "şu ülkelerde yol ücreti yok: {countries}",
+  "fără taxă de drum în: {countries}"
+ ],
+ "compare.fewer_vignettes": [
+  "без винетка в: {countries}",
+  "no vignette in: {countries}",
+  "şu ülkelerde vinyet yok: {countries}",
+  "fără rovinietă în: {countries}"
+ ],
+ "compare.avoids_countries": [
+  "не минава през: {countries}",
+  "does not pass through: {countries}",
+  "şuradan geçmez: {countries}",
+  "nu trece prin: {countries}"
+ ],
+ "aiPlan.button": [
+  "Създай план с ИИ",
+  "Create a plan with AI",
+  "Yapay zekâyla plan oluştur",
+  "Creează un plan cu IA"
+ ],
+ "aiPlan.buttonHint": [
+  "Отваря отделна страница с написан план, хотели и линкове. Нищо не се праща към ИИ, докато не го отворите.",
+  "Opens a separate page with a written plan, hotels and links. Nothing is sent to the AI until you open it.",
+  "Yazılı plan, oteller ve bağlantılarla ayrı bir sayfa açar. Siz açana kadar yapay zekâya hiçbir şey gönderilmez.",
+  "Deschide o pagină separată cu planul scris, hoteluri și linkuri. Nimic nu se trimite către IA până nu o deschideți."
+ ],
+ "aiPlan.title": [
+  "План с ИИ",
+  "AI plan",
+  "Yapay zekâ planı",
+  "Plan cu IA"
+ ],
+ "aiPlan.back": [
+  "Към плана",
+  "Back to the plan",
+  "Plana dön",
+  "Înapoi la plan"
+ ],
+ "aiPlan.noPlan": [
+  "Няма изчислен маршрут. Изчислете първо маршрут.",
+  "There is no calculated route. Calculate a route first.",
+  "Hesaplanmış rota yok. Önce bir rota hesaplayın.",
+  "Nu există un traseu calculat. Calculați mai întâi un traseu."
+ ],
+ "aiPlan.working": [
+  "Пишем плана…",
+  "Writing the plan…",
+  "Plan yazılıyor…",
+  "Scriem planul…"
+ ],
+ "aiPlan.retry": [
+  "Опитай пак",
+  "Try again",
+  "Tekrar dene",
+  "Încearcă din nou"
+ ],
+ "aiPlan.hotels": [
+  "Къде да спите",
+  "Where to sleep",
+  "Nerede kalınır",
+  "Unde să dormiți"
+ ],
+ "aiPlan.hotelsNone": [
+  "В този план няма нощувка.",
+  "This plan has no overnight stop.",
+  "Bu planda geceleme yok.",
+  "Acest plan nu are oprire de noapte."
+ ],
+ "aiPlan.platforms": [
+  "Потърсете сами",
+  "Search yourself",
+  "Kendiniz arayın",
+  "Căutați singuri"
+ ],
+ "aiPlan.petNote": [
+  "Пътувате с домашен любимец: търсенията са с филтър за любимци, където платформата го поддържа. Ако не се приложи, включете „Допускат се домашни любимци“.",
+  "You travel with a pet: searches use a pet filter where the platform supports it. If it is not applied, turn on “Pets allowed”.",
+  "Evcil hayvanla seyahat ediyorsunuz: arama, platform destekliyorsa evcil hayvan filtresiyle yapılır. Uygulanmazsa “Evcil hayvan kabul edilir” seçeneğini açın.",
+  "Călătoriți cu un animal: căutările folosesc filtrul pentru animale unde platforma îl are. Dacă nu se aplică, activați „Animale acceptate”."
+ ],
+ "aiPlan.offlineNote": [
+  "Няма връзка за предложени хотели; можете да отворите платформите по-долу.",
+  "No connection for suggested hotels; you can open the platforms below.",
+  "Önerilen oteller için bağlantı yok; aşağıdaki platformları açabilirsiniz.",
+  "Nu există conexiune pentru hoteluri sugerate; puteți deschide platformele de mai jos."
+ ],
+ "aiPlan.petBadge": [
+  "с любимец",
+  "with a pet",
+  "evcil hayvanlı",
+  "cu animal"
  ]
 }
