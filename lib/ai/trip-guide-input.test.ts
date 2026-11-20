@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { alongPoints, leavesAtNight } from "@/lib/ai/trip-guide-input";
+import { alongPoints, leavesAtNight, stopFacts } from "@/lib/ai/trip-guide-input";
+import type { PlanStop } from "@/lib/planner/types";
 
 describe("trip guide input helpers", () => {
   it("spreads towns along a long road and none on a short hop", () => {
@@ -14,5 +15,21 @@ describe("trip guide input helpers", () => {
     expect(leavesAtNight(new Date(2026, 11, 18, 21, 0).toISOString())).toBe(true);
     expect(leavesAtNight(new Date(2026, 11, 18, 3, 0).toISOString())).toBe(true);
     expect(leavesAtNight(new Date(2026, 11, 18, 8, 0).toISOString())).toBe(false);
+  });
+
+  it("keeps a Nakordoni price out of the facts sent to the model", () => {
+    const base = {
+      reason: "fuel",
+      brand: null,
+      flags: [],
+      price_label_bg: "1.52 EUR/l",
+      average_label_bg: null,
+      price_delta_label_bg: "cheap",
+    } as unknown as PlanStop;
+    const own = stopFacts({ ...base, price_source_label_bg: "E-Control" } as PlanStop);
+    expect(own.join(" ")).toContain("1.52");
+    const theirs = stopFacts({ ...base, price_source_label_bg: "Nakordoni" } as PlanStop);
+    expect(theirs.join(" ")).not.toContain("1.52");
+    expect(theirs.join(" ")).not.toContain("cheap");
   });
 });
