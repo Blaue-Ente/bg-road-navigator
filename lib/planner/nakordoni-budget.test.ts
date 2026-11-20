@@ -36,46 +36,41 @@ describe("Nakordoni cache budget", () => {
     expect(multiCallUnits(10, 2)).toBe(5);
   });
 
-  it("refuses Greek and Macedonian crossings, which are not approved on the account", () => {
+  it("refuses Serbian and Turkish crossings even when the origin is Bulgaria", () => {
     expect(isLicensedCheckpointOrigin(12)).toBe(true);
-    expect(isLicensedCheckpointOrigin(13)).toBe(true);
-    expect(isLicensedCheckpointOrigin(14)).toBe(true);
-    expect(isLicensedCheckpointOrigin(5)).toBe(true);
-    expect(isLicensedCheckpointOrigin(19)).toBe(false);
-    expect(isLicensedCheckpointOrigin(15)).toBe(false);
+    expect(isLicensedCheckpointOrigin(19)).toBe(true);
+    expect(isLicensedCheckpointOrigin(13)).toBe(false);
     expect(isLicensedCheckpointOrigin(4)).toBe(false);
+    expect(isLicensedCheckpointOrigin(14)).toBe(false);
     const ppids = corridorCheckpoints().map((row) => row.ppid);
-    for (const ppid of ["id_484", "id_485", "id_400", "id_403"]) {
+    for (const ppid of ["id_384", "id_386", "id_388", "id_390"]) {
       expect(ppids).not.toContain(ppid);
     }
-    for (const ppid of ["id_384", "id_390", "id_289", "id_292"]) {
-      expect(ppids).toContain(ppid);
-    }
     const planned = buildCorridorRefreshJobs({
-      ppids: ["id_484", "id_485", "id_400", "id_403", "id_390"],
+      ppids: ["id_384", "id_386", "id_388", "id_390", "id_484"],
       borderPairs: [
-        { origin: 12, destination: 15, crossingType: 4 },
-        { origin: 12, destination: 19, crossingType: 4 },
-        { origin: 19, destination: 12, crossingType: 4 },
         { origin: 12, destination: 13, crossingType: 4 },
+        { origin: 12, destination: 14, crossingType: 4 },
+        { origin: 13, destination: 12, crossingType: 4 },
+        { origin: 12, destination: 19, crossingType: 4 },
       ],
-      directoryCountries: [15, 19, 12],
+      directoryCountries: [14, 12],
     });
     const keys = planned.map((job) => job.key).join(" ");
-    expect(keys).not.toMatch(/id_484|id_485|id_400|id_403|12:15|12:19/);
-    expect(keys).toContain("id_390");
-    expect(keys).toContain("border:12:13:4");
-    expect(planned.some((job) => job.key === "directory:19")).toBe(false);
+    expect(keys).not.toMatch(/id_384|id_386|id_388|id_390|12:13|12:14/);
+    expect(keys).toContain("id_484");
+    expect(keys).toContain("border:12:19:4");
+    expect(planned.some((job) => job.key === "directory:14")).toBe(false);
     expect(planned.some((job) => job.key === "directory:12")).toBe(true);
   });
 
-  it("honours NAKORDONI_LICENSED_MARKETS when Greece is added", () => {
-    vi.stubEnv("NAKORDONI_LICENSED_MARKETS", "12,5,13,14,19");
+  it("honours NAKORDONI_LICENSED_MARKETS when Serbia and Turkey are added", () => {
+    vi.stubEnv("NAKORDONI_LICENSED_MARKETS", "12,13,14");
     const planned = buildCorridorRefreshJobs({
-      ppids: ["id_390", "id_484"],
+      ppids: ["id_390", "id_384"],
       borderPairs: [
         { origin: 12, destination: 13, crossingType: 4 },
-        { origin: 12, destination: 19, crossingType: 4 },
+        { origin: 12, destination: 14, crossingType: 4 },
       ],
       directoryCountries: [],
     });
@@ -83,17 +78,17 @@ describe("Nakordoni cache budget", () => {
     expect(keys).toEqual(
       expect.arrayContaining([
         "day-stats:id_390",
-        "day-stats:id_484",
+        "day-stats:id_384",
         "forecast:id_390:24",
         "border:12:13:4",
-        "border:12:19:4",
+        "border:12:14:4",
       ])
     );
   });
 
   it("keeps a 401, 403 or 404 job out of the next tick for 24 hours", () => {
     const job = buildCorridorRefreshJobs({
-      ppids: ["id_390"],
+      ppids: ["id_484"],
       borderPairs: [],
       directoryCountries: [],
     }).find((item) => item.kind === "day-stats");
