@@ -2,6 +2,7 @@
 
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { formatTemplate } from "@/lib/i18n/format-template";
+import { quietWindow } from "@/lib/borders/quiet-window";
 
 interface BorderStatsChartProps {
   hourlyData: number[];
@@ -16,6 +17,7 @@ export function BorderStatsChart({
   const resolvedTitle = title ?? m.borders.msg988aa1d065;
   const maxWait = Math.max(...hourlyData, 1);
   const peakHour = hourlyData.indexOf(Math.max(...hourlyData));
+  const quiet = quietWindow(hourlyData);
 
   return (
     <div className="rounded-lg border border-[var(--waze-border)] bg-[var(--waze-surface-elevated)] p-3">
@@ -28,6 +30,15 @@ export function BorderStatsChart({
           minutes: Math.round(hourlyData[peakHour]),
         })}
       </p>
+      {quiet ? (
+        <p className="mb-3 text-xs text-[var(--waze-text-secondary)]">
+          {formatTemplate(m.borders.quietWindow, {
+            from: quiet.from,
+            to: quiet.to % 24,
+            minutes: quiet.minutes,
+          })}
+        </p>
+      ) : null}
       <div className="flex h-24 items-end gap-0.5">
         {hourlyData.map((wait, hour) => {
           const height = Math.max((wait / maxWait) * 100, 4);

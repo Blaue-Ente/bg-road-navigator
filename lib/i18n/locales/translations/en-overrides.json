@@ -38,7 +38,8 @@
     "onlyTwo": "We show the best route and one real alternative."
   },
   "borders": {
-    "asOf": "as of {time} Sofia time"
+    "asOf": "as of {time} Sofia time",
+    "quietWindow": "Quietest between {from}:00 and {to}:00 - about {minutes} min"
   },
   "localeOffer": {
     "keepBulgarian": "Keep Bulgarian"

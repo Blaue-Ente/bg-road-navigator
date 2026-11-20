@@ -40,7 +40,8 @@
     "onlyTwo": "En iyi güzergâh ve gerçek bir alternatif gösteriyoruz."
   },
   "borders": {
-    "asOf": "Bulgaristan saatiyle {time}"
+    "asOf": "Bulgaristan saatiyle {time}",
+    "quietWindow": "{from}:00 ile {to}:00 arası en sakin - yaklaşık {minutes} dk"
   },
   "localeOffer": {
     "keepBulgarian": "Bulgarca'da kal"

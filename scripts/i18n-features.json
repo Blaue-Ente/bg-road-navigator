@@ -3262,5 +3262,11 @@
   "On the route ✓",
   "Rotada ✓",
   "Pe traseu ✓"
+ ],
+ "borders.quietWindow": [
+  "Най-тихо между {from}:00 и {to}:00 — около {minutes} мин",
+  "Quietest between {from}:00 and {to}:00 - about {minutes} min",
+  "{from}:00 ile {to}:00 arası en sakin - yaklaşık {minutes} dk",
+  "Cel mai liniștit între {from}:00 și {to}:00 - circa {minutes} min"
  ]
 }
