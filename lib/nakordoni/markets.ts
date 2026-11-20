@@ -1,5 +1,9 @@
-/** BG, RO, MK, GR. Serbian (13), Hungarian (4) and Turkish (14) are off unless the env adds them. */
-export const LICENSED_ORIGIN_COUNTRY_IDS = [12, 5, 15, 19] as const;
+/**
+ * Markets approved on the Nakordoni account (Your markets): BG 12, RO 5, RS 13, TR 14.
+ * Greece (19) and North Macedonia (15) are not approved; change the account first,
+ * then set NAKORDONI_LICENSED_MARKETS to match. Never query a market that is off.
+ */
+export const LICENSED_ORIGIN_COUNTRY_IDS = [12, 5, 13, 14] as const;
 
 /**
  * Nakordoni licenses the neighbouring market, not only the Bulgarian origin.

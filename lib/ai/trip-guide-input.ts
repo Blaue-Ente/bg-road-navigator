@@ -18,14 +18,16 @@ function clock(iso: string): string {
   }).format(date);
 }
 
-function stopFacts(stop: PlanStop): string[] {
+export function stopFacts(stop: PlanStop): string[] {
   const facts: string[] = [];
   if (stop.reason) facts.push(stop.reason.slice(0, 160));
   if (stop.brand) facts.push(`brand ${stop.brand}`.slice(0, 160));
-  if (stop.price_label_bg) facts.push(stop.price_label_bg.slice(0, 160));
+  // Nakordoni terms (4.1 n): a price that came from Nakordoni is not sent to the model.
+  const fromNakordoni = /nakordoni/i.test(stop.price_source_label_bg ?? "");
+  if (stop.price_label_bg && !fromNakordoni) facts.push(stop.price_label_bg.slice(0, 160));
   // No price for the station itself: the country average is the price to expect.
-  else if (stop.average_label_bg) facts.push(`no station price; ${stop.average_label_bg}`.slice(0, 160));
-  if (stop.price_delta_label_bg) facts.push(stop.price_delta_label_bg.slice(0, 160));
+  else if (stop.average_label_bg && !fromNakordoni) facts.push(`no station price; ${stop.average_label_bg}`.slice(0, 160));
+  if (stop.price_delta_label_bg && !fromNakordoni) facts.push(stop.price_delta_label_bg.slice(0, 160));
   for (const flag of stop.flags.slice(0, 3)) {
     facts.push(`drivers flagged: ${flag.flag}`);
   }
@@ -175,7 +177,13 @@ export function guideInputFromPlan(
     border: chosen
       ? {
           name: chosen.name_en.slice(0, 120),
-          wait_min: Math.max(0, Math.round(chosen.wait.minutes)),
+          // Nakordoni terms (4.1 n): its data is not sent to a third-party model.
+          // Only our own typical-wait table goes in; a live, forecast or
+          // statistics figure from Nakordoni is left out.
+          wait_min:
+            chosen.wait.source === "local_typical"
+              ? Math.max(0, Math.round(chosen.wait.minutes))
+              : null,
         }
       : null,
     weather: plan.weather.segments.slice(0, 10).map((segment) =>
