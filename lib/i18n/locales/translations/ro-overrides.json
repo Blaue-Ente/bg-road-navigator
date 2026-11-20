@@ -42,7 +42,8 @@
     "onlyTwo": "Arătăm cel mai bun traseu și o alternativă reală."
   },
   "borders": {
-    "asOf": "la ora {time}, ora Bulgariei"
+    "asOf": "la ora {time}, ora Bulgariei",
+    "quietWindow": "Cel mai liniștit între {from}:00 și {to}:00 - circa {minutes} min"
   },
   "localeOffer": {
     "keepBulgarian": "Rămâi la bulgară"

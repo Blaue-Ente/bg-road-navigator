@@ -70,6 +70,9 @@ export const bgFeatures = {
     unavailable: "Споделянето не е включено на този сайт.",
     unsure: "Нямаше сигнал през част от времето, затова проверете числото.",
   },
+  borders: {
+    quietWindow: "Най-тихо между {from}:00 и {to}:00 — около {minutes} мин",
+  },
   checklist: {
     prep: "Подготовка за пътя",
   },
