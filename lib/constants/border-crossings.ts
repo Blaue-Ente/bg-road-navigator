@@ -287,7 +287,7 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
     region: "bulgaria",
     coords: { lng: 22.6269, lat: 44.1541 },
     // Approximate rough profile, not measured; no live feed is wired for this post.
-    nakordoni_ppid: null,
+    nakordoni_ppid: "id_392",
     typical_wait_minutes: Array.from({ length: 24 }, (_, hour) => hour >= 8 && hour <= 20 ? 15 : 8),
     working_hours: "00:00 - 24:00",
     accepted_documents: [],
@@ -306,7 +306,7 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
     region: "bulgaria",
     coords: { lng: 22.3801, lat: 43.849 },
     // Approximate rough profile, not measured; no live feed is wired for this post.
-    nakordoni_ppid: null,
+    nakordoni_ppid: "id_394",
     typical_wait_minutes: Array.from({ length: 24 }, (_, hour) => hour >= 8 && hour <= 20 ? 15 : 8),
     working_hours: "00:00 - 24:00",
     accepted_documents: [],
@@ -325,7 +325,7 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
     region: "bulgaria",
     coords: { lng: 22.4493, lat: 42.798 },
     // Approximate rough profile, not measured; no live feed is wired for this post.
-    nakordoni_ppid: null,
+    nakordoni_ppid: "id_396",
     typical_wait_minutes: Array.from({ length: 24 }, (_, hour) => hour >= 8 && hour <= 20 ? 10 : 5),
     working_hours: "00:00 - 24:00",
     accepted_documents: [],
@@ -344,7 +344,7 @@ export const BORDER_CROSSINGS: BorderCrossing[] = [
     region: "bulgaria",
     coords: { lng: 22.5269, lat: 42.4164 },
     // Approximate rough profile, not measured; no live feed is wired for this post.
-    nakordoni_ppid: null,
+    nakordoni_ppid: "id_398",
     typical_wait_minutes: Array.from({ length: 24 }, (_, hour) => hour >= 8 && hour <= 20 ? 10 : 5),
     working_hours: "00:00 - 24:00",
     accepted_documents: [],

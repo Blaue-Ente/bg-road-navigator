@@ -20,6 +20,10 @@ export const NAKORDONI_BY_CROSSING: Record<string, NakordoniCheckpoint> = {
   promachon: { ppid: "id_485", pagePath: "/en/id/id_485" },
   "malko-tarnovo": { ppid: "id_388", pagePath: "/en/id/id_388" },
   lesovo: { ppid: "id_386", pagePath: "/en/id/id_386" },
+  "bregovo": { ppid: "id_392", pagePath: "/en/id/id_392" },
+  "vrashka-chuka": { ppid: "id_394", pagePath: "/en/id/id_394" },
+  "strezimirovtsi": { ppid: "id_396", pagePath: "/en/id/id_396" },
+  "oltomantsi": { ppid: "id_398", pagePath: "/en/id/id_398" },
 };
 
 export const NAKORDONI_BASE_URL = "https://nakordoni.eu";
