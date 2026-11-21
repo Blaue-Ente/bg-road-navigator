@@ -34,7 +34,7 @@ export const BORDER_V4_PAIRS = [
   { origin: 12, destination: 19, crossingType: 4 },
 ] as const;
 
-export const DIRECTORY_COUNTRIES = [12, 5, 13, 14] as const;
+export const DIRECTORY_COUNTRIES = [12, 5, 15, 19] as const;
 
 export function corridorCheckpoints(): CorridorCheckpoint[] {
   const rows: CorridorCheckpoint[] = [];
