@@ -13,6 +13,16 @@ export function flowTilesKey(): string | null {
   return key ? key : null;
 }
 
+/**
+ * TomTom flow tile URL template. The style "relative0" cannot be combined with
+ * `thickness` (TomTom answers 400 "Invalid combination of the style and
+ * thickness parameter"), so only `tileSize` is sent. 512 px tiles cover four
+ * times the area of 256 px ones: fewer calls.
+ */
+export function flowTileUrl(key: string): string {
+  return `https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${key}&tileSize=512`;
+}
+
 /** First symbol layer of the style, so road names and labels stay above the colours. */
 function firstSymbolLayer(map: Map): string | undefined {
   return map.getStyle().layers?.find((layer) => layer.type === "symbol")?.id;
@@ -35,10 +45,7 @@ export function TrafficFlowLayer({ map }: { map: Map | null }) {
       if (map.getSource(SOURCE_ID)) return;
       map.addSource(SOURCE_ID, {
         type: "raster",
-        // 512 px tiles cover four times the area of 256 px ones: fewer calls.
-        tiles: [
-          `https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=${key}&tileSize=512&thickness=8`,
-        ],
+        tiles: [flowTileUrl(key)],
         tileSize: 512,
         minzoom: 6,
         maxzoom: 18,
