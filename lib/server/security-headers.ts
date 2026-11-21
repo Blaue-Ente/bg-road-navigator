@@ -19,6 +19,8 @@ const CSP = [
     "https://tiles.openfreemap.org",
     "https://*.windy.com",
     "https://nominatim.openstreetmap.org",
+    // Traffic-flow raster tiles (TomTom) are fetched by the map worker.
+    "https://api.tomtom.com",
   ].join(" "),
   "frame-src https://webcams.windy.com https://www.windy.com",
   "upgrade-insecure-requests",
