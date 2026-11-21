@@ -24,6 +24,10 @@ export const CHECKPOINT_MARKETS: Record<
   id_485: { origin: 19, destination: 12, crossingId: "promachon" },
   id_388: { origin: 12, destination: 14, crossingId: "malko-tarnovo" },
   id_386: { origin: 12, destination: 14, crossingId: "lesovo" },
+  id_392: { origin: 12, destination: 13, crossingId: "bregovo" },
+  id_394: { origin: 12, destination: 13, crossingId: "vrashka-chuka" },
+  id_396: { origin: 12, destination: 13, crossingId: "strezimirovtsi" },
+  id_398: { origin: 12, destination: 13, crossingId: "oltomantsi" },
 };
 
 export function licensedMarketIds(

@@ -163,8 +163,8 @@ describe("Nakordoni cache budget", () => {
       .filter((job) => job.quota === "cheap")
       .reduce((sum, job) => sum + job.units, 0);
 
-    expect(heavy).toBe(15);
-    expect(cheap).toBe(10);
+    expect(heavy).toBe(23);
+    expect(cheap).toBe(14);
     expect(heavy).toBeLessThan(NAKORDONI_SOFT_CAP.heavy);
     expect(cheap).toBeLessThan(NAKORDONI_SOFT_CAP.cheap);
   });
