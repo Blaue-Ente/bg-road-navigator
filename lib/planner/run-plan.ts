@@ -19,7 +19,10 @@ import { loadHotspots } from "@/lib/hotspots/load";
 import { hotspotReason, hotspotWarnings } from "@/lib/hotspots/present";
 import { resolveStationPrice } from "@/lib/fuel-prices/resolve";
 import type { KnownPrice } from "@/lib/fuel-prices/types";
-import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
+import {
+  nakordoniRowUsable,
+  readNakordoniCache,
+} from "@/lib/nakordoni/cache-store";
 import { parseDayStats, parseForecast } from "@/lib/nakordoni/parse";
 import { loadCorridorPlaces } from "@/lib/poi/load-corridor";
 import type { CorridorPlace } from "@/lib/poi/types";
@@ -1064,7 +1067,7 @@ async function loadWaits(
   }
   const fresh = new Map(
     rows
-      .filter((row) => row.expiresAt.getTime() > now.getTime())
+      .filter((row) => nakordoniRowUsable(row, now))
       .map((row) => [row.key, row.payload])
   );
   for (const ppid of ppids) {

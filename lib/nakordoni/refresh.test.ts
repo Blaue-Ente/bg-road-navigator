@@ -69,4 +69,26 @@ describe("Nakordoni refresh backoff", () => {
       seen.some((path) => path.includes("day-stats") && path.includes("id_292"))
     ).toBe(true);
   });
+
+  it("clears expired rows first, so nothing is kept past its window", async () => {
+    const order: string[] = [];
+    await refreshNakordoniCache(new Date("2026-11-24T06:00:00.000Z"), {
+      apiKey: "test-key",
+      databaseConfigured: true,
+      purgeExpired: async () => {
+        order.push("purge");
+        return 3;
+      },
+      readCache: async () => {
+        order.push("read");
+        return [];
+      },
+      writeCache: async () => {},
+      readBudget: async () => ({ cheap: 0, heavy: 0 }),
+      addBudget: async () => {},
+      get: async () => ({ ok: true, status: 200, json: { ok: true, data: {} } }),
+    });
+    expect(order[0]).toBe("purge");
+    expect(order).toContain("read");
+  });
 });

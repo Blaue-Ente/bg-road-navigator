@@ -14,7 +14,10 @@ import {
 } from "@/lib/constants/nakordoni-checkpoints";
 import { getDb, isDatabaseConfigured, normalizeDbError } from "@/lib/db";
 import { nakordoniRate } from "@/lib/db/schema";
-import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
+import {
+  nakordoniRowUsable,
+  readNakordoniCache,
+} from "@/lib/nakordoni/cache-store";
 import { eq, sql } from "drizzle-orm";
 
 export const NAKORDONI_DATA_ROOT = "https://nakordoni.eu";
@@ -448,7 +451,11 @@ export async function fetchNakordoniQueues(
       const rows = await readNakordoniCache(keys);
       const freshBefore = now.getTime() - LIVE_CACHE_MAX_AGE_MS;
       fromDb = rows
-        .filter((row) => row.fetchedAt.getTime() >= freshBefore)
+        .filter(
+          (row) =>
+            row.fetchedAt.getTime() >= freshBefore &&
+            nakordoniRowUsable(row, now)
+        )
         .map((row) => {
           const ppid = row.key.slice("live:".length);
           return liveRowToQueue(ppid, row.payload, row.fetchedAt);
@@ -491,7 +498,11 @@ export async function fetchNakordoniQueue(
     try {
       const rows = await readNakordoniCache([`live:${ppid}`]);
       const row = rows[0];
-      if (row && row.fetchedAt.getTime() >= now.getTime() - LIVE_CACHE_MAX_AGE_MS) {
+      if (
+        row &&
+        row.fetchedAt.getTime() >= now.getTime() - LIVE_CACHE_MAX_AGE_MS &&
+        nakordoniRowUsable(row, now)
+      ) {
         return liveRowToQueue(ppid, row.payload, row.fetchedAt);
       }
     } catch {
