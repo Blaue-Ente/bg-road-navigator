@@ -27,7 +27,10 @@ import {
 import { loadHatarinfo } from "@/lib/borders/hatarinfo";
 import type { HatarinfoPanel } from "@/lib/borders/hatarinfo-parse";
 import { isDatabaseConfigured } from "@/lib/db";
-import { readNakordoniCache } from "@/lib/nakordoni/cache-store";
+import {
+  nakordoniRowUsable,
+  readNakordoniCache,
+} from "@/lib/nakordoni/cache-store";
 import { withTimeout } from "@/lib/server/with-timeout";
 import { isCrossingLicensed } from "@/lib/nakordoni/markets";
 import { parseDayStats, parseForecast } from "@/lib/nakordoni/parse";
@@ -103,7 +106,7 @@ async function loadWaitsFromCache(
   }
   const fresh = new Map(
     rows
-      .filter((row) => row.expiresAt.getTime() > now.getTime())
+      .filter((row) => nakordoniRowUsable(row, now))
       .map((row) => [row.key, row.payload])
   );
   for (const ppid of ppids) {

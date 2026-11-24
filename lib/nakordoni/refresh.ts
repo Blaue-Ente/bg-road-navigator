@@ -5,6 +5,8 @@ import {
 } from "@/lib/db";
 import {
   addNakordoniBudget,
+  capExpiryToUpdate,
+  purgeExpiredNakordoniCache,
   readNakordoniBudget,
   readNakordoniCache,
   writeNakordoniCache,
@@ -76,6 +78,7 @@ export interface NakordoniRefreshDeps {
     expiresAt: Date;
     observedAt: Date | null;
   }) => Promise<void>;
+  purgeExpired?: (now: Date) => Promise<number>;
   readBudget?: (day: string) => Promise<{ cheap: number; heavy: number }>;
   addBudget?: (day: string, cheap: number, heavy: number) => Promise<void>;
 }
@@ -97,9 +100,12 @@ export async function refreshNakordoniCache(
   const readBudget = deps.readBudget ?? readNakordoniBudget;
   const addBudget = deps.addBudget ?? addNakordoniBudget;
   const get = deps.get ?? ((path: string) => nakordoniGet(path));
+  const purgeExpired = deps.purgeExpired ?? purgeExpiredNakordoniCache;
 
   try {
     const day = now.toISOString().slice(0, 10);
+    // Nothing is kept past its window (terms 4.1(d), 6.1).
+    await purgeExpired(now);
     const ppids = await licensedPpids(readCache);
     const shopping = buildCorridorRefreshJobs({
       ppids,
@@ -216,35 +222,48 @@ async function fetchOne(
   const ttl =
     CACHE_TTL_MS[call.kind as keyof typeof CACHE_TTL_MS] ?? CACHE_TTL_MS.queue;
   const expiresAt = new Date(now.getTime() + ttl);
+  // The raw answer goes no later than 24 h after the oldest updated_at in it.
+  const batchRows =
+    call.kind === "queue"
+      ? parseMultiQueues(result.json)
+      : call.kind === "border"
+        ? parseBorderQueues(result.json)
+        : [];
+  const oldest = batchRows
+    .map((row) => (row.observedAt ? new Date(row.observedAt) : null))
+    .filter((d): d is Date => d != null && !Number.isNaN(d.getTime()))
+    .sort((a, b) => a.getTime() - b.getTime())[0];
   await writeCache({
     key: call.key,
     kind: call.kind,
     payload: result.json,
     fetchedAt: now,
-    expiresAt,
-    observedAt: null,
+    expiresAt: capExpiryToUpdate(expiresAt, oldest ?? null),
+    observedAt: oldest ?? null,
   });
   if (call.kind === "queue") {
     for (const row of parseMultiQueues(result.json)) {
+      const observedAt = row.observedAt ? new Date(row.observedAt) : null;
       await writeCache({
         key: `live:${row.ppid}`,
         kind: "live",
         payload: row,
         fetchedAt: now,
-        expiresAt,
-        observedAt: row.observedAt ? new Date(row.observedAt) : null,
+        expiresAt: capExpiryToUpdate(expiresAt, observedAt),
+        observedAt,
       });
     }
   }
   if (call.kind === "border") {
     for (const row of parseBorderQueues(result.json)) {
+      const observedAt = row.observedAt ? new Date(row.observedAt) : null;
       await writeCache({
         key: `border-live:${row.ppid}`,
         kind: "border-live",
         payload: row,
         fetchedAt: now,
-        expiresAt,
-        observedAt: row.observedAt ? new Date(row.observedAt) : null,
+        expiresAt: capExpiryToUpdate(expiresAt, observedAt),
+        observedAt,
       });
     }
   }

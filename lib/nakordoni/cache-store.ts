@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import { getDb, isDatabaseConfigured, normalizeDbError } from "@/lib/db";
 import {
   nakordoniBudget,
@@ -12,6 +12,34 @@ export interface CacheRow {
   fetchedAt: Date;
   expiresAt: Date;
   observedAt: Date | null;
+}
+
+/** Terms 6.1: live data may be cached up to 24 hours from its updated_at time. */
+export const NAKORDONI_MAX_AGE_FROM_UPDATE_MS = 24 * 60 * 60 * 1000;
+
+/** The row's own expiry, never later than 24 hours after the provider's updated_at. */
+export function capExpiryToUpdate(
+  expiresAt: Date,
+  observedAt: Date | null
+): Date {
+  if (!observedAt || Number.isNaN(observedAt.getTime())) return expiresAt;
+  const limit = observedAt.getTime() + NAKORDONI_MAX_AGE_FROM_UPDATE_MS;
+  return limit < expiresAt.getTime() ? new Date(limit) : expiresAt;
+}
+
+/** A cached row may be shown only before its expiry and within 24 h of updated_at. */
+export function nakordoniRowUsable(
+  row: { expiresAt: Date; observedAt: Date | null },
+  now: Date
+): boolean {
+  if (row.expiresAt.getTime() <= now.getTime()) return false;
+  if (row.observedAt && !Number.isNaN(row.observedAt.getTime())) {
+    return (
+      row.observedAt.getTime() + NAKORDONI_MAX_AGE_FROM_UPDATE_MS >
+      now.getTime()
+    );
+  }
+  return true;
 }
 
 function asDate(value: Date | string): Date {
@@ -175,5 +203,20 @@ export async function writeOsmCache(input: {
       });
   } catch {
     // The in-memory copy still serves this process.
+  }
+}
+
+/** Terms 4.1(d) and 6.1: nothing stays in the table once its window is over. */
+export async function purgeExpiredNakordoniCache(now: Date): Promise<number> {
+  if (!isDatabaseConfigured()) return 0;
+  try {
+    const db = getDb();
+    const rows = await db
+      .delete(nakordoniCache)
+      .where(lt(nakordoniCache.expiresAt, now))
+      .returning({ key: nakordoniCache.cacheKey });
+    return rows.length;
+  } catch (error) {
+    throw normalizeDbError(error);
   }
 }
